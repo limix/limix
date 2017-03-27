@@ -91,7 +91,7 @@ class SocialData():
                 self.subset_IDs = None
 
         else:
-            print()"Nothing done: task unknown!")
+            print("Nothing done: task unknown!")
 
 
     def get_data(self,col):
@@ -120,7 +120,7 @@ class SocialData():
             self.covs = None
 
         else:
-            print "Nothing done: task unknown!"
+            print("Nothing done: task unknown!")
 
 
         return {'trait' : self.trait,
