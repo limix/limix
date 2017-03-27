@@ -1,5 +1,4 @@
 import sys
-from limix.core.old.cobj import *
 from limix.utils.preprocess import regressOut
 import numpy as np
 

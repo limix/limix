@@ -1,6 +1,4 @@
 import sys
-sys.path.insert(0,'./../../..')
-from limix.core.old.cobj import *
 from limix.utils.preprocess import regressOut
 from limix.core.mean.mean import compute_X1KX2
 from limix.core.mean.linear import compute_XYA
