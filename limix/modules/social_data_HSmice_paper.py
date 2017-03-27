@@ -5,21 +5,21 @@ import re
 import pdb
 
 class SocialData():
-    
+
     def __init__(self, task = None, kinship_type = "", subset = None):
         assert task is not None, 'Specify task!'
         self.task=task
         self.kinship_type=kinship_type
         self.subset = subset
         self.load()
-    
-    
+
+
     def load(self):
-        
+
         if self.task == 'HSmice_data_REVISIONS':
             in_file = '/nfs/leia/research/stegle/abaud/HSmice/data/HSmice_wPleth_REVISIONS.hdf5'
             f = h5py.File(in_file,'r')
-            
+
             self.measures = f['data_bcNcovariates']['cols_measures']['measures'][:]
             self.all_pheno = f['data_bcNcovariates']['array'][:].T
             self.pheno_ID = f['data_bcNcovariates']['rows_subjects']['outbred'][:]
@@ -45,7 +45,7 @@ class SocialData():
         elif self.task == 'HSmice_hip_REVISIONS':
             in_file = '/nfs/leia/research/stegle/abaud/HSmice/data/HSmice_wPleth_REVISIONS.hdf5'
             f = h5py.File(in_file,'r')
-            
+
             self.measures = f['hip_expr']['cols_probes']['probes'][:]
             self.all_pheno = f['hip_expr']['array'][:].T
             self.pheno_ID = f['hip_expr']['rows_subjects'][:]
@@ -71,7 +71,7 @@ class SocialData():
             elif self.task == 'HSmice_simulations_all':
                 in_file = '/nfs/research/stegle/projects/IGE_outbreds/HSmice/simulations/negcorr_revisions_HSmice_simulations_around_best.hdf5'
             f = h5py.File(in_file,'r')
-    
+
             self.measures = f['simulations']['cols_measures']['measures'][:]
             self.all_pheno = f['simulations']['array'][:].T
             self.pheno_ID = f['simulations']['rows_subjects']['outbred'][:]
@@ -91,11 +91,11 @@ class SocialData():
                 self.subset_IDs = None
 
         else:
-            print "Nothing done: task unknown!"
+            print()"Nothing done: task unknown!")
 
 
     def get_data(self,col):
-        
+
         if self.task == 'HSmice_data_REVISIONS':
             self.trait=self.measures[col]
             self.pheno = self.all_pheno[:,col]
@@ -134,9 +134,3 @@ class SocialData():
                 'cage_full' : self.cage_full,
                 'cage_full_ID' : self.cage_full_ID,
                 'subset_IDs' : self.subset_IDs}
-
-
-
-
-
-
