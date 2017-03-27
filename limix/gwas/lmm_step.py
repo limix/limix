@@ -53,7 +53,7 @@ class LMMstep():
         F1KiF1 = sp.zeros((k+step, k+step))
         F1KiF1[:k,:k] = self.FKiF
         F1Kiy = sp.zeros((k+step,1))
-        F1Kiy[:k,0] = self.FKiy[:,0] 
+        F1Kiy[:k,0] = self.FKiy[:,0]
         s2 = sp.zeros(n_tests)
         self.beta_g = sp.zeros((step,n_tests))
         for i in range(n_tests):
@@ -69,7 +69,7 @@ class LMMstep():
 
         t1 = time.time()
         if verbose:
-            print 'Tested for %d variants in %.2f s' % (G.shape[1],t1-t0)
+            print('Tested for %d variants in %.2f s' % (G.shape[1],t1-t0))
 
     def getPv(self):
         return self.pv
@@ -99,20 +99,19 @@ if __name__=="__main__":
     gp.covar.Cr.setCovariance(0.5*sp.ones((1,1)))
     gp.covar.Cn.setCovariance(0.5*sp.ones((1,1)))
     gp.optimize()
-    print 'sg = %.2f' % gp.covar.Cr.K()[0,0]
-    print 'sn = %.2f' % gp.covar.Cn.K()[0,0]
+    print('sg = %.2f' % gp.covar.Cr.K()[0,0])
+    print('sn = %.2f' % gp.covar.Cn.K()[0,0])
 
     pdb.set_trace()
 
-    print 'New LMM'
+    print('New LMM')
     t0 = time.time()
     lmm = LMMstep(y,F,gp.covar)
     lmm.process(G)
     t1 = time.time()
-    print 'Elapsed:', t1-t0
+    print('Elapsed:', t1-t0)
     pv = lmm.getPv()
     beta = lmm.getBetaSNP()
     lrt = lmm.getLRT()
 
     pdb.set_trace()
-
