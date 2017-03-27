@@ -4,7 +4,7 @@ import scipy as sp
 import numpy as np
 import numpy.linalg as nla
 import scipy.linalg as la
-# from limix.mtSet.iset_full import ISet_Full
+from limix.mtSet.iset_full import ISet_Full
 from limix.mtSet.iset_strat import ISet_Strat
 import pandas as pd
 from limix.mtSet.core.iset_utils import calc_emp_pv_eff
