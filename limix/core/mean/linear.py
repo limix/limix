@@ -1,6 +1,4 @@
 import sys
-sys.path.insert(0,'./../../..')
-from limix.core.old.cobj import *
 from limix.utils.preprocess import regressOut
 #import scipy as SP
 import numpy as np
