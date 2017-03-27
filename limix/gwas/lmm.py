@@ -32,7 +32,7 @@ class LMM():
         # calc beta_F0 and s20
         self.A0i = la.inv(self.FKiF)
         self.beta_F0 = sp.dot(self.A0i,self.FKiy)
-        self.s20 = (self.yKiy-sp.dot(self.FKiy[:,0],self.beta_F0[:,0]))/self.df 
+        self.s20 = (self.yKiy-sp.dot(self.FKiy[:,0],self.beta_F0[:,0]))/self.df
 
     def process(self, G, verbose=False):
         """ LMM scan """
@@ -44,28 +44,28 @@ class LMM():
         GKiG = sp.einsum('ij,ij->j', G, KiG)
         FKiG = sp.dot(self.F.T, KiG)
 
-        # Let us denote the inverse of Areml as 
+        # Let us denote the inverse of Areml as
         # Ainv = [[A0i + m mt / n, m], [mT, n]]
-        A0iFKiG = sp.dot(self.A0i, FKiG) 
+        A0iFKiG = sp.dot(self.A0i, FKiG)
         n = 1./(GKiG-sp.einsum('ij,ij->j', FKiG, A0iFKiG))
         M = -n*A0iFKiG
         self.beta_F = self.beta_F0+M*sp.dot(M.T,self.FKiy[:,0])/n
-        self.beta_F+= M*GKiy 
+        self.beta_F+= M*GKiy
         self.beta_g = sp.einsum('is,i->s',M,self.FKiy[:,0])
-        self.beta_g+= n*GKiy 
+        self.beta_g+= n*GKiy
 
         # sigma
         s2 = self.yKiy-sp.einsum('i,is->s',self.FKiy[:,0],self.beta_F)
         s2-= GKiy*self.beta_g
         s2/= self.df
-        
+
         #dlml and pvs
         self.lrt = -self.df*sp.log(s2/self.s20)
         self.pv = st.chi2(1).sf(self.lrt)
 
         t1 = time.time()
         if verbose:
-            print 'Tested for %d variants in %.2f s' % (G.shape[1],t1-t0)
+            print('Tested for %d variants in %.2f s' % (G.shape[1],t1-t0))
 
     def process_in_batch(self, geno, block_size=5000, type='bed', verbose=False):
         t0 = time.time()
@@ -74,10 +74,10 @@ class LMM():
         idxs = sp.append(idxs, geno.shape[0])
         beta_F = sp.zeros((self.F.shape[1], geno.shape[0]))
         beta_g = sp.zeros(geno.shape[0])
-        lrt = sp.zeros(geno.shape[0]) 
-        pv = sp.zeros(geno.shape[0]) 
+        lrt = sp.zeros(geno.shape[0])
+        pv = sp.zeros(geno.shape[0])
         for block_i in range(n_blocks):
-            print 'Block %d/%d' % (block_i, n_blocks)
+            print('Block %d/%d' % (block_i, n_blocks))
             idx0 = idxs[block_i]
             idx1 = idxs[block_i+1]
             _G = read_geno(geno,idx0,idx1,type)
@@ -92,8 +92,8 @@ class LMM():
         self.pv = pv
         t1 = time.time()
         if verbose:
-            print 'Tested for %d variants in %.2f s' % (pv.shape[0],t1-t0)
-            
+            print('Tested for %d variants in %.2f s' % (pv.shape[0],t1-t0))
+
     def getPv(self):
         return self.pv
 
@@ -122,16 +122,15 @@ if __name__=="__main__":
     gp.covar.Cr.setCovariance(0.5*sp.ones((1,1)))
     gp.covar.Cn.setCovariance(0.5*sp.ones((1,1)))
     gp.optimize()
-    print 'sg = %.2f' % gp.covar.Cr.K()[0,0]
-    print 'sn = %.2f' % gp.covar.Cn.K()[0,0]
+    print('sg = %.2f' % gp.covar.Cr.K()[0,0])
+    print('sn = %.2f' % gp.covar.Cn.K()[0,0])
 
-    print 'New LMM'
+    print('New LMM')
     t0 = time.time()
     lmm = LMM(y,F,gp.covar)
     lmm.process(G)
     t1 = time.time()
-    print 'Elapsed:', t1-t0
+    print('Elapsed:', t1-t0)
     pv = lmm.getPv()
     beta = lmm.getBetaSNP()
     lrt = lmm.getLRT()
-
