@@ -172,7 +172,7 @@ def setup_package(reswig, compatible):
 
     metadata = dict(
         name="limix",
-        version="0.8.5",
+        version="2.0.0",
         description="A flexible and fast mixed model toolbox.",
         long_description=long_description,
         keywords='linear mixed models, GWAS, QTL, ' +
