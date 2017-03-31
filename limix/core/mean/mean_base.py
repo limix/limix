@@ -141,12 +141,12 @@ class MeanBase(Cached, Observed):
     #########################################
     @cached
     def predict(self):
-        r = _predict_fun(self.Wstar)
+        r = self._predict_fun(self.Wstar)
         return r
 
     @cached
     def predict_in_sample(self):
-        r = _predict_fun(self.W)
+        r = self._predict_fun(self.W)
         return r
 
     def _predict_fun(self,M):
