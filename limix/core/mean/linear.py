@@ -1,6 +1,6 @@
 import sys
 from limix.utils.preprocess import regressOut
-#import scipy as SP
+from limix.core.utils.cobj import cObject, cached
 import numpy as np
 from limix.core.utils import assert_make_float_array
 from limix.core.utils import assert_finite_array

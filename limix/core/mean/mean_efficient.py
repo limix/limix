@@ -1,5 +1,6 @@
 import sys
 from limix.utils.preprocess import regressOut
+from limix.core.utils.cobj import cObject
 from limix.core.mean.mean import compute_X1KX2
 from limix.core.mean.linear import compute_XYA
 import  limix.utils.psd_solve as psd_solve
