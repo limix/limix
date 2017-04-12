@@ -4,7 +4,7 @@ I/O module
 **********
 
 - :func:`.read_plink`
-- :func:`.h5data_fetcher`
+- :class:`.h5data_fetcher`
 - :func:`.read_csv`
 - :func:`.read_gen`
 
