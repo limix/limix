@@ -14,7 +14,8 @@ def read_plink(file_prefix, verbose=True):
             - :class:`pandas.DataFrame`: samples.
             - :class:`numpy.ndarray`: genotype.
 
-    Examples:
+    Examples
+    --------
 
         .. doctest::
 
