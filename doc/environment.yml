@@ -195,6 +195,7 @@ dependencies:
 - pip:
   - ncephes==1.0.22
   - numpy-sugar==1.0.35
+  - optimix==1.2.6
   - pandas-plink==1.1.6
   - limix-legacy==0.8.10
   - liknorm-py==1.0.4
