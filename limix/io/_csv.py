@@ -7,7 +7,7 @@ def read_csv(filename):
         filename (str): path to a CSV file.
 
     Returns:
-        pandas.DataFrame: return a dataframe representation.
+        dask.DataFrame: a dataframe representation.
 
     Example
     -------
@@ -18,7 +18,11 @@ def read_csv(filename):
             >>> from limix.io.examples import csv_file_example
             >>>
             >>> df = read_csv(csv_file_example())
-            >>> print(df)
+            >>> print(df.compute())
+               pheno   attr1 attr2 attr3
+            0    sex  string    10     a
+            1   size   float    -3     b
+            2  force     int     f     c
 
     """
     df = _read_csv(filename)
