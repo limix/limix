@@ -1,5 +1,0 @@
-#!/bin/bash
-
-cp -r /limix /limix-conda-deploy
-cd /limix-conda-deploy
-deploy/conda

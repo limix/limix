@@ -1,7 +1,0 @@
-#!/bin/bash
-
-cmd1="python setup.py sdist"
-cmd2="twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*"
-
-for i in {1..5}; do eval $cmd1 && break || sleep 15; done
-for i in {1..5}; do eval $cmd2 && break || sleep 15; done

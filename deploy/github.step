@@ -1,6 +1,0 @@
-#!/bin/bash
-
-WHAT=$1
-cp -r /limix /limix-github-deploy
-cd /limix-github-deploy
-deploy/github $WHAT

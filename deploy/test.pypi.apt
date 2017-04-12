@@ -1,6 +1,0 @@
-#!/bin/bash
-
-sudo apt-get update -y -q
-sudo apt-get install wget -y -q
-bash <(wget -O - https://raw.githubusercontent.com/PMBio/limix/master/deploy/apt_limix_install)
-python -c "import limix; print(limix.__version__)"

@@ -1,7 +1,0 @@
-#!/bin/bash
-
-SCRIPT_PATH=$( cd $(dirname $0) ; pwd -P )
-SETUP_PATH=$SCRIPT_PATH/../setup.py
-REGEX="s/^VERSION[[:space:]]*=[[:space:]]*['\"]?([0-9\.]*)['\"]?[[:space:]]*|.*/\1/"
-VERSION=`cat $SETUP_PATH | sed -E $REGEX`
-echo -n $VERSION
