@@ -28,7 +28,6 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 pygments_style = 'sphinx'
 todo_include_todos = False
 html_theme = 'default'
-html_static_path = ['_static']
 htmlhelp_basename = 'limixdoc'
 latex_elements = {}
 latex_documents = [
