@@ -5,4 +5,5 @@ include limix/io/test/data/csv/pheno.csv
 include limix/io/test/data/gen/example.gen
 include limix/io/test/data/gen/example.sample
 include limix/io/test/data/hdf5/data.h5
+include limix/io/examples/data/hdf5/data.h5
 recursive-include limix *.py
