@@ -18,6 +18,10 @@ class h5data_fetcher(object):
 
             >>> from limix.io import h5data_fetcher
             >>> from limix.io.examples import hdf5_file_example
+            >>> with h5data_fetcher(hdf5_file_example()) as df:
+            ...     X = df.fetch('/group/dataset')
+            ...     print('%.4f' % X[0, 0].compute())
+            -0.0453
     """
     def __init__(self, filename):
         self._filename = filename
