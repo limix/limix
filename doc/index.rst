@@ -4,8 +4,8 @@ Limix's documentation
 
 .. toctree::
    :caption: Table of contents
+   :name: mastertoc
    :maxdepth: 2
-   :caption: Contents:
 
    install
    io

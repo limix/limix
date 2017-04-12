@@ -7,6 +7,9 @@ I/O module
 - :func:`.h5data_fetcher`
 - :func:`.read_csv`
 - :func:`.read_gen`
+
+Public interface
+^^^^^^^^^^^^^^^^
 """
 
 from ._csv import read_csv
