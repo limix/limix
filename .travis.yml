@@ -1,0 +1,21 @@
+language: python
+sudo: required
+dist: trusty
+git:
+  depth: 5
+matrix:
+  include:
+  - python: 2.7
+  - python: 3.5
+  - python: 3.6
+before_install:
+- travis_retry travis/install_pandoc.sh
+- travis_retry travis/install_liknorm.sh
+script:
+- python setup.py sdist
+- pip install dist/`ls dist | grep -i -E '\.(gz)$' | head -1`[numba] -vvv;
+- pushd /
+- python -c "import sys; import limix; sys.exit(limix.test())"
+- popd
+notifications:
+  email: false
