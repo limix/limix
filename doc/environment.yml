@@ -27,6 +27,7 @@ dependencies:
 - cloudpickle=0.2.2=py35_0
 - clyent=1.2.2=py35_0
 - colorama=0.3.7=py35_0
+- conda-forge::liknorm=1.2.3=1
 - configobj=5.0.6=py35_0
 - contextlib2=0.5.4=py35_0
 - cryptography=1.7.1=py35_0
@@ -196,3 +197,4 @@ dependencies:
   - numpy-sugar==1.0.35
   - pandas-plink==1.1.6
   - limix-legacy==0.8.10
+  - liknorm-py==1.0.4
