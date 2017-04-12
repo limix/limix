@@ -17,6 +17,7 @@ try:
 except _DistributionNotFound:
     __version__ = 'unknown'
 
+from . import io
 
 def test():
     import os
@@ -36,4 +37,4 @@ def test():
     return return_code
 
 
-__all__ = ['test']
+__all__ = ['test', 'io']
