@@ -1,0 +1,4 @@
+pheno,attr1,attr2,attr3
+sex,string,10,a
+size,float,-3,b
+force,int,f,c
