@@ -8,7 +8,6 @@ dependencies:
 - anaconda-client=1.6.0=py35_0
 - anaconda-navigator=1.5.0=py35_0
 - anaconda-project=0.4.1=py35_0
-- appnope=0.1.0=py35_0
 - appscript=1.0.1=py35_0
 - argcomplete=1.0.0=py35_1
 - astroid=1.4.9=py35_0
