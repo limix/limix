@@ -16,7 +16,7 @@ class h5data_fetcher(object):
 
         .. doctest::
 
-            >>> from limix.io import read_plink
+            >>> from limix.io import h5data_fetcher
             >>> from limix.io.examples import hdf5_file_example
             >>>
             >>> with h5data_fetcher(hdf5_file_example()) as df:
