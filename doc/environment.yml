@@ -191,3 +191,8 @@ dependencies:
 - yaml=0.1.6=0
 - zeromq=4.1.5=0
 - zlib=1.2.8=3
+- pip:
+  - ncephes==1.0.22
+  - numpy-sugar==1.0.35
+  - pandas-plink==1.1.6
+  - limix-legacy==0.8.10
