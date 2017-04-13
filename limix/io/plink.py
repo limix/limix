@@ -1,10 +1,10 @@
 import pandas_plink as pp
 
-def read_plink(file_prefix, verbose=True):
+def read_plink(prefix, verbose=True):
     r"""Read PLINK files into Pandas data frames.
 
     Args:
-        file_prefix (str): Path prefix to the set of PLINK files.
+        prefix (str): Path prefix to the set of PLINK files.
         verbose (bool): `True` for progress information; `False` otherwise.
 
     Returns:
@@ -70,4 +70,4 @@ def read_plink(file_prefix, verbose=True):
              [1 2 2]
              [2 1 2]]
     """
-    return pp.read_plink(file_prefix, verbose=verbose)
+    return pp.read_plink(prefix, verbose=verbose)

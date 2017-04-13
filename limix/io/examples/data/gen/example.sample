@@ -1,0 +1,7 @@
+sample_id subject_id missing gender age age_of_onset phenotype_1
+0 0 0 1 1 1 P
+1A0 W001 0 2 4 -9 0
+1A1 W002 0 2 4 -9 0
+1A2 W003 0 2 4 -9 1
+1A3 W004 0.09 2 4 -9 1
+1A4 W005 0 2 4 -9 1

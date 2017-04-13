@@ -7,4 +7,6 @@ include limix/io/test/data/gen/example.sample
 include limix/io/test/data/hdf5/data.h5
 include limix/io/examples/data/hdf5/data.h5
 include limix/io/examples/data/csv/data.csv
+include limix/io/examples/data/gen/example.gen
+include limix/io/examples/data/gen/example.sample
 recursive-include limix *.py
