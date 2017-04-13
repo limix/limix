@@ -22,7 +22,7 @@ def setup_package():
     pytest_runner = ['pytest-runner>=2.9'] if needs_pytest else []
 
     setup_requires = pytest_runner
-    install_requires = ['limix-legacy', 'limix-inference']
+    install_requires = ['limix-legacy', 'limix-inference', 'scikit-learn']
     tests_require = ['pytest']
 
     metadata = dict(
