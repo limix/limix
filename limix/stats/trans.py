@@ -10,6 +10,24 @@ def boxcox(X):
 
     Returns:
         array_like: Box-Cox power transformed array.
+
+    Example
+    -------
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from limix.stats import boxcox
+            >>>
+            >>> random = RandomState(0)
+            >>> X = random.randn(5, 2)
+            >>>
+            >>> print(boxcox(X))
+            [[ 2.71356378  0.95441669]
+             [ 1.38440507  1.69459001]
+             [ 2.90661679  0.        ]
+             [ 1.34068423  0.64396462]
+             [ 0.          0.9597255 ]]
     """
     from limix_legacy.utils.preprocess import boxcox as _boxcox
 
