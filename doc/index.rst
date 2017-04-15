@@ -9,6 +9,7 @@ Limix's documentation
 
    install
    io
+   stats
 
 *****************
 Comments and bugs
