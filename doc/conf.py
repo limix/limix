@@ -42,4 +42,5 @@ texinfo_documents = [
     (master_doc, 'limix', 'limix Documentation', author, 'limix',
      'A flexible and fast mixed model toolbox.', 'Miscellaneous'),
 ]
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {'https://docs.python.org/': None,
+                       'http://matplotlib.org': None}
