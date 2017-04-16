@@ -9,6 +9,7 @@ except ImportError:
 extensions = [
     'matplotlib.sphinxext.only_directives',
     'matplotlib.sphinxext.plot_directive',
+    'bokeh.sphinxext.bokeh_plot',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',

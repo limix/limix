@@ -11,6 +11,7 @@ Limix's documentation
    io
    stats
    plot
+   qtl
 
 *****************
 Comments and bugs
