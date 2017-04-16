@@ -1,5 +1,5 @@
 def boxcox(X):
-    """Gaussianize X using the Box-Cox transformation.
+    r"""Gaussianize X using the Box-Cox transformation.
 
     Each phentoype is brought to a positive schale by first subtracting the
     minimum value and adding 1.

@@ -17,7 +17,7 @@ try:
 except _DistributionNotFound:
     __version__ = 'unknown'
 
-from . import io, stats, plot
+from . import io, stats, plot, qtl
 
 def test():
     import os
