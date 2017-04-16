@@ -53,6 +53,18 @@ def plot_normal(x, bins=20, nstd=2, figure=None):
 
     Returns:
         :class:`matplotlib.figure.Figure`: figure to be shown.
+
+    Example
+    -------
+
+        .. plot::
+
+            from numpy.random import RandomState
+            from limix.plot import plot_normal
+            random = RandomState(10)
+            x = random.randn(100)
+            f = plot_normal(x, nstd=2)
+            plt.show(f)
     """
     if figure is None:
         figure = plt.figure()

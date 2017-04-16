@@ -10,6 +10,7 @@ Limix's documentation
    install
    io
    stats
+   plot
 
 *****************
 Comments and bugs

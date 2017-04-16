@@ -6,8 +6,10 @@ try:
 except ImportError:
     version = 'unknown'
 
-
-extensions = ['sphinx.ext.autodoc',
+extensions = [
+    'matplotlib.sphinxext.only_directives',
+    'matplotlib.sphinxext.plot_directive',
+    'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
@@ -32,15 +34,12 @@ htmlhelp_basename = 'limixdoc'
 latex_elements = {}
 latex_documents = [
     (master_doc, 'limix.tex', 'limix Documentation',
-     'Christoph Lippert, Danilo Horta, Francesco Paolo Casale, Oliver Stegle', 'manual'),
+     'Christoph Lippert, Danilo Horta, Francesco Paolo Casale, Oliver Stegle',
+     'manual'),
 ]
-man_pages = [
-    (master_doc, 'limix', 'limix Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, 'limix', 'limix Documentation', [author], 1)]
 texinfo_documents = [
-    (master_doc, 'limix', 'limix Documentation',
-     author, 'limix', 'A flexible and fast mixed model toolbox.',
-     'Miscellaneous'),
+    (master_doc, 'limix', 'limix Documentation', author, 'limix',
+     'A flexible and fast mixed model toolbox.', 'Miscellaneous'),
 ]
 intersphinx_mapping = {'https://docs.python.org/': None}
