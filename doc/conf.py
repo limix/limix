@@ -1,10 +1,14 @@
 from __future__ import unicode_literals
 
+import os
+
 try:
     import limix
     version = limix.__version__
 except ImportError:
     version = 'unknown'
+
+os.environ['BOKEH_DOCS_MISSING_API_KEY_OK'] = "yes"
 
 extensions = [
     'matplotlib.sphinxext.only_directives',
