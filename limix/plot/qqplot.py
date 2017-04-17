@@ -28,6 +28,7 @@ def qqplot(df,
         .. bokeh-plot::
 
             from limix.plot import qqplot
+
             import pandas as pd
             import numpy as np
             random = np.random.RandomState(0)

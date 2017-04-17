@@ -14,6 +14,7 @@ extensions = [
     'matplotlib.sphinxext.only_directives',
     'matplotlib.sphinxext.plot_directive',
     'bokeh.sphinxext.bokeh_plot',
+    'bokeh.sphinxext.bokeh_autodoc',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
