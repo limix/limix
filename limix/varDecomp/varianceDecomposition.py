@@ -221,7 +221,7 @@ class VarianceDecomposition:
             perturbSize:    std of the gassian noise used to perturb the initial point
             verbose:        print if convergence is achieved and how many restarted were needed
         """
-        #verbose = dlimix_legacy.getVerbose(verbose)
+        #verbose = dlimix.getVerbose(verbose)
         assert init_method in ['default', 'random', None], 'VarianceDecomposition: specified init_method not valid'
         if init_method=='default':  self._init_params_default()
 
@@ -485,7 +485,7 @@ class VarianceDecomposition:
             verbose:    Boolean. If set to True, verbose output is produced. (default True)
             n_times:    number of re-starts of the optimization. (default 10)
         """
-        verbose = dlimix_legacy.getVerbose(verbose)
+        verbose = dlimix.getVerbose(verbose)
 
         if not self.init:       self._initGP(fast)
 
@@ -654,7 +654,7 @@ class VarianceDecomposition:
         Returns:
             Matrix of phenotype predictions [N,P]
         """
-        verbose = dlimix_legacy.getVerbose(verbose)
+        verbose = dlimix.getVerbose(verbose)
 
         # split samples into training and test
         sp.random.seed(seed)
@@ -735,7 +735,7 @@ class VarianceDecomposition:
         Args:
             K:        covariance matrix of the non-noise random effect term
         """
-        verbose = dlimix_legacy.getVerbose(verbose)
+        verbose = dlimix.getVerbose(verbose)
         # Fit single trait model
         varg  = sp.zeros(self.P)
         varn  = sp.zeros(self.P)
@@ -750,7 +750,7 @@ class VarianceDecomposition:
                 _K = K[~I,:][:,~I]
             else:
                 _K  = copy.copy(K)
-            lmm = dlimix_legacy.CLMM()
+            lmm = dlimix.CLMM()
             lmm.setK(_K)
             lmm.setSNPs(sp.ones((y.shape[0],1)))
             lmm.setPheno(y)

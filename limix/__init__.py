@@ -13,13 +13,12 @@ import limix_core as core
 from pkg_resources import DistributionNotFound as _DistributionNotFound
 from pkg_resources import get_distribution as _get_distribution
 
-from . import core, io, plot, qtl, stats, util
+from . import io, iSet, mtSet, plot, qtl, stats, util, varDecomp
 
 try:
     __version__ = _get_distribution('limix').version
 except _DistributionNotFound:
     __version__ = 'unknown'
-
 
 
 def test():
@@ -40,4 +39,7 @@ def test():
     return return_code
 
 
-__all__ = ['test', 'io', 'stats', 'plot', 'core']
+__all__ = [
+    'test', 'core', 'io', 'plot', 'qtl', 'stats', 'util', 'varDecomp', 'mtSet',
+    'iSet'
+]

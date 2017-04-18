@@ -17,7 +17,6 @@ qtl.py contains wrappers around C++ Limix objects to streamline common tasks in 
 
 import numpy as np
 import scipy.stats as st
-import limix_legacy
 import scipy as sp
 import limix_core.utils.preprocess as preprocess
 import limix_core.stats.fdr as FDR
@@ -26,195 +25,195 @@ import time
 
 
 class lmm:
-	def __init__(self, snps, pheno, K=None, covs=None, test='lrt', NumIntervalsDelta0=100, NumIntervalsDeltaAlt=100, searchDelta=False, verbose=None):
-		"""
-		Univariate fixed effects linear mixed model test for all SNPs
+    def __init__(self, snps, pheno, K=None, covs=None, test='lrt', NumIntervalsDelta0=100, NumIntervalsDeltaAlt=100, searchDelta=False, verbose=None):
+        """
+        Univariate fixed effects linear mixed model test for all SNPs
 
-		If phenotypes have missing values, then the subset of individuals used for each phenotype column
-		will be subsetted
+        If phenotypes have missing values, then the subset of individuals used for each phenotype column
+        will be subsetted
 
-		Args:
-			snps:   [N x S] np.array of S SNPs for N individuals
-			pheno:  [N x P] np.array of P phenotype sfor N individuals
-			K:      [N x N] np.array of LMM-covariance/kinship koefficients (optional)
-							If not provided, then linear regression analysis is performed
-			covs:   [N x D] np.array of D covariates for N individuals
-			test:   'lrt' for likelihood ratio test (default) or 'f' for F-test
-			NumIntervalsDelta0:     number of steps for delta optimization on the null model (100)
-			NumIntervalsDeltaAlt:   number of steps for delta optimization on the alt. model (100), requires searchDelta=True to have an effect.
-			searchDelta:     Carry out delta optimization on the alternative model? if yes We use NumIntervalsDeltaAlt steps
-			verbose: print verbose output? (False)
-		"""
-		#create column of 1 for fixed if nothing provide
-		import limix_legacy.deprecated
-		import limix_legacy.deprecated as dlimix_legacy
+        Args:
+            snps:   [N x S] np.array of S SNPs for N individuals
+            pheno:  [N x P] np.array of P phenotype sfor N individuals
+            K:      [N x N] np.array of LMM-covariance/kinship koefficients (optional)
+                            If not provided, then linear regression analysis is performed
+            covs:   [N x D] np.array of D covariates for N individuals
+            test:   'lrt' for likelihood ratio test (default) or 'f' for F-test
+            NumIntervalsDelta0:     number of steps for delta optimization on the null model (100)
+            NumIntervalsDeltaAlt:   number of steps for delta optimization on the alt. model (100), requires searchDelta=True to have an effect.
+            searchDelta:     Carry out delta optimization on the alternative model? if yes We use NumIntervalsDeltaAlt steps
+            verbose: print verbose output? (False)
+        """
+        #create column of 1 for fixed if nothing provide
+        import limix.deprecated
+        import limix.deprecated as dlimix
 
-		if len(pheno.shape)==1:
-			pheno = pheno[:,sp.newaxis]
+        if len(pheno.shape)==1:
+            pheno = pheno[:,sp.newaxis]
 
-		self.verbose = dlimix_legacy.getVerbose(verbose)
-		self.snps = snps
-		self.pheno = pheno
-		self.K = K
-		self.covs = covs
-		self.test = test
-		self.NumIntervalsDelta0 = NumIntervalsDelta0
-		self.NumIntervalsDeltaAlt = NumIntervalsDeltaAlt
-		self.searchDelta = searchDelta
-		self.verbose = verbose
-		self.N       = self.pheno.shape[0]
-		self.P       = self.pheno.shape[1]
-		self.Iok     = ~(np.isnan(self.pheno).any(axis=1))
-		if self.K is None:
-			self.searchDelta=False
-			self.K = np.eye(self.snps.shape[0])
-		if self.covs is None:
-			self.covs = np.ones((self.snps.shape[0],1))
+        self.verbose = dlimix.getVerbose(verbose)
+        self.snps = snps
+        self.pheno = pheno
+        self.K = K
+        self.covs = covs
+        self.test = test
+        self.NumIntervalsDelta0 = NumIntervalsDelta0
+        self.NumIntervalsDeltaAlt = NumIntervalsDeltaAlt
+        self.searchDelta = searchDelta
+        self.verbose = verbose
+        self.N       = self.pheno.shape[0]
+        self.P       = self.pheno.shape[1]
+        self.Iok     = ~(np.isnan(self.pheno).any(axis=1))
+        if self.K is None:
+            self.searchDelta=False
+            self.K = np.eye(self.snps.shape[0])
+        if self.covs is None:
+            self.covs = np.ones((self.snps.shape[0],1))
 
-		self._lmm = None
-		#run
-		self.verbose = verbose
-		self.process()
+        self._lmm = None
+        #run
+        self.verbose = verbose
+        self.process()
 
-	def process(self):
-		import limix_legacy.deprecated
-		import limix_legacy.deprecated as dlimix_legacy
+    def process(self):
+        import limix.deprecated
+        import limix.deprecated as dlimix
 
-		t0 = time.time()
-		if self._lmm is None:
-			self._lmm = limix_legacy.deprecated.CLMM()
-			self._lmm.setK(self.K)
-			self._lmm.setSNPs(self.snps)
-			self._lmm.setPheno(self.pheno)
-			self._lmm.setCovs(self.covs)
-			if self.test=='lrt':
-				self._lmm.setTestStatistics(self._lmm.TEST_LRT)
-			elif self.test=='f':
-				self._lmm.setTestStatistics(self._lmm.TEST_F)
-			else:
-				print((self.test))
-				raise NotImplementedError("only f and lrt are implemented")
-			#set number of delta grid optimizations?
-			self._lmm.setNumIntervals0(self.NumIntervalsDelta0)
-			if self.searchDelta:
-				self._lmm.setNumIntervalsAlt(self.NumIntervalsDeltaAlt)
-			else:
-				self._lmm.setNumIntervalsAlt(0)
+        t0 = time.time()
+        if self._lmm is None:
+            self._lmm = limix.deprecated.CLMM()
+            self._lmm.setK(self.K)
+            self._lmm.setSNPs(self.snps)
+            self._lmm.setPheno(self.pheno)
+            self._lmm.setCovs(self.covs)
+            if self.test=='lrt':
+                self._lmm.setTestStatistics(self._lmm.TEST_LRT)
+            elif self.test=='f':
+                self._lmm.setTestStatistics(self._lmm.TEST_F)
+            else:
+                print((self.test))
+                raise NotImplementedError("only f and lrt are implemented")
+            #set number of delta grid optimizations?
+            self._lmm.setNumIntervals0(self.NumIntervalsDelta0)
+            if self.searchDelta:
+                self._lmm.setNumIntervalsAlt(self.NumIntervalsDeltaAlt)
+            else:
+                self._lmm.setNumIntervalsAlt(0)
 
-		if not np.isnan(self.pheno).any():
-			#process
-			self._lmm.process()
-			self.pvalues = self._lmm.getPv()
-			self.beta_snp = self._lmm.getBetaSNP()
-			self.beta_ste = self._lmm.getBetaSNPste()
-			self.ldelta_0 = self._lmm.getLdelta0()
-			self.ldelta_alt = self._lmm.getLdeltaAlt()
-			self.NLL_0 = self._lmm.getNLL0()
-			self.NLL_alt = self._lmm.getNLLAlt()
-		else:
-			if self._lmm is not None:
-				raise Exception('cannot reuse a CLMM object if missing variables are present')
-			else:
-				self._lmm = limix_legacy.deprecated.CLMM()
-			#test all phenotypes separately
-			self.pvalues = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-			self.beta_snp = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-			self.beta_ste = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-			self.ldelta_0 = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-			self.ldelta_alt = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-			self.NLL_0 = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-			self.NLL_alt = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-			self.test_statistics = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-			for ip in np.arange(self.phenos.shape[1]):
-				pheno_ = self.phenos[:,ip]
-				i_nonz = ~(pheno_.isnan())
+        if not np.isnan(self.pheno).any():
+            #process
+            self._lmm.process()
+            self.pvalues = self._lmm.getPv()
+            self.beta_snp = self._lmm.getBetaSNP()
+            self.beta_ste = self._lmm.getBetaSNPste()
+            self.ldelta_0 = self._lmm.getLdelta0()
+            self.ldelta_alt = self._lmm.getLdeltaAlt()
+            self.NLL_0 = self._lmm.getNLL0()
+            self.NLL_alt = self._lmm.getNLLAlt()
+        else:
+            if self._lmm is not None:
+                raise Exception('cannot reuse a CLMM object if missing variables are present')
+            else:
+                self._lmm = limix.deprecated.CLMM()
+            #test all phenotypes separately
+            self.pvalues = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
+            self.beta_snp = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
+            self.beta_ste = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
+            self.ldelta_0 = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
+            self.ldelta_alt = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
+            self.NLL_0 = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
+            self.NLL_alt = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
+            self.test_statistics = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
+            for ip in np.arange(self.phenos.shape[1]):
+                pheno_ = self.phenos[:,ip]
+                i_nonz = ~(pheno_.isnan())
 
-				self._lmm.setK(self.K[i_nonz,i_nonz])
-				self._lmm.setSNPs(self.snps[i_nonz])
-				self._lmm.setPheno(pheno_[i_nonz,np.newaxis])
-				self._lmm.setCovs(self.covs[i_nonz])
-				self._lmm.process()
-				self.pvalues[ip:ip+1] = self._lmm.getPv()
-				self.beta_snp[ip:ip+1] = self._lmm.getBetaSNP()
-				self.beta_ste[ip:ip+1] = self._lmm.getBetaSNPste()
-				self.ldelta_0[ip:ip+1] = self._lmm.getLdelta0()
-				self.ldelta_alt[ip:ip+1] = self._lmm.getLdeltaAlt()
-				self.NLL_0[ip:ip+1] = self._lmm.getNLL0()
-				self.NLL_alt[ip:ip+1] = self._lmm.getNLLAlt()
-				self.test_statistics[ip:ip+1] = self._lmm.getTestStatistics()
-				pass
-		if self._lmm.getTestStatistics() == self._lmm.TEST_LRT and self.test != "lrt":
-			raise NotImplementedError("only f and lrt are implemented")
-		elif self._lmm.getTestStatistics() == self._lmm.TEST_F and self.test != "f":
-			raise NotImplementedError("only f and lrt are implemented")
+                self._lmm.setK(self.K[i_nonz,i_nonz])
+                self._lmm.setSNPs(self.snps[i_nonz])
+                self._lmm.setPheno(pheno_[i_nonz,np.newaxis])
+                self._lmm.setCovs(self.covs[i_nonz])
+                self._lmm.process()
+                self.pvalues[ip:ip+1] = self._lmm.getPv()
+                self.beta_snp[ip:ip+1] = self._lmm.getBetaSNP()
+                self.beta_ste[ip:ip+1] = self._lmm.getBetaSNPste()
+                self.ldelta_0[ip:ip+1] = self._lmm.getLdelta0()
+                self.ldelta_alt[ip:ip+1] = self._lmm.getLdeltaAlt()
+                self.NLL_0[ip:ip+1] = self._lmm.getNLL0()
+                self.NLL_alt[ip:ip+1] = self._lmm.getNLLAlt()
+                self.test_statistics[ip:ip+1] = self._lmm.getTestStatistics()
+                pass
+        if self._lmm.getTestStatistics() == self._lmm.TEST_LRT and self.test != "lrt":
+            raise NotImplementedError("only f and lrt are implemented")
+        elif self._lmm.getTestStatistics() == self._lmm.TEST_F and self.test != "f":
+            raise NotImplementedError("only f and lrt are implemented")
 
-		if self._lmm.getTestStatistics() == self._lmm.TEST_F:
-			self.test_statistics = (self.beta_snp*self.beta_snp)/(self.beta_ste*self.beta_ste)
-		if self._lmm.getTestStatistics() == self._lmm.TEST_LRT:
-			self.test_statistics = 2.0 * (self.NLL_0 - self.NLL_alt)
-		t1=time.time()
+        if self._lmm.getTestStatistics() == self._lmm.TEST_F:
+            self.test_statistics = (self.beta_snp*self.beta_snp)/(self.beta_ste*self.beta_ste)
+        if self._lmm.getTestStatistics() == self._lmm.TEST_LRT:
+            self.test_statistics = 2.0 * (self.NLL_0 - self.NLL_alt)
+        t1=time.time()
 
-		if self.verbose:
-			print(("finished GWAS testing in %.2f seconds" %(t1-t0)))
+        if self.verbose:
+            print(("finished GWAS testing in %.2f seconds" %(t1-t0)))
 
-	def setCovs(self,covs):
-		self._lmm.setCovs(covs)
+    def setCovs(self,covs):
+        self._lmm.setCovs(covs)
 
-	def getBetaSNP(self):
-		return self.beta_snp
+    def getBetaSNP(self):
+        return self.beta_snp
 
-	def getPv(self):
-		"""
-		Returns:
-			[P x S] np.array of P-values
-		"""
-		return self.pvalues
+    def getPv(self):
+        """
+        Returns:
+            [P x S] np.array of P-values
+        """
+        return self.pvalues
 
 def qtl_test_lm(snps,pheno, covs=None, test='lrt',verbose=None):
-	"""
-	Univariate fixed effects linear model test for all SNPs
-	(wrapper around qtl_test_lmm, using identity kinship)
+    """
+    Univariate fixed effects linear model test for all SNPs
+    (wrapper around qtl_test_lmm, using identity kinship)
 
-	If phenotypes have missing values, then the subset of individuals used for each phenotype column
-	will be subsetted
+    If phenotypes have missing values, then the subset of individuals used for each phenotype column
+    will be subsetted
 
-	Args:
-		snps:   [N x S] np.array of S SNPs for N individuals
-		pheno:  [N x 1] np.array of 1 phenotype for N individuals
-		covs:   [N x D] np.array of D covariates for N individuals
-		test:   'lrt' for likelihood ratio test (default) or 'f' for F-test
-		verbose: print verbose output? (False)
+    Args:
+        snps:   [N x S] np.array of S SNPs for N individuals
+        pheno:  [N x 1] np.array of 1 phenotype for N individuals
+        covs:   [N x D] np.array of D covariates for N individuals
+        test:   'lrt' for likelihood ratio test (default) or 'f' for F-test
+        verbose: print verbose output? (False)
 
-	Returns:
-		limix LMM object
-	"""
-	lm = qtl_test_lmm(snps=snps,pheno=pheno,K=None,covs=covs, test=test,verbose=verbose)
-	return lm
+    Returns:
+        limix LMM object
+    """
+    lm = qtl_test_lmm(snps=snps,pheno=pheno,K=None,covs=covs, test=test,verbose=verbose)
+    return lm
 
 def qtl_test_lmm(snps,pheno,K=None,covs=None, test='lrt',NumIntervalsDelta0=100,NumIntervalsDeltaAlt=100,searchDelta=False,verbose=None):
-	"""
-	Univariate fixed effects linear mixed model test for all SNPs
+    """
+    Univariate fixed effects linear mixed model test for all SNPs
 
-	If phenotypes have missing values, then the subset of individuals used for each phenotype column
-	will be subsetted
+    If phenotypes have missing values, then the subset of individuals used for each phenotype column
+    will be subsetted
 
-	Args:
-		snps:   [N x S] np.array of S SNPs for N individuals
-		pheno:  [N x 1] np.array of 1 phenotype for N individuals
-		K:      [N x N] np.array of LMM-covariance/kinship koefficients (optional)
-						If not provided, then linear regression analysis is performed
-		covs:   [N x D] np.array of D covariates for N individuals
-		test:   'lrt' for likelihood ratio test (default) or 'f' for F-test
-		NumIntervalsDelta0:     number of steps for delta optimization on the null model (100)
-		NumIntervalsDeltaAlt:   number of steps for delta optimization on the alt. model (100), requires searchDelta=True to have an effect.
-		searchDelta:     Carry out delta optimization on the alternative model? if yes We use NumIntervalsDeltaAlt steps
-		verbose: print verbose output? (False)
+    Args:
+        snps:   [N x S] np.array of S SNPs for N individuals
+        pheno:  [N x 1] np.array of 1 phenotype for N individuals
+        K:      [N x N] np.array of LMM-covariance/kinship koefficients (optional)
+                        If not provided, then linear regression analysis is performed
+        covs:   [N x D] np.array of D covariates for N individuals
+        test:   'lrt' for likelihood ratio test (default) or 'f' for F-test
+        NumIntervalsDelta0:     number of steps for delta optimization on the null model (100)
+        NumIntervalsDeltaAlt:   number of steps for delta optimization on the alt. model (100), requires searchDelta=True to have an effect.
+        searchDelta:     Carry out delta optimization on the alternative model? if yes We use NumIntervalsDeltaAlt steps
+        verbose: print verbose output? (False)
 
-	Returns:
-		LMM object
-	"""
-	lmm_ = lmm(snps=snps, pheno=pheno, K=K, covs=covs, test=test, NumIntervalsDelta0=NumIntervalsDelta0, NumIntervalsDeltaAlt=NumIntervalsDeltaAlt, searchDelta=searchDelta, verbose=verbose)
-	return lmm_
+    Returns:
+        LMM object
+    """
+    lmm_ = lmm(snps=snps, pheno=pheno, K=K, covs=covs, test=test, NumIntervalsDelta0=NumIntervalsDelta0, NumIntervalsDeltaAlt=NumIntervalsDeltaAlt, searchDelta=searchDelta, verbose=verbose)
+    return lmm_
 
 
 def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,K1c=None,K2r=None,K2c=None,trait_covar_type='lowrank_diag',rank=1,NumIntervalsDelta0=100,NumIntervalsDeltaAlt=100,searchDelta=False):
@@ -257,8 +256,8 @@ def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,
         CKroneckerLMM object
         P-values for all SNPs from liklelihood ratio test
     """
-	import limix_legacy.deprecated
-	import limix_legacy.deprecated as dlimix_legacy
+    import limix.deprecated
+    import limix.deprecated as dlimix
     #0. checks
     N  = phenos.shape[0]
     P  = phenos.shape[1]
@@ -300,7 +299,7 @@ def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,
 
     #2. run kroneckerLMM
 
-    lmm = limix_legacy.deprecated.CKroneckerLMM()
+    lmm = limix.deprecated.CKroneckerLMM()
     lmm.setK1r(K1r)
     lmm.setK1c(K1c)
     lmm.setK2r(K2r)
@@ -369,8 +368,8 @@ def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=N
         pv0:    P-values of the null model
         pvAlt:  P-values of the alternative model
     """
-	import limix_legacy.deprecated
-	import limix_legacy.deprecated as dlimix_legacy
+    import limix.deprecated
+    import limix.deprecated as dlimix
     S=snps.shape[1]
     #0. checks
     N  = phenos.shape[0]
@@ -419,7 +418,7 @@ def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=N
         assert K2c.shape[1]==P, 'K2c: dimensions dismatch'
 
     #2. run kroneckerLMM for null model
-    lmm = limix_legacy.deprecated.CKroneckerLMM()
+    lmm = limix.deprecated.CKroneckerLMM()
     lmm.setK1r(K1r)
     lmm.setK1c(K1c)
     lmm.setK2r(K2r)
@@ -475,8 +474,8 @@ def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test=
     Returns:
         limix LMM object
     """
-	import limix_legacy.deprecated
-	import limix_legacy.deprecated as dlimix_legacy
+    import limix.deprecated
+    import limix.deprecated as dlimix
     N=snps.shape[0]
     if covs is None:
         covs = np.ones((N,1))
@@ -485,7 +484,7 @@ def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test=
     if Inter0 is None:
         Inter0=np.ones([N,1])
     assert (pheno.shape[0]==N and K.shape[0]==N and K.shape[1]==N and covs.shape[0]==N and Inter0.shape[0]==N and Inter.shape[0]==N), "shapes missmatch"
-    lmi = limix_legacy.deprecated.CInteractLMM()
+    lmi = limix.deprecated.CInteractLMM()
     lmi.setK(K)
     lmi.setSNPs(snps)
     lmi.setPheno(pheno)
@@ -530,9 +529,9 @@ def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter
                                 before inclusion
                 RV['pvall']:    [Nadded x S] np.array of Pvalues for all iterations
     """
-	import limix_legacy.deprecated
-	import limix_legacy.deprecated as dlimix_legacy
-    verbose = dlimix_legacy.getVerbose(verbose)
+    import limix.deprecated
+    import limix.deprecated as dlimix
+    verbose = dlimix.getVerbose(verbose)
 
     if K is None:
         K=np.eye(snps.shape[0])
@@ -622,9 +621,9 @@ def forward_lmm_kronecker(snps,phenos,Asnps=None,Acond=None,K1r=None,K1c=None,K2
             qvadded
             qvall
     """
-	import limix_legacy.deprecated
-	import limix_legacy.deprecated as dlimix_legacy
-    verbose = dlimix_legacy.getVerbose(verbose)
+    import limix.deprecated
+    import limix.deprecated as dlimix
+    verbose = dlimix.getVerbose(verbose)
     #0. checks
     N  = phenos.shape[0]
     P  = phenos.shape[1]
@@ -739,59 +738,59 @@ def forward_lmm_kronecker(snps,phenos,Asnps=None,Acond=None,K1r=None,K1c=None,K2
 
 """ INTERNAL """
 def _estimateKronCovariances(phenos,K1r=None,K1c=None,K2r=None,K2c=None,covs=None,Acovs=None,trait_covar_type='lowrank_diag',rank=1,lambd=None,verbose=True,init_method='random',old_opt=True):
-	"""
-	estimates the background covariance model before testing
+    """
+    estimates the background covariance model before testing
 
-	Args:
-		phenos: [N x P] np.array of P phenotypes for N individuals
-		K1r:    [N x N] np.array of LMM-covariance/kinship koefficients (optional)
-						If not provided, then linear regression analysis is performed
-		K1c:    [P x P] np.array of LMM-covariance/kinship koefficients (optional)
-						If not provided, then linear regression analysis is performed
-		K2r:    [N x N] np.array of LMM-covariance/kinship koefficients (optional)
-						If not provided, then linear regression analysis is performed
-		K2c:    [P x P] np.array of LMM-covariance/kinship koefficients (optional)
-						If not provided, then linear regression analysis is performed
-		covs:           list of np.arrays holding covariates. Each covs[i] has one corresponding Acovs[i]
-		Acovs:          list of np.arrays holding the phenotype design matrices for covariates.
-						Each covs[i] has one corresponding Acovs[i].
-		trait_covar_type:     type of covaraince to use. Default 'freeform'. possible values are
-						'freeform': free form optimization,
-						'fixed': use a fixed matrix specified in covar_K0,
-						'diag': optimize a diagonal matrix,
-						'lowrank': optimize a low rank matrix. The rank of the lowrank part is specified in the variable rank,
-						'lowrank_id': optimize a low rank matrix plus the weight of a constant diagonal matrix. The rank of the lowrank part is specified in the variable rank,
-						'lowrank_diag': optimize a low rank matrix plus a free diagonal matrix. The rank of the lowrank part is specified in the variable rank,
-						'block': optimize the weight of a constant P x P block matrix of ones,
-						'block_id': optimize the weight of a constant P x P block matrix of ones plus the weight of a constant diagonal matrix,
-						'block_diag': optimize the weight of a constant P x P block matrix of ones plus a free diagonal matrix,
-		rank:           rank of a possible lowrank component (default 1)
+    Args:
+        phenos: [N x P] np.array of P phenotypes for N individuals
+        K1r:    [N x N] np.array of LMM-covariance/kinship koefficients (optional)
+                        If not provided, then linear regression analysis is performed
+        K1c:    [P x P] np.array of LMM-covariance/kinship koefficients (optional)
+                        If not provided, then linear regression analysis is performed
+        K2r:    [N x N] np.array of LMM-covariance/kinship koefficients (optional)
+                        If not provided, then linear regression analysis is performed
+        K2c:    [P x P] np.array of LMM-covariance/kinship koefficients (optional)
+                        If not provided, then linear regression analysis is performed
+        covs:           list of np.arrays holding covariates. Each covs[i] has one corresponding Acovs[i]
+        Acovs:          list of np.arrays holding the phenotype design matrices for covariates.
+                        Each covs[i] has one corresponding Acovs[i].
+        trait_covar_type:     type of covaraince to use. Default 'freeform'. possible values are
+                        'freeform': free form optimization,
+                        'fixed': use a fixed matrix specified in covar_K0,
+                        'diag': optimize a diagonal matrix,
+                        'lowrank': optimize a low rank matrix. The rank of the lowrank part is specified in the variable rank,
+                        'lowrank_id': optimize a low rank matrix plus the weight of a constant diagonal matrix. The rank of the lowrank part is specified in the variable rank,
+                        'lowrank_diag': optimize a low rank matrix plus a free diagonal matrix. The rank of the lowrank part is specified in the variable rank,
+                        'block': optimize the weight of a constant P x P block matrix of ones,
+                        'block_id': optimize the weight of a constant P x P block matrix of ones plus the weight of a constant diagonal matrix,
+                        'block_diag': optimize the weight of a constant P x P block matrix of ones plus a free diagonal matrix,
+        rank:           rank of a possible lowrank component (default 1)
 
-	Returns:
-		VarianceDecomposition object
-	"""
-	import limix_legacy.deprecated
-	import limix_legacy.deprecated as dlimix_legacy
-	print(".. Training the backgrond covariance with a GP model")
-	vc = VAR.VarianceDecomposition(phenos)
-	if K1r is not None:
-		vc.addRandomEffect(K1r,trait_covar_type=trait_covar_type,rank=rank)
-	if K2r is not None:
-		#TODO: fix this; forces second term to be the noise covariance
-		vc.addRandomEffect(is_noise=True,K=K2r,trait_covar_type=trait_covar_type,rank=rank)
-	for ic  in range(len(Acovs)):
-		vc.addFixedEffect(covs[ic],Acovs[ic])
-	start = time.time()
-	if old_opt:
-		conv = vc.optimize(fast=True)
-	elif lambd is not None:
-		conv = vc.optimize(init_method=init_method,verbose=verbose,lambd=lambd)
-	else:
-		conv = vc.optimize(init_method=init_method,verbose=verbose)
-	assert conv, "Variance Decomposition has not converged"
-	time_el = time.time()-start
-	print(("Background model trained in %.2f s" % time_el))
-	return vc
+    Returns:
+        VarianceDecomposition object
+    """
+    import limix.deprecated
+    import limix.deprecated as dlimix
+    print(".. Training the backgrond covariance with a GP model")
+    vc = VAR.VarianceDecomposition(phenos)
+    if K1r is not None:
+        vc.addRandomEffect(K1r,trait_covar_type=trait_covar_type,rank=rank)
+    if K2r is not None:
+        #TODO: fix this; forces second term to be the noise covariance
+        vc.addRandomEffect(is_noise=True,K=K2r,trait_covar_type=trait_covar_type,rank=rank)
+    for ic  in range(len(Acovs)):
+        vc.addFixedEffect(covs[ic],Acovs[ic])
+    start = time.time()
+    if old_opt:
+        conv = vc.optimize(fast=True)
+    elif lambd is not None:
+        conv = vc.optimize(init_method=init_method,verbose=verbose,lambd=lambd)
+    else:
+        conv = vc.optimize(init_method=init_method,verbose=verbose)
+    assert conv, "Variance Decomposition has not converged"
+    time_el = time.time()-start
+    print(("Background model trained in %.2f s" % time_el))
+    return vc
 
 def _updateKronCovs(covs,Acovs,N,P):
     """
@@ -858,8 +857,8 @@ def qtl_test_interaction_GxE_1dof(snps,pheno,env,K=None,covs=None, test='lrt',ve
         pv:     [E x S] np.array of P values for interaction tests between all
                 E environmental variables and all S SNPs
     """
-	import limix_legacy.deprecated as dlimix_legacy
-    verbose = dlimix_legacy.getVerbose(verbose)
+    import limix.deprecated as dlimix
+    verbose = dlimix.getVerbose(verbose)
     N=snps.shape[0]
     if K is None:
         K=np.eye(N)
