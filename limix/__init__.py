@@ -17,7 +17,7 @@ try:
 except _DistributionNotFound:
     __version__ = 'unknown'
 
-from . import io, stats, plot, qtl, util
+from . import io, stats, plot, qtl, util, core
 
 def test():
     import os
@@ -37,4 +37,4 @@ def test():
     return return_code
 
 
-__all__ = ['test', 'io', 'stats', 'plot']
+__all__ = ['test', 'io', 'stats', 'plot', 'core']
