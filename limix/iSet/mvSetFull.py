@@ -1,10 +1,10 @@
 import sys
 import limix
-from limix.core.covar import LowRankCov
-from limix.core.covar import FixedCov
-from limix.core.covar import FreeFormCov
-from limix.core.gp import GP3KronSumLR
-from limix.core.gp import GP2KronSum
+from limix_core.covar import LowRankCov
+from limix_core.covar import FixedCov
+from limix_core.covar import FreeFormCov
+from limix_core.gp import GP3KronSumLR
+from limix_core.gp import GP2KronSum
 import scipy as sp
 import scipy.stats as st
 from limix.mtSet.core.iset_utils import *

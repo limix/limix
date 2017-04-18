@@ -16,9 +16,9 @@ import sys
 import scipy as sp
 import scipy.linalg
 import scipy.stats
-import limix_core.utils.preprocess as preprocess
-from limix_core.utils.preprocess import covar_rescaling_factor
-from limix_core.utils.util_functions import vec
+import limix.util.preprocess as preprocess
+from limix.util.preprocess import covar_rescaling_factor
+from limix.util.util_functions import vec
 from limix_core.covar import *
 from limix_core.gp import *
 from limix_core.mean import *

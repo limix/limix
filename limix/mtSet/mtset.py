@@ -3,10 +3,10 @@ from limix.util.preprocess import remove_dependent_cols
 from limix.util.util_functions import smartDumpDictHdf5
 
 # core
-from limix.core.gp import GP2KronSum
-from limix.core.gp import GP2KronSumLR
-from limix.core.gp import GP3KronSumLR
-from limix.core.covar import FreeFormCov
+from limix_core.gp import GP2KronSum
+from limix_core.gp import GP2KronSumLR
+from limix_core.gp import GP3KronSumLR
+from limix_core.covar import FreeFormCov
 
 import h5py
 import pdb

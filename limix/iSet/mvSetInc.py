@@ -1,11 +1,11 @@
 import sys
 import limix
-from limix.core.covar import LowRankCov
-from limix.core.covar import FixedCov
-from limix.core.covar import FreeFormCov
-from limix.core.covar import CategoricalLR
-from limix.core.mean import MeanBase
-from limix.core.gp import GP
+from limix_core.covar import LowRankCov
+from limix_core.covar import FixedCov
+from limix_core.covar import FreeFormCov
+from limix_core.covar import CategoricalLR
+from limix_core.mean import MeanBase
+from limix_core.gp import GP
 import scipy as sp
 import scipy.stats as st
 from limix.mtSet.core.iset_utils import *
