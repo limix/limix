@@ -1,5 +1,4 @@
 import sys
-sys.path.append('./../../..')
 import os
 import subprocess
 import pdb
@@ -9,20 +8,22 @@ import glob
 import numpy as NP
 from optparse import OptionParser
 import time
-import limix.stats.chi2mixture as C2M
-import limix.util.plot as plot
 import scipy as SP
 
 def plot_manhattan(pv,out_file):
     import matplotlib.pylab as PLT
+    from limix.plot import plot_manhattan
+
     posCum = SP.arange(pv.shape[0])
     idx=~SP.isnan(pv[:,0])
-    plot.plot_manhattan(posCum[idx],pv[idx][:,0],alphaNS=1.0,alphaS=1.0)
+    plot_manhattan(posCum[idx],pv[idx][:,0],alphaNS=1.0,alphaS=1.0)
     PLT.savefig(out_file)
 
 
 def postprocess(options):
     """ perform parametric fit of the test statistics and provide permutation and test pvalues """
+
+    import limix.stats.chi2mixture as C2M
 
     resdir = options.resdir
     out_file = options.outfile
