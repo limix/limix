@@ -9,15 +9,18 @@ A flexible and fast mixed model toolbox.
 
 from __future__ import absolute_import as _absolute_import
 
+import limix_core as core
 from pkg_resources import DistributionNotFound as _DistributionNotFound
 from pkg_resources import get_distribution as _get_distribution
+
+from . import core, io, plot, qtl, stats, util
 
 try:
     __version__ = _get_distribution('limix').version
 except _DistributionNotFound:
     __version__ = 'unknown'
 
-from . import io, stats, plot, qtl, util, core
+
 
 def test():
     import os
