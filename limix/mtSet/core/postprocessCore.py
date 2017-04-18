@@ -10,7 +10,7 @@ import numpy as NP
 from optparse import OptionParser
 import time
 import limix.stats.chi2mixture as C2M
-import limix.utils.plot as plot
+import limix.util.plot as plot
 import scipy as SP
 
 def plot_manhattan(pv,out_file):

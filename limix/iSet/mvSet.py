@@ -13,7 +13,7 @@ import numpy.linalg as nla
 import scipy.linalg as la
 import copy
 import pdb
-from limix.utils.preprocess import gaussianize
+from limix.util.preprocess import gaussianize
 from scipy.optimize import fmin
 import time
 import pandas as pd

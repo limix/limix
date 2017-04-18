@@ -29,6 +29,6 @@ def boxcox(X):
              [ 1.34068423  0.64396462]
              [ 0.          0.9597255 ]]
     """
-    from limix.utils.preprocess import boxcox as _boxcox
+    from limix.util.preprocess import boxcox as _boxcox
 
     return _boxcox(X)[0]
