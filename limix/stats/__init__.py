@@ -8,11 +8,6 @@ Statistics
 - :func:`.gower_norm`
 - :class:`.Chi2mixture`
 
-Mixture of chi2
-^^^^^^^^^^^
-.. autoclass:: Chi2mixture 
-  :members:
-
 Public interface
 ^^^^^^^^^^^^^^^^
 """

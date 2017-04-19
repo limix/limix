@@ -11,18 +11,19 @@ def gower_norm(K, out=None):
         .. doctest::
 
             >>> from numpy.random import RandomState
-            >>> from limix.stats import gower_norm 
+            >>> from limix.stats import gower_norm
             >>> import scipy as sp
             >>>
-            >>> X = RandomState(1).randn(4, 4)
+            >>> random = RandomState(1)
+            >>> X = random.randn(4, 4)
             >>> K = sp.dot(X,X.T)
-            >>> Z = sp.random.multivariate_normal(sp.zeros(4), K, 50)
-            >>> print sp.mean(Z.var(1))
-            2.00178627286
+            >>> Z = random.multivariate_normal(sp.zeros(4), K, 50)
+            >>> print(sp.mean(Z.var(1)))
+            1.7509891134
             >>> Kn = gower_norm(K)
-            >>> Zn = sp.random.multivariate_normal(sp.zeros(4), Kn, 50)
-            >>> print sp.mean(Zn.var(1))
-            0.748747252259
+            >>> Zn = random.multivariate_normal(sp.zeros(4), Kn, 50)
+            >>> print(sp.mean(Zn.var(1)))
+            0.728999806711
     """
 
     c = (K.shape[0] - 1) / (K.trace() - K.mean(0).sum())
