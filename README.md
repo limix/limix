@@ -18,15 +18,9 @@ LATEST: [iSet, interaction set tests for gene-context interactions, is now in Li
 ## Install
 
 The recommended way of installing it is via
-[conda](http://conda.pydata.org/docs/index.html)
+[pip](https://pypi.python.org/pypi/pip)
 
 ```bash
-conda install -c conda-forge limix
-```
-
-An alternative way (and likely to fail) would be via pip
-
-```
 pip install limix
 ```
 
@@ -34,13 +28,17 @@ pip install limix
 
 A good starting point is our package Vignettes.
 These tutorials are available from this repository:
-https://github.com/PMBio/limix-tutorials.
+https://github.com/limix/limix-tutorials.
 
 The main package vignette can also be viewed using the ipython notebook viewer:
 http://nbviewer.ipython.org/github/pmbio/limix-tutorials/blob/master/index.ipynb.
 
-Alternatively, the source file is available in the separate Limix tutorial repository:
+Alternatively, the source file is available in the separate Limix tutorial
+repository:
 https://github.com/PMBio/limix-tutorials
+
+A more extensive description of the public interface is found at
+https://limix.readthedocs.io/.
 
 ## Problems
 
