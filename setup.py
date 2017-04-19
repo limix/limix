@@ -23,9 +23,10 @@ def setup_package():
 
     setup_requires = pytest_runner
     install_requires = [
-        'limix-legacy', 'scikit-learn', 'matplotlib', 'bokeh', 'limix-core'
+        'scikit-learn', 'matplotlib', 'bokeh', 'limix-core'
     ]
     tests_require = ['pytest']
+    recommended = {"limix-legacy": ["limix-legacy>=1.0.0"]}
 
     metadata = dict(
         name='limix',
@@ -44,6 +45,7 @@ def setup_package():
         install_requires=install_requires,
         setup_requires=setup_requires,
         tests_require=tests_require,
+        extras_require=recommended,
         include_package_data=True,
         classifiers=[
             "Development Status :: 5 - Production/Stable",
