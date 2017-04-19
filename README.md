@@ -39,8 +39,12 @@ https://github.com/PMBio/limix-tutorials.
 The main package vignette can also be viewed using the ipython notebook viewer:
 http://nbviewer.ipython.org/github/pmbio/limix-tutorials/blob/master/index.ipynb.
 
-Alternatively, the source file is available in the separate Limix tutorial repository:
+Alternatively, the source file is available in the separate Limix tutorial
+repository:
 https://github.com/PMBio/limix-tutorials
+
+A more extensive description of the public interface is found at
+https://limix.readthedocs.io/.
 
 ## Problems
 
