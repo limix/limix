@@ -3,6 +3,7 @@ r"""
 Plotting utilities
 ******************
 
+- :func:`.plot_manhattan`
 - :func:`.plot_normal`
 - :func:`.qqplot`
 
