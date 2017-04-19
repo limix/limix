@@ -24,7 +24,7 @@ def setup_package():
     setup_requires = pytest_runner
     install_requires = ['scikit-learn', 'matplotlib', 'bokeh', 'limix-core']
     tests_require = ['pytest']
-    recommended = {"legacy": ["limix-legacy>=1.0.0"]}
+    recommended = {"legacy": ["limix-legacy"]}
 
     console_scripts = [
         'limix_runner=limix.scripts.limix_runner:entry_point [legacy]',
