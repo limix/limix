@@ -1,7 +1,3 @@
-#! /usr/bin/env python
-# Copyright(c) 2014, The mtSet developers (Francesco Paolo Casale, Barbara Rakitsch, Oliver Stegle)
-# All rights reserved.
-
 import sys
 import os
 from limix.mtSet.core.analyzeCore import analyze
