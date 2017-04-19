@@ -61,6 +61,7 @@ def plot_normal(x, bins=20, nstd=2, figure=None):
 
             from numpy.random import RandomState
             from limix.plot import plot_normal
+            from matplotlib import pyplot as plt
             random = RandomState(10)
             x = random.randn(100)
             f = plot_normal(x, nstd=2)
