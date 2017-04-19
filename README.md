@@ -18,15 +18,9 @@ LATEST: [iSet, interaction set tests for gene-context interactions, is now in Li
 ## Install
 
 The recommended way of installing it is via
-[conda](http://conda.pydata.org/docs/index.html)
+[pip](https://pypi.python.org/pypi/pip)
 
 ```bash
-conda install -c conda-forge limix
-```
-
-An alternative way (and likely to fail) would be via pip
-
-```
 pip install limix
 ```
 
