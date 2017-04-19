@@ -18,7 +18,7 @@ qtl.py contains wrappers around C++ Limix objects to streamline common tasks in 
 import numpy as np
 import scipy.stats as st
 import scipy as sp
-from limix.stats.fdr as FDR
+from limix.stats import qvalues
 from limix.qtl import lmm
 import time
 
@@ -420,7 +420,7 @@ def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter
     if qvalues:
         assert pv.shape[0]==1, "This is untested with the fdr package. pv.shape[0]==1 failed"
         qvall = []
-        qv  = FDR.qvalues(pv)
+        qv  = qvalues(pv)
         qvall.append(qv)
         score=qv.min()
     else:
@@ -439,7 +439,7 @@ def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter
         pvall.append(pv)
         imin= pv.argmin()
         if qvalues:
-            qv = FDR.qvalues(pv)
+            qv = qvalues(pv)
             qvall[niter:niter+1,:] = qv
             score = qv.min()
         else:
@@ -555,7 +555,7 @@ def forward_lmm_kronecker(snps,phenos,Asnps=None,Acond=None,K1r=None,K1c=None,K2
     if qvalues:
         assert pv.shape[0]==1, "This is untested with the fdr package. pv.shape[0]==1 failed"
         qvall = []
-        qv  = FDR.qvalues(pv)
+        qv  = qvalues(pv)
         qvall.append(qv)
         score=qv[imin]
     #loop:
@@ -582,7 +582,7 @@ def forward_lmm_kronecker(snps,phenos,Asnps=None,Acond=None,K1r=None,K1c=None,K2
         pvall.append(pv.ravel())
         imin= np.unravel_index(pv.argmin(),pv.shape)
         if qvalues:
-            qv = FDR.qvalues(pv)
+            qv = qvalues(pv)
             qvall[niter:niter+1,:] = qv
             score = qv[imin].min()
         else:

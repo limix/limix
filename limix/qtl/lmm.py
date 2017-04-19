@@ -70,20 +70,19 @@ class lmm:
             >>> kinship = dot(W, W.T) / float(10)
             >>>
             >>> # run single-variant associaiton testing with LMM
-            >>> lmm = limix.qtl.lmm(snps, y, kinship)
+            >>> lmm = limix.qtl.lmm(snps, pheno, kinship)
             >>> pv = lmm.getPv()
             >>> beta = lmm.getBetaSNP()
             >>> beta_ste = lmm.getBetaSNPste()
             >>>
-            >>> print lmm.getPv()
-            [[ 0.85007143  0.95042782  0.49687393  0.01852559  0.61253936  0.13709002
-               0.23412486  0.78590904  0.67982972  0.97131758]]
-            >>> print lmm.getBetaSNP()
-            [[-0.02113729 -0.00629632 -0.06198703 -0.246229   -0.05527605  0.14154055
-              -0.11656051  0.0287622   0.04245761 -0.00370021]]
-            >>> print lmm.getBetaSNPste()
-            [[ 0.11182137  0.10127666  0.09123567  0.10455841  0.1091437   0.09520354
-               0.09796644  0.1058887   0.10287878  0.10290999]]
+            >>> print(pv.shape)
+            (1, 1000)
+            >>> print(pv[:,:4])
+            [[ 0.85712431  0.46681538  0.58717204  0.55894821]]
+            >>> print(beta[:,:4])
+            [[ 0.0436056  -0.16947568 -0.11999516  0.13877098]]
+            >>> print(beta_ste[:,:4])
+            [[ 0.24220492  0.23290171  0.22101052  0.23745709]]
 
         As shown in the exmaple below,
         the method can be applied directly on multiple phenotypes.
@@ -98,16 +97,13 @@ class lmm:
             >>>
             >>> lmm = limix.qtl.lmm(snps, phenos, kinship)
             >>> pv = lmm.getPv()
-            >>> beta = lmm.getBetaSNP()
-            >>> beta_ste = lmm.getBetaSNPste()
             >>>
-            >>> print lmm.getPv()
-            [[ 0.10443428  0.2211579   0.77353526  0.71451599  0.23743919  0.64876719
-               0.62777478  0.17119043  0.81580569  0.12362014]
-             [ 0.48500889  0.99372962  0.39939168  0.35453793  0.13346182  0.12371834
-               0.73782101  0.40214461  0.23379901  0.28227524]
-             [ 0.49768012  0.14925783  0.24932633  0.34892866  0.11523963  0.66897979
-               0.62862356  0.62567987  0.99164983  0.36997474]]
+            >>> print(pv.shape)
+            (3, 1000)
+            >>> print(pv[:,:4])
+            [[ 0.47115027  0.69402295  0.33688495  0.52206089]
+             [ 0.73356655  0.87985746  0.81094723  0.10706975]
+             [ 0.0662334   0.92033507  0.28725885  0.82683985]]
     """
 
     def __init__(self, snps, pheno, K=None, covs=None, test='lrt', NumIntervalsDelta0=100, NumIntervalsDeltaAlt=100, searchDelta=False, verbose=None):
