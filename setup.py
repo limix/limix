@@ -23,7 +23,7 @@ def setup_package():
 
     setup_requires = pytest_runner
     install_requires = ['scikit-learn', 'matplotlib', 'bokeh', 'limix-core',
-                        'dask[dataframe]']
+                        'dask[dataframe]', 'h5py']
     tests_require = ['pytest']
     recommended = {"legacy": ["limix-legacy"]}
 
