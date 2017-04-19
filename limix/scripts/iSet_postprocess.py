@@ -1,7 +1,3 @@
-#! /usr/bin/env python
-# Copyright(c) 2014, The mtSet developers (Francesco Paolo Casale, Barbara Rakitsch, Oliver Stegle)
-# All rights reserved.
-
 from optparse import OptionParser
 from limix.mtSet.core.iset_utils import calc_emp_pv_eff
 import pandas as pd
