@@ -22,11 +22,20 @@ def setup_package():
     pytest_runner = ['pytest-runner>=2.9'] if needs_pytest else []
 
     setup_requires = pytest_runner
-    install_requires = [
-        'scikit-learn', 'matplotlib', 'bokeh', 'limix-core'
-    ]
+    install_requires = ['scikit-learn', 'matplotlib', 'bokeh', 'limix-core']
     tests_require = ['pytest']
     recommended = {"legacy": ["limix-legacy>=1.0.0"]}
+
+    console_scripts = [
+        'limix_runner=limix.scripts.limix_runner:entry_point [legacy]',
+        'mtSet_postprocess=limix.scripts.mtSet_postprocess:entry_point',
+        'mtSet_preprocess=limix.scripts.mtSet_preprocess:entry_point',
+        'mtSet_simPheno=limix.scripts.mtSet_simPheno:entry_point',
+        'mtSet_analyze=limix.scripts.mtSet_analyze:entry_point',
+        'limix_converter=limix.scripts.limix_converter:entry_point [legacy]',
+        'iSet_analyze=limix.scripts.iSet_analyze:entry_point',
+        'iSet_postprocess=limix.scripts.iSet_postprocess:entry_point',
+    ]
 
     metadata = dict(
         name='limix',
@@ -51,7 +60,8 @@ def setup_package():
             "Development Status :: 5 - Production/Stable",
             "License :: OSI Approved :: MIT License",
             "Operating System :: OS Independent",
-        ])
+        ],
+        entry_points={'console_scripts': console_scripts})
 
     try:
         setup(**metadata)
