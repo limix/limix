@@ -1,13 +1,15 @@
 import pdb
 
-import scipy as SP
-import scipy.stats as STATS
+import scipy as sp
+import scipy.stats as st
 
 
 class Chi2mixture(object):
     """
+    A class for continuous random variable following a chi2 mixture
+
     Class for evaluation of P values for a test statistic that follows a
-    mixture of chi2-distributed random variables under the null 
+    two-component mixture of chi2
 
     .. math::
 
@@ -40,23 +42,24 @@ class Chi2mixture(object):
             >>> mixture = 0.2
             >>> n = 100
             >>>
-            >>> x =  RandomState(1).chisquare(dof, n) 
+            >>> random = RandomState(1)
+            >>> x =  random.chisquare(dof, n) 
             >>> n0 = int( (1-mixture) * n)
-            >>> idxs = sp.random.choice(n, n0, replace=False)
+            >>> idxs = random.choice(n, n0, replace=False)
             >>> x[idxs] = 0
             >>>
             >>> chi2mix = Chi2mixture(scale_min=0.1, scale_max=5.0,
             ...                       dof_min=0.1, dof_max=5.0,
             ...                       qmax=0.1, tol=4e-3)
             >>> chi2mix.estimate_chi2mixture(x)
-            >>> chi2mix.sf(x)
-            >>> print(x[:4])
-            [ 0.          2.54825051  0.          0.72002551  0.31741919]
+            >>> pv = chi2mix.sf(x)
+            >>> print(pv[:4])
+            [ 0.2  0.2  0.2  0.2]
             >>>
             >>> print('%.2f' % chi2mix.scale)
-            0.89
+            1.98
             >>> print('%.2f' % chi2mix.dof)
-            2.33
+            0.89
             >>> print('%.2f' % chi2mix.mixture)
             0.20
     """
@@ -89,27 +92,27 @@ class Chi2mixture(object):
 
         #step 1: estimate the probability of being in component one
         self.mixture = 1 - (lrt <= self.tol).mean()
-        n_false = SP.sum(lrt > self.tol)
+        n_false = sp.sum(lrt > self.tol)
 
         #step 2: only use the largest qmax fraction of test statistics to estimate the
         #           remaining parameters
-        n_fitting = int(SP.ceil(self.qmax * n_false))
-        lrt_sorted = -SP.sort(-lrt)[:n_fitting]
-        q = SP.linspace(0, 1, n_false)[1:n_fitting + 1]
-        log_q = SP.log10(q)
+        n_fitting = int(sp.ceil(self.qmax * n_false))
+        lrt_sorted = -sp.sort(-lrt)[:n_fitting]
+        q = sp.linspace(0, 1, n_false)[1:n_fitting + 1]
+        log_q = sp.log10(q)
 
         #step 3: fitting scale and dof by minimizing the squared error of the log10 p-values
         #        with their theorietical values [uniform distribution]
-        MSE_opt = SP.inf
-        MSE = SP.zeros((self.n_intervals, self.n_intervals))
+        MSE_opt = sp.inf
+        MSE = sp.zeros((self.n_intervals, self.n_intervals))
 
         for i, scale in enumerate(
-                SP.linspace(self.scale_min, self.scale_max, self.n_intervals)):
+                sp.linspace(self.scale_min, self.scale_max, self.n_intervals)):
             for j, dof in enumerate(
-                    SP.linspace(self.dof_min, self.dof_max, self.n_intervals)):
-                p = STATS.chi2.sf(lrt_sorted / scale, dof)
-                log_p = SP.log10(p)
-                MSE[i, j] = SP.mean((log_q - log_p)**2)
+                    sp.linspace(self.dof_min, self.dof_max, self.n_intervals)):
+                p = st.chi2.sf(lrt_sorted / scale, dof)
+                log_p = sp.log10(p)
+                MSE[i, j] = sp.mean((log_q - log_p)**2)
                 if MSE[i, j] < MSE_opt:
                     MSE_opt = MSE[i, j]
                     self.scale = scale
@@ -123,9 +126,9 @@ class Chi2mixture(object):
         Args:
             lrt (array_like): test statistics.
         """
-        _lrt = SP.copy(lrt)
+        _lrt = sp.copy(lrt)
         _lrt[lrt < self.tol] = 0
-        pv = self.mixture * STATS.chi2.sf(_lrt / self.scale, self.dof)
+        pv = self.mixture * st.chi2.sf(_lrt / self.scale, self.dof)
         return pv
 
 
@@ -136,20 +139,20 @@ if __name__ == "__main__":
     n_test = 100000
     n_train = 100000
 
-    lrt_train = SP.zeros((n_train))
-    lrt_test = SP.zeros((n_test))
+    lrt_train = sp.zeros((n_train))
+    lrt_test = sp.zeros((n_test))
 
     for i in range(dof):
-        x = SP.random.randn(n_train)
+        x = sp.random.randn(n_train)
         lrt_train += scale * (x * x)
-        x = SP.random.randn(n_test)
+        x = sp.random.randn(n_test)
         lrt_test += scale * (x * x)
 
-    idx_chi2_0 = SP.random.permutation(n_train)[:(1 - mixture) * n_train]
-    lrt_train[idx_chi2_0] = 1e-10 * SP.random.randn((1 - mixture) * n_train)
+    idx_chi2_0 = sp.random.permutation(n_train)[:(1 - mixture) * n_train]
+    lrt_train[idx_chi2_0] = 1e-10 * sp.random.randn((1 - mixture) * n_train)
 
-    idx_chi2_0 = SP.random.permutation(n_test)[:(1 - mixture) * n_test]
-    lrt_test[idx_chi2_0] = 1e-10 * SP.random.randn((1 - mixture) * n_test)
+    idx_chi2_0 = sp.random.permutation(n_test)[:(1 - mixture) * n_test]
+    lrt_test[idx_chi2_0] = 1e-10 * sp.random.randn((1 - mixture) * n_test)
 
     chi2mix = Chi2mixture(
         scale_min=0.1,
