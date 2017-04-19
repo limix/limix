@@ -11,14 +11,14 @@ def gower_norm(K, out=None):
         .. doctest::
 
             >>> from numpy.random import RandomState
-            >>> from limix.stats import gower_norm 
+            >>> from limix.stats import gower_norm
             >>> import scipy as sp
             >>>
             >>> X = RandomState(1).randn(4, 4)
             >>> K = sp.dot(X,X.T)
             >>> Z = sp.random.multivariate_normal(sp.zeros(4), K, 50)
             >>> print sp.mean(Z.var(1))
-            2.00178627286
+            2.00278627286
             >>> Kn = gower_norm(K)
             >>> Zn = sp.random.multivariate_normal(sp.zeros(4), Kn, 50)
             >>> print sp.mean(Zn.var(1))

@@ -1,9 +1,9 @@
 def pca(X, ncomp):
     r"""Principal component analysis.
 
-	Args:
-		X (array_like): data.
-		ncomp (int): number of components.
+    Args:
+        X (array_like): data.
+        ncomp (int): number of components.
 
     Returns:
         dict: analysis result containing:
@@ -11,13 +11,13 @@ def pca(X, ncomp):
             - array_like: explained variance.
             - array_like: percentage of variance explained.
 
-	Example
-	-------
+    Example
+    -------
 
-		.. doctest::
+        .. doctest::
 
             >>> from numpy.random import RandomState
-			>>> from limix.stats import pca
+            >>> from limix.stats import pca
             >>>
             >>> X = RandomState(1).randn(4, 5)
             >>> result = pca(X, ncomp=2)
@@ -28,7 +28,7 @@ def pca(X, ncomp):
             [ 4.83491994  0.38591204]
             >>> print(result['explained_variance_ratio'])
             [ 0.92049553  0.07347181]
-	"""
+    """
     from sklearn.decomposition import PCA
 
     pca = PCA(n_components=ncomp)
