@@ -5,7 +5,7 @@
 import time
 import sys
 import os
-from limix_legacy.iSet.iset import fit_iSet
+from limix.iSet.iset import fit_iSet
 from optparse import OptionParser
 import numpy as np
 import pandas as pd

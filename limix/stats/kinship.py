@@ -23,7 +23,7 @@ def gower_norm(K, out=None):
             >>> Kn = gower_norm(K)
             >>> Zn = random.multivariate_normal(sp.zeros(4), Kn, 50)
             >>> print("%.3f" % sp.mean(Zn.var(1, ddof=1)))
-            1.074
+            0.972
     """
 
     c = (K.shape[0] - 1) / (K.trace() - K.mean(0).sum())

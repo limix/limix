@@ -2,7 +2,7 @@
 # Copyright(c) 2014, The mtSet developers (Francesco Paolo Casale, Barbara Rakitsch, Oliver Stegle)
 # All rights reserved.
 
-from limix_legacy.mtSet.core.preprocessCore import preprocess
+from limix.mtSet.core.preprocessCore import preprocess
 from optparse import OptionParser
 
 def entry_point():

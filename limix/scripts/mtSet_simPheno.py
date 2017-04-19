@@ -2,7 +2,7 @@
 # Copyright(c) 2014, The mtSet developers (Francesco Paolo Casale, Barbara Rakitsch, Oliver Stegle)
 # All rights reserved.
 
-from limix_legacy.mtSet.core.simPhenoCore import simPheno
+from limix.mtSet.core.simPhenoCore import simPheno
 from optparse import OptionParser
 import scipy as SP
 
