@@ -25,6 +25,40 @@ class Chi2mixture(object):
         qmax: only the top qmax quantile is used for the fit
         n_interval: number of intervals when performing gridsearch
         tol: tolerance of being zero
+
+    Example
+    -------
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> import scipy as sp
+            >>> from limix.stats import Chi2mixture
+            >>>
+            >>> scale = 0.3
+            >>> dof = 2
+            >>> mixture = 0.2
+            >>> n = 100
+            >>>
+            >>> x =  RandomState(1).chisquare(dof, n) 
+            >>> n0 = int( (1-mixture) * n)
+            >>> idxs = sp.random.choice(n, n0, replace=False)
+            >>> x[idxs] = 0
+            >>>
+            >>> chi2mix = Chi2mixture(scale_min=0.1, scale_max=5.0,
+            ...                       dof_min=0.1, dof_max=5.0,
+            ...                       qmax=0.1, tol=4e-3)
+            >>> chi2mix.estimate_chi2mixture(x)
+            >>> chi2mix.sf(x)
+            >>> print(x[:4])
+            [ 0.          2.54825051  0.          0.72002551  0.31741919]
+            >>>
+            >>> print('%.2f' % chi2mix.scale)
+            0.89
+            >>> print('%.2f' % chi2mix.dof)
+            2.33
+            >>> print('%.2f' % chi2mix.mixture)
+            0.20
     """
 
     def __init__(self,
@@ -59,7 +93,7 @@ class Chi2mixture(object):
 
         #step 2: only use the largest qmax fraction of test statistics to estimate the
         #           remaining parameters
-        n_fitting = SP.ceil(self.qmax * n_false)
+        n_fitting = int(SP.ceil(self.qmax * n_false))
         lrt_sorted = -SP.sort(-lrt)[:n_fitting]
         q = SP.linspace(0, 1, n_false)[1:n_fitting + 1]
         log_q = SP.log10(q)
