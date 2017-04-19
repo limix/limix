@@ -43,8 +43,11 @@ class lmm:
             verbose: print verbose output? (False)
         """
         #create column of 1 for fixed if nothing provide
-        import limix_legacy.deprecated
-        import limix_legacy.deprecated as dlimix_legacy
+        try:
+            import limix_legacy.deprecated
+            import limix_legacy.deprecated as dlimix_legacy
+        except ImportError:
+            print("Please, install limix-legacy to use this functionality.")
 
         if len(pheno.shape)==1:
             pheno = pheno[:,sp.newaxis]
@@ -74,8 +77,11 @@ class lmm:
         self.process()
 
     def process(self):
-        import limix_legacy.deprecated
-        import limix_legacy.deprecated as dlimix_legacy
+        try:
+            import limix_legacy.deprecated
+            import limix_legacy.deprecated as dlimix_legacy
+        except ImportError:
+            print("Please, install limix-legacy to use this functionality.")
 
         t0 = time.time()
         if self._lmm is None:
@@ -254,8 +260,11 @@ def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,
         CKroneckerLMM object
         P-values for all SNPs from liklelihood ratio test
     """
-    import limix_legacy.deprecated
-    import limix_legacy.deprecated as dlimix_legacy
+    try:
+        import limix_legacy.deprecated
+        import limix_legacy.deprecated as dlimix_legacy
+    except ImportError:
+        print("Please, install limix-legacy to use this functionality.")
     #0. checks
     N  = phenos.shape[0]
     P  = phenos.shape[1]
@@ -366,8 +375,11 @@ def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=N
         pv0:    P-values of the null model
         pvAlt:  P-values of the alternative model
     """
-    import limix_legacy.deprecated
-    import limix_legacy.deprecated as dlimix_legacy
+    try:
+        import limix_legacy.deprecated
+        import limix_legacy.deprecated as dlimix_legacy
+    except ImportError:
+        print("Please, install limix-legacy to use this functionality.")
     S=snps.shape[1]
     #0. checks
     N  = phenos.shape[0]
@@ -472,8 +484,11 @@ def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test=
     Returns:
         limix LMM object
     """
-    import limix_legacy.deprecated
-    import limix_legacy.deprecated as dlimix_legacy
+    try:
+        import limix_legacy.deprecated
+        import limix_legacy.deprecated as dlimix_legacy
+    except ImportError:
+        print("Please, install limix-legacy to use this functionality.")
     N=snps.shape[0]
     if covs is None:
         covs = np.ones((N,1))
@@ -527,8 +542,11 @@ def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter
                                 before inclusion
                 RV['pvall']:    [Nadded x S] np.array of Pvalues for all iterations
     """
-    import limix_legacy.deprecated
-    import limix_legacy.deprecated as dlimix_legacy
+    try:
+        import limix_legacy.deprecated
+        import limix_legacy.deprecated as dlimix_legacy
+    except ImportError:
+        print("Please, install limix-legacy to use this functionality.")
     verbose = dlimix_legacy.getVerbose(verbose)
 
     if K is None:
@@ -619,8 +637,11 @@ def forward_lmm_kronecker(snps,phenos,Asnps=None,Acond=None,K1r=None,K1c=None,K2
             qvadded
             qvall
     """
-    import limix_legacy.deprecated
-    import limix_legacy.deprecated as dlimix_legacy
+    try:
+        import limix_legacy.deprecated
+        import limix_legacy.deprecated as dlimix_legacy
+    except ImportError:
+        print("Please, install limix-legacy to use this functionality.")
     verbose = dlimix_legacy.getVerbose(verbose)
     #0. checks
     N  = phenos.shape[0]
@@ -767,9 +788,13 @@ def _estimateKronCovariances(phenos,K1r=None,K1c=None,K2r=None,K2c=None,covs=Non
     Returns:
         VarianceDecomposition object
     """
-    import limix_legacy.deprecated
-    import limix_legacy.deprecated as dlimix_legacy
-    import limix_legacy.deprecated.VarianceDecomposition as VAR
+    try:
+        import limix_legacy.deprecated
+        import limix_legacy.deprecated as dlimix_legacy
+        import limix_legacy.deprecated.VarianceDecomposition as VAR
+    except ImportError:
+        print("Please, install limix-legacy to use this functionality.")
+
     # from . import varianceDecomposition as VAR
     print(".. Training the backgrond covariance with a GP model")
     vc = VAR.VarianceDecomposition(phenos)
@@ -857,7 +882,10 @@ def qtl_test_interaction_GxE_1dof(snps,pheno,env,K=None,covs=None, test='lrt',ve
         pv:     [E x S] np.array of P values for interaction tests between all
                 E environmental variables and all S SNPs
     """
-    import limix_legacy.deprecated as dlimix_legacy
+    try:
+        import limix_legacy.deprecated as dlimix_legacy
+    except ImportError:
+        print("Please, install limix-legacy to use this functionality.")
     verbose = dlimix_legacy.getVerbose(verbose)
     N=snps.shape[0]
     if K is None:

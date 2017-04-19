@@ -22,9 +22,10 @@ def setup_package():
     pytest_runner = ['pytest-runner>=2.9'] if needs_pytest else []
 
     setup_requires = pytest_runner
-    install_requires = ['scikit-learn', 'matplotlib', 'bokeh', 'limix-core']
+    install_requires = ['scikit-learn', 'matplotlib', 'bokeh', 'limix-core',
+                        'dask[dataframe]', 'h5py', 'pandas-plink']
     tests_require = ['pytest']
-    recommended = {"legacy": ["limix-legacy>=1.0.0"]}
+    recommended = {"legacy": ["limix-legacy"]}
 
     console_scripts = [
         'limix_runner=limix.scripts.limix_runner:entry_point [legacy]',
