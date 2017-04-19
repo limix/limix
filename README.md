@@ -1,6 +1,10 @@
 # Limix
 
-[![PyPI-License](https://img.shields.io/pypi/l/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/) [![PyPI-Version](https://img.shields.io/pypi/v/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/) [![Anaconda-Version](https://anaconda.org/conda-forge/limix/badges/version.svg)](https://anaconda.org/conda-forge/limix) [![Anaconda-Downloads](https://anaconda.org/conda-forge/limix/badges/downloads.svg)](https://anaconda.org/conda-forge/limix)
+[![PyPI-License](https://img.shields.io/pypi/l/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/)
+[![PyPI-Version](https://img.shields.io/pypi/v/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/)
+[![Documentation Status](https://readthedocs.org/projects/limix/badge/?style=flat-square&version=1.0.x)](https://limix.readthedocs.io/)
+[![Anaconda-Version](https://anaconda.org/conda-forge/limix/badges/version.svg)](https://anaconda.org/conda-forge/limix)
+[![Anaconda-Downloads](https://anaconda.org/conda-forge/limix/badges/downloads.svg)](https://anaconda.org/conda-forge/limix)
 
 Limix is a flexible and efficient linear mixed model library with interfaces
 to Python.
