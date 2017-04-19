@@ -3,13 +3,15 @@ r"""
 Single-variant testing
 **********************
 
-- :class:`.lmm`
+- :func:`.qtl_test_lm`
+- :class:`.LMM`
 
 Public interface
 ^^^^^^^^^^^^^^^^
 """
 
-from .lmm import lmm
+from .qtl import qtl_test_lm
+from .lmm import LMM
 
-__all__ = ['lmm']
+__all__ = ['qtl_test_lm', 'LMM']
 

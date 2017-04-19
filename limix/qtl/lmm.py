@@ -17,7 +17,7 @@ import scipy as sp
 import scipy.stats as st
 import time
 
-class lmm:
+class LMM:
     r"""Basic class for univariate single-variant association testing with LMMs.
 
     Args:
@@ -56,7 +56,7 @@ class lmm:
         .. doctest::
 
             >>> from numpy.random import RandomState
-            >>> import limix.qtl.lmm
+            >>> from limix.qtl import LMM
             >>> from numpy import dot
             >>> random = RandomState(1)
             >>>
@@ -70,7 +70,7 @@ class lmm:
             >>> kinship = dot(W, W.T) / float(10)
             >>>
             >>> # run single-variant associaiton testing with LMM
-            >>> lmm = limix.qtl.lmm(snps, pheno, kinship)
+            >>> lmm = LMM(snps, pheno, kinship)
             >>> pv = lmm.getPv()
             >>> beta = lmm.getBetaSNP()
             >>> beta_ste = lmm.getBetaSNPste()
@@ -95,7 +95,7 @@ class lmm:
             >>> P = 3
             >>> phenos = random.randn(N, P)
             >>>
-            >>> lmm = limix.qtl.lmm(snps, phenos, kinship)
+            >>> lmm = LMM(snps, phenos, kinship)
             >>> pv = lmm.getPv()
             >>>
             >>> print(pv.shape)

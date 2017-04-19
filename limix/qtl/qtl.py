@@ -19,26 +19,56 @@ import numpy as np
 import scipy.stats as st
 import scipy as sp
 from limix.stats import qvalues
-from limix.qtl import lmm
+from limix.qtl.lmm import LMM
 import time
 
 def qtl_test_lm(snps,pheno, covs=None, test='lrt',verbose=None):
     """
-    Univariate fixed effects linear model test for all SNPs
-    (wrapper around qtl_test_lmm, using identity kinship)
-
-    If phenotypes have missing values, then the subset of individuals used for each phenotype column
-    will be subsetted
+    Wrapper function for univariate single-variant association testing
+    linear models. 
 
     Args:
-        snps:   [N x S] np.array of S SNPs for N individuals
-        pheno:  [N x 1] np.array of 1 phenotype for N individuals
-        covs:   [N x D] np.array of D covariates for N individuals
-        test:   'lrt' for likelihood ratio test (default) or 'f' for F-test
-        verbose: print verbose output? (False)
+        snps (ndarray):
+            [N, S] ndarray of S SNPs for N individuals.
+        pheno (ndarray):
+            [N, P] ndarray of P phenotype sfor N individuals.
+            If phenotypes have missing values, then the subset of
+            individuals used for each phenotype column will be subsetted.
+        covs (ndarray, optional):
+            [N, D] ndarray of D covariates for N individuals.
+            By default, covs is a [N, 1] vector of ones.
+        pheno (ndarray):
+            [N, P] ndarray of P phenotype sfor N individuals.
+            If phenotypes have missing values, then the subset of
+            individuals used for each phenotype column will be subsetted.
+        test ({'lrt', 'f'}, optional):
+            test statistic.
+            'lrt' for likelihood ratio test (default) or 'f' for F-test.
+        verbose (bool, optional):
+            if True, details such as runtime as displayed.
 
     Returns:
-        limix LMM object
+        :class:`limix.qtl.LMM`: LIMIX LMM object
+
+    Example
+    -------
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from limix.qtl import qtl_test_lm
+            >>> random = RandomState(1)
+            >>>
+            >>> N = 100
+            >>> S = 1000
+            >>>
+            >>> # generate data
+            >>> snps = (random.rand(N, S) < 0.2).astype(float)
+            >>> pheno = random.randn(N, 1)
+            >>> lm = qtl_test_lm(snps, pheno)
+            >>>
+            >>> print(lm.getPv()[:,:4])
+            [[ 0.87957928  0.50646269  0.56664012  0.60155451]]
     """
     lm = qtl_test_lmm(snps=snps,pheno=pheno,K=None,covs=covs, test=test,verbose=verbose)
     return lm
@@ -65,7 +95,7 @@ def qtl_test_lmm(snps,pheno,K=None,covs=None, test='lrt',NumIntervalsDelta0=100,
     Returns:
         LMM object
     """
-    lmm_ = lmm(snps=snps, pheno=pheno, K=K, covs=covs, test=test, NumIntervalsDelta0=NumIntervalsDelta0, NumIntervalsDeltaAlt=NumIntervalsDeltaAlt, searchDelta=searchDelta, verbose=verbose)
+    lmm_ = LMM(snps=snps, pheno=pheno, K=K, covs=covs, test=test, NumIntervalsDelta0=NumIntervalsDelta0, NumIntervalsDeltaAlt=NumIntervalsDeltaAlt, searchDelta=searchDelta, verbose=verbose)
     return lmm_
 
 
