@@ -3,10 +3,10 @@ sudo: required
 dist: trusty
 git:
   depth: 5
-env:
-  - LEGACY=true
-  - LEGACY=false
 matrix:
+  env:
+    - LEGACY=true
+    - LEGACY=false
   include:
   - python: 2.7
   - python: 3.5
