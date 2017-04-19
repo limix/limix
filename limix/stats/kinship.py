@@ -18,12 +18,12 @@ def gower_norm(K, out=None):
             >>> X = random.randn(4, 4)
             >>> K = sp.dot(X,X.T)
             >>> Z = random.multivariate_normal(sp.zeros(4), K, 50)
-            >>> print(sp.mean(Z.var(1)))
-            1.7509891134
+            >>> print("%.3f" % sp.mean(Z.var(1)))
+            1.751
             >>> Kn = gower_norm(K)
             >>> Zn = random.multivariate_normal(sp.zeros(4), Kn, 50)
-            >>> print(sp.mean(Zn.var(1)))
-            0.728999806711
+            >>> print("%.3f" % sp.mean(Zn.var(1)))
+            0.729
     """
 
     c = (K.shape[0] - 1) / (K.trace() - K.mean(0).sum())
