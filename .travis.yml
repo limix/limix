@@ -3,14 +3,13 @@ sudo: required
 dist: trusty
 git:
   depth: 5
-matrix:
-  env:
-    - LEGACY=true
-    - LEGACY=false
-  include:
-  - python: 2.7
-  - python: 3.5
-  - python: 3.6
+python:
+- 2.7
+- 3.5
+- 3.6
+env:
+- LEGACY=true
+- LEGACY=false
 before_install:
 - travis_retry travis/install_pandoc.sh
 - travis_retry travis/install_liknorm.sh
