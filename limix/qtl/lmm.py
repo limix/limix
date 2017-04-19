@@ -22,31 +22,31 @@ class LMM:
 
     Args:
         snps (ndarray):
-            [N, S] ndarray of S SNPs for N individuals.
+            (`N`, `S`) ndarray of `S` SNPs for `N` individuals.
         pheno (ndarray):
-            [N, P] ndarray of P phenotype sfor N individuals.
+            (`N`, `P`) ndarray of `P` phenotype sfor `N` individuals.
             If phenotypes have missing values, then the subset of
             individuals used for each phenotype column will be subsetted.
         K (ndarray, optional):
-            [N, N] ndarray of LMM-covariance/kinship coefficients (optional)
+            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients (optional)
             If not provided, then standard linear regression is considered.
         covs (ndarray, optional):
-            [N, D] ndarray of D covariates for N individuals.
-            By default, covs is a [N, 1] vector of ones.
+            (`N`, `D`) ndarray of `D` covariates for `N` individuals.
+            By default, ``covs`` is a (`N`, `1`) array of ones.
         test ({'lrt', 'f'}, optional):
             test statistic.
             'lrt' for likelihood ratio test (default) or 'f' for F-test.
         NumIntervalsDelta0 (int, optional):
             number of steps for delta optimization on the null model.
-            By default `NumIntervalsDelta0` is 100.
+            By default ``NumIntervalsDelta0`` is 100.
         NumIntervalsDeltaAlt (int, optional):
             number of steps for delta optimization on the alternative model.
-            Requires `searchDelta`=True to have an effect.
+            Requires ``searchDelta=True`` to have an effect.
         searchDelta (bool, optional):
             if True, delta optimization on the alternative model is carried out.
-            By default `searchDelta` is False.
+            By default ``searchDelta`` is False.
         verbose (bool, optional):
-            if True, details such as runtime as displayed. 
+            if True, details such as runtime as displayed.
 
     Example
     -------
@@ -232,21 +232,21 @@ class LMM:
     def getBetaSNP(self):
         """
         Returns:
-            ndarray: [P, S] ndarray of SNP effect sizes.
+            ndarray: (`P`, `S`) ndarray of SNP effect sizes.
         """
         return self.beta_snp
 
     def getPv(self):
         """
         Returns:
-            ndarray: [P, S] ndarray of P-values.
+            ndarray: (`P`, `S`) ndarray of P-values.
         """
         return self.pvalues
 
     def getBetaSNPste(self):
         """
         Returns:
-            ndarray: [P, S] ndarray of standard errors over SNP effects.
+            ndarray: (`P`, `S`) ndarray of standard errors over SNP effects.
         """
         beta = self.getBetaSNP()
         pv = self.getPv()

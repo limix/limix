@@ -25,22 +25,18 @@ import time
 def qtl_test_lm(snps,pheno, covs=None, test='lrt',verbose=None):
     """
     Wrapper function for univariate single-variant association testing
-    linear models. 
+    using a linear model. 
 
     Args:
         snps (ndarray):
-            [N, S] ndarray of S SNPs for N individuals.
+            (`N`, `S`) ndarray of `S` SNPs for `N` individuals.
         pheno (ndarray):
-            [N, P] ndarray of P phenotype sfor N individuals.
+            (`N`, `P`) ndarray of `P` phenotype sfor `N` individuals.
             If phenotypes have missing values, then the subset of
             individuals used for each phenotype column will be subsetted.
         covs (ndarray, optional):
-            [N, D] ndarray of D covariates for N individuals.
-            By default, covs is a [N, 1] vector of ones.
-        pheno (ndarray):
-            [N, P] ndarray of P phenotype sfor N individuals.
-            If phenotypes have missing values, then the subset of
-            individuals used for each phenotype column will be subsetted.
+            (`N`, `D`) ndarray of `D` covariates for `N` individuals.
+            By default, ``covs`` is a (`N`, `1`) array of ones.
         test ({'lrt', 'f'}, optional):
             test statistic.
             'lrt' for likelihood ratio test (default) or 'f' for F-test.
@@ -62,11 +58,10 @@ def qtl_test_lm(snps,pheno, covs=None, test='lrt',verbose=None):
             >>> N = 100
             >>> S = 1000
             >>>
-            >>> # generate data
             >>> snps = (random.rand(N, S) < 0.2).astype(float)
             >>> pheno = random.randn(N, 1)
-            >>> lm = qtl_test_lm(snps, pheno)
             >>>
+            >>> lm = qtl_test_lm(snps, pheno)
             >>> print(lm.getPv()[:,:4])
             [[ 0.87957928  0.50646269  0.56664012  0.60155451]]
     """
@@ -75,25 +70,61 @@ def qtl_test_lm(snps,pheno, covs=None, test='lrt',verbose=None):
 
 def qtl_test_lmm(snps,pheno,K=None,covs=None, test='lrt',NumIntervalsDelta0=100,NumIntervalsDeltaAlt=100,searchDelta=False,verbose=None):
     """
-    Univariate fixed effects linear mixed model test for all SNPs
-
-    If phenotypes have missing values, then the subset of individuals used for each phenotype column
-    will be subsetted
+    Wrapper function for univariate single-variant association testing
+    using a linear mixed model.
 
     Args:
-        snps:   [N x S] np.array of S SNPs for N individuals
-        pheno:  [N x 1] np.array of 1 phenotype for N individuals
-        K:      [N x N] np.array of LMM-covariance/kinship koefficients (optional)
-                        If not provided, then linear regression analysis is performed
-        covs:   [N x D] np.array of D covariates for N individuals
-        test:   'lrt' for likelihood ratio test (default) or 'f' for F-test
-        NumIntervalsDelta0:     number of steps for delta optimization on the null model (100)
-        NumIntervalsDeltaAlt:   number of steps for delta optimization on the alt. model (100), requires searchDelta=True to have an effect.
-        searchDelta:     Carry out delta optimization on the alternative model? if yes We use NumIntervalsDeltaAlt steps
-        verbose: print verbose output? (False)
+        snps (ndarray):
+            (`N`, `S`) ndarray of `S` SNPs for `N` individuals.
+        pheno (ndarray):
+            (`N`, `P`) ndarray of `P` phenotype sfor `N` individuals.
+            If phenotypes have missing values, then the subset of
+            individuals used for each phenotype column will be subsetted.
+        K (ndarray, optional):
+            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients (optional)
+            If not provided, then standard linear regression is considered.
+        covs (ndarray, optional):
+            (`N`, `D`) ndarray of `D` covariates for `N` individuals.
+            By default, ``covs`` is a (`N`, `1`) array of ones.
+        test ({'lrt', 'f'}, optional):
+            test statistic.
+            'lrt' for likelihood ratio test (default) or 'f' for F-test.
+        NumIntervalsDelta0 (int, optional):
+            number of steps for delta optimization on the null model.
+            By default ``NumIntervalsDelta0`` is 100.
+        NumIntervalsDeltaAlt (int, optional):
+            number of steps for delta optimization on the alternative model.
+            Requires ``searchDelta=True`` to have an effect.
+        searchDelta (bool, optional):
+            if True, delta optimization on the alternative model is carried out.
+            By default ``searchDelta`` is False.
+        verbose (bool, optional):
+            if True, details such as runtime as displayed.
 
     Returns:
-        LMM object
+        :class:`limix.qtl.LMM`: LIMIX LMM object
+
+    Example
+    -------
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from numpy import dot
+            >>> from limix.qtl import qtl_test_lmm
+            >>> random = RandomState(1)
+            >>>
+            >>> N = 100
+            >>> S = 1000
+            >>>
+            >>> snps = (random.rand(N, S) < 0.2).astype(float)
+            >>> pheno = random.randn(N, 1)
+            >>> W = random.randn(N, 10)
+            >>> kinship = dot(W, W.T) / float(10)
+            >>>
+            >>> lm = qtl_test_lmm(snps, pheno, kinship)
+            >>> print(lm.getPv()[:,:4])
+            [[ 0.85712431  0.46681538  0.58717204  0.55894821]]
     """
     lmm_ = LMM(snps=snps, pheno=pheno, K=K, covs=covs, test=test, NumIntervalsDelta0=NumIntervalsDelta0, NumIntervalsDeltaAlt=NumIntervalsDeltaAlt, searchDelta=searchDelta, verbose=verbose)
     return lmm_
