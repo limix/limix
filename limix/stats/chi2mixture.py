@@ -20,13 +20,13 @@ class Chi2mixture(object):
     degrees of freedom of the second component.
 
     Args:
-        scale_min: minimum value used for fitting the scale parameter
-        scale_max: maximum value used for fitting the scale parameter
-        dofmin: minimum value used for fitting the dof parameter
-        dofmax: maximum value used for fitting the dof parameter
-        qmax: only the top qmax quantile is used for the fit
-        n_interval: number of intervals when performing gridsearch
-        tol: tolerance of being zero
+        scale_min (float): minimum value used for fitting the scale parameter
+        scale_max (float): maximum value used for fitting the scale parameter
+        dofmin (float): minimum value used for fitting the dof parameter
+        dofmax (float): maximum value used for fitting the dof parameter
+        qmax (float): only the top qmax quantile is used for the fit
+        n_interval (int): number of intervals when performing gridsearch
+        tol (float): tolerance of being zero
 
     Example
     -------
@@ -120,11 +120,13 @@ class Chi2mixture(object):
 
     def sf(self, lrt):
         """
-        Computes the P values of a test statistics that follows the mixture
-        of chi2 under the null 
+        Computes the P values from test statistics lrt 
 
         Args:
             lrt (array_like): test statistics.
+
+        Returns:
+            array_like: pvalues 
         """
         _lrt = sp.copy(lrt)
         _lrt[lrt < self.tol] = 0

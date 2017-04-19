@@ -57,6 +57,39 @@ def qvalues1(PV,m=None,pi=1.0):
     return QV
 
 def qvalues(pv, m = None, return_pi0 = False, lowmem = False, pi0 = None, fix_lambda = None):
+    r"""
+    FDR estimation using Benjamini-Hochberg and Stories methods
+
+    Args:
+        pv (array_like): pvalues.
+        m (int): total number of tests. The default value is len(pv).
+        return_pi0 (bool): if True, also returns the estimated fraction
+                           of null p-values.
+        lowmem (bool): employs low-memory implementation that only uses
+                       one pv and one qv matrix.
+        pi0: fraction of true null.
+
+    Returns:
+        (tuple): tuple containing:
+            - **qv** (*array_like*): estimated qvalues
+            - **pi0** (*float*): estimated fraction of null p-values.
+              Only provided if return_counts is True.
+
+    Example
+    -------
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from limix.stats import qvalues
+            >>>
+            >>> pv = RandomState(1).rand(1000)
+            >>> qv, pi0 = qvalues(pv, return_pi0 = True)
+            >>> print(qv[:4])
+            [ 0.98737617  0.98737617  0.11437482  0.98737617]
+            >>> print('%.2f' % pi0)
+            1.00
+    """
 
     original_shape = pv.shape
 

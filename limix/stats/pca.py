@@ -6,10 +6,13 @@ def pca(X, ncomp):
         ncomp (int): number of components.
 
     Returns:
-        dict: analysis result containing:
-            - array_like: first components ordered by explained variance.
-            - array_like: explained variance.
-            - array_like: percentage of variance explained.
+        dict: dict containing:
+            - **components** (*array_like*):
+              first components ordered by explained variance.
+            - **explained_variance** (*array_like*):
+              explained variance.
+            - **explained_variance_ratio** (*array_like*):
+              percentage of variance explained.
 
     Example
     -------
