@@ -26,7 +26,7 @@ def setup_package():
         'scikit-learn', 'matplotlib', 'bokeh', 'limix-core'
     ]
     tests_require = ['pytest']
-    recommended = {"limix-legacy": ["limix-legacy>=1.0.0"]}
+    recommended = {"legacy": ["limix-legacy>=1.0.0"]}
 
     metadata = dict(
         name='limix',
