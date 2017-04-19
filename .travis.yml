@@ -17,9 +17,9 @@ before_install:
 script:
 - python setup.py sdist
 - 'if [ ${LEGACY} = "true" ]; then
-       travis_retry pip install dist/`ls dist | grep -i -E '\.(gz)$' | head -1`[legacy] -vvv;
+       travis_retry pip install dist/`ls dist | grep -i -E \'\.(gz)$\' | head -1`[legacy] -vvv;
    else
-       travis_retry pip install dist/`ls dist | grep -i -E '\.(gz)$' | head -1` -vvv;
+       travis_retry pip install dist/`ls dist | grep -i -E \'\.(gz)$\' | head -1` -vvv;
    fi'
 - pushd /
 - python -c "import sys; import limix; sys.exit(limix.test())"
