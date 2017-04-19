@@ -5,6 +5,28 @@ import scipy.stats as STATS
 
 
 class Chi2mixture(object):
+    """
+    Class for evaluation of P values for a test statistic that follows a
+    mixture of chi2-distributed random variables under the null 
+
+    .. math::
+
+        (1-\pi)\chi^2(0) + \pi a \chi^2(d).
+
+    Here :math:`\pi` is the probability being in the first component and
+    :math:`a` and :math:`d` are the scale parameter and the number of
+    degrees of freedom of the second component.
+
+    Args:
+        scale_min: minimum value used for fitting the scale parameter
+        scale_max: maximum value used for fitting the scale parameter
+        dofmin: minimum value used for fitting the dof parameter
+        dofmax: maximum value used for fitting the dof parameter
+        qmax: only the top qmax quantile is used for the fit
+        n_interval: number of intervals when performing gridsearch
+        tol: tolerance of being zero
+    """
+
     def __init__(self,
                  scale_min=0.1,
                  scale_max=5.0,
@@ -13,25 +35,6 @@ class Chi2mixture(object):
                  n_intervals=100,
                  qmax=0.1,
                  tol=0):
-        """
-        class for a mixture of chi2-distributed random variables of the form
-
-        (1-mixture)*chi2(0) + (mixture)*scale*chi2(dof),
-
-        where
-        scale   is the scaling parameter for the scales chi-square distribution
-        dof     are the degrees of freedom of the second component
-        mixture is the probability of beeing in the first component
-
-        input:
-        scale_min   minimum value used for fitting the scale parameter
-        scale_max   maximum value used for fitting the scale parameter
-        dofmin      minimum value used for fitting the dof parameter
-        dofmax      maximum value used for fitting the dof parameter
-        qmax        only the top qmax quantile is used for the fit
-        n_interval  number of intervals when performing gridsearch
-        tol        tolerance of being zero
-        """
 
         self.scale_min = scale_min
         self.scale_max = scale_max
@@ -43,36 +46,26 @@ class Chi2mixture(object):
 
     def estimate_chi2mixture(self, lrt):
         """
-        estimates the parameters of a mixture of a chi-squared random variable of degree
-        0 and a scaled chi-squared random variable of degree d
+        Estimates the parameters of the mixture of chi2 by fitting the
+        empirical distribution of null test statistic.
 
-        (1-mixture)*chi2(0) + (mixture)*scale*chi2(dof),
+        Args:
+            lrt (array_like): null test statistcs.
+        """
 
-        where
-        scale   is the scaling parameter for the scales chi-square distribution
-        dof     are the degrees of freedom of the second component
-        mixture is the probability of beeing in the first component
-
-        input:
-        lrt         [Ntests] vector of test statistics
-        """
-        """
-        step 1: estimate the probability of being in component one
-        """
+        #step 1: estimate the probability of being in component one
         self.mixture = 1 - (lrt <= self.tol).mean()
         n_false = SP.sum(lrt > self.tol)
-        """
-        step 2: only use the largest qmax fraction of test statistics to estimate the
-                remaining parameters
-        """
+
+        #step 2: only use the largest qmax fraction of test statistics to estimate the
+        #           remaining parameters
         n_fitting = SP.ceil(self.qmax * n_false)
         lrt_sorted = -SP.sort(-lrt)[:n_fitting]
         q = SP.linspace(0, 1, n_false)[1:n_fitting + 1]
         log_q = SP.log10(q)
-        """
-        step 3: fitting scale and dof by minimizing the squared error of the log10 p-values
-                with their theorietical values [uniform distribution]
-        """
+
+        #step 3: fitting scale and dof by minimizing the squared error of the log10 p-values
+        #        with their theorietical values [uniform distribution]
         MSE_opt = SP.inf
         MSE = SP.zeros((self.n_intervals, self.n_intervals))
 
@@ -90,8 +83,11 @@ class Chi2mixture(object):
 
     def sf(self, lrt):
         """
-        computes the survival function of a mixture of a chi-squared random variable of degree
-        0 and a scaled chi-squared random variable of degree d
+        Computes the P values of a test statistics that follows the mixture
+        of chi2 under the null 
+
+        Args:
+            lrt (array_like): test statistics.
         """
         _lrt = SP.copy(lrt)
         _lrt[lrt < self.tol] = 0
@@ -156,3 +152,4 @@ if __name__ == "__main__":
     alpha = 1e-3
     print('... alpha=1e-3')
     print(('...... type 1 error: %.2e' % (pval_test < alpha).mean()))
+

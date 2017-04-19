@@ -25,7 +25,6 @@ def gower_norm(K, out=None):
             0.748747252259
     """
 
-
     c = (K.shape[0] - 1) / (K.trace() - K.mean(0).sum())
     if out is None:
         return c * K
