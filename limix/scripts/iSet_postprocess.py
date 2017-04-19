@@ -3,7 +3,7 @@
 # All rights reserved.
 
 from optparse import OptionParser
-from limix_legacy.mtSet.core.iset_utils import calc_emp_pv_eff
+from limix.mtSet.core.iset_utils import calc_emp_pv_eff
 import pandas as pd
 import glob
 import os

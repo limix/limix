@@ -4,7 +4,7 @@
 
 import sys
 import os
-from limix_legacy.mtSet.core.analyzeCore import analyze
+from limix.mtSet.core.analyzeCore import analyze
 from optparse import OptionParser
 
 def entry_point():
