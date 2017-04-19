@@ -1,3 +1,17 @@
+# Copyright(c) 2014, The LIMIX developers (Christoph Lippert, Paolo Francesco Casale, Oliver Stegle)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import scipy as sp
 
 def plot_manhattan(posCum,pv,chromBounds=None,
@@ -30,7 +44,7 @@ def plot_manhattan(posCum,pv,chromBounds=None,
                         Must be in [0, 1].
         ax (:class:`matplotlib.axes.AxesSubplot`):
                 the target handle for this figure.
-                The default is the current axes.
+                If None, the current axes is set.
         thr_plotting (float): if specified, only P-values that are smaller
                               than thr_plotting are plotted.
         labelS (str): optional plotting label for significant variants.
