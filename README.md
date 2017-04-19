@@ -26,8 +26,6 @@ pip install limix
 
 ## Usage
 
-Refer to [documentation](https://limix.readthedocs.io) for more information.
-
 A good starting point is our package Vignettes.
 These tutorials are available from this repository:
 https://github.com/limix/limix-tutorials.
