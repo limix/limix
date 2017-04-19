@@ -32,9 +32,11 @@ pip install limix
 
 ## Usage
 
+Refer to [documentation](https://limix.readthedocs.io) for more information.
+
 A good starting point is our package Vignettes.
 These tutorials are available from this repository:
-https://github.com/PMBio/limix-tutorials.
+https://github.com/limix/limix-tutorials.
 
 The main package vignette can also be viewed using the ipython notebook viewer:
 http://nbviewer.ipython.org/github/pmbio/limix-tutorials/blob/master/index.ipynb.
