@@ -110,11 +110,8 @@ class LMM:
 
     def __init__(self, snps, pheno, K=None, covs=None, test='lrt', NumIntervalsDelta0=100, NumIntervalsDeltaAlt=100, searchDelta=False, verbose=None):
         #create column of 1 for fixed if nothing provide
-        try:
-            import limix_legacy.deprecated
-            import limix_legacy.deprecated as dlimix_legacy
-        except ImportError:
-            print("Please, install limix-legacy to use this functionality.")
+        import limix_legacy.deprecated
+        import limix_legacy.deprecated as dlimix_legacy
 
         if len(pheno.shape)==1:
             pheno = pheno[:,sp.newaxis]
@@ -145,11 +142,8 @@ class LMM:
 
     def process(self):
 
-        try:
-            import limix_legacy.deprecated
-            import limix_legacy.deprecated as dlimix_legacy
-        except ImportError:
-            print("Please, install limix-legacy to use this functionality.")
+        import limix_legacy.deprecated
+        import limix_legacy.deprecated as dlimix_legacy
 
         t0 = time.time()
         if self._lmm is None:

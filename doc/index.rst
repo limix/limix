@@ -9,13 +9,13 @@ Limix's documentation
 
    install
    io
-   stats
+   iSet
+   mtSet
    plot
    qtl
-   varDecomp
-   mtSet
-   iSet
+   stats
    util
+   varDecomp
 
 *****************
 Comments and bugs

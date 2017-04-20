@@ -23,17 +23,17 @@ def setup_package():
 
     setup_requires = pytest_runner
     install_requires = ['scikit-learn', 'matplotlib', 'limix-core',
-                        'dask[dataframe, distributed]', 'h5py', 'pandas-plink']
+                        'dask[dataframe, distributed]', 'h5py', 'pandas-plink',
+                        'limix-legacy']
     tests_require = ['pytest']
-    recommended = {"legacy": ["limix-legacy"]}
 
     console_scripts = [
-        'limix_runner=limix.scripts.limix_runner:entry_point [legacy]',
+        'limix_runner=limix.scripts.limix_runner:entry_point',
         'mtSet_postprocess=limix.scripts.mtSet_postprocess:entry_point',
         'mtSet_preprocess=limix.scripts.mtSet_preprocess:entry_point',
         'mtSet_simPheno=limix.scripts.mtSet_simPheno:entry_point',
         'mtSet_analyze=limix.scripts.mtSet_analyze:entry_point',
-        'limix_converter=limix.scripts.limix_converter:entry_point [legacy]',
+        'limix_converter=limix.scripts.limix_converter:entry_point',
         'iSet_analyze=limix.scripts.iSet_analyze:entry_point',
         'iSet_postprocess=limix.scripts.iSet_postprocess:entry_point',
     ]
@@ -55,7 +55,6 @@ def setup_package():
         install_requires=install_requires,
         setup_requires=setup_requires,
         tests_require=tests_require,
-        extras_require=recommended,
         include_package_data=True,
         classifiers=[
             "Development Status :: 5 - Production/Stable",

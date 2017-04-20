@@ -22,12 +22,10 @@ from limix.util.util_functions import vec
 from limix_core.covar import *
 from limix_core.gp import *
 from limix_core.mean import *
-import pdb
-import time
 import copy
 import warnings
 
-class VarianceDecomposition:
+class VarianceDecomposition(object):
     r"""Class for variance decomposition
 
     Args:

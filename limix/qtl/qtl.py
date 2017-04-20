@@ -260,11 +260,8 @@ def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,
             [[ 0.0413  0.0312 -0.0177 -0.098 ]
              [ 0.0139  0.1234  0.3204  0.2495]]
     """
-    try:
-        import limix_legacy.deprecated
-        import limix_legacy.deprecated as dlimix_legacy
-    except ImportError:
-        print("Please, install limix-legacy to use this functionality.")
+    import limix_legacy.deprecated
+    import limix_legacy.deprecated as dlimix_legacy
     #0. checks
     N  = phenos.shape[0]
     P  = phenos.shape[1]
@@ -449,11 +446,8 @@ def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=N
             >>> print(pvAlt[:,:4])
             [[ 0.9838  0.8664  0.3555  0.5244]]
     """
-    try:
-        import limix_legacy.deprecated
-        import limix_legacy.deprecated as dlimix_legacy
-    except ImportError:
-        print("Please, install limix-legacy to use this functionality.")
+    import limix_legacy.deprecated
+    import limix_legacy.deprecated as dlimix_legacy
     S=snps.shape[1]
     #0. checks
     N  = phenos.shape[0]
@@ -611,11 +605,8 @@ def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test=
             [[ 0.8179  0.2185  0.3338  0.077 ]]
     """
 
-    try:
-        import limix_legacy.deprecated
-        import limix_legacy.deprecated as dlimix_legacy
-    except ImportError:
-        print("Please, install limix-legacy to use this functionality.")
+    import limix_legacy.deprecated
+    import limix_legacy.deprecated as dlimix_legacy
     N=snps.shape[0]
     if covs is None:
         covs = np.ones((N,1))
@@ -716,11 +707,8 @@ def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter
              [ 0.77    0.4226  0.6165  0.8727]]
     """
 
-    try:
-        import limix_legacy.deprecated
-        import limix_legacy.deprecated as dlimix_legacy
-    except ImportError:
-        print("Please, install limix-legacy to use this functionality.")
+    import limix_legacy.deprecated
+    import limix_legacy.deprecated as dlimix_legacy
     verbose = dlimix_legacy.getVerbose(verbose)
 
     if K is None:
@@ -811,11 +799,8 @@ def forward_lmm_kronecker(snps,phenos,Asnps=None,Acond=None,K1r=None,K1c=None,K2
             qvadded
             qvall
     """
-    try:
-        import limix_legacy.deprecated
-        import limix_legacy.deprecated as dlimix_legacy
-    except ImportError:
-        print("Please, install limix-legacy to use this functionality.")
+    import limix_legacy.deprecated
+    import limix_legacy.deprecated as dlimix_legacy
     verbose = dlimix_legacy.getVerbose(verbose)
     #0. checks
     N  = phenos.shape[0]
@@ -962,10 +947,7 @@ def _estimateKronCovariances(phenos,K1r=None,K1c=None,K2r=None,K2c=None,covs=Non
     Returns:
         VarianceDecomposition object
     """
-    try:
-        import limix_legacy.modules.varianceDecomposition as VAR 
-    except ImportError:
-        print("Please, install limix-legacy to use this functionality.")
+    import limix_legacy.modules.varianceDecomposition as VAR 
 
     # from . import varianceDecomposition as VAR
     if verbose:
@@ -1056,10 +1038,7 @@ def qtl_test_interaction_GxE_1dof(snps,pheno,env,K=None,covs=None, test='lrt',ve
         pv:     [E x S] np.array of P values for interaction tests between all
                 E environmental variables and all S SNPs
     """
-    try:
-        import limix_legacy.deprecated as dlimix_legacy
-    except ImportError:
-        print("Please, install limix-legacy to use this functionality.")
+    import limix_legacy.deprecated as dlimix_legacy
     verbose = dlimix_legacy.getVerbose(verbose)
     N=snps.shape[0]
     if K is None:
