@@ -16,4 +16,7 @@ before_install:
 script:
 - travis_retry travis/test.sh
 notifications:
-  email: false
+  email:
+    recipients:
+      - casale@ebi.ac.uk
+    on_failure: always
