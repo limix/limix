@@ -81,7 +81,7 @@ def qtl_test_lmm(snps,pheno,K=None,covs=None, test='lrt',NumIntervalsDelta0=100,
             If phenotypes have missing values, then the subset of
             individuals used for each phenotype column will be subsetted.
         K (ndarray, optional):
-            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients (optional)
+            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients.
             If not provided, then standard linear regression is considered.
         covs (ndarray, optional):
             (`N`, `D`) ndarray of `D` covariates for `N` individuals.

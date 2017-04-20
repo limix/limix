@@ -3,7 +3,63 @@ from .mvSetFull import MvSetTestFull
 from .mvSetInc import MvSetTestInc
 import pandas as pd
 
-def fit_iSet(Y=None, Xr=None, F=None, Rr=None, factr=1e7, Rg=None, Ug=None, Sg=None, Ie=None, n_nulls=10):
+def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_nulls=10, factr=1e7):
+    """
+    Fit interaction set test (iSet).
+
+    Args:
+        Y (ndarray):
+            For complete design, the phenotype ndarray `Y` 
+            for `N` samples and `C` contexts has shape (`N`, `C`).
+            For stratified design, the phenotype ndarray `Y` has
+            shape (`N`, `1`) (each individual is phenotyped in only one context -
+            ``Ie`` specifies in which context each individuals has been phenotyped).
+        Xr (ndarray):
+            (`N`, `S`) genotype values for `N` samples and `S` variants
+            (defines the set component)
+        F (ndarray, optional):
+            (`N`, `K`) ndarray of `K` covariates for `N` individuals.
+            By default, ``F`` is a (`N`, `1`) array of ones.
+        Rg (ndarray, optional):
+            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients.
+            ``Ug`` and ``Sg`` can be provided instead of ``Rg``.
+            If neither ``Rg`` nor ``Ug`` and ``Sg`` are provided,
+            iid normal residuals are considered.
+        Ug (ndarray, optional):
+            (`N`, `N`) ndarray of eigenvectors of ``Rg``. 
+            ``Ug`` and ``Sg`` can be provided instead of ``Rg``.
+            If neither ``Rg`` nor ``Ug`` and ``Sg`` are provided,
+            iid normal residuals are considered.
+        Sg (ndarray, optional):
+            (`N`, ) ndarray of eigenvalues of ``Rg``.
+            ``Ug`` and ``Sg`` can be provided instead of ``Rg``.
+            If neither ``Rg`` nor ``Ug`` and ``Sg`` are provided,
+            iid normal residuals are considered.
+        Ie (ndarry, optional):
+            (`N`, `1`) binary indicator for analysis of stratified designs.
+            More specifically ``Ie`` specifies in which context each
+            individuals has been phenotyped. 
+        n_nulls (ndarray, optional):
+            number of parametric bootstrap. This parameter determine
+            the minimum P value that can be estimated.
+            The default value is 10.
+        factr (float, optional):
+            optimization paramenter that determines the accuracy of the solution
+            (see scipy.optimize.fmin_l_bfgs_b for more details).
+
+    Returns:
+        (tuple): tuple containing:
+            - **df** (*:class:`pandas.DataFrame`*):
+              contains test statistcs of mtSet, iSet, and iSet-GxC tests and
+              the variance exaplained by persistent, GxC and
+              heterogeneity-GxC effects.
+            - **df0** (*:class:`pandas.DataFrame`*):
+              contains null test statistcs of mtSet, iSet, and iSet-GxC tests.
+    """
+    # TODO: add condition C==2
+    # TODO: add condition that Ie and Rg do not co-occurr
+    # TODO: add conditions in a way that the code does not break
+
     # data
     noneNone = Sg is not None and Ug is not None
     bgRE = Rg is not None or noneNone
@@ -28,7 +84,7 @@ def fit_iSet(Y=None, Xr=None, F=None, Rr=None, factr=1e7, Rg=None, Ug=None, Sg=N
     #define mtSet
     if bgRE:        mvset = MvSetTestFull(Y=Y,Xr=Xr,Rg=Rg,Ug=Ug,Sg=Sg,factr=factr)
     elif strat:     mvset = MvSetTestInc(Y=Y,Xr=Xr,F=F,Ie=Ie,factr=factr)
-    else:           mvset = MvSetTest(Y=Y,Xr=Xr,F=F,Rr=Rr,factr=factr)
+    else:           mvset = MvSetTest(Y=Y,Xr=Xr,F=F,factr=factr)
 
     RV = {}
     RV['mtSet LLR'] = mvset.assoc()
