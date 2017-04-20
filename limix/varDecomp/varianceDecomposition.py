@@ -28,26 +28,70 @@ import copy
 import warnings
 
 class VarianceDecomposition:
-    """
-    Variance decomposition module in LIMIX
-    This class mainly takes care of initialization and eases the interpretation of complex variance decompositions
+    r"""Class for variance decomposition
 
-    vc = varianceDecomposition(Y) # set phenotype matrix Y [N,P]
-    vc.addFixedEffect() # set intercept
-    vc.addRandomEffectTerm(K=K) # set genetic random effect with genetic kinship as sample covariance matrix [N,N]
-    vc.addRandomEffectTerm(is_noise=True) # set noisy random effect
-    vc.optimize() # train the gaussian process
-    vc.getTraitCovar(0) # get estimated trait covariance for random effect 1 [P,P]
-    vc.getVarianceComps() # get variance components of the different terms for different traits as [P,n_randEffs]
+    Args:
+        Y (ndarray):
+            (`N`, `P`) phenotype matrix
+        standardize (bool):
+            if True, impute missing phenotype values by mean value,
+            zero-mean and unit-variance phenotype.
+            The default value is False.
+
+    Example
+    -------
+
+        Basic example of usage.
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from limix.varDecomp import VarianceDecomposition
+            >>> from numpy import dot, eye, ones
+            >>> random = RandomState(1)
+            >>>
+            >>> N = 100
+            >>> P = 3
+            >>>
+            >>> # generate data
+            >>> pheno = random.randn(N, P)
+            >>> W = random.randn(N, 10)
+            >>> kinship = dot(W, W.T) / float(10)
+            >>> kinship+= 1e-4*eye(N)
+            >>> F1 = ones((N, 1))
+            >>> A1 = eye(P)
+            >>> F2 = random.randn(N, 2)
+            >>> A2 = ones((1, P))
+            >>>
+            >>> vc = VarianceDecomposition(pheno)
+            >>> vc.addFixedEffect(F1, A1)
+            >>> vc.addFixedEffect(F2, A2)
+            >>> vc.addRandomEffect(K=kinship)
+            >>> vc.addRandomEffect(is_noise=True)
+            >>> conv = vc.optimize()
+            Marginal likelihood optimization.
+            ('Converged:', True)
+            Time elapsed: 0.43 s
+            Log Marginal Likelihood: 143.1492065.
+            Gradient norm: 1.3620888.
+            >>>
+            >>> print(vc.getTraitCovar(0))
+            [[ 0.00967606  0.02297813 -0.00318316]
+             [ 0.02297813  0.05621212 -0.00624838]
+             [-0.00318316 -0.00624838  0.00960441]]
+            >>> print(vc.getTraitCovar(1))
+            [[ 1.00288483 -0.12120851 -0.00521124]
+             [-0.12120851  0.82837576 -0.04123326]
+             [-0.00521124 -0.04123326  0.81472094]]
+            >>> print(vc.getWeights(0))
+            [[ 0.03895162  0.08990583  0.12130513]]
+            >>> print(vc.getWeights(1))
+            [[-0.01757139]
+             [-0.00952943]]
     """
 
     def __init__(self, Y, standardize=False):
-        """
-        Args:
-            Y:              phenotype matrix [N, P]
-            standardize:    if True, impute missing phenotype values by mean value,
-                            zero-mean and unit-variance phenotype (Boolean, default False)
-        """
+
         #check whether Y is a vector, if yes reshape
         if (len(Y.shape)==1):
             Y = Y[:,sp.newaxis]

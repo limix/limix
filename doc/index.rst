@@ -12,6 +12,7 @@ Limix's documentation
    stats
    plot
    qtl
+   varDecomp
    util
 
 *****************
