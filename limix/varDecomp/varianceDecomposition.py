@@ -69,11 +69,8 @@ class VarianceDecomposition:
             >>> vc.addRandomEffect(K=kinship)
             >>> vc.addRandomEffect(is_noise=True)
             >>> conv = vc.optimize()
-            Marginal likelihood optimization.
-            ('Converged:', True)
-            Time elapsed: 0.43 s
-            Log Marginal Likelihood: 143.1492065.
-            Gradient norm: 1.3620888.
+            >>> print(conv)
+            True
             >>>
             >>> print(vc.getTraitCovar(0))
             [[ 0.00967606  0.02297813 -0.00318316]
@@ -249,7 +246,7 @@ class VarianceDecomposition:
         self._desync()
 
 
-    def optimize(self, init_method='default', inference=None, n_times=10, perturb=False, pertSize=1e-3, verbose=None):
+    def optimize(self, init_method='default', inference=None, n_times=10, perturb=False, pertSize=1e-3, verbose=False):
         """
         Train the model using the specified initialization strategy
 
@@ -287,7 +284,7 @@ class VarianceDecomposition:
             elif perturb:
                 params = {'covar': params0['covar'] + pertSize * sp.randn(params0['covar'].shape[0])}
                 self.gp.setParams(params)
-            conv, info = self.gp.optimize()
+            conv, info = self.gp.optimize(verbose=verbose)
             if conv:    break
 
         if verbose:

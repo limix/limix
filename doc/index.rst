@@ -13,6 +13,8 @@ Limix's documentation
    plot
    qtl
    varDecomp
+   mtSet
+   iSet
    util
 
 *****************

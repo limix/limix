@@ -43,16 +43,19 @@ def define_gp(Y, Xr, F, type, Rr):
     return _gp
 
 class MvSetTest():
+    """
+    Args:
+        Y (ndarray):
+            (`N`, `P`) phenotype matrix for `N` samples and `P` traits
+        Xr (ndarray):
+            (`N`, `S`) genotype values for `N` samples and `S` variants
+            (defines the set component)
+        factr (float):
+            optimization paramenter that determines the accuracy of the solution
+            (see scipy.optimize.fmin_l_bfgs_b for more details).
+    """
 
-    def __init__(self, Y=None, Xr=None, F=None, Rr=None, factr=1e7, debug=False):
-        """
-        Args:
-            Y:          [N, P] phenotype matrix
-            Xr:         [N, S] genotype data of the set component
-            R:          [N, S] genotype data of the set component
-            factr:      paramenter that determines the accuracy of the solution
-                        (see scipy.optimize.fmin_l_bfgs_b for more details)
-        """
+    def __init__(self, Y=None, Xr=None, F=None, factr=1e7, debug=False):
         # avoid SVD failure by adding some jitter
         Xr+= 2e-6*(sp.rand(*Xr.shape)-0.5)
         # make sure it is normalised
@@ -68,11 +71,8 @@ class MvSetTest():
         self.gp = {}
         self.info = {}
         self.lowrank = Xr.shape[1]<Xr.shape[0]
-        if Rr is not None:
-            self.Rr = Rr
-        else:
-            if self.lowrank:        self.Rr = None
-            else:                   self.Rr = sp.dot(Xr, Xr.T)
+        if self.lowrank:        self.Rr = None
+        else:                   self.Rr = sp.dot(Xr, Xr.T)
 
     def assoc(self):
         # fit model
