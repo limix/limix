@@ -537,25 +537,78 @@ def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=N
 
 
 def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test='lrt'):
-    """
-    I-variate fixed effects interaction test for phenotype specific SNP effects
+    r"""
+    Wrapper function for single-variant interaction test using LMMs.
 
     Args:
-        snps:   [N x S] np.array of S SNPs for N individuals (test SNPs)
-        pheno:  [N x 1] np.array of 1 phenotype for N individuals
-        Inter:  [N x I] np.array of I interaction variables to be tested for N
-                        individuals (optional). If not provided, only the SNP is
-                        included in the null model.
-        Inter0: [N x I0] np.array of I0 interaction variables to be included in the
-                         background model when testing for interaction with Inter
-        covs:   [N x D] np.array of D covariates for N individuals
-        K:      [N x N] np.array of LMM-covariance/kinship koefficients (optional)
-                        If not provided, then linear regression analysis is performed
-        test:    'lrt' for likelihood ratio test (default) or 'f' for F-test
+        snps (ndarray):
+            (`N`, `S`) ndarray of `S` SNPs for `N` individuals.
+        pheno (ndarray):
+            (`N`, `P`) ndarray of `P` phenotype sfor `N` individuals.
+            If phenotypes have missing values, then the subset of
+            individuals used for each phenotype column will be subsetted.
+        Inter (ndarray, optional):
+            (`N`, `I`) ndarray of `I` interaction variables to be tested
+            for `N` individuals.
+        Inter0 (ndarray, optional):
+            (`N`, `I0`) ndarray of `I0` interaction variables to be included
+            for `N` individuals to be included both in the alternative and
+            in the null model.
+            By default `Inter0` is a (`N`, `1`) array of ones.
+        covs (ndarray, optional):
+            (`N`, `D`) ndarray of `D` covariates for `N` individuals.
+            By default, ``covs`` is a (`N`, `1`) array of ones.
+        K (ndarray, optional):
+            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients (optional)
+            If not provided, then standard linear regression is considered.
+        test ({'lrt', 'f'}, optional):
+            test statistic.
+            'lrt' for likelihood ratio test (default) or 'f' for F-test.
 
     Returns:
-        limix LMM object
+        :class:`limix_legacy.deprecated.CInteractLMM()`:
+            limix CInteractLMM object
+
+    Example
+    -------
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from numpy import dot, eye, ones, concatenate
+            >>> from limix.qtl import qtl_test_interaction_lmm 
+            >>> random = RandomState(1)
+            >>>
+            >>> N = 100
+            >>> S = 1000
+            >>>
+            >>> snps = (random.rand(N, S) < 0.2).astype(float)
+            >>> pheno = random.randn(N, 1)
+            >>> W = random.randn(N, 10)
+            >>> kinship = dot(W, W.T) / float(10)
+            >>> kinship+= 1e-4 * eye(N)
+            >>>
+            >>> #environments to include in null and alt models
+            >>> Inter0 = ones((N,1))
+            >>>
+            >>> #environments to include in alt model
+            >>> Inter = random.randn(N,2)
+            >>>
+            >>> #environments are also included as fixed effect covariates
+            >>> mean = ones([N, 1])
+            >>> covs = concatenate([mean, Inter], 1)
+            >>>
+            >>> #interaction test
+            >>> lmi = qtl_test_interaction_lmm(snps, pheno, Inter=Inter,
+            ...                                Inter0=Inter0)
+            >>> pvi = lmi.getPv()
+            >>>
+            >>> print(pvi.shape)
+            (1, 1000)
+            >>> print(pvi[:,:4])
+            [[ 0.81788159  0.2185171   0.33383806  0.07696514]]
     """
+
     try:
         import limix_legacy.deprecated
         import limix_legacy.deprecated as dlimix_legacy
@@ -591,29 +644,76 @@ def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test=
 
 
 def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter=2,test='lrt',verbose=None,**kw_args):
-    """
-    univariate fixed effects test with forward selection
+    r"""
+    Wrapper function for univariate single-variant test with forward selection
 
     Args:
-        snps:   [N x S] np.array of S SNPs for N individuals (test SNPs)
-        pheno:  [N x 1] np.array of 1 phenotype for N individuals
-        K:      [N x N] np.array of LMM-covariance/kinship koefficients (optional)
-                        If not provided, then linear regression analysis is performed
-        covs:   [N x D] np.array of D covariates for N individuals
-        threshold:      (float) P-value thrashold for inclusion in forward selection (default 5e-8)
-        maxiter:        (int) maximum number of interaction scans. First scan is
-                        without inclusion, so maxiter-1 inclusions can be performed. (default 2)
-        test:           'lrt' for likelihood ratio test (default) or 'f' for F-test
-        verbose: print verbose output? (False)
+        snps (ndarray):
+            (`N`, `S`) ndarray of `S` SNPs for `N` individuals.
+        pheno (ndarray):
+            (`N`, `P`) ndarray of `P` phenotype sfor `N` individuals.
+            If phenotypes have missing values, then the subset of
+            individuals used for each phenotype column will be subsetted.
+        K (ndarray, optional):
+            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients (optional)
+            If not provided, then standard linear regression is considered.
+        covs (ndarray, optional):
+            (`N`, `D`) ndarray of `D` covariates for `N` individuals.
+            By default, ``covs`` is a (`N`, `1`) array of ones.
+        qvalues (bool, optional):
+            if True, ``threshold`` is set to Storey qvalues to control FDR.
+            (default is False)
+        threshold (float, optional):
+            P-value thrashold for inclusion in forward selection (default 5e-8).
+            If ``qvalues=True``, the threshold is set to to Storey qvalues.
+        maxiter (int, optional):
+            maximum number of interaction scans. First scan is
+            without inclusion, so maxiter-1 inclusions can be performed.
+            (default 2)
+        test ({'lrt', 'f'}, optional):
+            test statistic.
+            'lrt' for likelihood ratio test (default) or 'f' for F-test.
+        verbose (bool, optional):
+            print verbose output. (default is False)
 
     Returns:
-        lm:     limix LMM object
-        RV:     dictionary
-                RV['iadded']:   array of indices of SNPs included in order of inclusion
-                RV['pvadded']:  array of Pvalues obtained by the included SNPs in iteration
-                                before inclusion
-                RV['pvall']:    [Nadded x S] np.array of Pvalues for all iterations
+        (tuple): tuple containing:
+            - **lmm** (*:class:`limix.qtl.LMM`*): LIMIX LMM object 
+            - **res** (*dict*): {**iadded**, **pvadded**, **pvall**}.
+              **iadded** is an ndarray of indices of SNPs included in order
+              of inclusion, **pvadded** is an ndarray of Pvalues obtained by
+              the included SNPs in iteration and **pvall** is a  (`Nadded`, `S`)
+              ndarray of Pvalues for all iterations
+
+    Example
+    -------
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from numpy import dot, eye, ones
+            >>> from limix.qtl import forward_lmm 
+            >>> random = RandomState(1)
+            >>>
+            >>> N = 100
+            >>> S = 1000
+            >>>
+            >>> snps = (random.rand(N, S) < 0.2).astype(float)
+            >>> pheno = random.randn(N, 1)
+            >>> W = random.randn(N, 10)
+            >>> kinship = dot(W, W.T) / float(10)
+            >>> kinship+= 1e-4 * eye(N)
+            >>>
+            >>> #forward lmm
+            >>> lmm, res = forward_lmm(snps, pheno, K=kinship, threshold=1.) 
+            >>>
+            >>> print(res['pvall'].shape)
+            (2, 1000)
+            >>> print(res['pvall'][:,:4])
+            [[ 0.85712434  0.46681543  0.58717201  0.55894826]
+             [ 0.77000277  0.42262459  0.61648887  0.87274915]]
     """
+
     try:
         import limix_legacy.deprecated
         import limix_legacy.deprecated as dlimix_legacy
