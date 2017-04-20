@@ -13,6 +13,7 @@ python:
 before_install:
 - travis_retry bash <(curl -s https://raw.githubusercontent.com/limix/travis-tools/master/get-travis-tools.sh)
 - travis_retry travis/before-install.sh
+- travis_retry travis/test-before-install.sh
 script:
 - travis_retry travis/script.sh
 after_success:
