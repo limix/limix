@@ -25,7 +25,7 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
             (`N`, `N`) ndarray of LMM-covariance/kinship coefficients.
             ``Ug`` and ``Sg`` can be provided instead of ``Rg``.
             If neither ``Rg`` nor ``Ug`` and ``Sg`` are provided,
-            iid normal residuals are considered.
+            the null models has iid normal residuals. 
         Ug (ndarray, optional):
             (`N`, `N`) ndarray of eigenvectors of ``Rg``. 
             ``Ug`` and ``Sg`` can be provided instead of ``Rg``.
@@ -65,9 +65,6 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
         This example shows how to fit iSet when considering complete designs and
         modelling population structure/relatedness by introducing the top principle
         components of the genetic relatedness matrix (``pc_rrm``) as fixed effects.
-        For more info see the `iSet tutorial`_.
-
-        .. _iSet tutorial: https://github.com/limix/limix-tutorials/tree/master/iSet 
 
         .. doctest::
 
@@ -99,11 +96,13 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
             iSet LLR               0.137
             iSet-het LLR          -0.000
             mtSet LLR              0.166
-            >>>
-            >>> print(df0.round(3))
-               iSet LLR0  iSet-het LLR0  mtSet LLR0
-            0      0.028          0.568       1.095
-            1      0.328         -0.000       1.997
+
+        Null test statistics: 
+
+        >>> print(df0.round(3))
+           iSet LLR0  iSet-het LLR0  mtSet LLR0
+        0      0.028          0.568       1.095
+        1      0.328         -0.000       1.997
 
         This example shows how to fit iSet when considering complete designs
         and modelling population structure/relatedness using the full
@@ -129,11 +128,13 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
             iSet LLR               1.098
             iSet-het LLR           1.014
             mtSet LLR              0.154
-            >>>
-            >>> print(df0.round(3))
-               iSet LLR0  iSet-het LLR0  mtSet LLR0
-            0      5.709         -0.000       0.000
-            1      0.185          1.354       0.056
+
+        Null test statistics: 
+
+        >>> print(df0.round(3))
+           iSet LLR0  iSet-het LLR0  mtSet LLR0
+        0      5.709         -0.000       0.000
+        1      0.185          1.354       0.056
 
         This example shows how to fit iSet when considering stratified designs
         and modelling population structure/relatedness by introducing
@@ -160,11 +161,18 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
             iSet LLR               0.648
             iSet-het LLR           0.000
             mtSet LLR              1.177
-            >>>
-            >>> print(df0.round(3))
-               iSet LLR0  iSet-het LLR0  mtSet LLR0
-            0      1.135            0.0        0.21
-            1      1.069            0.0       -0.00
+
+        Null test statistcs:
+
+        >>> print(df0.round(3))
+           iSet LLR0  iSet-het LLR0  mtSet LLR0
+        0      1.135            0.0        0.21
+        1      1.069            0.0       -0.00
+
+        For more info and examples see the `iSet tutorial`_.
+
+        .. _iSet tutorial: https://github.com/limix/limix-tutorials/tree/master/iSet 
+
     """
     # data
     noneNone = Sg is not None and Ug is not None
