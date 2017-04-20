@@ -24,7 +24,7 @@ def setup_package():
     setup_requires = pytest_runner
     install_requires = ['scikit-learn', 'matplotlib', 'limix-core',
                         'dask[dataframe, distributed]', 'h5py', 'pandas-plink',
-                        'legacy']
+                        'limix-legacy']
     tests_require = ['pytest']
 
     console_scripts = [
