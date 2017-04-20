@@ -116,7 +116,8 @@ class MvSetTestInc():
         LLR0 = sp.zeros(n_nulls)
         for ni in range(n_nulls):
             Xb = sp.dot(self.mean.W, self.mean.b)
-            _Y = Xb+self.gp['block'].covar.Kh_dot(sp.randn(self.Y.shape[0],1))
+            Z = sp.randn(self.Y.shape[0],1)
+            _Y = Xb+self.gp['block'].covar.Kh_dot(Z)
             mvset0 = MvSetTestInc(Y=_Y, F=self.F, Xr=self.Xr, Ie=self.Ie)
             LLR0[ni] = mvset0.gxe()
         return LLR0
@@ -125,7 +126,8 @@ class MvSetTestInc():
         LLR0 = sp.zeros(n_nulls)
         for ni in range(n_nulls):
             Xb = sp.dot(self.mean.W, self.mean.b)
-            _Y = Xb+self.gp['rank1'].covar.Kh_dot(sp.randn(self.Y.shape[0],1))
+            Z = sp.randn(self.Y.shape[0],1)
+            _Y = Xb+self.gp['rank1'].covar.Kh_dot(Z)
             mvset0 = MvSetTestInc(Y=_Y, F=self.F, Xr=self.Xr, Ie=self.Ie)
             LLR0[ni] = mvset0.gxehet()
         return LLR0
@@ -163,9 +165,12 @@ class MvSetTestInc():
             # tr(P WW) = tr(PWWP) = ((PW)**2).sum()
             # tr(P D) = (PD).sum() = D.sum() - 1/n * (Ones*D).sum()
             #                      = D.sum() - D.sum()
-            PW = self.gp[type].covar.W()
-            PW-= PW.mean(0)
-            var_r = (PW**2).sum()/ float(self.Y.size-1)
+            def var_WW(W):
+                PW = W-W.mean(0)
+                rv = (PW**2).sum()
+                rv/= float(W.shape[0]-1)
+                return rv
+            var_r = var_WW(self.gp[type].covar.W()) 
             var_c = sp.var(sp.dot(self.mean.W, self.gp[type].mean.b))
             D = self.gp[type].covar.d_inv()**(-1)
             var_n = (1-1/float(D.shape[0]))*D.sum()/float(self.Y.size-1)
@@ -180,12 +185,23 @@ class MvSetTestInc():
                 _var = sp.array([_var_r, var_c, _var_n])
                 print(((_var-RV['var'])**2).mean())
             if type=='full':
-                trRr = (self.Xr**2).sum()
+                def build_W(C):
+                    S, U = la.eigh(C)
+                    I = S>1e-9
+                    Ch = U[:,I]*S[I]**0.5
+                    RV = sp.zeros((self.Y.shape[0],
+                                   Ch.shape[1]*self.Xr.shape[1]))
+                    RV[self.Ie] = sp.kron(Ch[0], self.Xr[self.Ie])
+                    RV[~self.Ie] = sp.kron(Ch[1], self.Xr[~self.Ie])
+                    return RV
                 # calculate within region vcs
                 Cr_block = sp.mean(RV['Cr']) * sp.ones(RV['Cr'].shape)
                 Cr_rank1 = lowrank_approx(RV['Cr'], rank=1)
-                var_block = sp.trace(Cr_block)*trRr / float(self.Y.size-1)
-                var_rank1 = sp.trace(Cr_rank1)*trRr / float(self.Y.size-1)
+                var_block = var_WW(build_W(Cr_block))
+                var_rank1 = var_WW(build_W(Cr_rank1))
+                #trRr = (self.Xr**2).sum()
+                #var_block = sp.trace(Cr_block)*trRr / float(self.Y.size-1)
+                #var_rank1 = sp.trace(Cr_rank1)*trRr / float(self.Y.size-1)
                 RV['var_r'] = sp.array([var_block, var_rank1-var_block, var_r-var_rank1])
         return RV
 

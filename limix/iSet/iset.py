@@ -2,6 +2,7 @@ from .mvSet import MvSetTest
 from .mvSetFull import MvSetTestFull
 from .mvSetInc import MvSetTestInc
 import pandas as pd
+import scipy as sp
 
 def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_nulls=10, factr=1e7):
     """
@@ -36,9 +37,11 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
             If neither ``Rg`` nor ``Ug`` and ``Sg`` are provided,
             iid normal residuals are considered.
         Ie (ndarry, optional):
-            (`N`, `1`) binary indicator for analysis of stratified designs.
+            (`N`, `1`) boolean ndarray indicator for analysis of
+            stratified designs.
             More specifically ``Ie`` specifies in which context each
             individuals has been phenotyped. 
+            Needs to be specified for analysis of stratified designs.
         n_nulls (ndarray, optional):
             number of parametric bootstrap. This parameter determine
             the minimum P value that can be estimated.
@@ -55,11 +58,114 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
               heterogeneity-GxC effects.
             - **df0** (*:class:`pandas.DataFrame`*):
               contains null test statistcs of mtSet, iSet, and iSet-GxC tests.
-    """
-    # TODO: add condition C==2
-    # TODO: add condition that Ie and Rg do not co-occurr
-    # TODO: add conditions in a way that the code does not break
 
+    Example
+    -------
+
+        This example shows how to fit iSet when considering complete designs and
+        modelling population structure/relatedness by introducing the top principle
+        components of the genetic relatedness matrix (``pc_rrm``) as fixed effects.
+        For more info see the `iSet tutorial`_.
+
+        .. _iSet tutorial: https://github.com/limix/limix-tutorials/tree/master/iSet 
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from limix.iSet import fit_iSet 
+            >>> from numpy import ones, concatenate
+            >>> import scipy as sp
+            >>>
+            >>> random = RandomState(1)
+            >>> sp.random.seed(0)
+            >>>
+            >>> N = 100
+            >>> C = 2
+            >>> S = 4
+            >>>
+            >>> snps = (random.rand(N, S) < 0.2).astype(float)
+            >>> pheno = random.randn(N, C)
+            >>> mean = ones((N, 1))
+            >>> pc_rrm = random.randn(N, 4)
+            >>> covs = concatenate([mean, pc_rrm], 1)
+            >>>
+            >>> df, df0 = fit_iSet(Y=pheno, Xr=snps, F=covs, n_nulls=2)
+            >>>
+            >>> print(df.round(3).T)
+                                       0
+            Heterogeneity-GxC var  0.000
+            Persistent Var         0.005
+            Rescaling-GxC Var      0.005
+            iSet LLR               0.137
+            iSet-het LLR          -0.000
+            mtSet LLR              0.166
+            >>>
+            >>> print(df0.round(3))
+               iSet LLR0  iSet-het LLR0  mtSet LLR0
+            0      0.028          0.568       1.095
+            1      0.328         -0.000       1.997
+
+        This example shows how to fit iSet when considering complete designs
+        and modelling population structure/relatedness using the full
+        genetic relatedness matrix.
+
+        .. doctest::
+
+            >>> from numpy import dot, eye
+            >>> random = RandomState(1)
+            >>> sp.random.seed(0)
+            >>>
+            >>> W = random.randn(N, 10)
+            >>> kinship = dot(W, W.T) / float(10)
+            >>> kinship+= 1e-4 * eye(N)
+            >>>
+            >>> df, df0 = fit_iSet(Y=pheno, Xr=snps, Rg=kinship, n_nulls=2)
+            >>>
+            >>> print(df.round(3).T)
+                                       0
+            Heterogeneity-GxC var  0.000
+            Persistent Var         0.005
+            Rescaling-GxC Var      0.005
+            iSet LLR               1.098
+            iSet-het LLR           1.014
+            mtSet LLR              0.154
+            >>>
+            >>> print(df0.round(3))
+               iSet LLR0  iSet-het LLR0  mtSet LLR0
+            0      5.709         -0.000       0.000
+            1      0.185          1.354       0.056
+
+        This example shows how to fit iSet when considering stratified designs
+        and modelling population structure/relatedness by introducing
+        the top principle components of the genetic relatedness matrix
+        (``pc_rrm``) as fixed effects.
+        iSet does not support models with full genetic relatedness matrix
+        for stratified designs.
+
+        .. doctest::
+
+            >>> random = RandomState(1)
+            >>> sp.random.seed(0)
+            >>>
+            >>> pheno = random.randn(N, 1)
+            >>> Ie = random.randn(N)<0.
+            >>>
+            >>> df, df0 = fit_iSet(Y=pheno, Xr=snps, F=covs, Ie=Ie, n_nulls=2)
+            >>>
+            >>> print(df.round(3).T)
+                                       0
+            Heterogeneity-GxC var -0.000
+            Persistent Var         0.064
+            Rescaling-GxC Var      0.006
+            iSet LLR               0.648
+            iSet-het LLR           0.000
+            mtSet LLR              1.177
+            >>>
+            >>> print(df0.round(3))
+               iSet LLR0  iSet-het LLR0  mtSet LLR0
+            0      1.135            0.0        0.21
+            1      1.069            0.0       -0.00
+    """
     # data
     noneNone = Sg is not None and Ug is not None
     bgRE = Rg is not None or noneNone
@@ -81,8 +187,18 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
     msg+= 'Please use the fixed effects to correct for confounding. '
     assert not (strat and bgRE), msg
 
+    # check inputs for strat design
+    if strat:
+        assert Y.shape[1]==1, 'Y has not the right shape'
+        valid_env_ids = (sp.unique(Ie)==sp.array([0,1])).all()
+        assert valid_env_ids, 'The provided Ie is not valid'
+
+    # phenotype is centered for 2 random effect model
+    if bgRE:
+        Yc = Y-Y.mean(0)
+
     #define mtSet
-    if bgRE:        mvset = MvSetTestFull(Y=Y,Xr=Xr,Rg=Rg,Ug=Ug,Sg=Sg,factr=factr)
+    if bgRE:        mvset = MvSetTestFull(Y=Yc,Xr=Xr,Rg=Rg,Ug=Ug,Sg=Sg,factr=factr)
     elif strat:     mvset = MvSetTestInc(Y=Y,Xr=Xr,F=F,Ie=Ie,factr=factr)
     else:           mvset = MvSetTest(Y=Y,Xr=Xr,F=F,factr=factr)
 

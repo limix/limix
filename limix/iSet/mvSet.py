@@ -55,7 +55,7 @@ class MvSetTest():
             (see scipy.optimize.fmin_l_bfgs_b for more details).
     """
 
-    def __init__(self, Y=None, Xr=None, F=None, factr=1e7, debug=False):
+    def __init__(self, Y=None, Xr=None, Rr=None, F=None, factr=1e7, debug=False):
         # avoid SVD failure by adding some jitter
         Xr+= 2e-6*(sp.rand(*Xr.shape)-0.5)
         # make sure it is normalised
@@ -71,8 +71,9 @@ class MvSetTest():
         self.gp = {}
         self.info = {}
         self.lowrank = Xr.shape[1]<Xr.shape[0]
-        if self.lowrank:        self.Rr = None
-        else:                   self.Rr = sp.dot(Xr, Xr.T)
+        if Rr is not None:  self.Rr = Rr
+        if self.lowrank:    self.Rr = None
+        else:               self.Rr = sp.dot(Xr, Xr.T)
 
     def assoc(self):
         # fit model
