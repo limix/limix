@@ -20,25 +20,109 @@ import os
 
 
 class MTSet():
-    """
-    This class eases implementation of efficient set test algorithms.
-    mtSet can account for relatedness and can be used for single- and multi-trait analysis
+    r"""
+    Class for multi-trait set tests (mtSet)
+
+    Args:
+        Y (ndarray):
+            (`N`, `P`) ndarray of `P` phenotype sfor `N` individuals.
+        F (ndarray, optional):
+            (`N`, `K`) ndarray of `K` covariates for `N` individuals.
+            By default, no fixed effect term is set. 
+        R (ndarray, optional):
+            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients.
+            ``U_R`` and ``S_R`` can be provided instead of ``R``.
+            If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
+            the null models has iid normal residuals.
+        U_R (ndarray, optional):
+            (`N`, `N`) ndarray of eigenvectors of ``R``.
+            ``U_R`` and ``S_R`` can be provided instead of ``R``.
+            If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
+            iid normal residuals are considered.
+        S_R (ndarray, optional):
+            (`N`, ) ndarray of eigenvalues of ``R``.
+            ``U_R`` and ``S_R`` can be provided instead of ``R``.
+            If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
+            iid normal residuals are considered.
+        traitID (ndarray, optional):
+            ndarray of the phenotype IDs.
+        rank (int):
+            rank of the trait set covariance.
+            The default value is 1.
+
+    Example
+    -------
+
+        This example shows how to fit mtSet when modelling population
+        structure/relatedness using the full genetic relatedness matrix.
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from limix.mtSet import MTSet 
+            >>> from numpy import dot, eye, ones, concatenate
+            >>> from numpy import set_printoptions
+            >>> set_printoptions(4)
+            >>>
+            >>> random = RandomState(1)
+            >>>
+            >>> N = 100
+            >>> P = 2
+            >>>
+            >>> pheno = random.randn(N, P)
+            >>> pheno-= pheno.mean(0)
+            >>> pheno/= pheno.std(0)
+            >>>
+            >>> W = random.randn(N, 10)
+            >>> kinship = dot(W, W.T) / float(10)
+            >>> kinship+= 1e-4 * eye(N)
+            >>>
+            >>> mtset = MTSet(pheno, R=kinship)
+            >>> res_null = mtset.fitNull()
+            >>>
+            >>> print(res_null['conv'][0])
+            True
+            >>> print('%.2f'%res_null['NLL0'])
+            98.43
+            >>>
+            >>> S = 4
+            >>> snp_set = (random.rand(N, S) < 0.2).astype(float)
+            >>> res = mtset.optimize(snp_set)
+            >>>
+            >>> print("%.4f" % res['LLR'][0])
+            0.0616
+            >>> print(res['Cr'])
+            [[ 0.0006  0.0025]
+             [ 0.0025  0.0113]]
+
+        This example shows how to fit mtSet when modelling population
+        structure/relatedness by introducing the top principle components
+        of the genetic relatedness matrix (``pc_rrm``) as fixed effects.
+
+            >>> random = RandomState(1)
+            >>>
+            >>> mean = ones((N, 1))
+            >>> pc_rrm = random.randn(N, 4)
+            >>> covs = concatenate([mean, pc_rrm], 1)
+            >>>
+            >>> mtset = MTSet(pheno, F=covs)
+            >>> res_null = mtset.fitNull()
+            >>>
+            >>> print(res_null['conv'][0])
+            True
+            >>> print('%.2f'%res_null['NLL0'])
+            112.11
+            >>>
+            >>> res = mtset.optimize(snp_set)
+            >>>
+            >>> print("%.4f" % res['LLR'][0])
+            0.1227
+            >>> print(res['Cr'])
+            [[ 0.0054  0.0075]
+             [ 0.0075  0.0104]]
     """
 
     def __init__(self, Y=None, R=None, S_R=None, U_R=None, traitID=None, F=None, rank = 1):
-        """
-        Args:
-            Y:          [N, P] phenotype matrix
-            F:          [N, K] matrix of fixed effect design.
-                        K is the number of per-trait covariates.
-            R:          [N, N] genetic relatedness matrix between individuals.
-                        In alternative to R, S_R and U_R can be provided.
-                        If not specified a model without relatedness component is considered.
-            S_R:        N vector of eigenvalues of R
-            U_R:        [N, N] eigenvector matrix of R
-            traiID:     P vector of the IDs of the phenotypes to analyze (optional)
-            rank:       rank of the trait covariance matrix of the variance component to be tested (default is 1)
-        """
         # data
         noneNone = S_R is not None and U_R is not None
         self.bgRE = R is not None or noneNone
@@ -140,9 +224,56 @@ class MTSet():
     ################################################
     # Fitting null model
     ###############################################
-    def fitNull(self, verbose=False, cache=False, out_dir='./cache', fname=None, rewrite=False, seed=None, n_times=10, factr=1e3, init_method=None):
+    def fitNull(self, cache=False, out_dir='./cache', fname=None, rewrite=False, seed=None, factr=1e3, n_times=10, init_method=None, verbose=False):
         """
         Fit null model
+
+        Args:
+            verbose ()
+            cache (bool, optional):
+                If False (default), the null model is fitted and
+                the results are not cached.
+                If True, the cache is activated.
+                The cache file dir and name can be specified using
+                ``hcache`` and ``fname``.
+                When ``cache=True``, we distinguish the following cases:
+
+                - if the specified file does not exist,
+                  the output of the null model fiting is cached in the file.
+                - if the specified file exists and ``rewrite=True``,
+                  the cache file is overwritten.
+                - if the specified file exists and ``rewrite=False``,
+                  the results from the cache file are imported
+                  (the null model is not re-fitted).
+
+            out_dir (str, optional):
+                output dir of the cache file.
+                The default value is "./cache".
+            fname (str, optional):
+                Name of the cache hdf5 file.
+                It must be specified if ``cache=True``.
+            rewrite (bool, optional):
+                It has effect only if cache `cache=True``.
+                In this case, if ``True``,
+                the cache file is overwritten in case it exists.
+                The default value is ``False``
+            factr (float, optional):
+                optimization paramenter that determines the accuracy
+                of the solution.
+                By default it is 1000.
+                (see scipy.optimize.fmin_l_bfgs_b for more details).
+            verbose (bool, optional):
+                verbose flag.
+
+        Returns:
+            (dict): dictionary containing:
+                - **B** (*ndarray*): estimated effect sizes (null);
+                - **Cg** (*ndarray*): estimated relatedness trait covariance (null); 
+                - **Cn** (*ndarray*): estimated genetic noise covariance (null);
+                - **conv** (*bool*): convergence indicator;
+                - **NLL0** (*ndarray*): negative loglikelihood (NLL) of the null model; 
+                - **LMLgrad** (*ndarray*): norm of the gradient of the NLL.
+                - **time** (*time*): elapsed time (in seconds). 
         """
         if seed is not None:    sp.random.seed(seed)
 
@@ -218,9 +349,51 @@ class MTSet():
     # Fitting alternative model
     ###########################################
 
-    def optimize(self, G, params0=None, n_times=10, verbose=False, vmax=5, perturb=1e-3, factr=1e7):
+    def optimize(self, G, params0=None, n_times=10, vmax=5, factr=1e7, verbose=False):
         """
-        Optimize the model considering G
+        Fit alternative model
+
+        Args:
+            G (ndarray):
+                (`N`, `S`) genotype values for `N` samples and `S` variants
+                (defines the set component)
+            params0 (ndarray, optional):
+                initial parameter values for optimization.
+                By default the parameters are initialized 
+                by randonmly pertumrning the maximum likelihood
+                estimators (MLE) under the null.
+            n_times (ndarray, optional):
+                maximum number of restarts in case the optimization does not
+                converge.
+                It has no effect if ``params0`` is provided. 
+            vmax (float, option):
+                maximum value for variance parameters that is accepted.
+                If any of the variance MLE is ``>vmax`` then we say that
+                the optimization has not converged.
+                Default value is 5.
+            factr (float, optional):
+                optimization paramenter that determines the accuracy
+                of the solution.
+                By default it is 1e7.
+                (see scipy.optimize.fmin_l_bfgs_b for more details).
+            verbose (bool, optional):
+                verbose flag.
+
+        Returns:
+            (dict): dictionary containing:
+                - **Cr** (*ndarray*): estimated set trait covariance (alt); 
+                - **Cg** (*ndarray*): estimated relatedness trait covariance (alt); 
+                - **Cn** (*ndarray*): estimated genetic noise covariance (alt);
+                - **conv** (*ndarray*): convergence indicator;
+                - **NLLAlt** (*ndarray*): negative loglikelihood (NLL) of the alternative model; 
+                - **LMLgrad** (*ndarray*): norm of the gradient of the NLL.
+                - **LLR** (*ndarray**): log likelihood ratio statistics;
+                - **var** (*ndarray*): (`P`, `K`) ndarray of  variance estimates
+                  for the ``P`` traits and the ``K`` 
+                - **time** (*ndarray*): elapsed time (in seconds). 
+                - **nit** (*ndarray*):
+                  number of iterations L-BFGS.
+                  (see scipy.optimize.fmin_l_bfgs_b for more details).
         """
         # set params0 from null if params0 is None
         if params0 is None:
@@ -356,11 +529,11 @@ class MTSet():
         return RV
 
     def getInfoOptST(self):
-        """ get information for the optimization """
+        """ get information on the optimization """
         return self.infoOptST
 
     def _initParams(self, init_method=None):
-        """ this function initializes the paramenter and Ifilter """
+        """ internal function for params initialization """
         if self.bgRE:
             if init_method=='random':
                 params0 = {'covar': sp.randn(self._gpNull.covar.getNumberParams())}
