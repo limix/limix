@@ -97,13 +97,6 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
             iSet-het LLR          -0.000
             mtSet LLR              0.166
 
-        Null test statistics: 
-
-        >>> print(df0.round(3))
-           iSet LLR0  iSet-het LLR0  mtSet LLR0
-        0      0.028          0.568       1.095
-        1      0.328         -0.000       1.997
-
         This example shows how to fit iSet when considering complete designs
         and modelling population structure/relatedness using the full
         genetic relatedness matrix.
@@ -128,13 +121,6 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
             iSet LLR               1.098
             iSet-het LLR           1.014
             mtSet LLR              0.154
-
-        Null test statistics: 
-
-        >>> print(df0.round(3))
-           iSet LLR0  iSet-het LLR0  mtSet LLR0
-        0      5.709         -0.000       0.000
-        1      0.185          1.354       0.056
 
         This example shows how to fit iSet when considering stratified designs
         and modelling population structure/relatedness by introducing
@@ -161,13 +147,6 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
             iSet LLR               0.648
             iSet-het LLR           0.000
             mtSet LLR              1.177
-
-        Null test statistcs:
-
-        >>> print(df0.round(3))
-           iSet LLR0  iSet-het LLR0  mtSet LLR0
-        0      1.135            0.0        0.21
-        1      1.069            0.0       -0.00
 
         For more info and examples see the `iSet tutorial`_.
 
