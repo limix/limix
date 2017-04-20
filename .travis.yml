@@ -7,9 +7,6 @@ python:
 - 2.7
 - 3.5
 - 3.6
-env:
-- LEGACY=true
-- LEGACY=false
 before_install:
 - travis_retry travis/install_pandoc.sh
 - travis_retry travis/install_liknorm.sh
