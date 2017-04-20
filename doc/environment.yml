@@ -58,7 +58,6 @@ dependencies:
 - sqlite=3.13.0=0
 - tk=8.5.18=0
 - toolz=0.8.2=py35_0
-- tornado=4.5=py35_0
 - wheel=0.29.0=py35_0
 - xz=5.2.2=1
 - yaml=0.1.6=0
