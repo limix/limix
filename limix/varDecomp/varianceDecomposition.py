@@ -46,6 +46,8 @@ class VarianceDecomposition(object):
             >>> from numpy.random import RandomState
             >>> from limix.varDecomp import VarianceDecomposition
             >>> from numpy import dot, eye, ones
+            >>> from numpy import set_printoptions
+            >>> set_printoptions(4)
             >>> random = RandomState(1)
             >>>
             >>> N = 100
@@ -71,18 +73,18 @@ class VarianceDecomposition(object):
             True
             >>>
             >>> print(vc.getTraitCovar(0))
-            [[ 0.00967606  0.02297813 -0.00318316]
-             [ 0.02297813  0.05621212 -0.00624838]
-             [-0.00318316 -0.00624838  0.00960441]]
+            [[ 0.0097  0.023  -0.0032]
+             [ 0.023   0.0562 -0.0062]
+             [-0.0032 -0.0062  0.0096]]
             >>> print(vc.getTraitCovar(1))
-            [[ 1.00288483 -0.12120851 -0.00521124]
-             [-0.12120851  0.82837576 -0.04123326]
-             [-0.00521124 -0.04123326  0.81472094]]
+            [[ 1.0029 -0.1212 -0.0052]
+             [-0.1212  0.8284 -0.0412]
+             [-0.0052 -0.0412  0.8147]]
             >>> print(vc.getWeights(0))
-            [[ 0.03895162  0.08990583  0.12130513]]
+            [[ 0.039   0.0899  0.1213]]
             >>> print(vc.getWeights(1))
-            [[-0.01757139]
-             [-0.00952943]]
+            [[-0.0176]
+             [-0.0095]]
     """
 
     def __init__(self, Y, standardize=False):

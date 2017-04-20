@@ -53,6 +53,8 @@ def qtl_test_lm(snps,pheno, covs=None, test='lrt',verbose=None):
 
             >>> from numpy.random import RandomState
             >>> from limix.qtl import qtl_test_lm
+            >>> from numpy import set_printoptions
+            >>> set_printoptions(4)
             >>> random = RandomState(1)
             >>>
             >>> N = 100
@@ -63,7 +65,7 @@ def qtl_test_lm(snps,pheno, covs=None, test='lrt',verbose=None):
             >>>
             >>> lm = qtl_test_lm(snps, pheno)
             >>> print(lm.getPv()[:,:4])
-            [[ 0.87957928  0.50646269  0.56664012  0.60155451]]
+            [[ 0.8796  0.5065  0.5666  0.6016]]
     """
     lm = qtl_test_lmm(snps=snps,pheno=pheno,K=None,covs=covs, test=test,verbose=verbose)
     return lm
@@ -124,7 +126,7 @@ def qtl_test_lmm(snps,pheno,K=None,covs=None, test='lrt',NumIntervalsDelta0=100,
             >>>
             >>> lmm = qtl_test_lmm(snps, pheno, kinship)
             >>> print(lmm.getPv()[:,:4])
-            [[ 0.85712431  0.46681538  0.58717204  0.55894821]]
+            [[ 0.8571  0.4668  0.5872  0.5589]]
     """
     lmm_ = LMM(snps=snps, pheno=pheno, K=K, covs=covs, test=test, NumIntervalsDelta0=NumIntervalsDelta0, NumIntervalsDeltaAlt=NumIntervalsDeltaAlt, searchDelta=searchDelta, verbose=verbose)
     return lmm_
@@ -226,12 +228,12 @@ def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,
             >>> print(pv.shape)
             (1, 1000)
             >>> print(pv[:,:4])
-            [[ 0.87223476  0.6509184   0.3593063   0.68164268]]
+            [[ 0.8722  0.6509  0.3593  0.6816]]
             >>>
             >>> print(beta.shape)
             (1, 1000)
             >>> print(beta[:,:4])
-            [[ 0.02805261  0.07579207  0.14582943  0.0700645 ]]
+            [[ 0.0281  0.0758  0.1458  0.0701]]
 
         Example showing how to set an any effect test.
         For more information on effect designs
@@ -250,13 +252,13 @@ def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,
             >>> print(pv.shape)
             (1, 1000)
             >>> print(pv[:,:4])
-            [[ 0.98384728  0.86636606  0.35549867  0.5244103 ]]
+            [[ 0.9838  0.8664  0.3555  0.5244]]
             >>>
             >>> print(beta.shape)
             (2, 1000)
             >>> print(beta[:,:4])
-            [[ 0.04133788  0.03115501 -0.01772155 -0.09798296]
-             [ 0.01387095  0.12344092  0.32041561  0.24945056]]
+            [[ 0.0413  0.0312 -0.0177 -0.098 ]
+             [ 0.0139  0.1234  0.3204  0.2495]]
     """
     import limix_legacy.deprecated
     import limix_legacy.deprecated as dlimix_legacy
@@ -430,19 +432,19 @@ def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=N
             >>> print(pv.shape)
             (1, 1000)
             >>> print(pv[:,:4])
-            [[ 0.93473432  0.77440292  0.26776689  0.28934229]]
+            [[ 0.9347  0.7744  0.2678  0.2893]]
             >>>
             >>> #common effect P value
             >>> print(pv0.shape)
             (1, 1000)
             >>> print(pv0[:,:4])
-            [[ 0.87223476  0.6509184   0.3593063   0.68164268]]
+            [[ 0.8722  0.6509  0.3593  0.6816]]
             >>>
             >>> #any effect P value
             >>> print(pvAlt.shape)
             (1, 1000)
             >>> print(pvAlt[:,:4])
-            [[ 0.98384728  0.86636606  0.35549867  0.5244103 ]]
+            [[ 0.9838  0.8664  0.3555  0.5244]]
     """
     import limix_legacy.deprecated
     import limix_legacy.deprecated as dlimix_legacy
@@ -600,7 +602,7 @@ def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test=
             >>> print(pvi.shape)
             (1, 1000)
             >>> print(pvi[:,:4])
-            [[ 0.81788159  0.2185171   0.33383806  0.07696514]]
+            [[ 0.8179  0.2185  0.3338  0.077 ]]
     """
 
     import limix_legacy.deprecated
@@ -701,8 +703,8 @@ def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter
             >>> print(res['pvall'].shape)
             (2, 1000)
             >>> print(res['pvall'][:,:4])
-            [[ 0.85712434  0.46681543  0.58717201  0.55894826]
-             [ 0.77000277  0.42262459  0.61648887  0.87274915]]
+            [[ 0.8571  0.4668  0.5872  0.5589]
+             [ 0.77    0.4226  0.6165  0.8727]]
     """
 
     import limix_legacy.deprecated

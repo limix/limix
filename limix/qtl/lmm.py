@@ -58,6 +58,8 @@ class LMM:
             >>> from numpy.random import RandomState
             >>> from limix.qtl import LMM
             >>> from numpy import dot
+            >>> from numpy import set_printoptions
+            >>> set_printoptions(4)
             >>> random = RandomState(1)
             >>>
             >>> N = 100
@@ -78,11 +80,11 @@ class LMM:
             >>> print(pv.shape)
             (1, 1000)
             >>> print(pv[:,:4])
-            [[ 0.85712431  0.46681538  0.58717204  0.55894821]]
+            [[ 0.8571  0.4668  0.5872  0.5589]]
             >>> print(beta[:,:4])
-            [[ 0.0436056  -0.16947568 -0.11999516  0.13877098]]
+            [[ 0.0436 -0.1695 -0.12    0.1388]]
             >>> print(beta_ste[:,:4])
-            [[ 0.24220492  0.23290171  0.22101052  0.23745709]]
+            [[ 0.2422  0.2329  0.221   0.2375]]
 
         As shown in the exmaple below,
         the method can be applied directly on multiple phenotypes.
@@ -101,9 +103,9 @@ class LMM:
             >>> print(pv.shape)
             (3, 1000)
             >>> print(pv[:,:4])
-            [[ 0.47115027  0.69402295  0.33688495  0.52206089]
-             [ 0.73356655  0.87985746  0.81094723  0.10706975]
-             [ 0.0662334   0.92033507  0.28725885  0.82683985]]
+            [[ 0.4712  0.694   0.3369  0.5221]
+             [ 0.7336  0.8799  0.8109  0.1071]
+             [ 0.0662  0.9203  0.2873  0.8268]]
     """
 
     def __init__(self, snps, pheno, K=None, covs=None, test='lrt', NumIntervalsDelta0=100, NumIntervalsDeltaAlt=100, searchDelta=False, verbose=None):

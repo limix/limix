@@ -82,11 +82,13 @@ def qvalues(pv, m = None, return_pi0 = False, lowmem = False, pi0 = None, fix_la
 
             >>> from numpy.random import RandomState
             >>> from limix.stats import qvalues
+            >>> from numpy import set_printoptions
+            >>> set_printoptions(4)
             >>>
             >>> pv = RandomState(1).rand(1000)
             >>> qv, pi0 = qvalues(pv, return_pi0 = True)
             >>> print(qv[:4])
-            [ 0.98737617  0.98737617  0.11437482  0.98737617]
+            [ 0.9874  0.9874  0.1144  0.9874]
             >>> print('%.2f' % pi0)
             1.00
     """
