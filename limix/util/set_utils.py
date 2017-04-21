@@ -1,10 +1,10 @@
-from pandas_plink import read_plink
 from optparse import OptionParser
+from limix.io import read_plink 
 import pandas as pd
 import numpy as np
 
 
-def sets_from_bed(
+def sets_from_bim(
         bim,
         size=50000,
         step=None,
@@ -12,12 +12,12 @@ def sets_from_bed(
         minSnps=1,
         maxSnps=None):
     r"""
-    Builds variant-sets from a bim dataframe considering
+    Builds a dataframe of variant-sets from a bim considering
     a sliding window approach.
 
     Args:
         bim (:class:`pandas.DataFrame`):
-            bim dataframe from ``:func:pandas_plink.read_plink``.
+            bim dataframe from ``:func:limix.io.read_plink``.
         size (int, optional):
             set size (in base pairs).
             The default value is 50000.
@@ -90,9 +90,9 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
     r"""
     Helper function to annotate and filter variant-sets.
 
-    Provided a list of variant-sets and the bim of the bed file to
-    analyse, it computes the number of variants within each set
-    and filters them.
+    Provided the variant-sets to consider and the bim of the bed
+    file to analyse, it computes the number of variants within each set
+    and filters them and returns a variant-set dataframe with all info.
 
     Args:
         sets (:class:`pandas.DataFrame`):
@@ -104,7 +104,7 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
             - `"end"`: end position
 
         bim (:class:`pandas.DataFrame`):
-            bim dataframe from ``:func:pandas_plink.read_plink``.
+            bim dataframe from ``:func:limix.io.read_plink``. 
         minSnps (int, optional):
             minimin number of variants.
             Sets with number of variants that is
@@ -176,8 +176,8 @@ if __name__ == '__main__':
 
     (bim, fam, G) = read_plink(bedpath)
 
-    # sets_from_bed
-    sets = sets_from_bed(bim)
+    # sets_from_bim
+    sets = sets_from_bim(bim)
 
     # annotate_sets
     sets1 = annotate_sets(sets, bim, minSnps=100, maxSnps=200)

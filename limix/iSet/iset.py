@@ -53,7 +53,7 @@ def fit_iSet(
             individuals has been phenotyped.
             Needs to be specified for analysis of stratified designs.
         n_nulls (ndarray, optional):
-            number of parametric bootstrap. This parameter determine
+            number of parametric bootstrap. This parameter determines
             the minimum P value that can be estimated.
             The default value is 10.
         factr (float, optional):
