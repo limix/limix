@@ -7,7 +7,7 @@ Multi Trait Set Test (mtSet)
 
 .. rubric:: References
 
-.. [CHRS17] Casale FP, Rakitsch B, Lippert C, Stegle O (2015) Efficient set tests for the genetic analysis of correlated traits. Nat Methods Aug;12(8): 755-8.
+.. [CHRS17] Casale FP, Rakitsch B, Lippert C, Stegle O (2015) Efficient set tests for the genetic analysis of correlated traits. Nature Methods, Vol. 12, No. 8. (15 June 2015), pp. 755-758.
 
 Public interface
 ^^^^^^^^^^^^^^^^
