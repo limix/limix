@@ -84,8 +84,8 @@ def qvalues(
             - **pi0** (*float*): estimated fraction of null p-values.
               Only provided if return_counts is True.
 
-    Example
-    -------
+    Examples
+    --------
 
         .. doctest::
 

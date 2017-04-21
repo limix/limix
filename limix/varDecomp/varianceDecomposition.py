@@ -38,8 +38,8 @@ class VarianceDecomposition(object):
             zero-mean and unit-variance phenotype.
             The default value is False.
 
-    Example
-    -------
+    Examples
+    --------
 
         Basic example of usage.
 

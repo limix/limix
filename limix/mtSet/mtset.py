@@ -56,8 +56,8 @@ class MTSet():
             rank of the trait set covariance.
             The default value is 1.
 
-    Example
-    -------
+    Examples
+    --------
 
         This example shows how to fit mtSet when modelling population
         structure/relatedness using the full genetic relatedness matrix.

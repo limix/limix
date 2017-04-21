@@ -10,8 +10,8 @@ def read_csv(filename):
     Returns:
         dask.DataFrame: a dataframe representation.
 
-    Example
-    -------
+    Examples
+    --------
 
         .. doctest::
 

@@ -54,8 +54,8 @@ def plot_manhattan(posCum, pv, chromBounds=None,
     Returns:
         :class:`matplotlib.axes.AxesSubplot`: matplotlib subplot
 
-    Example
-    -------
+    Examples
+    --------
 
         .. plot::
 

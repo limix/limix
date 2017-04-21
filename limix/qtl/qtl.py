@@ -47,8 +47,8 @@ def qtl_test_lm(snps, pheno, covs=None, test='lrt', verbose=None):
     Returns:
         :class:`limix.qtl.LMM`: LIMIX LMM object
 
-    Example
-    -------
+    Examples
+    --------
 
         .. doctest::
 
@@ -123,8 +123,8 @@ def qtl_test_lmm(
     Returns:
         :class:`limix.qtl.LMM`: LIMIX LMM object
 
-    Example
-    -------
+    Examples
+    --------
 
         .. doctest::
 
@@ -234,8 +234,8 @@ def qtl_test_lmm_kronecker(
             - **pv** (*ndarray*):
               P-values for all SNPs from liklelihood ratio test
 
-    Example
-    -------
+    Examples
+    --------
 
         Example of multi-trait single-variant association testing using
         a linear mixed model and specifying a common effects.
@@ -456,8 +456,8 @@ def qtl_test_interaction_lmm_kronecker(
               `pvAlt` contains the P values for the different
               trait designs (as rows).
 
-    Example
-    -------
+    Examples
+    --------
 
         Example of how to perform a specific, common and any effect test.
         For more information see `limix_tutorials.`_
@@ -642,8 +642,8 @@ def qtl_test_interaction_lmm(
         :class:`limix_legacy.deprecated.CInteractLMM()`:
             limix CInteractLMM object
 
-    Example
-    -------
+    Examples
+    --------
 
         .. doctest::
 
@@ -767,8 +767,8 @@ def forward_lmm(
               the included SNPs in iteration and **pvall** is a  (`Nadded`, `S`)
               ndarray of Pvalues for all iterations
 
-    Example
-    -------
+    Examples
+    --------
 
         .. doctest::
 

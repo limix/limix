@@ -54,8 +54,8 @@ def plot_normal(x, bins=20, nstd=2, figure=None):
     Returns:
         :class:`matplotlib.figure.Figure`: figure to be shown.
 
-    Example
-    -------
+    Examples
+    --------
 
         .. plot::
 

@@ -49,8 +49,8 @@ class LMM:
         verbose (bool, optional):
             if True, details such as runtime as displayed.
 
-    Example
-    -------
+    Examples
+    --------
 
         Example of single-variant association testing using a linear mixed model.
 

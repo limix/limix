@@ -69,8 +69,8 @@ def fit_iSet(
             - **df0** (*:class:`pandas.DataFrame`*):
               contains null test statistcs of mtSet, iSet, and iSet-GxC tests.
 
-    Example
-    -------
+    Examples
+    --------
 
         This example shows how to fit iSet when considering complete designs and
         modelling population structure/relatedness by introducing the top principle

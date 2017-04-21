@@ -11,8 +11,8 @@ def boxcox(X):
     Returns:
         array_like: Box-Cox power transformed array.
 
-    Example
-    -------
+    Examples
+    --------
 
         .. doctest::
 

@@ -28,8 +28,8 @@ class Chi2mixture(object):
         n_interval (int): number of intervals when performing gridsearch
         tol (float): tolerance of being zero
 
-    Example
-    -------
+    Examples
+    --------
 
         .. doctest::
 

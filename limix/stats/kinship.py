@@ -6,8 +6,8 @@ def gower_norm(K, out=None):
 
     The rescaled covariance matrix has sample variance of 1.
 
-    Example
-    -------
+    Examples
+    --------
 
         .. doctest::
 

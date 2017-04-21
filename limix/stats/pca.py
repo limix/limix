@@ -14,8 +14,8 @@ def pca(X, ncomp):
             - **explained_variance_ratio** (*array_like*):
               percentage of variance explained.
 
-    Example
-    -------
+    Examples
+    --------
 
         .. doctest::
 

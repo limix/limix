@@ -58,8 +58,8 @@ def qqplot(pv, distr='log10', alphaLevel=0.05, ax=None):
     Returns:
         :class:`matplotlib.axes.AxesSubplot`: matplotlib subplot
 
-    Example
-    -------
+    Examples
+    --------
 
         .. plot::
 
