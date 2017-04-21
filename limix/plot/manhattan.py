@@ -14,11 +14,12 @@
 
 import scipy as sp
 
-def plot_manhattan(posCum,pv,chromBounds=None,
-                    thr=None,qv=None,lim=None,xticklabels=True,
-                    alphaNS=0.1,alphaS=0.5,colorNS='DarkBlue',
-                    colorS='Orange',ax=None,thr_plotting=None,
-                    labelS=None,labelNS=None):
+
+def plot_manhattan(posCum, pv, chromBounds=None,
+                   thr=None, qv=None, lim=None, xticklabels=True,
+                   alphaNS=0.1, alphaS=0.5, colorNS='DarkBlue',
+                   colorS='Orange', ax=None, thr_plotting=None,
+                   labelS=None, labelNS=None):
     r"""Produce a manhattan plot
 
     Args:
@@ -51,7 +52,7 @@ def plot_manhattan(posCum,pv,chromBounds=None,
         labelNS (str): optional plotting label for non significnat loci.
 
     Returns:
-        :class:`matplotlib.axes.AxesSubplot`: matplotlib subplot 
+        :class:`matplotlib.axes.AxesSubplot`: matplotlib subplot
 
     Example
     -------
@@ -60,18 +61,18 @@ def plot_manhattan(posCum,pv,chromBounds=None,
 
             from numpy.random import RandomState
             from numpy import arange
-            from limix.plot import plot_manhattan 
+            from limix.plot import plot_manhattan
             from matplotlib import pyplot as plt
             random = RandomState(1)
 
             pv = random.rand(5000)
-            pv[1200:1250] = random.rand(50)**4 
+            pv[1200:1250] = random.rand(50)**4
             posCum = arange(5000)
             chromBounds = arange(0, 5000, 1000)
-            
+
             fig = plt.figure(1, figsize=(8,3))
             plt.subplot(111)
-            plot_manhattan(posCum, pv, chromBounds=chromBounds) 
+            plot_manhattan(posCum, pv, chromBounds=chromBounds)
             plt.tight_layout()
             plt.show()
     """
@@ -79,55 +80,60 @@ def plot_manhattan(posCum,pv,chromBounds=None,
     if ax is None:
         ax = plt.gca()
 
-    if thr==None:
-        thr = 0.01/float(posCum.shape[0])
+    if thr is None:
+        thr = 0.01 / float(posCum.shape[0])
 
-    if lim==None:
-        lim=-1.2*sp.log10(sp.minimum(pv.min(),thr))
+    if lim is None:
+        lim = -1.2 * sp.log10(sp.minimum(pv.min(), thr))
 
     if chromBounds is None:
-        chromBounds = sp.array([[0,posCum.max()]])
+        chromBounds = sp.array([[0, posCum.max()]])
     else:
-        chromBounds = sp.concatenate([chromBounds,sp.array([posCum.max()])])
+        chromBounds = sp.concatenate([chromBounds, sp.array([posCum.max()])])
 
     n_chroms = chromBounds.shape[0]
-    for chrom_i in range(0,n_chroms-1,2):
-        plt.fill_between(posCum,0,lim,where=(posCum>chromBounds[chrom_i]) & (posCum<chromBounds[chrom_i+1]),facecolor='LightGray',linewidth=0,alpha=0.5)
+    for chrom_i in range(0, n_chroms - 1, 2):
+        plt.fill_between(posCum, 0, lim, where=(posCum > chromBounds[chrom_i]) & (
+            posCum < chromBounds[chrom_i + 1]), facecolor='LightGray', linewidth=0, alpha=0.5)
 
     if thr_plotting is not None:
         if pv is not None:
-            i_small = pv<thr_plotting
+            i_small = pv < thr_plotting
         elif qv is not None:
-            i_small = qv<thr_plotting
+            i_small = qv < thr_plotting
 
         if qv is not None:
             qv = qv[i_small]
         if pv is not None:
             pv = pv[i_small]
         if posCum is not None:
-            posCum=posCum[i_small]
+            posCum = posCum[i_small]
 
-    if qv==None:
-        Isign = pv<thr
+    if qv is None:
+        Isign = pv < thr
     else:
-        Isign = qv<thr
+        Isign = qv < thr
 
-    plt.plot(posCum[~Isign],-sp.log10(pv[~Isign]),'.',color=colorNS,ms=5,alpha=alphaNS,label=labelNS)
-    plt.plot(posCum[Isign], -sp.log10(pv[Isign]), '.',color=colorS,ms=5,alpha=alphaS,label=labelS)
+    plt.plot(posCum[~Isign], -sp.log10(pv[~Isign]), '.',
+             color=colorNS, ms=5, alpha=alphaNS, label=labelNS)
+    plt.plot(posCum[Isign], -sp.log10(pv[Isign]), '.',
+             color=colorS, ms=5, alpha=alphaS, label=labelS)
 
     if qv is not None:
-        plt.plot([0,posCum.max()],[-sp.log10(thr),-sp.log10(thr)],'--',color='Gray')
+        plt.plot([0, posCum.max()], [-sp.log10(thr), -
+                                     sp.log10(thr)], '--', color='Gray')
 
-    plt.ylim(0,lim)
+    plt.ylim(0, lim)
 
     plt.ylabel('-log$_{10}$pv')
-    plt.xlim(0,posCum.max())
-    xticks = sp.array([chromBounds[i:i+2].mean() for i in range(chromBounds.shape[0]-1)])
+    plt.xlim(0, posCum.max())
+    xticks = sp.array([chromBounds[i:i + 2].mean()
+                       for i in range(chromBounds.shape[0] - 1)])
     ax.set_xticks(xticks)
     plt.xticks(fontsize=6)
 
     if xticklabels:
-        ax.set_xticklabels(sp.arange(1,n_chroms+1))
+        ax.set_xticklabels(sp.arange(1, n_chroms + 1))
         plt.xlabel('Chromosome')
     else:
         ax.set_xticklabels([])
@@ -138,4 +144,3 @@ def plot_manhattan(posCum,pv,chromBounds=None,
     ax.yaxis.set_ticks_position('left')
 
     return ax
-

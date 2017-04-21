@@ -1,5 +1,6 @@
 from numpy import copyto
 
+
 def gower_norm(K, out=None):
     r"""Perform Gower rescaling of covariance matrix K.
 

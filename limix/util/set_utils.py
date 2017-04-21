@@ -3,7 +3,14 @@ from optparse import OptionParser
 import pandas as pd
 import numpy as np
 
-def sets_from_bed(bim, size=50000, step=None, chrom=None, minSnps=1, maxSnps=None):
+
+def sets_from_bed(
+        bim,
+        size=50000,
+        step=None,
+        chrom=None,
+        minSnps=1,
+        maxSnps=None):
     r"""
     Builds variant-sets from a bim dataframe considering
     a sliding window approach.
@@ -41,7 +48,7 @@ def sets_from_bed(bim, size=50000, step=None, chrom=None, minSnps=1, maxSnps=Non
             - `"nsnps"`: number of variants in the region
     """
     if step is None:
-        step = int(0.5*size)
+        step = int(0.5 * size)
 
     if maxSnps is None:
         maxSnps = np.inf
@@ -50,24 +57,24 @@ def sets_from_bed(bim, size=50000, step=None, chrom=None, minSnps=1, maxSnps=Non
         chroms = pd.unique(bim['chrom'])
     else:
         chroms = [chrom]
- 
+
     out = []
     for _c in chroms:
 
         # calc start and end of regions
         pos = bim.query("chrom=='%s'" % _c)['pos'].values
         start = np.arange(pos.min(), pos.max(), step)
-        end = start + size 
+        end = start + size
 
         # filter based on minSnps
         nsnps = calc_nsnps(pos, start, end)
-        Iok = (nsnps>=minSnps)&(nsnps<=maxSnps)
+        Iok = (nsnps >= minSnps) & (nsnps <= maxSnps)
         start = start[Iok]
         end = end[Iok]
         nsnps = nsnps[Iok]
 
         # build array and append
-        chrom = np.repeat(_c, start.shape[0]) 
+        chrom = np.repeat(_c, start.shape[0])
         _out = np.array([chrom, start, end, nsnps], dtype=object).T
         out.append(_out)
 
@@ -81,7 +88,7 @@ def sets_from_bed(bim, size=50000, step=None, chrom=None, minSnps=1, maxSnps=Non
 
 def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
     r"""
-    Helper function to annotate and filter variant-sets. 
+    Helper function to annotate and filter variant-sets.
 
     Provided a list of variant-sets and the bim of the bed file to
     analyse, it computes the number of variants within each set
@@ -121,18 +128,18 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
 
     out = []
     chrom = sets['chr'].values
-    uchroms = pd.unique(chrom) 
+    uchroms = pd.unique(chrom)
     for _c in uchroms:
 
-        # filter on chromosome 
+        # filter on chromosome
         pos = bim.query("chrom=='%s'" % _c)['pos'].values
-        Ichr = chrom==_c
+        Ichr = chrom == _c
         start = sets['start'].values[Ichr]
         end = sets['end'].values[Ichr]
 
         # filter based on minSnps
         nsnps = calc_nsnps(pos, start, end)
-        Iok = (nsnps>=minSnps)&(nsnps<=maxSnps)
+        Iok = (nsnps >= minSnps) & (nsnps <= maxSnps)
         start = start[Iok]
         end = end[Iok]
         nsnps = nsnps[Iok]
@@ -153,24 +160,24 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
 def calc_nsnps(pos, start, end):
     nsnps = np.zeros(start.shape[0], dtype=int)
     for i, r in enumerate(zip(start, end)):
-        nsnps[i] = ((pos>=r[0])&(pos<r[1])).sum()
+        nsnps[i] = ((pos >= r[0]) & (pos < r[1])).sum()
     return nsnps
 
-if __name__=='__main__':
-    
+
+if __name__ == '__main__':
+
     import os
 
     bedpath = 'data/chrom22_subsample20_maf0.10'
 
-    if not os.path.exists(bedpath+'.bim'):
+    if not os.path.exists(bedpath + '.bim'):
         os.system('wget http://www.ebi.ac.uk/~casale/data.zip')
         os.system('unzip data.zip')
 
     (bim, fam, G) = read_plink(bedpath)
 
-    #sets_from_bed
+    # sets_from_bed
     sets = sets_from_bed(bim)
 
-    #annotate_sets
+    # annotate_sets
     sets1 = annotate_sets(sets, bim, minSnps=100, maxSnps=200)
-

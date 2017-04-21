@@ -1,5 +1,6 @@
 import pandas_plink as pp
 
+
 def read_plink(prefix, verbose=True):
     r"""Read PLINK files into Pandas data frames.
 

@@ -1,16 +1,16 @@
 # Copyright(c) 2014, The LIMIX developers (Christoph Lippert, Paolo Francesco Casale, Oliver Stegle)
 #
-#Licensed under the Apache License, Version 2.0 (the "License");
-#you may not use this file except in compliance with the License.
-#You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-#Unless required by applicable law or agreed to in writing, software
-#distributed under the License is distributed on an "AS IS" BASIS,
-#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#See the License for the specific language governing permissions and
-#limitations under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """
 qtl.py contains wrappers around C++ Limix objects to streamline common tasks in GWAS.
 """
@@ -22,10 +22,11 @@ from limix.stats import qvalues
 from limix.qtl.lmm import LMM
 import time
 
-def qtl_test_lm(snps,pheno, covs=None, test='lrt',verbose=None):
+
+def qtl_test_lm(snps, pheno, covs=None, test='lrt', verbose=None):
     """
     Wrapper function for univariate single-variant association testing
-    using a linear model. 
+    using a linear model.
 
     Args:
         snps (ndarray):
@@ -67,10 +68,26 @@ def qtl_test_lm(snps,pheno, covs=None, test='lrt',verbose=None):
             >>> print(lm.getPv()[:,:4])
             [[ 0.8796  0.5065  0.5666  0.6016]]
     """
-    lm = qtl_test_lmm(snps=snps,pheno=pheno,K=None,covs=covs, test=test,verbose=verbose)
+    lm = qtl_test_lmm(
+        snps=snps,
+        pheno=pheno,
+        K=None,
+        covs=covs,
+        test=test,
+        verbose=verbose)
     return lm
 
-def qtl_test_lmm(snps,pheno,K=None,covs=None, test='lrt',NumIntervalsDelta0=100,NumIntervalsDeltaAlt=100,searchDelta=False,verbose=None):
+
+def qtl_test_lmm(
+        snps,
+        pheno,
+        K=None,
+        covs=None,
+        test='lrt',
+        NumIntervalsDelta0=100,
+        NumIntervalsDeltaAlt=100,
+        searchDelta=False,
+        verbose=None):
     """
     Wrapper function for univariate single-variant association testing
     using a linear mixed model.
@@ -128,11 +145,32 @@ def qtl_test_lmm(snps,pheno,K=None,covs=None, test='lrt',NumIntervalsDelta0=100,
             >>> print(lmm.getPv()[:,:4])
             [[ 0.8571  0.4668  0.5872  0.5589]]
     """
-    lmm_ = LMM(snps=snps, pheno=pheno, K=K, covs=covs, test=test, NumIntervalsDelta0=NumIntervalsDelta0, NumIntervalsDeltaAlt=NumIntervalsDeltaAlt, searchDelta=searchDelta, verbose=verbose)
+    lmm_ = LMM(
+        snps=snps,
+        pheno=pheno,
+        K=K,
+        covs=covs,
+        test=test,
+        NumIntervalsDelta0=NumIntervalsDelta0,
+        NumIntervalsDeltaAlt=NumIntervalsDeltaAlt,
+        searchDelta=searchDelta,
+        verbose=verbose)
     return lmm_
 
 
-def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,K1c=None,K2r=None,K2c=None,NumIntervalsDelta0=100,NumIntervalsDeltaAlt=100,searchDelta=False):
+def qtl_test_lmm_kronecker(
+        snps,
+        phenos,
+        covs=None,
+        Acovs=None,
+        Asnps=None,
+        K1r=None,
+        K1c=None,
+        K2r=None,
+        K2c=None,
+        NumIntervalsDelta0=100,
+        NumIntervalsDeltaAlt=100,
+        searchDelta=False):
     r"""
     Wrapper function for single-variant multi-trait association testing class
     using linear mixed models.
@@ -176,7 +214,7 @@ def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,
             (`N`, `N`) ndarray of LMM-covariance/kinship coefficients.
             By default ``K2r`` is a (`N`, `N`) identity ndarray.
         K2c (ndarray, optional):
-            (`P`, `P`) ndarray of residual covariances. 
+            (`P`, `P`) ndarray of residual covariances.
             If either `K1c` or `K2c` is not provided, K1c is estimated by
             (restricted) maximum likelihood  from the model without the snp effect.
         NumIntervalsDelta0 (int, optional):
@@ -239,7 +277,7 @@ def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,
         For more information on effect designs
         see `limix_tutorials.`_
 
-        .. _limix_tutorials.: http://nbviewer.jupyter.org/github/limix/limix-tutorials/blob/master/index.ipynb 
+        .. _limix_tutorials.: http://nbviewer.jupyter.org/github/limix/limix-tutorials/blob/master/index.ipynb
 
         .. doctest::
 
@@ -262,58 +300,66 @@ def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,
     """
     import limix_legacy.deprecated
     import limix_legacy.deprecated as dlimix_legacy
-    #0. checks
-    N  = phenos.shape[0]
-    P  = phenos.shape[1]
+    # 0. checks
+    N = phenos.shape[0]
+    P = phenos.shape[1]
 
     if K1r is None:
-        K1r = np.dot(snps,snps.T)
+        K1r = np.dot(snps, snps.T)
     else:
-        assert K1r.shape[0]==N, 'K1r: dimensions dismatch'
-        assert K1r.shape[1]==N, 'K1r: dimensions dismatch'
+        assert K1r.shape[0] == N, 'K1r: dimensions dismatch'
+        assert K1r.shape[1] == N, 'K1r: dimensions dismatch'
 
     if K2r is None:
         K2r = np.eye(N)
     else:
-        assert K2r.shape[0]==N, 'K2r: dimensions dismatch'
-        assert K2r.shape[1]==N, 'K2r: dimensions dismatch'
+        assert K2r.shape[0] == N, 'K2r: dimensions dismatch'
+        assert K2r.shape[1] == N, 'K2r: dimensions dismatch'
 
-    covs, Acovs = _updateKronCovs(covs,Acovs,N,P)
+    covs, Acovs = _updateKronCovs(covs, Acovs, N, P)
 
-    #Asnps can be several designs
+    # Asnps can be several designs
     if Asnps is None:
-        Asnps = [np.ones([1,P])]
-    if (type(Asnps)!=list):
+        Asnps = [np.ones([1, P])]
+    if (not isinstance(Asnps, list)):
         Asnps = [Asnps]
-    assert len(Asnps)>0, "need at least one Snp design matrix"
+    assert len(Asnps) > 0, "need at least one Snp design matrix"
 
-    #one row per column design matrix
-    pv = np.zeros((len(Asnps),snps.shape[1]))
+    # one row per column design matrix
+    pv = np.zeros((len(Asnps), snps.shape[1]))
 
-    #1. run GP model to infer suitable covariance structure
+    # 1. run GP model to infer suitable covariance structure
     if K1c is None or K2c is None:
-        vc = _estimateKronCovariances(phenos=phenos, K1r=K1r, K2r=K2r, K1c=K1c, K2c=K2c, covs=covs, Acovs=Acovs, verbose=False)
+        vc = _estimateKronCovariances(
+            phenos=phenos,
+            K1r=K1r,
+            K2r=K2r,
+            K1c=K1c,
+            K2c=K2c,
+            covs=covs,
+            Acovs=Acovs,
+            verbose=False)
         K1c = vc.getTraitCovar(0)
         K2c = vc.getTraitCovar(1)
     else:
-        assert K1c.shape[0]==P, 'K1c: dimensions dismatch'
-        assert K1c.shape[1]==P, 'K1c: dimensions dismatch'
-        assert K2c.shape[0]==P, 'K2c: dimensions dismatch'
-        assert K2c.shape[1]==P, 'K2c: dimensions dismatch'
+        assert K1c.shape[0] == P, 'K1c: dimensions dismatch'
+        assert K1c.shape[1] == P, 'K1c: dimensions dismatch'
+        assert K2c.shape[0] == P, 'K2c: dimensions dismatch'
+        assert K2c.shape[1] == P, 'K2c: dimensions dismatch'
 
-    #2. run kroneckerLMM
+    # 2. run kroneckerLMM
     lmm = limix_legacy.deprecated.CKroneckerLMM()
     lmm.setK1r(K1r)
     lmm.setK1c(K1c)
     lmm.setK2r(K2r)
     lmm.setK2c(K2c)
     lmm.setSNPs(snps)
-    #add covariates
-    for ic  in range(len(Acovs)):
-        lmm.addCovariates(covs[ic],Acovs[ic])
+    # add covariates
+    for ic in range(len(Acovs)):
+        lmm.addCovariates(covs[ic], Acovs[ic])
     lmm.setPheno(phenos)
 
-    #delta serch on alt. model?
+    # delta serch on alt. model?
     if searchDelta:
         lmm.setNumIntervalsAlt(NumIntervalsDeltaAlt)
     else:
@@ -321,14 +367,28 @@ def qtl_test_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps=None,K1r=None,
     lmm.setNumIntervals0(NumIntervalsDelta0)
 
     for iA in range(len(Asnps)):
-        #add SNP design
+        # add SNP design
         lmm.setSNPcoldesign(Asnps[iA])
         lmm.process()
-        pv[iA,:] = lmm.getPv()[0]
-    return lmm,pv
+        pv[iA, :] = lmm.getPv()[0]
+    return lmm, pv
 
 
-def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=None,Asnps0=None,K1r=None,K1c=None,K2r=None,K2c=None,NumIntervalsDelta0=100,NumIntervalsDeltaAlt=100,searchDelta=False,return_lmm=False):
+def qtl_test_interaction_lmm_kronecker(
+        snps,
+        phenos,
+        covs=None,
+        Acovs=None,
+        Asnps1=None,
+        Asnps0=None,
+        K1r=None,
+        K1c=None,
+        K2r=None,
+        K2c=None,
+        NumIntervalsDelta0=100,
+        NumIntervalsDeltaAlt=100,
+        searchDelta=False,
+        return_lmm=False):
     r"""
     Wrapper function for single-variant multi-trait interaction test
 
@@ -353,7 +413,7 @@ def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=N
             If a list of ndarray trait designs is specified for ``Asnps1``,
             the multiple designs are tested vs the null trait design
             ``Asnps0`` one-by-one.
-            By default ``Asnps1`` is a (`P`, `P`) identity ndarray. 
+            By default ``Asnps1`` is a (`P`, `P`) identity ndarray.
         Asnps0 (ndarray, optional):
             (`K0`, `P`) trait design of rank `K` of the snp fixed effect
             on the `P` traits for the null model.
@@ -369,7 +429,7 @@ def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=N
             (`N`, `N`) ndarray of LMM-covariance/kinship coefficients.
             By default ``K2r`` is a (`N`, `N`) identity ndarray.
         K2c (ndarray, optional):
-            (`P`, `P`) ndarray of residual covariances. 
+            (`P`, `P`) ndarray of residual covariances.
             If either `K1c` or `K2c` is not provided, K1c is estimated by
             (restricted) maximum likelihood  from the model without the snp effect.
         NumIntervalsDelta0 (int, optional):
@@ -448,66 +508,77 @@ def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=N
     """
     import limix_legacy.deprecated
     import limix_legacy.deprecated as dlimix_legacy
-    S=snps.shape[1]
-    #0. checks
-    N  = phenos.shape[0]
-    P  = phenos.shape[1]
+    S = snps.shape[1]
+    # 0. checks
+    N = phenos.shape[0]
+    P = phenos.shape[1]
 
     if K1r is None:
-        K1r = np.dot(snps,snps.T)
+        K1r = np.dot(snps, snps.T)
     else:
-        assert K1r.shape[0]==N, 'K1r: dimensions dismatch'
-        assert K1r.shape[1]==N, 'K1r: dimensions dismatch'
+        assert K1r.shape[0] == N, 'K1r: dimensions dismatch'
+        assert K1r.shape[1] == N, 'K1r: dimensions dismatch'
 
     if K2r is None:
         K2r = np.eye(N)
     else:
-        assert K2r.shape[0]==N, 'K2r: dimensions dismatch'
-        assert K2r.shape[1]==N, 'K2r: dimensions dismatch'
+        assert K2r.shape[0] == N, 'K2r: dimensions dismatch'
+        assert K2r.shape[1] == N, 'K2r: dimensions dismatch'
 
-    covs,Acovs = _updateKronCovs(covs,Acovs,N,P)
+    covs, Acovs = _updateKronCovs(covs, Acovs, N, P)
 
-    #Asnps can be several designs
+    # Asnps can be several designs
     if (Asnps0 is None):
-        Asnps0 = [np.ones([1,P])]
+        Asnps0 = [np.ones([1, P])]
     if Asnps1 is None:
         Asnps1 = [np.eye([P])]
-    if (type(Asnps0)!=list):
+    if (not isinstance(Asnps0, list)):
         Asnps0 = [Asnps0]
-    if (type(Asnps1)!=list):
+    if (not isinstance(Asnps1, list)):
         Asnps1 = [Asnps1]
-    assert (len(Asnps0)==1) and (len(Asnps1)>0), "need at least one Snp design matrix for null and alt model"
+    assert (
+        len(Asnps0) == 1) and (
+        len(Asnps1) > 0), "need at least one Snp design matrix for null and alt model"
 
-    #one row per column design matrix
-    pv = np.zeros((len(Asnps1),snps.shape[1]))
-    lrt = np.zeros((len(Asnps1),snps.shape[1]))
-    pvAlt = np.zeros((len(Asnps1),snps.shape[1]))
-    lrtAlt = np.zeros((len(Asnps1),snps.shape[1]))
+    # one row per column design matrix
+    pv = np.zeros((len(Asnps1), snps.shape[1]))
+    lrt = np.zeros((len(Asnps1), snps.shape[1]))
+    pvAlt = np.zeros((len(Asnps1), snps.shape[1]))
+    lrtAlt = np.zeros((len(Asnps1), snps.shape[1]))
 
-    #1. run GP model to infer suitable covariance structure
+    # 1. run GP model to infer suitable covariance structure
     if K1c is None or K2c is None:
-        vc = _estimateKronCovariances(phenos=phenos, K1r=K1r, K2r=K2r, K1c=K1c, K2c=K2c, covs=covs, Acovs=Acovs, trait_covar_type='freeform', verbose=False)
+        vc = _estimateKronCovariances(
+            phenos=phenos,
+            K1r=K1r,
+            K2r=K2r,
+            K1c=K1c,
+            K2c=K2c,
+            covs=covs,
+            Acovs=Acovs,
+            trait_covar_type='freeform',
+            verbose=False)
         K1c = vc.getTraitCovar(0)
         K2c = vc.getTraitCovar(1)
     else:
-        assert K1c.shape[0]==P, 'K1c: dimensions dismatch'
-        assert K1c.shape[1]==P, 'K1c: dimensions dismatch'
-        assert K2c.shape[0]==P, 'K2c: dimensions dismatch'
-        assert K2c.shape[1]==P, 'K2c: dimensions dismatch'
+        assert K1c.shape[0] == P, 'K1c: dimensions dismatch'
+        assert K1c.shape[1] == P, 'K1c: dimensions dismatch'
+        assert K2c.shape[0] == P, 'K2c: dimensions dismatch'
+        assert K2c.shape[1] == P, 'K2c: dimensions dismatch'
 
-    #2. run kroneckerLMM for null model
+    # 2. run kroneckerLMM for null model
     lmm = limix_legacy.deprecated.CKroneckerLMM()
     lmm.setK1r(K1r)
     lmm.setK1c(K1c)
     lmm.setK2r(K2r)
     lmm.setK2c(K2c)
     lmm.setSNPs(snps)
-    #add covariates
-    for ic  in range(len(Acovs)):
-        lmm.addCovariates(covs[ic],Acovs[ic])
+    # add covariates
+    for ic in range(len(Acovs)):
+        lmm.addCovariates(covs[ic], Acovs[ic])
     lmm.setPheno(phenos)
 
-    #delta serch on alt. model?
+    # delta serch on alt. model?
     if searchDelta:
         lmm.setNumIntervalsAlt(NumIntervalsDeltaAlt)
         lmm.setNumIntervals0_inter(NumIntervalsDeltaAlt)
@@ -515,24 +586,30 @@ def qtl_test_interaction_lmm_kronecker(snps,phenos,covs=None,Acovs=None,Asnps1=N
         lmm.setNumIntervalsAlt(0)
         lmm.setNumIntervals0_inter(0)
 
-
     lmm.setNumIntervals0(NumIntervalsDelta0)
-    #add SNP design
+    # add SNP design
     lmm.setSNPcoldesign0_inter(Asnps0[0])
     for iA in range(len(Asnps1)):
         lmm.setSNPcoldesign(Asnps1[iA])
         lmm.process()
 
-        pvAlt[iA,:] = lmm.getPv()[0]
-        pv[iA,:] = lmm.getPv()[1]
-        pv0 = lmm.getPv()[2][np.newaxis,:]
+        pvAlt[iA, :] = lmm.getPv()[0]
+        pv[iA, :] = lmm.getPv()[1]
+        pv0 = lmm.getPv()[2][np.newaxis, :]
     if return_lmm:
-        return pv,pv0,pvAlt,lmm
+        return pv, pv0, pvAlt, lmm
     else:
-        return pv,pv0,pvAlt
+        return pv, pv0, pvAlt
 
 
-def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test='lrt'):
+def qtl_test_interaction_lmm(
+        snps,
+        pheno,
+        Inter,
+        Inter0=None,
+        covs=None,
+        K=None,
+        test='lrt'):
     r"""
     Wrapper function for single-variant interaction test using LMMs.
 
@@ -572,7 +649,7 @@ def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test=
 
             >>> from numpy.random import RandomState
             >>> from numpy import dot, eye, ones, concatenate
-            >>> from limix.qtl import qtl_test_interaction_lmm 
+            >>> from limix.qtl import qtl_test_interaction_lmm
             >>> random = RandomState(1)
             >>>
             >>> N = 100
@@ -607,14 +684,15 @@ def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test=
 
     import limix_legacy.deprecated
     import limix_legacy.deprecated as dlimix_legacy
-    N=snps.shape[0]
+    N = snps.shape[0]
     if covs is None:
-        covs = np.ones((N,1))
+        covs = np.ones((N, 1))
     if K is None:
         K = np.eye(N)
     if Inter0 is None:
-        Inter0=np.ones([N,1])
-    assert (pheno.shape[0]==N and K.shape[0]==N and K.shape[1]==N and covs.shape[0]==N and Inter0.shape[0]==N and Inter.shape[0]==N), "shapes missmatch"
+        Inter0 = np.ones([N, 1])
+    assert (pheno.shape[0] == N and K.shape[0] == N and K.shape[1] == N and covs.shape[0]
+            == N and Inter0.shape[0] == N and Inter.shape[0] == N), "shapes missmatch"
     lmi = limix_legacy.deprecated.CInteractLMM()
     lmi.setK(K)
     lmi.setSNPs(snps)
@@ -622,9 +700,9 @@ def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test=
     lmi.setCovs(covs)
     lmi.setInter0(Inter0)
     lmi.setInter(Inter)
-    if test=='lrt':
+    if test == 'lrt':
         lmi.setTestStatistics(lmi.TEST_LRT)
-    elif test=='f':
+    elif test == 'f':
         lmi.setTestStatistics(lmi.TEST_F)
     else:
         print(test)
@@ -636,7 +714,17 @@ def qtl_test_interaction_lmm(snps,pheno,Inter,Inter0=None,covs=None,K=None,test=
 """ MULTI LOCUS MODEL """
 
 
-def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter=2,test='lrt',verbose=None,**kw_args):
+def forward_lmm(
+        snps,
+        pheno,
+        K=None,
+        covs=None,
+        qvalues=False,
+        threshold=5e-8,
+        maxiter=2,
+        test='lrt',
+        verbose=None,
+        **kw_args):
     r"""
     Wrapper function for univariate single-variant test with forward selection
 
@@ -671,7 +759,7 @@ def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter
 
     Returns:
         (tuple): tuple containing:
-            - **lmm** (*:class:`limix.qtl.LMM`*): LIMIX LMM object 
+            - **lmm** (*:class:`limix.qtl.LMM`*): LIMIX LMM object
             - **res** (*dict*): {**iadded**, **pvadded**, **pvall**}.
               **iadded** is an ndarray of indices of SNPs included in order
               of inclusion, **pvadded** is an ndarray of Pvalues obtained by
@@ -685,7 +773,7 @@ def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter
 
             >>> from numpy.random import RandomState
             >>> from numpy import dot, eye, ones
-            >>> from limix.qtl import forward_lmm 
+            >>> from limix.qtl import forward_lmm
             >>> random = RandomState(1)
             >>>
             >>> N = 100
@@ -698,7 +786,7 @@ def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter
             >>> kinship+= 1e-4 * eye(N)
             >>>
             >>> #forward lmm
-            >>> lmm, res = forward_lmm(snps, pheno, K=kinship, threshold=1.) 
+            >>> lmm, res = forward_lmm(snps, pheno, K=kinship, threshold=1.)
             >>>
             >>> print(res['pvall'].shape)
             (2, 1000)
@@ -712,67 +800,83 @@ def forward_lmm(snps,pheno,K=None,covs=None,qvalues=False,threshold=5e-8,maxiter
     verbose = dlimix_legacy.getVerbose(verbose)
 
     if K is None:
-        K=np.eye(snps.shape[0])
+        K = np.eye(snps.shape[0])
     if covs is None:
-        covs = np.ones((snps.shape[0],1))
-    #assert single trait
-    assert pheno.shape[1]==1, 'forward_lmm only supports single phenotypes'
+        covs = np.ones((snps.shape[0], 1))
+    # assert single trait
+    assert pheno.shape[1] == 1, 'forward_lmm only supports single phenotypes'
 
-    lm = qtl_test_lmm(snps,pheno,K=K,covs=covs,test=test,**kw_args)
+    lm = qtl_test_lmm(snps, pheno, K=K, covs=covs, test=test, **kw_args)
     pvall = []
     pv = lm.getPv().ravel()
-    #hack to avoid issues with degenerate pv
+    # hack to avoid issues with degenerate pv
     pv[sp.isnan(pv)] = 1
     pvall.append(pv)
-    imin= pv.argmin()
+    imin = pv.argmin()
     niter = 1
-    #start stuff
+    # start stuff
     iadded = []
     pvadded = []
     qvadded = []
     if qvalues:
-        assert pv.shape[0]==1, "This is untested with the fdr package. pv.shape[0]==1 failed"
+        assert pv.shape[0] == 1, "This is untested with the fdr package. pv.shape[0]==1 failed"
         qvall = []
-        qv  = qvalues(pv)
+        qv = qvalues(pv)
         qvall.append(qv)
-        score=qv.min()
+        score = qv.min()
     else:
-        score=pv.min()
-    while (score<threshold) and niter<maxiter:
-        t0=time.time()
+        score = pv.min()
+    while (score < threshold) and niter < maxiter:
+        t0 = time.time()
         iadded.append(imin)
         pvadded.append(pv[imin])
         if qvalues:
-            qvadded.append(qv[0,imin])
-        covs=np.concatenate((covs,snps[:,imin:(imin+1)]),1)
+            qvadded.append(qv[0, imin])
+        covs = np.concatenate((covs, snps[:, imin:(imin + 1)]), 1)
         lm.setCovs(covs)
         lm.process()
         pv = lm.getPv().ravel()
         pv[sp.isnan(pv)] = 1
         pvall.append(pv)
-        imin= pv.argmin()
+        imin = pv.argmin()
         if qvalues:
             qv = qvalues(pv)
-            qvall[niter:niter+1,:] = qv
+            qvall[niter:niter + 1, :] = qv
             score = qv.min()
         else:
             score = pv.min()
-        t1=time.time()
+        t1 = time.time()
         if verbose:
-            print(("finished GWAS testing in %.2f seconds" %(t1-t0)))
-        niter=niter+1
+            print(("finished GWAS testing in %.2f seconds" % (t1 - t0)))
+        niter = niter + 1
     RV = {}
-    RV['iadded']  = iadded
+    RV['iadded'] = iadded
     RV['pvadded'] = pvadded
-    RV['pvall']   = np.array(pvall)
+    RV['pvall'] = np.array(pvall)
     if qvalues:
         RV['qvall'] = np.array(qvall)
         RV['qvadded'] = qvadded
-    return lm,RV
+    return lm, RV
 
 
-#TOOD: use **kw_args to forward params.. see below
-def forward_lmm_kronecker(snps,phenos,Asnps=None,Acond=None,K1r=None,K1c=None,K2r=None,K2c=None,covs=None,Acovs=None,threshold=5e-8,maxiter=2,qvalues=False, update_covariances = False,verbose=None,**kw_args):
+# TOOD: use **kw_args to forward params.. see below
+def forward_lmm_kronecker(
+        snps,
+        phenos,
+        Asnps=None,
+        Acond=None,
+        K1r=None,
+        K1c=None,
+        K2r=None,
+        K2c=None,
+        covs=None,
+        Acovs=None,
+        threshold=5e-8,
+        maxiter=2,
+        qvalues=False,
+        update_covariances=False,
+        verbose=None,
+        **kw_args):
     """
     Kronecker fixed effects test with forward selection
 
@@ -802,120 +906,143 @@ def forward_lmm_kronecker(snps,phenos,Asnps=None,Acond=None,K1r=None,K1c=None,K2
     import limix_legacy.deprecated
     import limix_legacy.deprecated as dlimix_legacy
     verbose = dlimix_legacy.getVerbose(verbose)
-    #0. checks
-    N  = phenos.shape[0]
-    P  = phenos.shape[1]
+    # 0. checks
+    N = phenos.shape[0]
+    P = phenos.shape[1]
 
     if K1r is None:
-        K1r = np.dot(snps,snps.T)
+        K1r = np.dot(snps, snps.T)
     else:
-        assert K1r.shape[0]==N, 'K1r: dimensions dismatch'
-        assert K1r.shape[1]==N, 'K1r: dimensions dismatch'
+        assert K1r.shape[0] == N, 'K1r: dimensions dismatch'
+        assert K1r.shape[1] == N, 'K1r: dimensions dismatch'
 
     if K2r is None:
         K2r = np.eye(N)
     else:
-        assert K2r.shape[0]==N, 'K2r: dimensions dismatch'
-        assert K2r.shape[1]==N, 'K2r: dimensions dismatch'
+        assert K2r.shape[0] == N, 'K2r: dimensions dismatch'
+        assert K2r.shape[1] == N, 'K2r: dimensions dismatch'
 
-    covs,Acovs = _updateKronCovs(covs,Acovs,N,P)
+    covs, Acovs = _updateKronCovs(covs, Acovs, N, P)
 
     if Asnps is None:
-        Asnps = [np.ones([1,P])]
-    if (type(Asnps)!=list):
+        Asnps = [np.ones([1, P])]
+    if (not isinstance(Asnps, list)):
         Asnps = [Asnps]
-    assert len(Asnps)>0, "need at least one Snp design matrix"
+    assert len(Asnps) > 0, "need at least one Snp design matrix"
 
     if Acond is None:
         Acond = Asnps
-    if (type(Acond)!=list):
+    if (not isinstance(Acond, list)):
         Acond = [Acond]
-    assert len(Acond)>0, "need at least one Snp design matrix"
+    assert len(Acond) > 0, "need at least one Snp design matrix"
 
-    #1. run GP model to infer suitable covariance structure
+    # 1. run GP model to infer suitable covariance structure
     if K1c is None or K2c is None:
-        vc = _estimateKronCovariances(phenos=phenos, K1r=K1r, K2r=K2r, K1c=K1c, K2c=K2c, covs=covs, Acovs=Acovs, **kw_args)
+        vc = _estimateKronCovariances(
+            phenos=phenos,
+            K1r=K1r,
+            K2r=K2r,
+            K1c=K1c,
+            K2c=K2c,
+            covs=covs,
+            Acovs=Acovs,
+            **kw_args)
         K1c = vc.getTraitCovar(0)
         K2c = vc.getTraitCovar(1)
     else:
         vc = None
-        assert K1c.shape[0]==P, 'K1c: dimensions dismatch'
-        assert K1c.shape[1]==P, 'K1c: dimensions dismatch'
-        assert K2c.shape[0]==P, 'K2c: dimensions dismatch'
-        assert K2c.shape[1]==P, 'K2c: dimensions dismatch'
+        assert K1c.shape[0] == P, 'K1c: dimensions dismatch'
+        assert K1c.shape[1] == P, 'K1c: dimensions dismatch'
+        assert K2c.shape[0] == P, 'K2c: dimensions dismatch'
+        assert K2c.shape[1] == P, 'K2c: dimensions dismatch'
     t0 = time.time()
-    lm,pv = qtl_test_lmm_kronecker(snps=snps,phenos=phenos,Asnps=Asnps,K1r=K1r,K2r=K2r,K1c=K1c,K2c=K2c,covs=covs,Acovs=Acovs)
+    lm, pv = qtl_test_lmm_kronecker(
+        snps=snps, phenos=phenos, Asnps=Asnps, K1r=K1r, K2r=K2r, K1c=K1c, K2c=K2c, covs=covs, Acovs=Acovs)
 
-    #get pv
-    #start stuff
+    # get pv
+    # start stuff
     iadded = []
     pvadded = []
     qvadded = []
     time_el = []
     pvall = []
     qvall = None
-    t1=time.time()
+    t1 = time.time()
     if verbose:
-        print(("finished GWAS testing in %.2f seconds" %(t1-t0)))
-    time_el.append(t1-t0)
+        print(("finished GWAS testing in %.2f seconds" % (t1 - t0)))
+    time_el.append(t1 - t0)
     pvall.append(pv)
-    imin= np.unravel_index(pv.argmin(),pv.shape)
-    score=pv[imin].min()
+    imin = np.unravel_index(pv.argmin(), pv.shape)
+    score = pv[imin].min()
     niter = 1
     if qvalues:
-        assert pv.shape[0]==1, "This is untested with the fdr package. pv.shape[0]==1 failed"
+        assert pv.shape[0] == 1, "This is untested with the fdr package. pv.shape[0]==1 failed"
         qvall = []
-        qv  = qvalues(pv)
+        qv = qvalues(pv)
         qvall.append(qv)
-        score=qv[imin]
-    #loop:
-    while (score<threshold) and niter<maxiter:
-        t0=time.time()
+        score = qv[imin]
+    # loop:
+    while (score < threshold) and niter < maxiter:
+        t0 = time.time()
         pvadded.append(pv[imin])
         iadded.append(imin)
         if qvalues:
             qvadded.append(qv[imin])
         if update_covariances and vc is not None:
-            vc.addFixedTerm(snps[:,imin[1]:(imin[1]+1)],Acond[imin[0]])
-            vc.setScales()#CL: don't know what this does, but findLocalOptima crashes becahuse vc.noisPos=None
+            vc.addFixedTerm(snps[:, imin[1]:(imin[1] + 1)], Acond[imin[0]])
+            vc.setScales()  # CL: don't know what this does, but findLocalOptima crashes becahuse vc.noisPos=None
             vc.findLocalOptima(fast=True)
             K1c = vc.getTraitCovar(0)
             K2c = vc.getTraitCovar(1)
             lm.setK1c(K1c)
             lm.setK2c(K2c)
-        lm.addCovariates(snps[:,imin[1]:(imin[1]+1)],Acond[imin[0]])
+        lm.addCovariates(snps[:, imin[1]:(imin[1] + 1)], Acond[imin[0]])
         for i in range(len(Asnps)):
-            #add SNP design
+            # add SNP design
             lm.setSNPcoldesign(Asnps[i])
             lm.process()
-            pv[i,:] = lm.getPv()[0]
+            pv[i, :] = lm.getPv()[0]
         pvall.append(pv.ravel())
-        imin= np.unravel_index(pv.argmin(),pv.shape)
+        imin = np.unravel_index(pv.argmin(), pv.shape)
         if qvalues:
             qv = qvalues(pv)
-            qvall[niter:niter+1,:] = qv
+            qvall[niter:niter + 1, :] = qv
             score = qv[imin].min()
         else:
             score = pv[imin].min()
-        t1=time.time()
+        t1 = time.time()
         if verbose:
-            print(("finished GWAS testing in %.2f seconds" %(t1-t0)))
-        time_el.append(t1-t0)
-        niter=niter+1
+            print(("finished GWAS testing in %.2f seconds" % (t1 - t0)))
+        time_el.append(t1 - t0)
+        niter = niter + 1
     RV = {}
-    RV['iadded']  = iadded
+    RV['iadded'] = iadded
     RV['pvadded'] = pvadded
-    RV['pvall']   = np.array(pvall)
+    RV['pvall'] = np.array(pvall)
     RV['time_el'] = time_el
     if qvalues:
         RV['qvall'] = qvall
         RV['qvadded'] = qvadded
-    return lm,RV
-
+    return lm, RV
 
 
 """ INTERNAL """
-def _estimateKronCovariances(phenos,K1r=None,K1c=None,K2r=None,K2c=None,covs=None,Acovs=None,trait_covar_type='freeform',rank=1,lambd=None,verbose=True,init_method='random',old_opt=True):
+
+
+def _estimateKronCovariances(
+        phenos,
+        K1r=None,
+        K1c=None,
+        K2r=None,
+        K2c=None,
+        covs=None,
+        Acovs=None,
+        trait_covar_type='freeform',
+        rank=1,
+        lambd=None,
+        verbose=True,
+        init_method='random',
+        old_opt=True):
     """
     estimates the background covariance model before testing
 
@@ -947,54 +1074,70 @@ def _estimateKronCovariances(phenos,K1r=None,K1c=None,K2r=None,K2c=None,covs=Non
     Returns:
         VarianceDecomposition object
     """
-    import limix_legacy.modules.varianceDecomposition as VAR 
+    import limix_legacy.modules.varianceDecomposition as VAR
 
     # from . import varianceDecomposition as VAR
     if verbose:
         print(".. Estimating trait covariances")
     vc = VAR.VarianceDecomposition(phenos)
     if K1r is not None:
-        vc.addRandomEffect(K1r,trait_covar_type='freeform',rank=rank)
+        vc.addRandomEffect(K1r, trait_covar_type='freeform', rank=rank)
     if K2r is not None:
-        #TODO: fix this; forces second term to be the noise covariance
-        vc.addRandomEffect(is_noise=True,K=K2r,trait_covar_type='freeform',rank=rank)
-    for ic  in range(len(Acovs)):
-        vc.addFixedEffect(covs[ic],Acovs[ic])
+        # TODO: fix this; forces second term to be the noise covariance
+        vc.addRandomEffect(
+            is_noise=True,
+            K=K2r,
+            trait_covar_type='freeform',
+            rank=rank)
+    for ic in range(len(Acovs)):
+        vc.addFixedEffect(covs[ic], Acovs[ic])
     start = time.time()
     if old_opt:
         conv = vc.optimize(fast=True)
     elif lambd is not None:
-        conv = vc.optimize(init_method=init_method,verbose=verbose,lambd=lambd)
+        conv = vc.optimize(
+            init_method=init_method,
+            verbose=verbose,
+            lambd=lambd)
     else:
-        conv = vc.optimize(init_method=init_method,verbose=verbose)
+        conv = vc.optimize(init_method=init_method, verbose=verbose)
     assert conv, "Variance Decomposition has not converged"
-    time_el = time.time()-start
+    time_el = time.time() - start
     if verbose:
         print(("Done in %.2f s" % time_el))
     return vc
 
-def _updateKronCovs(covs,Acovs,N,P):
+
+def _updateKronCovs(covs, Acovs, N, P):
     """
     make sure that covs and Acovs are lists
     """
     if (covs is None) and (Acovs is None):
-        covs = [np.ones([N,1])]
+        covs = [np.ones([N, 1])]
         Acovs = [np.eye(P)]
 
     if Acovs is None or covs is None:
         raise Exception("Either Acovs or covs is None, while the other isn't")
 
-    if (type(Acovs)!=list) and (type(covs)!=list):
-        Acovs= [Acovs]
+    if (not isinstance(Acovs, list)) and (not isinstance(covs, list)):
+        Acovs = [Acovs]
         covs = [covs]
-    if (type(covs)!=list) or (type(Acovs)!=list) or (len(covs)!=len(Acovs)):
-        raise Exception("Either Acovs or covs is not a list or they missmatch in length")
+    if (not isinstance(covs, list)) or (not isinstance(
+            Acovs, list)) or (len(covs) != len(Acovs)):
+        raise Exception(
+            "Either Acovs or covs is not a list or they missmatch in length")
     return covs, Acovs
 
 
-#TODO: we need to fix. THis does not work as interact_GxE is not existing
-#I vote we also use **kw_args to forward parameters to interact_Gxe?
-def qtl_test_interaction_GxG(pheno,snps1,snps2=None,K=None,covs=None,test='lrt'):
+# TODO: we need to fix. THis does not work as interact_GxE is not existing
+# I vote we also use **kw_args to forward parameters to interact_Gxe?
+def qtl_test_interaction_GxG(
+        pheno,
+        snps1,
+        snps2=None,
+        K=None,
+        covs=None,
+        test='lrt'):
     """
     Epistasis test between two sets of SNPs
 
@@ -1012,14 +1155,27 @@ def qtl_test_interaction_GxG(pheno,snps1,snps2=None,K=None,covs=None,test='lrt')
                 snps1 and snps2
     """
     if K is None:
-        K=np.eye(N)
-    N=snps1.shape[0]
+        K = np.eye(N)
+    N = snps1.shape[0]
     if snps2 is None:
         snps2 = snps1
-    return qtl_test_interaction_GxE_1dof(snps=snps1,pheno=pheno,env=snps2,covs=covs,K=K,test=test)
+    return qtl_test_interaction_GxE_1dof(
+        snps=snps1,
+        pheno=pheno,
+        env=snps2,
+        covs=covs,
+        K=K,
+        test=test)
 
 
-def qtl_test_interaction_GxE_1dof(snps,pheno,env,K=None,covs=None, test='lrt',verbose=None):
+def qtl_test_interaction_GxE_1dof(
+        snps,
+        pheno,
+        env,
+        K=None,
+        covs=None,
+        test='lrt',
+        verbose=None):
     """
     Univariate GxE fixed effects interaction linear mixed model test for all
     pairs of SNPs and environmental variables.
@@ -1040,31 +1196,43 @@ def qtl_test_interaction_GxE_1dof(snps,pheno,env,K=None,covs=None, test='lrt',ve
     """
     import limix_legacy.deprecated as dlimix_legacy
     verbose = dlimix_legacy.getVerbose(verbose)
-    N=snps.shape[0]
+    N = snps.shape[0]
     if K is None:
-        K=np.eye(N)
+        K = np.eye(N)
     if covs is None:
-        covs = np.ones((N,1))
-    assert (env.shape[0]==N and pheno.shape[0]==N and K.shape[0]==N and K.shape[1]==N and covs.shape[0]==N), "shapes missmatch"
-    Inter0 = np.ones((N,1))
-    pv = np.zeros((env.shape[1],snps.shape[1]))
+        covs = np.ones((N, 1))
+    assert (env.shape[0] == N and pheno.shape[0] == N and K.shape[0] ==
+            N and K.shape[1] == N and covs.shape[0] == N), "shapes missmatch"
+    Inter0 = np.ones((N, 1))
+    pv = np.zeros((env.shape[1], snps.shape[1]))
     if verbose:
-        print(("starting %i interaction scans for %i SNPs each." % (env.shape[1], snps.shape[1])))
-    t0=time.time()
+        print(("starting %i interaction scans for %i SNPs each." %
+               (env.shape[1], snps.shape[1])))
+    t0 = time.time()
     for i in range(env.shape[1]):
         t0_i = time.time()
-        cov_i = np.concatenate((covs,env[:,i:(i+1)]),1)
-        lm_i = qtl_test_interaction_lmm(snps=snps,pheno=pheno,covs=cov_i,Inter=env[:,i:(i+1)],Inter0=Inter0,test=test)
-        pv[i,:]=lm_i.getPv()[0,:]
+        cov_i = np.concatenate((covs, env[:, i:(i + 1)]), 1)
+        lm_i = qtl_test_interaction_lmm(snps=snps,
+                                        pheno=pheno,
+                                        covs=cov_i,
+                                        Inter=env[:,
+                                                  i:(i + 1)],
+                                        Inter0=Inter0,
+                                        test=test)
+        pv[i, :] = lm_i.getPv()[0, :]
         t1_i = time.time()
         if verbose:
-            print(("Finished %i out of %i interaction scans in %.2f seconds."%((i+1),env.shape[1],(t1_i-t0_i))))
+            print(("Finished %i out of %i interaction scans in %.2f seconds." %
+                   ((i + 1), env.shape[1], (t1_i - t0_i))))
     t1 = time.time()
-    print(("-----------------------------------------------------------\nFinished all %i interaction scans in %.2f seconds."%(env.shape[1],(t1-t0))))
+    print(
+        (
+            "-----------------------------------------------------------\nFinished all %i interaction scans in %.2f seconds." %
+         (env.shape[1], (t1 - t0))))
     return pv
 
 
-def phenSpecificEffects(snps,pheno1,pheno2,K=None,covs=None,test='lrt'):
+def phenSpecificEffects(snps, pheno1, pheno2, K=None, covs=None, test='lrt'):
     """
     Univariate fixed effects interaction test for phenotype specific SNP effects
 
@@ -1080,18 +1248,26 @@ def phenSpecificEffects(snps,pheno1,pheno2,K=None,covs=None,test='lrt'):
     Returns:
         limix LMM object
     """
-    N=snps.shape[0]
+    N = snps.shape[0]
     if K is None:
-        K=np.eye(N)
-    assert (pheno1.shape[1]==pheno2.shape[1]), "Only consider equal number of phenotype dimensions"
+        K = np.eye(N)
+    assert (pheno1.shape[1] == pheno2.shape[1]
+            ), "Only consider equal number of phenotype dimensions"
     if covs is None:
-        covs = np.ones(N,1)
-    assert (pheno1.shape[1]==1 and pheno2.shape[1]==1 and pheno1.shape[0]==N and pheno2.shape[0]==N and K.shape[0]==N and K.shape[1]==N and covs.shape[0]==N), "shapes missmatch"
-    Inter = np.zeros((N*2,1))
-    Inter[0:N,0]=1
-    Inter0 = np.ones((N*2,1))
-    Yinter=np.concatenate((pheno1,pheno2),0)
-    Xinter = np.tile(snps,(2,1))
-    Covitner= np.tile(covs(2,1))
-    lm = qtl_test_interaction_lmm(snps=Xinter,pheno=Yinter,covs=Covinter,Inter=Inter,Inter0=Inter0,test=test)
+        covs = np.ones(N, 1)
+    assert (pheno1.shape[1] == 1 and pheno2.shape[1] == 1 and pheno1.shape[0] == N and pheno2.shape[0]
+            == N and K.shape[0] == N and K.shape[1] == N and covs.shape[0] == N), "shapes missmatch"
+    Inter = np.zeros((N * 2, 1))
+    Inter[0:N, 0] = 1
+    Inter0 = np.ones((N * 2, 1))
+    Yinter = np.concatenate((pheno1, pheno2), 0)
+    Xinter = np.tile(snps, (2, 1))
+    Covitner = np.tile(covs(2, 1))
+    lm = qtl_test_interaction_lmm(
+        snps=Xinter,
+        pheno=Yinter,
+        covs=Covinter,
+        Inter=Inter,
+        Inter0=Inter0,
+        test=test)
     return lm

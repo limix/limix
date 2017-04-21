@@ -1,5 +1,6 @@
 from pandas import read_csv, MultiIndex
 
+
 def read_gen(prefix):
     r"""Read GEN files into Pandas data frames.
 

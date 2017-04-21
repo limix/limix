@@ -43,7 +43,7 @@ class Chi2mixture(object):
             >>> n = 100
             >>>
             >>> random = RandomState(1)
-            >>> x =  random.chisquare(dof, n) 
+            >>> x =  random.chisquare(dof, n)
             >>> n0 = int( (1-mixture) * n)
             >>> idxs = random.choice(n, n0, replace=False)
             >>> x[idxs] = 0
@@ -90,18 +90,18 @@ class Chi2mixture(object):
             lrt (array_like): null test statistcs.
         """
 
-        #step 1: estimate the probability of being in component one
+        # step 1: estimate the probability of being in component one
         self.mixture = 1 - (lrt <= self.tol).mean()
         n_false = sp.sum(lrt > self.tol)
 
-        #step 2: only use the largest qmax fraction of test statistics to estimate the
+        # step 2: only use the largest qmax fraction of test statistics to estimate the
         #           remaining parameters
         n_fitting = int(sp.ceil(self.qmax * n_false))
         lrt_sorted = -sp.sort(-lrt)[:n_fitting]
         q = sp.linspace(0, 1, n_false)[1:n_fitting + 1]
         log_q = sp.log10(q)
 
-        #step 3: fitting scale and dof by minimizing the squared error of the log10 p-values
+        # step 3: fitting scale and dof by minimizing the squared error of the log10 p-values
         #        with their theorietical values [uniform distribution]
         MSE_opt = sp.inf
         MSE = sp.zeros((self.n_intervals, self.n_intervals))
@@ -120,13 +120,13 @@ class Chi2mixture(object):
 
     def sf(self, lrt):
         """
-        Computes the P values from test statistics lrt 
+        Computes the P values from test statistics lrt
 
         Args:
             lrt (array_like): test statistics.
 
         Returns:
-            array_like: pvalues 
+            array_like: pvalues
         """
         _lrt = sp.copy(lrt)
         _lrt[lrt < self.tol] = 0
@@ -191,4 +191,3 @@ if __name__ == "__main__":
     alpha = 1e-3
     print('... alpha=1e-3')
     print(('...... type 1 error: %.2e' % (pval_test < alpha).mean()))
-

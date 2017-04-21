@@ -1,21 +1,22 @@
 # Copyright(c) 2014, The LIMIX developers (Christoph Lippert, Paolo Francesco Casale, Oliver Stegle)
 #
-#Licensed under the Apache License, Version 2.0 (the "License");
-#you may not use this file except in compliance with the License.
-#You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-#Unless required by applicable law or agreed to in writing, software
-#distributed under the License is distributed on an "AS IS" BASIS,
-#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#See the License for the specific language governing permissions and
-#limitations under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import numpy as np
 import scipy as sp
 import scipy.stats as st
 import time
+
 
 class LMM:
     r"""Basic class for univariate single-variant association testing with LMMs.
@@ -65,7 +66,7 @@ class LMM:
             >>> N = 100
             >>> S = 1000
             >>>
-            >>> # generate data 
+            >>> # generate data
             >>> snps = (random.rand(N, S) < 0.2).astype(float)
             >>> pheno = random.randn(N, 1)
             >>> W = random.randn(N, 10)
@@ -108,13 +109,23 @@ class LMM:
              [ 0.0662  0.9203  0.2873  0.8268]]
     """
 
-    def __init__(self, snps, pheno, K=None, covs=None, test='lrt', NumIntervalsDelta0=100, NumIntervalsDeltaAlt=100, searchDelta=False, verbose=None):
-        #create column of 1 for fixed if nothing provide
+    def __init__(
+            self,
+            snps,
+            pheno,
+            K=None,
+            covs=None,
+            test='lrt',
+            NumIntervalsDelta0=100,
+            NumIntervalsDeltaAlt=100,
+            searchDelta=False,
+            verbose=None):
+        # create column of 1 for fixed if nothing provide
         import limix_legacy.deprecated
         import limix_legacy.deprecated as dlimix_legacy
 
-        if len(pheno.shape)==1:
-            pheno = pheno[:,sp.newaxis]
+        if len(pheno.shape) == 1:
+            pheno = pheno[:, sp.newaxis]
 
         self.verbose = dlimix_legacy.getVerbose(verbose)
         self.snps = snps
@@ -126,17 +137,17 @@ class LMM:
         self.NumIntervalsDeltaAlt = NumIntervalsDeltaAlt
         self.searchDelta = searchDelta
         self.verbose = verbose
-        self.N       = self.pheno.shape[0]
-        self.P       = self.pheno.shape[1]
-        self.Iok     = ~(np.isnan(self.pheno).any(axis=1))
+        self.N = self.pheno.shape[0]
+        self.P = self.pheno.shape[1]
+        self.Iok = ~(np.isnan(self.pheno).any(axis=1))
         if self.K is None:
-            self.searchDelta=False
+            self.searchDelta = False
             self.K = np.eye(self.snps.shape[0])
         if self.covs is None:
-            self.covs = np.ones((self.snps.shape[0],1))
+            self.covs = np.ones((self.snps.shape[0], 1))
 
         self._lmm = None
-        #run
+        # run
         self.verbose = verbose
         self.process()
 
@@ -152,14 +163,14 @@ class LMM:
             self._lmm.setSNPs(self.snps)
             self._lmm.setPheno(self.pheno)
             self._lmm.setCovs(self.covs)
-            if self.test=='lrt':
+            if self.test == 'lrt':
                 self._lmm.setTestStatistics(self._lmm.TEST_LRT)
-            elif self.test=='f':
+            elif self.test == 'f':
                 self._lmm.setTestStatistics(self._lmm.TEST_F)
             else:
                 print((self.test))
                 raise NotImplementedError("only f and lrt are implemented")
-            #set number of delta grid optimizations?
+            # set number of delta grid optimizations?
             self._lmm.setNumIntervals0(self.NumIntervalsDelta0)
             if self.searchDelta:
                 self._lmm.setNumIntervalsAlt(self.NumIntervalsDeltaAlt)
@@ -167,7 +178,7 @@ class LMM:
                 self._lmm.setNumIntervalsAlt(0)
 
         if not np.isnan(self.pheno).any():
-            #process
+            # process
             self._lmm.process()
             self.pvalues = self._lmm.getPv()
             self.beta_snp = self._lmm.getBetaSNP()
@@ -178,35 +189,41 @@ class LMM:
             self.NLL_alt = self._lmm.getNLLAlt()
         else:
             if self._lmm is not None:
-                raise Exception('cannot reuse a CLMM object if missing variables are present')
+                raise Exception(
+                    'cannot reuse a CLMM object if missing variables are present')
             else:
                 self._lmm = limix_legacy.deprecated.CLMM()
-            #test all phenotypes separately
-            self.pvalues = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-            self.beta_snp = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-            self.beta_ste = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-            self.ldelta_0 = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-            self.ldelta_alt = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-            self.NLL_0 = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-            self.NLL_alt = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
-            self.test_statistics = np.zeros((self.phenos.shape[1],self.snps.shape[1]))
+            # test all phenotypes separately
+            self.pvalues = np.zeros((self.phenos.shape[1], self.snps.shape[1]))
+            self.beta_snp = np.zeros(
+                (self.phenos.shape[1], self.snps.shape[1]))
+            self.beta_ste = np.zeros(
+                (self.phenos.shape[1], self.snps.shape[1]))
+            self.ldelta_0 = np.zeros(
+                (self.phenos.shape[1], self.snps.shape[1]))
+            self.ldelta_alt = np.zeros(
+                (self.phenos.shape[1], self.snps.shape[1]))
+            self.NLL_0 = np.zeros((self.phenos.shape[1], self.snps.shape[1]))
+            self.NLL_alt = np.zeros((self.phenos.shape[1], self.snps.shape[1]))
+            self.test_statistics = np.zeros(
+                (self.phenos.shape[1], self.snps.shape[1]))
             for ip in np.arange(self.phenos.shape[1]):
-                pheno_ = self.phenos[:,ip]
+                pheno_ = self.phenos[:, ip]
                 i_nonz = ~(pheno_.isnan())
 
-                self._lmm.setK(self.K[i_nonz,i_nonz])
+                self._lmm.setK(self.K[i_nonz, i_nonz])
                 self._lmm.setSNPs(self.snps[i_nonz])
-                self._lmm.setPheno(pheno_[i_nonz,np.newaxis])
+                self._lmm.setPheno(pheno_[i_nonz, np.newaxis])
                 self._lmm.setCovs(self.covs[i_nonz])
                 self._lmm.process()
-                self.pvalues[ip:ip+1] = self._lmm.getPv()
-                self.beta_snp[ip:ip+1] = self._lmm.getBetaSNP()
-                self.beta_ste[ip:ip+1] = self._lmm.getBetaSNPste()
-                self.ldelta_0[ip:ip+1] = self._lmm.getLdelta0()
-                self.ldelta_alt[ip:ip+1] = self._lmm.getLdeltaAlt()
-                self.NLL_0[ip:ip+1] = self._lmm.getNLL0()
-                self.NLL_alt[ip:ip+1] = self._lmm.getNLLAlt()
-                self.test_statistics[ip:ip+1] = self._lmm.getTestStatistics()
+                self.pvalues[ip:ip + 1] = self._lmm.getPv()
+                self.beta_snp[ip:ip + 1] = self._lmm.getBetaSNP()
+                self.beta_ste[ip:ip + 1] = self._lmm.getBetaSNPste()
+                self.ldelta_0[ip:ip + 1] = self._lmm.getLdelta0()
+                self.ldelta_alt[ip:ip + 1] = self._lmm.getLdeltaAlt()
+                self.NLL_0[ip:ip + 1] = self._lmm.getNLL0()
+                self.NLL_alt[ip:ip + 1] = self._lmm.getNLLAlt()
+                self.test_statistics[ip:ip + 1] = self._lmm.getTestStatistics()
                 pass
         if self._lmm.getTestStatistics() == self._lmm.TEST_LRT and self.test != "lrt":
             raise NotImplementedError("only f and lrt are implemented")
@@ -214,15 +231,16 @@ class LMM:
             raise NotImplementedError("only f and lrt are implemented")
 
         if self._lmm.getTestStatistics() == self._lmm.TEST_F:
-            self.test_statistics = (self.beta_snp*self.beta_snp)/(self.beta_ste*self.beta_ste)
+            self.test_statistics = (
+                self.beta_snp * self.beta_snp) / (self.beta_ste * self.beta_ste)
         if self._lmm.getTestStatistics() == self._lmm.TEST_LRT:
             self.test_statistics = 2.0 * (self.NLL_0 - self.NLL_alt)
-        t1=time.time()
+        t1 = time.time()
 
         if self.verbose:
-            print(("finished GWAS testing in %.2f seconds" %(t1-t0)))
+            print(("finished GWAS testing in %.2f seconds" % (t1 - t0)))
 
-    def setCovs(self,covs):
+    def setCovs(self, covs):
         self._lmm.setCovs(covs)
 
     def getBetaSNP(self):
@@ -246,7 +264,6 @@ class LMM:
         """
         beta = self.getBetaSNP()
         pv = self.getPv()
-        z = sp.sign(beta)*sp.sqrt(st.chi2(1).isf(pv))
-        ste = beta/z
-        return ste 
-
+        z = sp.sign(beta) * sp.sqrt(st.chi2(1).isf(pv))
+        ste = beta / z
+        return ste

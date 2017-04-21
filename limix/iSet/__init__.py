@@ -9,6 +9,6 @@ Public interface
 ^^^^^^^^^^^^^^^^
 """
 
-from .iset import fit_iSet 
+from .iset import fit_iSet
 
 __all__ = ['fit_iSet']

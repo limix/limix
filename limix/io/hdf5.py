@@ -5,6 +5,7 @@ import pandas as pd
 
 from numpy.testing import assert_allclose, assert_equal
 
+
 class h5data_fetcher(object):
     r"""Fetch datasets from HDF5 files.
 
@@ -23,6 +24,7 @@ class h5data_fetcher(object):
             ...     print('%.4f' % X[0, 0].compute())
             -0.0453
     """
+
     def __init__(self, filename):
         self._filename = filename
 

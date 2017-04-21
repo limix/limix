@@ -4,13 +4,23 @@ from .mvSetInc import MvSetTestInc
 import pandas as pd
 import scipy as sp
 
-def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_nulls=10, factr=1e7):
+
+def fit_iSet(
+        Y=None,
+        Xr=None,
+        F=None,
+        Rg=None,
+        Ug=None,
+        Sg=None,
+        Ie=None,
+        n_nulls=10,
+        factr=1e7):
     """
     Fit interaction set test (iSet).
 
     Args:
         Y (ndarray):
-            For complete design, the phenotype ndarray `Y` 
+            For complete design, the phenotype ndarray `Y`
             for `N` samples and `C` contexts has shape (`N`, `C`).
             For stratified design, the phenotype ndarray `Y` has
             shape (`N`, `1`) (each individual is phenotyped in only one context -
@@ -25,9 +35,9 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
             (`N`, `N`) ndarray of LMM-covariance/kinship coefficients.
             ``Ug`` and ``Sg`` can be provided instead of ``Rg``.
             If neither ``Rg`` nor ``Ug`` and ``Sg`` are provided,
-            the null models has iid normal residuals. 
+            the null models has iid normal residuals.
         Ug (ndarray, optional):
-            (`N`, `N`) ndarray of eigenvectors of ``Rg``. 
+            (`N`, `N`) ndarray of eigenvectors of ``Rg``.
             ``Ug`` and ``Sg`` can be provided instead of ``Rg``.
             If neither ``Rg`` nor ``Ug`` and ``Sg`` are provided,
             iid normal residuals are considered.
@@ -40,7 +50,7 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
             (`N`, `1`) boolean ndarray indicator for analysis of
             stratified designs.
             More specifically ``Ie`` specifies in which context each
-            individuals has been phenotyped. 
+            individuals has been phenotyped.
             Needs to be specified for analysis of stratified designs.
         n_nulls (ndarray, optional):
             number of parametric bootstrap. This parameter determine
@@ -69,7 +79,7 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
         .. doctest::
 
             >>> from numpy.random import RandomState
-            >>> from limix.iSet import fit_iSet 
+            >>> from limix.iSet import fit_iSet
             >>> from numpy import ones, concatenate
             >>> import scipy as sp
             >>>
@@ -150,7 +160,7 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
 
         For more info and examples see the `iSet tutorial`_.
 
-        .. _iSet tutorial: https://github.com/limix/limix-tutorials/tree/master/iSet 
+        .. _iSet tutorial: https://github.com/limix/limix-tutorials/tree/master/iSet
 
     """
     # data
@@ -158,36 +168,39 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
     bgRE = Rg is not None or noneNone
     # fixed effect
     msg = 'The current implementation of the full rank iSet'
-    msg+= ' does not support covariates.'
-    msg+= ' We reccommend to regress out covariates and'
-    msg+= ' subsequently quantile normalize the phenotypes'
-    msg+= ' to a normal distribution prior to use mtSet/iSet.'
-    msg+= ' This can be done within the LIMIX framework using'
-    msg+= ' the methods limix.util.preprocess.regressOut and'
-    msg+= ' limix.util.preprocess.gaussianize'
+    msg += ' does not support covariates.'
+    msg += ' We reccommend to regress out covariates and'
+    msg += ' subsequently quantile normalize the phenotypes'
+    msg += ' to a normal distribution prior to use mtSet/iSet.'
+    msg += ' This can be done within the LIMIX framework using'
+    msg += ' the methods limix.util.preprocess.regressOut and'
+    msg += ' limix.util.preprocess.gaussianize'
     assert not (F is not None and bgRE), msg
     # strat
     strat = Ie is not None
-    msg = 'iSet for interaction analysis of stratified populations ' 
-    msg+= 'using contextual variables does not support random effect '
-    msg+= 'correction for confounding. '
-    msg+= 'Please use the fixed effects to correct for confounding. '
+    msg = 'iSet for interaction analysis of stratified populations '
+    msg += 'using contextual variables does not support random effect '
+    msg += 'correction for confounding. '
+    msg += 'Please use the fixed effects to correct for confounding. '
     assert not (strat and bgRE), msg
 
     # check inputs for strat design
     if strat:
-        assert Y.shape[1]==1, 'Y has not the right shape'
-        valid_env_ids = (sp.unique(Ie)==sp.array([0,1])).all()
+        assert Y.shape[1] == 1, 'Y has not the right shape'
+        valid_env_ids = (sp.unique(Ie) == sp.array([0, 1])).all()
         assert valid_env_ids, 'The provided Ie is not valid'
 
     # phenotype is centered for 2 random effect model
     if bgRE:
-        Yc = Y-Y.mean(0)
+        Yc = Y - Y.mean(0)
 
-    #define mtSet
-    if bgRE:        mvset = MvSetTestFull(Y=Yc,Xr=Xr,Rg=Rg,Ug=Ug,Sg=Sg,factr=factr)
-    elif strat:     mvset = MvSetTestInc(Y=Y,Xr=Xr,F=F,Ie=Ie,factr=factr)
-    else:           mvset = MvSetTest(Y=Y,Xr=Xr,F=F,factr=factr)
+    # define mtSet
+    if bgRE:
+        mvset = MvSetTestFull(Y=Yc, Xr=Xr, Rg=Rg, Ug=Ug, Sg=Sg, factr=factr)
+    elif strat:
+        mvset = MvSetTestInc(Y=Y, Xr=Xr, F=F, Ie=Ie, factr=factr)
+    else:
+        mvset = MvSetTest(Y=Y, Xr=Xr, F=F, factr=factr)
 
     RV = {}
     RV['mtSet LLR'] = mvset.assoc()
@@ -205,4 +218,3 @@ def fit_iSet(Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_null
     df0 = pd.DataFrame(RV0)
 
     return df, df0
-

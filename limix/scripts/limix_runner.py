@@ -85,8 +85,8 @@ class LIMIX_runner(object):
         command = open(self.options.data_script).read()
         self.result["data_script"] = command
         t0 = time.time()
-        data = None  #fallback data
-        exec(command)  #creates variable data
+        data = None  # fallback data
+        exec(command)  # creates variable data
         t1 = time.time()
         print(("Elapsed time for data reading is %.2f seconds" % (t1 - t0)))
         self.data = data
@@ -103,7 +103,7 @@ class LIMIX_runner(object):
         command = open(self.options.experiment_script).read()
         result["experiment_script"] = command
         t0 = time.time()
-        exec(command)  #creates variable result
+        exec(command)  # creates variable result
         t1 = time.time()
         print(("Elapsed time for running the experiment is %.2f seconds" %
                (t1 - t0)))

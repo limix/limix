@@ -3,6 +3,7 @@ import os
 from limix.mtSet.core.analyzeCore import analyze
 from optparse import OptionParser
 
+
 def entry_point():
     parser = OptionParser()
     parser.add_option("--bfile", dest='bfile', type=str, default=None)
@@ -12,10 +13,14 @@ def entry_point():
     parser.add_option("--wfile", dest='wfile', type=str, default=None)
     parser.add_option("--ffile", dest='ffile', type=str, default=None)
     parser.add_option("--resdir", dest='resdir', type=str, default='./')
-    parser.add_option("--trait_idx",dest='trait_idx',type=str, default=None)
+    parser.add_option("--trait_idx", dest='trait_idx', type=str, default=None)
 
-    parser.add_option("--rank_r",dest='rank_r',type=int, default=1)
-    parser.add_option("--colCovarType_r",dest='colCovarType_r',type=str, default='lowrank')
+    parser.add_option("--rank_r", dest='rank_r', type=int, default=1)
+    parser.add_option(
+        "--colCovarType_r",
+        dest='colCovarType_r',
+        type=str,
+        default='lowrank')
 
     # start window, end window and permutations
     parser.add_option("--minSnps", dest='minSnps', type=int, default=None)
