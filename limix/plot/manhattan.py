@@ -20,7 +20,7 @@ def plot_manhattan(posCum, pv, chromBounds=None,
                    alphaNS=0.1, alphaS=0.5, colorNS='DarkBlue',
                    colorS='Orange', ax=None, thr_plotting=None,
                    labelS=None, labelNS=None):
-    r"""Produce a manhattan plot
+    r"""Produce a manhattan plot.
 
     Args:
         posCum: cumulative position.

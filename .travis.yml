@@ -6,7 +6,7 @@ git:
 env:
   global:
     - PKG_NAME=limix
-    - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib limix-legacy limix-core"
+    - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib limix-legacy limix-core sphinx_rtd_theme"
 python:
 - 2.7
 - 3.5

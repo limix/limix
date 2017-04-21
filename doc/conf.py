@@ -19,8 +19,11 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
+    'numpydoc',
+    'sphinx.ext.autosummary'
 ]
-napoleon_google_docstring = True
+# napoleon_google_docstring = True
+numpydoc_use_plots = True
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
