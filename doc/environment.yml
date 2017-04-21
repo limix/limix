@@ -62,3 +62,4 @@ dependencies:
 - xz=5.2.2=1
 - yaml=0.1.6=0
 - zlib=1.2.8=3
+- cython=0.25.2=py35_0
