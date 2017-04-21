@@ -7,22 +7,24 @@ from numpy.testing import assert_allclose, assert_equal
 
 
 class h5data_fetcher(object):
-    r"""Fetch datasets from HDF5 files.
+    r"""
+    Fetch datasets from HDF5 files.
 
-    Args:
-        filename (string): filename to an HDF5 file.
+    Parameters
+    ----------
+    filename : str
+        Filename to an HDF5 file.
 
-    Example
-    -------
+    Examples
+    --------
+    .. doctest::
 
-        .. doctest::
-
-            >>> from limix.io import h5data_fetcher
-            >>> from limix.io.examples import hdf5_file_example
-            >>> with h5data_fetcher(hdf5_file_example()) as df:
-            ...     X = df.fetch('/group/dataset')
-            ...     print('%.4f' % X[0, 0].compute())
-            -0.0453
+        >>> from limix.io import h5data_fetcher
+        >>> from limix.io.examples import hdf5_file_example
+        >>> with h5data_fetcher(hdf5_file_example()) as df:
+        ...     X = df.fetch('/group/dataset')
+        ...     print('%.4f' % X[0, 0].compute())
+        -0.0453
     """
 
     def __init__(self, filename):
@@ -33,13 +35,17 @@ class h5data_fetcher(object):
         return self
 
     def fetch(self, data_path):
-        r"""Fetch a HDF5 dataset.
+        r"""
+        Fetch a HDF5 dataset.
 
-        Args:
-            data_path: path to a dataset.
+        Parameters
+        ----------
+        data_path : str
+            Path to a dataset.
 
-        Returns:
-            array_like: dask array representing the dataset.
+        Returns
+        -------
+        X : dask array
         """
         data = self._f[data_path]
         if data.chunks is None:
@@ -50,7 +56,3 @@ class h5data_fetcher(object):
 
     def __exit__(self, *exc):
         self._f.close()
-
-# >>> with h5data_fetcher(hdf5_file_example()) as df:
-# >>>   X = df.fetch('/group/dataset')
-# >>>   print(X)

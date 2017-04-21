@@ -20,112 +20,107 @@ import os
 
 
 class MTSet():
-    r"""Multi-trait set tests (mtSet).
+    r"""
+    Multi-trait set tests (mtSet).
 
     Mixed-model approach that enables joint analysis across multiple correlated
     traits while accounting for population structure and relatedness [CRS15]_.
 
-    .. rubric:: References
-
-    .. [CRS15] Casale FP, Rakitsch B, Lippert C, Stegle O (2015) Efficient set tests for the genetic analysis of correlated traits. Nature Methods, Vol. 12, No. 8. (15 June 2015), pp. 755-758.
-
-    Args:
-        Y (ndarray):
-            (`N`, `P`) ndarray of `P` phenotype sfor `N` individuals.
-        F (ndarray, optional):
-            (`N`, `K`) ndarray of `K` covariates for `N` individuals.
-            By default, no fixed effect term is set.
-        R (ndarray, optional):
-            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients.
-            ``U_R`` and ``S_R`` can be provided instead of ``R``.
-            If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
-            the null models has iid normal residuals.
-        U_R (ndarray, optional):
-            (`N`, `N`) ndarray of eigenvectors of ``R``.
-            ``U_R`` and ``S_R`` can be provided instead of ``R``.
-            If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
-            iid normal residuals are considered.
-        S_R (ndarray, optional):
-            (`N`, ) ndarray of eigenvalues of ``R``.
-            ``U_R`` and ``S_R`` can be provided instead of ``R``.
-            If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
-            iid normal residuals are considered.
-        traitID (ndarray, optional):
-            ndarray of the phenotype IDs.
-        rank (int):
-            rank of the trait set covariance.
-            The default value is 1.
+    Parameters
+    ----------
+    Y : (N, P) ndarray
+        Individuals by phenotypes.
+    F : (N, K) ndarray, optional
+        Individuals by covariates. By default, no fixed effect term is set.
+    R : (N, N) ndarray, optional
+        LMM-covariance/kinship coefficients.
+        ``U_R`` and ``S_R`` can be provided instead of ``R``.
+        If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
+        the null models has iid normal residuals.
+    U_R : (N, N) ndarray, optional
+        Eigenvectors of ``R``.
+        ``U_R`` and ``S_R`` can be provided instead of ``R``.
+        If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
+        iid normal residuals are considered.
+    S_R : (N, ) ndarray, optional
+        Eigenvalues of ``R``.
+        ``U_R`` and ``S_R`` can be provided instead of ``R``.
+        If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
+        iid normal residuals are considered.
+    traitID : ndarray, optional
+        Phenotype IDs.
+    rank : int, optional
+        Rank of the trait set covariance. The default value is 1.
 
     Examples
     --------
+    This example shows how to fit mtSet when modelling population
+    structure/relatedness using the full genetic relatedness matrix.
 
-        This example shows how to fit mtSet when modelling population
-        structure/relatedness using the full genetic relatedness matrix.
+    .. doctest::
 
-        .. doctest::
+        >>> from numpy.random import RandomState
+        >>> from limix.mtSet import MTSet
+        >>> from numpy import dot, eye, ones, concatenate
+        >>> from numpy import set_printoptions
+        >>> set_printoptions(4)
+        >>>
+        >>> random = RandomState(1)
+        >>>
+        >>> N = 100
+        >>> P = 2
+        >>>
+        >>> pheno = random.randn(N, P)
+        >>> pheno-= pheno.mean(0)
+        >>> pheno/= pheno.std(0)
+        >>>
+        >>> W = random.randn(N, 10)
+        >>> kinship = dot(W, W.T) / float(10)
+        >>> kinship+= 1e-4 * eye(N)
+        >>>
+        >>> mtset = MTSet(pheno, R=kinship)
+        >>> res_null = mtset.fitNull()
+        >>>
+        >>> print(res_null['conv'][0])
+        True
+        >>> print('%.2f'%res_null['NLL0'])
+        98.43
+        >>>
+        >>> S = 4
+        >>> snp_set = (random.rand(N, S) < 0.2).astype(float)
+        >>> res = mtset.optimize(snp_set)
+        >>>
+        >>> print("%.4f" % res['LLR'][0])
+        0.0616
+        >>> print(res['Cr'])
+        [[ 0.0006  0.0025]
+         [ 0.0025  0.0113]]
 
-            >>> from numpy.random import RandomState
-            >>> from limix.mtSet import MTSet
-            >>> from numpy import dot, eye, ones, concatenate
-            >>> from numpy import set_printoptions
-            >>> set_printoptions(4)
-            >>>
-            >>> random = RandomState(1)
-            >>>
-            >>> N = 100
-            >>> P = 2
-            >>>
-            >>> pheno = random.randn(N, P)
-            >>> pheno-= pheno.mean(0)
-            >>> pheno/= pheno.std(0)
-            >>>
-            >>> W = random.randn(N, 10)
-            >>> kinship = dot(W, W.T) / float(10)
-            >>> kinship+= 1e-4 * eye(N)
-            >>>
-            >>> mtset = MTSet(pheno, R=kinship)
-            >>> res_null = mtset.fitNull()
-            >>>
-            >>> print(res_null['conv'][0])
-            True
-            >>> print('%.2f'%res_null['NLL0'])
-            98.43
-            >>>
-            >>> S = 4
-            >>> snp_set = (random.rand(N, S) < 0.2).astype(float)
-            >>> res = mtset.optimize(snp_set)
-            >>>
-            >>> print("%.4f" % res['LLR'][0])
-            0.0616
-            >>> print(res['Cr'])
-            [[ 0.0006  0.0025]
-             [ 0.0025  0.0113]]
+    This example shows how to fit mtSet when modelling population
+    structure/relatedness by introducing the top principle components
+    of the genetic relatedness matrix (``pc_rrm``) as fixed effects.
 
-        This example shows how to fit mtSet when modelling population
-        structure/relatedness by introducing the top principle components
-        of the genetic relatedness matrix (``pc_rrm``) as fixed effects.
-
-            >>> random = RandomState(0)
-            >>>
-            >>> mean = ones((N, 1))
-            >>> pc_rrm = random.randn(N, 4)
-            >>> covs = concatenate([mean, pc_rrm], 1)
-            >>>
-            >>> mtset = MTSet(pheno, F=covs)
-            >>> res_null = mtset.fitNull()
-            >>>
-            >>> print(res_null['conv'][0])
-            True
-            >>> print('%.2f'%res_null['NLL0'])
-            118.36
-            >>>
-            >>> res = mtset.optimize(snp_set)
-            >>>
-            >>> print("%.4f" % res['LLR'][0])
-            0.1373
-            >>> print(res['Cr'])
-            [[ 0.0002  0.0019]
-             [ 0.0019  0.0207]]
+        >>> random = RandomState(0)
+        >>>
+        >>> mean = ones((N, 1))
+        >>> pc_rrm = random.randn(N, 4)
+        >>> covs = concatenate([mean, pc_rrm], 1)
+        >>>
+        >>> mtset = MTSet(pheno, F=covs)
+        >>> res_null = mtset.fitNull()
+        >>>
+        >>> print(res_null['conv'][0])
+        True
+        >>> print('%.2f'%res_null['NLL0'])
+        118.36
+        >>>
+        >>> res = mtset.optimize(snp_set)
+        >>>
+        >>> print("%.4f" % res['LLR'][0])
+        0.1373
+        >>> print(res['Cr'])
+        [[ 0.0002  0.0019]
+         [ 0.0019  0.0207]]
     """
 
     def __init__(
@@ -267,7 +262,7 @@ class MTSet():
             n_times=10,
             init_method=None,
             verbose=False):
-        """
+        r"""
         Fit null model
 
         Args:
@@ -418,7 +413,7 @@ class MTSet():
 
         Args:
             G (ndarray):
-                (`N`, `S`) genotype values for `N` samples and `S` variants
+                (N, S) genotype values for `N` samples and `S` variants
                 (defines the set component)
             params0 (ndarray, optional):
                 initial parameter values for optimization.

@@ -20,7 +20,6 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
 ]
-napoleon_google_docstring = True
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
