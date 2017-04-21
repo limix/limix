@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import os
+import sphinx_rtd_theme
 
 try:
     import limix
@@ -31,7 +32,8 @@ language = None
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'conf.py']
 pygments_style = 'sphinx'
 todo_include_todos = False
-html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 htmlhelp_basename = 'limixdoc'
 latex_elements = {}
 latex_documents = [

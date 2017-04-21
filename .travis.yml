@@ -6,7 +6,7 @@ git:
 env:
   global:
     - PKG_NAME=limix
-    - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib"
+    - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib limix-legacy limix-core"
 python:
 - 2.7
 - 3.5
@@ -17,7 +17,7 @@ before_install:
 - travis_retry travis/test-before-install.sh
 script:
 - pip install pep8 --upgrade -q
-- find . -name \*.py -exec pep8 --ignore=E402 --ignore=E501 {} +
+- find limix -name \*.py -exec pep8 --ignore=E402 --ignore=E501 {} +
 - travis_retry travis/script.sh
 after_success:
 - travis_retry travis/after-success.sh

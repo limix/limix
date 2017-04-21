@@ -20,8 +20,14 @@ import os
 
 
 class MTSet():
-    r"""
-    Class for multi-trait set tests (mtSet)
+    r"""Multi-trait set tests (mtSet).
+
+    Mixed-model approach that enables joint analysis across multiple correlated
+    traits while accounting for population structure and relatedness [CRS15]_.
+
+    .. rubric:: References
+
+    .. [CRS15] Casale FP, Rakitsch B, Lippert C, Stegle O (2015) Efficient set tests for the genetic analysis of correlated traits. Nature Methods, Vol. 12, No. 8. (15 June 2015), pp. 755-758.
 
     Args:
         Y (ndarray):
@@ -99,7 +105,7 @@ class MTSet():
         structure/relatedness by introducing the top principle components
         of the genetic relatedness matrix (``pc_rrm``) as fixed effects.
 
-            >>> random = RandomState(1)
+            >>> random = RandomState(0)
             >>>
             >>> mean = ones((N, 1))
             >>> pc_rrm = random.randn(N, 4)
@@ -111,15 +117,15 @@ class MTSet():
             >>> print(res_null['conv'][0])
             True
             >>> print('%.2f'%res_null['NLL0'])
-            112.11
+            118.36
             >>>
             >>> res = mtset.optimize(snp_set)
             >>>
             >>> print("%.4f" % res['LLR'][0])
-            0.1227
+            0.1373
             >>> print(res['Cr'])
-            [[ 0.0054  0.0075]
-             [ 0.0075  0.0104]]
+            [[ 0.0002  0.0019]
+             [ 0.0019  0.0207]]
     """
 
     def __init__(
