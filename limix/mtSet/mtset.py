@@ -20,8 +20,14 @@ import os
 
 
 class MTSet():
-    r"""
-    Class for multi-trait set tests (mtSet)
+    r"""Multi-trait set tests (mtSet).
+
+    Mixed-model approach that enables joint analysis across multiple correlated
+    traits while accounting for population structure and relatedness [CRS15]_.
+
+    .. rubric:: References
+
+    .. [CRS15] Casale FP, Rakitsch B, Lippert C, Stegle O (2015) Efficient set tests for the genetic analysis of correlated traits. Nature Methods, Vol. 12, No. 8. (15 June 2015), pp. 755-758.
 
     Args:
         Y (ndarray):
