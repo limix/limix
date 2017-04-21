@@ -6,7 +6,7 @@ git:
 env:
   global:
     - PKG_NAME=limix
-    - PY_DEPS="cython numpy scipy scikit-learn pandas h5py tables matplotlib"
+    - PY_DEPS="cython numpy scipy scikit-learn pandas h5py tables matplotlib setuptools"
 python:
 - 2.7
 - 3.5
