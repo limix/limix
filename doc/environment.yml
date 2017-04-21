@@ -63,3 +63,5 @@ dependencies:
 - yaml=0.1.6=0
 - zlib=1.2.8=3
 - cython=0.25.2=py35_0
+- pip:
+   - https://pypi.python.org/packages/cd/d5/f2dc4723b46b427a32f83f80fe064649e9d4a143a039f3da0271ec81cb59/limix_legacy-0.8.11-cp35-cp35m-manylinux1_x86_64.whl#md5=dcc0dc6758609ec80d96dfb1bc455b85
