@@ -3,7 +3,15 @@ r"""
 Multi Trait Set Test (mtSet)
 ****************************
 
-- :class:`.MTSet`
+Set tests are a powerful approach for genome-wide association testing between
+groups of genetic variants and quantitative traits.
+Here we implement :class:`.MTSet`, a mixed-model approach that enables joint
+analysis across multiple correlated traits while accounting for population
+structure and relatedness.
+:class:`.MTSet` effectively combines the benefits of set tests with multi-trait
+modeling and is computationally efficient, enabling genetic analysis of large
+cohorts (up to 500,000 individuals) and multiple traits.
+A detailed description of the method can be found at [CHRS17]_.
 
 .. rubric:: References
 
