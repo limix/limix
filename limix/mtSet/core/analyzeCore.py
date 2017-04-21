@@ -55,7 +55,7 @@ def scan(
         if int(wnds[wnd_i, -1]) < minSnps:
             print('SKIPPED: number of snps lower than minSnps')
             continue
-        #RV = bed.read(PositionRange(int(wnds[wnd_i,-2]),int(wnds[wnd_i,-1])))
+        # RV = bed.read(PositionRange(int(wnds[wnd_i,-2]),int(wnds[wnd_i,-1])))
         RV = plink_reader.readBED(bfile,
                                   useMAFencoding=True,
                                   blocksize=1,
@@ -97,7 +97,7 @@ def analyze(options):
     F = None
     if options.ffile:
         F = readCovariatesFile(options.ffile)
-        #null['params_mean'] = sp.loadtxt(options.nfile + '.f0')
+        # null['params_mean'] = sp.loadtxt(options.nfile + '.f0')
 
     if F is not None:
         assert Y.shape[0] == F.shape[0], 'dimensions mismatch'

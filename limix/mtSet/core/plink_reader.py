@@ -125,15 +125,15 @@ def readBED(
     S_res = min(S, start + nSNPs)
     nSNPs = min(S - start, nSNPs)
     # if startpos is not None:
-    #print("start: " + str(start))
-    #print("end: " + str(end))
-    #print("S_res: " + str(S_res))
-    #print("nSNPs: " + str(nSNPs))
+    # print("start: " + str(start))
+    # print("end: " + str(end))
+    # print("S_res: " + str(S_res))
+    # print("nSNPs: " + str(nSNPs))
     if nSNPs <= 0:
         ret = {
             'rs': rs[start:start],
             'pos': pos[start:start, :],
-            #'snps'   :SNPs[0:N,start:start],
+            # 'snps'   :SNPs[0:N,start:start],
             'snps': SP.zeros((N, 0)),
             'iid': fam
         }

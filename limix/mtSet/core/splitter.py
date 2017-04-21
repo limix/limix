@@ -1,5 +1,4 @@
 import sys
-sys.path.append('./..')
 import h5py
 import pdb
 import scipy as SP

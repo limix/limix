@@ -123,8 +123,8 @@ class TestMTSet(unittest.TestCase):
     def assess(self, fbasename, ext):
         """ returns a bool vector """
         real = self.loadStuff(fbasename, list(ext.keys()))
-        RV = sp.all([((ext[key] - real[key])**2).mean()
-                     < 1e-6 for key in list(ext.keys())])
+        RV = sp.all([((ext[key] - real[key])**2).mean() < 1e-6
+                     for key in list(ext.keys())])
         if not RV:
             pdb.set_trace()
         return RV

@@ -19,7 +19,7 @@ from ..mtSet.core import plink_reader
 def entry_point():
     parser = OptionParser()
     parser.add_option("--bfile", dest='bfile', type=str, default=None)
-    #parser.add_option("--cfile", dest='cfile', type=str, default=None)
+    # parser.add_option("--cfile", dest='cfile', type=str, default=None)
     parser.add_option("--pfile", dest='pfile', type=str, default=None)
     parser.add_option("--wfile", dest='wfile', type=str, default=None)
     parser.add_option("--ffile", dest='ffile', type=str, default=None)

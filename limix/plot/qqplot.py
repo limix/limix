@@ -103,7 +103,7 @@ def qqplot(pv, distr='log10', alphaLevel=0.05, ax=None):
         yl = '-log10(P) expected'
 
     plt.plot(qnull, qemp, '.')
-    #plt.plot([0,qemp.m0x()], [0,qemp.max()],'r')
+    # plt.plot([0,qemp.m0x()], [0,qemp.max()],'r')
     plt.plot([0, qnull.max()], [0, qnull.max()], 'r')
     plt.ylabel(xl)
     plt.xlabel(yl)

@@ -198,7 +198,7 @@ class MvSetTestInc():
             D = self.gp[type].covar.d_inv()**(-1)
             var_n = (1 - 1 / float(D.shape[0])) * \
                 D.sum() / float(self.Y.size - 1)
-            #var_n = sp.diagonal(sp.diag(D)-sp.diag(D).mean(0)).sum()/float(self.Y.size-1)
+            # var_n = sp.diagonal(sp.diag(D)-sp.diag(D).mean(0)).sum()/float(self.Y.size-1)
             RV['var'] = sp.array([var_r, var_c, var_n])
             if 0 and self.Y.size < 5000:
                 pdb.set_trace()
@@ -223,9 +223,9 @@ class MvSetTestInc():
                 Cr_rank1 = lowrank_approx(RV['Cr'], rank=1)
                 var_block = var_WW(build_W(Cr_block))
                 var_rank1 = var_WW(build_W(Cr_rank1))
-                #trRr = (self.Xr**2).sum()
-                #var_block = sp.trace(Cr_block)*trRr / float(self.Y.size-1)
-                #var_rank1 = sp.trace(Cr_rank1)*trRr / float(self.Y.size-1)
+                # trRr = (self.Xr**2).sum()
+                # var_block = sp.trace(Cr_block)*trRr / float(self.Y.size-1)
+                # var_rank1 = sp.trace(Cr_rank1)*trRr / float(self.Y.size-1)
                 RV['var_r'] = sp.array(
                     [var_block, var_rank1 - var_block, var_r - var_rank1])
         return RV

@@ -80,7 +80,7 @@ class MvSetTestFull():
         self.debug = debug
         self.gp = {}
         self.info = {}
-        #_trRr = sp.diagonal(sp.dot(self.Ug, sp.dot(sp.diag(self.Sg), self.Ug.T))).sum()
+        # _trRr = sp.diagonal(sp.dot(self.Ug, sp.dot(sp.diag(self.Sg), self.Ug.T))).sum()
         self.trRg = ((self.Ug * self.Sg**0.5)**2).sum()
 
     def assoc(self):

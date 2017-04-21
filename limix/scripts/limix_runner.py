@@ -49,7 +49,7 @@ class LIMIX_runner(object):
             type=str,
             help='The output path (or file, if ending is .h5, the ooutput will be written to HDF5 file)',
             default="example_out")
-        #parser.add_option('--seed', metavar='seed', type=int, help='The random seed', default=123123)
+        # parser.add_option('--seed', metavar='seed', type=int, help='The random seed', default=123123)
         parser.add_option(
             "-T",
             "--timestamp",

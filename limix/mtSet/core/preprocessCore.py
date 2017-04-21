@@ -240,7 +240,9 @@ def eighCovarianceMatrix(cfile):
     # precompute eigenvalue decomposition
     K = np.loadtxt(cfile + '.cov')
     K += 1e-4 * sp.eye(K.shape[0])
-    S, U = la.eigh(K); S = S[::-1]; U = U[:, ::-1]
+    S, U = la.eigh(K)
+    S = S[::-1]
+    U = U[:, ::-1]
     np.savetxt(cfile + '.cov.eval', S, fmt='%.6f')
     np.savetxt(cfile + '.cov.evec', U, fmt='%.6f')
 
@@ -261,7 +263,7 @@ def fit_null(Y, S_XX, U_XX, nfile, F):
     np.savetxt(nfile + '.nll0', RV['NLL0'])
     np.savetxt(nfile + '.cg0', RV['Cg'])
     np.savetxt(nfile + '.cn0', RV['Cn'])
-    #if F is not None: np.savetxt(nfile+'.f0',RV['params_mean'])
+    # if F is not None: np.savetxt(nfile+'.f0',RV['params_mean'])
 
 
 def preprocess(options):

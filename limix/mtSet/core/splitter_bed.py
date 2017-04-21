@@ -44,7 +44,7 @@ def splitGeno(
         nWnds, nSnps = splitGenoSlidingWindow(
             pos, out_file, size=size, step=step)
     elif method == 'geneWindow':
-        #out = splitGenoGeneWindow(pos,out_file,annotation_file=annotation_file,cis=cis,funct=funct)
+        # out = splitGenoGeneWindow(pos,out_file,annotation_file=annotation_file,cis=cis,funct=funct)
         pass
 
     return nWnds, nSnps

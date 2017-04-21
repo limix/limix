@@ -691,8 +691,9 @@ def qtl_test_interaction_lmm(
         K = np.eye(N)
     if Inter0 is None:
         Inter0 = np.ones([N, 1])
-    assert (pheno.shape[0] == N and K.shape[0] == N and K.shape[1] == N and covs.shape[0]
-            == N and Inter0.shape[0] == N and Inter.shape[0] == N), "shapes missmatch"
+    assert (pheno.shape[0] == N and K.shape[0] == N and K.shape[1] == N and
+            covs.shape[0] == N and Inter0.shape[0] == N and
+            Inter.shape[0] == N), "shapes missmatch"
     lmi = limix_legacy.deprecated.CInteractLMM()
     lmi.setK(K)
     lmi.setSNPs(snps)
@@ -1255,8 +1256,10 @@ def phenSpecificEffects(snps, pheno1, pheno2, K=None, covs=None, test='lrt'):
             ), "Only consider equal number of phenotype dimensions"
     if covs is None:
         covs = np.ones(N, 1)
-    assert (pheno1.shape[1] == 1 and pheno2.shape[1] == 1 and pheno1.shape[0] == N and pheno2.shape[0]
-            == N and K.shape[0] == N and K.shape[1] == N and covs.shape[0] == N), "shapes missmatch"
+    assert (pheno1.shape[1] == 1 and pheno2.shape[1] == 1 and
+            pheno1.shape[0] == N and pheno2.shape[0] == N and
+            K.shape[0] == N and K.shape[1] == N and
+            covs.shape[0] == N), "shapes missmatch"
     Inter = np.zeros((N * 2, 1))
     Inter[0:N, 0] = 1
     Inter0 = np.ones((N * 2, 1))

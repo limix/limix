@@ -182,22 +182,28 @@ class MTSet():
     # Properties
     ##################################################
     @property
-    def N(self): return self._gp.covar.dim_r
+    def N(self):
+        return self._gp.covar.dim_r
 
     @property
-    def P(self): return self._gp.covar.dim_c
+    def P(self):
+        return self._gp.covar.dim_c
 
     @property
-    def Cr(self): return self._gp.covar.Cr
+    def Cr(self):
+        return self._gp.covar.Cr
 
     @property
-    def Cg(self): return self._gp.covar.Cg
+    def Cg(self):
+        return self._gp.covar.Cg
 
     @property
-    def Cn(self): return self._gp.covar.Cn
+    def Cn(self):
+        return self._gp.covar.Cn
 
     @property
-    def Y(self): return self._gp.mean.Y
+    def Y(self):
+        return self._gp.mean.Y
 
     @property
     def F(self):
