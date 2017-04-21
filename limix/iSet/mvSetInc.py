@@ -177,7 +177,7 @@ class MvSetTestInc():
             print('poppo')
         conv = self.gp[type].optimize(factr=self.factr, verbose=False)[0]
         B = self.gp[type].mean.b.reshape(
-            (self.mean.W.shape[1] / 2, 2), order='F')
+            (int(self.mean.W.shape[1] / 2), 2), order='F')
         RV = {'Cr': self.gp[type].covar.Cr.K(),
               'Cn': self.gp[type].covar.Cn.K(),
               'B': B,
