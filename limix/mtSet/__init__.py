@@ -11,11 +11,11 @@ structure and relatedness.
 :class:`.MTSet` effectively combines the benefits of set tests with multi-trait
 modeling and is computationally efficient, enabling genetic analysis of large
 cohorts (up to 500,000 individuals) and multiple traits.
-A detailed description of the method can be found at [CHRS17]_.
+A detailed description of the method can be found at [CRS15]_.
 
 .. rubric:: References
 
-.. [CHRS17] Casale FP, Rakitsch B, Lippert C, Stegle O (2015) Efficient set tests for the genetic analysis of correlated traits. Nature Methods, Vol. 12, No. 8. (15 June 2015), pp. 755-758.
+.. [CRS15] Casale FP, Rakitsch B, Lippert C, Stegle O (2015) Efficient set tests for the genetic analysis of correlated traits. Nature Methods, Vol. 12, No. 8. (15 June 2015), pp. 755-758.
 
 Public interface
 ^^^^^^^^^^^^^^^^
