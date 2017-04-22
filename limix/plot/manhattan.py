@@ -15,7 +15,7 @@
 import scipy as sp
 
 
-def plot_manhattan(posCum, pv, chromBounds=None,
+def plot_manhattan(pv, position=None, posCum=None, chromBounds=None,
                    thr=None, qv=None, lim=None, xticklabels=True,
                    alphaNS=0.1, alphaS=0.5, colorNS='DarkBlue',
                    colorS='Orange', ax=None, thr_plotting=None,
@@ -23,33 +23,70 @@ def plot_manhattan(posCum, pv, chromBounds=None,
     r"""Produce a manhattan plot.
 
     Args:
-        posCum: cumulative position.
         pv (array_like): pvalues.
-        chromBounds (array_like): chrom boundaries (optionally).
-                                  If not supplied, everything will
-                                  be plotted into a single chromosome.
-        qv (array_like): qvalues.
-                         If provided, threshold for significance is set
-                         on qvalues but pvalues are plotted.
-        thr (float): threshold for significance.
-                     The default is 0.01 significance level
-                     (bonferroni-adjusted) if qvs are not specified,
-                     or 0.01 FDR if qvs specified.
-        lim (float): top limit on y-axis.
-                     The default value is -1.2*log(pv.min()).
-        xticklabels (bool): if true, xtick labels are printed.
-                            The default value is True.
-        alphaNS (float): transparency value of non-significant variants.
-                         Must be in [0, 1].
-        alphaS (float): transparency of significant variants.
-                        Must be in [0, 1].
+
+        position (list or :class:`pandas.DataFrame`, optional):
+            positions in chromosome/chromosomal basepair position format.
+            It can be specified as
+
+            - list ``[chrom, pos]`` where ``chrom`` and ``pos`` are
+              *ndarray* with chromosome values and basepair positions;
+            - pandas DataFrame of chromosome values (key='chrom') and
+              basepair positions (key='pos').
+
+            Alternatively, variant positions can be specified by
+            setting directly the cumulative position (``posCum``).
+
+        posCum (array_like, optional):
+            cumulative position.
+            It has effect only if ``position`` is not specified.
+            By default, ``posCum`` is set to ``range(S)`` where
+            `S` is the number of variants.
+
+        chromBounds (array_like, optional):
+            chrom boundaries on cumulative positions.
+            It has effect only if ``position`` is not specified.
+            If neither ``position`` nor ``chromBounds`` are
+            specified, chomosome boundaries are not plotted.
+
+        qv (array_like, optional):
+            qvalues.
+            If provided, threshold for significance is set
+            on qvalues but pvalues are plotted.
+
+        thr (float, optional):
+            threshold for significance.
+            The default is 0.01 significance level (bonferroni-adjusted)
+            if qvs are not specified, or 0.01 FDR if qvs specified.
+
+        lim (float, optional):
+            top limit on y-axis.
+            The default value is -1.2*log(pv.min()).
+
+        xticklabels (bool, optional):
+            if true, xtick labels are printed.
+            The default value is True.
+
+        alphaNS (float, optional):
+            transparency value of non-significant variants.
+            Must be in [0, 1].
+
+        alphaS (float, optional):
+            transparency of significant variants. Must be in [0, 1].
+
         ax (:class:`matplotlib.axes.AxesSubplot`):
-                the target handle for this figure.
-                If None, the current axes is set.
-        thr_plotting (float): if specified, only P-values that are smaller
-                              than thr_plotting are plotted.
-        labelS (str): optional plotting label for significant variants.
-        labelNS (str): optional plotting label for non significnat loci.
+            the target handle for this figure.
+            If None, the current axes is set.
+
+        thr_plotting (float):
+            if specified, only P-values that are smaller
+            than thr_plotting are plotted.
+
+        labelS (str):
+            optional plotting label for significant variants.
+
+        labelNS (str):
+            optional plotting label for non significnat loci.
 
     Returns:
         :class:`matplotlib.axes.AxesSubplot`: matplotlib subplot
@@ -60,25 +97,32 @@ def plot_manhattan(posCum, pv, chromBounds=None,
         .. plot::
 
             from numpy.random import RandomState
-            from numpy import arange
+            from numpy import arange, ones, kron
             from limix.plot import plot_manhattan
             from matplotlib import pyplot as plt
             random = RandomState(1)
 
             pv = random.rand(5000)
             pv[1200:1250] = random.rand(50)**4
-            posCum = arange(5000)
-            chromBounds = arange(0, 5000, 1000)
+
+            chrom  = kron(arange(1,6), ones(1000))
+            pos = kron(ones(5), arange(1,1001))
 
             fig = plt.figure(1, figsize=(8,3))
             plt.subplot(111)
-            plot_manhattan(posCum, pv, chromBounds=chromBounds)
+            plot_manhattan(pv, [chrom, pos]) 
             plt.tight_layout()
             plt.show()
     """
     import matplotlib.pylab as plt
+    from limix.util import estCumPos
     if ax is None:
         ax = plt.gca()
+
+    if position is not None:
+        posCum, chromBounds = estCumPos(position, return_chromstart=True)
+    elif posCum is None:
+        posCum = sp.arange(len(pv))
 
     if thr is None:
         thr = 0.01 / float(posCum.shape[0])
