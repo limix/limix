@@ -1,5 +1,6 @@
 import scipy as sp
 
+
 def empirical_pvalues(xt, x0):
     r"""Function to compute empirical P values.
 
@@ -9,9 +10,9 @@ def empirical_pvalues(xt, x0):
 
     Args:
         xt (array-like):
-            test statistcs observed on data. 
+            test statistcs observed on data.
         x0 (array-like):
-            null test statistcs. 
+            null test statistcs.
             The minimum P value that can be
             estimated is ``1./float(len(x0))``.
 
@@ -25,7 +26,7 @@ def empirical_pvalues(xt, x0):
         .. doctest::
 
             >>> from numpy.random import RandomState
-            >>> from limix.stats import empirical_pvalues 
+            >>> from limix.stats import empirical_pvalues
             >>> from numpy import set_printoptions
             >>> set_printoptions(4)
             >>> random = RandomState(1)

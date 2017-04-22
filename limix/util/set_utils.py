@@ -1,5 +1,5 @@
 from optparse import OptionParser
-from limix.io import read_plink 
+from limix.io import read_plink
 import pandas as pd
 import numpy as np
 
@@ -104,7 +104,7 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
             - `"end"`: end position
 
         bim (:class:`pandas.DataFrame`):
-            bim dataframe from ``:func:limix.io.read_plink``. 
+            bim dataframe from ``:func:limix.io.read_plink``.
         minSnps (int, optional):
             minimin number of variants.
             Sets with number of variants that is
