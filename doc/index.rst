@@ -9,9 +9,9 @@ Limix's documentation
 
    install
    qtl
+   varDecomp
    mtSet
    iSet
-   varDecomp
    io
    stats
    plot
