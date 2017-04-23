@@ -117,9 +117,9 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
     for i, mychrom in enumerate(chromvals):
         i_chr = position['chrom'] == mychrom
         if chrom_len is None:
-            maxpos = position['pos'][i_chr].max()+offset
+            maxpos = position['pos'][i_chr].max() + offset
         else:
-            maxpos = chrom_len[i]+offset
+            maxpos = chrom_len[i] + offset
         pos_cum[i_chr.values] = to_add + position.loc[i_chr, 'pos']
         chromstart[i] = pos_cum[i_chr.values].min()
         to_add += maxpos

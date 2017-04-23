@@ -110,7 +110,7 @@ def plot_manhattan(pv, position=None, posCum=None, chromBounds=None,
 
             fig = plt.figure(1, figsize=(8,3))
             plt.subplot(111)
-            plot_manhattan(pv, [chrom, pos]) 
+            plot_manhattan(pv, [chrom, pos])
             plt.tight_layout()
             plt.show()
     """
