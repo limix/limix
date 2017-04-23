@@ -1,6 +1,7 @@
 import scipy as sp
 import pandas as pd
 
+
 def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
     r"""
     Compute the cumulative position of variants from position dataframe
@@ -49,7 +50,8 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
             >>> pos = sp.kron(sp.ones(2), sp.arange(1,5)).astype(int)
             >>> chrom = sp.kron(sp.arange(1,3), sp.ones(4)).astype(int)
             >>>
-            >>> pos_cum, chromstart = estCumPos([chrom, pos], return_chromstart=True)
+            >>> pos_cum, chromstart = estCumPos([chrom, pos],
+            ...                                 return_chromstart=True)
             >>>
             >>> print(chrom)
             [1 1 1 1 2 2 2 2]
@@ -67,8 +69,11 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
 
         .. doctest::
 
-            >>> position = pd.DataFrame(sp.array([chrom, pos]).T, columns=['chrom', 'pos'])
-            >>> position['pos_cum'], chromstart = estCumPos(position, return_chromstart=True)
+            >>> position = pd.DataFrame(sp.array([chrom, pos]).T,
+            ...                         columns=['chrom', 'pos'])
+            >>> pos_cum, chromstart = estCumPos(position,
+            ...                                 return_chromstart=True)
+            >>> position['pos_cum'] = pos_cum
             >>> print(position)
                chrom  pos  pos_cum
             0      1    1        1
@@ -80,43 +85,44 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
             6      2    3        7
             7      2    4        8
     """
-    if type(position)!=pd.core.frame.DataFrame:
+    if type(position) != pd.core.frame.DataFrame:
 
-        if type(position)!=list:
+        if type(position) != list:
             raise TypeError('position must be a dataframe or list of arrays')
 
         chrom = position[0]
         pos = position[1]
 
-        if type(pos)!=sp.ndarray or type(chrom)!=sp.ndarray:
+        if type(pos) != sp.ndarray or type(chrom) != sp.ndarray:
             raise TypeError('position must be a dataframe or list of arrays')
 
-        if len(pos.shape)!=1 or len(chrom.shape)!=1:
+        if len(pos.shape) != 1 or len(chrom.shape) != 1:
             raise ValueError('pos and chrom should be arrays')
 
-        if len(pos)!=len(chrom):
+        if len(pos) != len(chrom):
             raise ValueError('pos and chrom should have the same length')
 
-        position = pd.DataFrame(sp.array([pos, chrom]).T, columns=['pos', 'chrom'])
+        position = pd.DataFrame(sp.array([pos, chrom]).T,
+                                columns=['pos', 'chrom'])
 
     RV = position.copy()
 
-    chromvals =  sp.unique(position['chrom'])# sp.unique is always sorted
-    chromstart= sp.zeros_like(chromvals)#get the starting position of each Chrom
-    pos_cum= sp.zeros_like(position.shape[0])
-    if not 'pos_cum' in position:
-        RV["pos_cum"]= sp.zeros_like(position['pos'])#get the cum_pos of each variant.
-    pos_cum=RV['pos_cum'].values
-    to_add=0
-    for i,mychrom in enumerate(chromvals):
-        i_chr=position['chrom']==mychrom
+    chromvals = sp.unique(position['chrom'])  # sp.unique is always sorted
+    chromstart = sp.zeros_like(chromvals)
+    pos_cum = sp.zeros_like(position.shape[0])
+    if 'pos_cum' not in position:
+        RV["pos_cum"] = sp.zeros_like(position['pos'])
+    pos_cum = RV['pos_cum'].values
+    to_add = 0
+    for i, mychrom in enumerate(chromvals):
+        i_chr = position['chrom'] == mychrom
         if chrom_len is None:
             maxpos = position['pos'][i_chr].max()+offset
         else:
             maxpos = chrom_len[i]+offset
-        pos_cum[i_chr.values]=to_add+position.loc[i_chr,'pos']
+        pos_cum[i_chr.values] = to_add + position.loc[i_chr, 'pos']
         chromstart[i] = pos_cum[i_chr.values].min()
-        to_add+=maxpos
+        to_add += maxpos
 
     if return_chromstart:
         return pos_cum, chromstart
@@ -170,4 +176,3 @@ def unique_variants(snps):
     idxs_u = sp.sort(sp.unique(_s, return_index=True)[1])
 
     return snps[:, idxs_u]
-
