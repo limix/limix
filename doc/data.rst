@@ -1,0 +1,2 @@
+.. automodule:: limix.data
+  :members:

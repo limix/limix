@@ -8,14 +8,15 @@ Limix's documentation
    :maxdepth: 2
 
    install
-   io
-   iSet
-   mtSet
-   plot
    qtl
-   stats
-   util
+   mtSet
+   iSet
    varDecomp
+   io
+   stats
+   plot
+   util
+   data
 
 *****************
 Comments and bugs
