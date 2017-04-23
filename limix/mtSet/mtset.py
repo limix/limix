@@ -28,21 +28,21 @@ class MTSet():
 
     Parameters
     ----------
-    Y : (N, P) ndarray
+    Y : (`N`, `P`) ndarray
         Individuals by phenotypes.
-    F : (N, K) ndarray, optional
+    F : (`N`, `K`) ndarray, optional
         Individuals by covariates. By default, no fixed effect term is set.
-    R : (N, N) ndarray, optional
+    R : (`N`, `N`) ndarray, optional
         LMM-covariance/kinship coefficients.
         ``U_R`` and ``S_R`` can be provided instead of ``R``.
         If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
         the null models has iid normal residuals.
-    U_R : (N, N) ndarray, optional
+    U_R : (`N`, `N`) ndarray, optional
         Eigenvectors of ``R``.
         ``U_R`` and ``S_R`` can be provided instead of ``R``.
         If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
         iid normal residuals are considered.
-    S_R : (N, ) ndarray, optional
+    S_R : (`N`, ) ndarray, optional
         Eigenvalues of ``R``.
         ``U_R`` and ``S_R`` can be provided instead of ``R``.
         If neither ``R`` nor ``U_R`` and ``S_R`` are provided,
