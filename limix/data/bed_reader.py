@@ -39,11 +39,11 @@ class BedReader():
         ...                                  return_snpinfo=True)
         >>>
         >>> print(snpinfo)
-              chrom        snp   cm    pos a0 a1  i
-            4     1  rs4030303  0.0  72434  0  G  4
-            5     1  rs4030300  0.0  72515  0  C  5
-            6     1  rs3855952  0.0  77689  G  A  6
-            7     1   rs940550  0.0  78032  0  T  7
+          chrom        snp   cm    pos a0 a1  i
+        4     1  rs4030303  0.0  72434  0  G  4
+        5     1  rs4030300  0.0  72515  0  C  5
+        6     1  rs3855952  0.0  77689  G  A  6
+        7     1   rs940550  0.0  78032  0  T  7
         >>>
         >>> print(X)
         [[ 2.  2.  2.  2.]
