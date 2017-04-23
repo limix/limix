@@ -3,7 +3,7 @@ import pandas as pd
 
 def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
     r"""
-    Compute the cumulative position of variants from position dataframe 
+    Compute the cumulative position of variants from position dataframe
 
     Args:
         position (list or :class:`pandas.DataFrame`):
@@ -35,10 +35,6 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
               starting cumulative positions for each chromosome.
               Returned only if ``return_chromstart=True``.
 
-    See also
-    --------
-    estCumPos_nd : Compute cumulative position from chromosome and chrom position.
-
     Examples
     --------
 
@@ -49,7 +45,7 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
             >>> import scipy as sp
             >>> import pandas as pd
             >>> from limix.util import estCumPos
-            >>> 
+            >>>
             >>> pos = sp.kron(sp.ones(2), sp.arange(1,5)).astype(int)
             >>> chrom = sp.kron(sp.arange(1,3), sp.ones(4)).astype(int)
             >>>
@@ -120,10 +116,58 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
             maxpos = chrom_len[i]+offset
         pos_cum[i_chr.values]=to_add+position.loc[i_chr,'pos']
         chromstart[i] = pos_cum[i_chr.values].min()
-        to_add+=maxpos      
+        to_add+=maxpos
 
     if return_chromstart:
         return pos_cum, chromstart
     else:
         return pos_cum
+
+
+def unique_variants(snps):
+    r"""
+    Filters out variants with the same genetic profile.
+
+    Args:
+        snps (ndarray):
+            (`N`, `S`) ndarray of genotype values for `N` individuals and
+            `S` variants.
+
+    Returns:
+        ndarray: genotype array with unique variants.
+
+    Examples
+    --------
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from numpy import kron, ones
+            >>> from limix.util import unique_variants
+            >>> from numpy import set_printoptions
+            >>> set_printoptions(4)
+            >>> random = RandomState(1)
+            >>>
+            >>> N = 4
+            >>> snps = kron(random.randn(N,3)<0., ones((1,2)))
+            >>>
+            >>> print(snps)
+            [[ 0.  0.  1.  1.  1.  1.]
+             [ 1.  1.  0.  0.  1.  1.]
+             [ 0.  0.  1.  1.  0.  0.]
+             [ 1.  1.  0.  0.  1.  1.]]
+            >>>
+            >>> snps_u = unique_variants(snps)
+            >>>
+            >>> print(snps_u)
+            [[ 0.  1.  1.]
+             [ 1.  0.  1.]
+             [ 0.  1.  0.]
+             [ 1.  0.  1.]]
+    """
+
+    _s = sp.dot(sp.rand(snps.shape[0]), snps)
+    idxs_u = sp.sort(sp.unique(_s, return_index=True)[1])
+
+    return snps[:, idxs_u]
 
