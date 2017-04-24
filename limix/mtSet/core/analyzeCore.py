@@ -61,9 +61,6 @@ def scan(
                                  chrom=_set['chrom'],
                                  impute=True)
 
-        import pdb
-        pdb.set_trace()
-
         if perm_i is not None:
             Xr = Xr[perm, :]
 
