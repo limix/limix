@@ -42,7 +42,8 @@ def sets_from_bim(
         :class:`pandas.DataFrame`:
             dataframe of variant-sets. It has columns:
 
-            - `"chr"`: chromosome
+            - `"setid"`: window id 
+            - `"chrom"`: chromosome
             - `"start"`: start position
             - `"end"`: end position
             - `"nsnps"`: number of variants in the region
@@ -75,14 +76,16 @@ def sets_from_bim(
 
         # build array and append
         chrom = np.repeat(_c, start.shape[0])
-        _out = np.array([chrom, start, end, nsnps], dtype=object).T
+        setid = np.array(['%s:%d-%d' % (_c, _s, _e)
+                         for (_c, _s, _e) in zip(chrom, start, end)])
+        _out = np.array([setid, chrom, start, end, nsnps], dtype=object).T
         out.append(_out)
 
     # concatenate and export
     out = np.concatenate(out)
 
     # convert to pandas dataframe and export
-    out = pd.DataFrame(out, columns=['chr', 'start', 'end', 'nsnps'])
+    out = pd.DataFrame(out, columns=['setid', 'chrom', 'start', 'end', 'nsnps'])
     return out
 
 
@@ -99,7 +102,8 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
             dataframe defining the variant-sets.
             It should contain the columns:
 
-            - `"chr"`: chromosome
+            - `"setid"`: set id
+            - `"chrom"`: chromosome
             - `"start"`: start position
             - `"end"`: end position
 
@@ -118,7 +122,8 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
         :class:`pandas.DataFrame`:
             dataframe of variant-sets. It has columns:
 
-            - `"chr"`: chromosome
+            - `"setid"`: set id
+            - `"chrom"`: chromosome
             - `"start"`: start position
             - `"end"`: end position
             - `"nsnps"`: number of variants in the region
@@ -127,33 +132,36 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
         maxSnps = np.inf
 
     out = []
-    chrom = sets['chr'].values
+    chrom = sets['chrom'].values
     uchroms = pd.unique(chrom)
     for _c in uchroms:
 
         # filter on chromosome
         pos = bim.query("chrom=='%s'" % _c)['pos'].values
         Ichr = chrom == _c
+        setid = sets['setid'].values[Ichr]
         start = sets['start'].values[Ichr]
         end = sets['end'].values[Ichr]
 
         # filter based on minSnps
         nsnps = calc_nsnps(pos, start, end)
         Iok = (nsnps >= minSnps) & (nsnps <= maxSnps)
+        setid = setid[Iok]
         start = start[Iok]
         end = end[Iok]
         nsnps = nsnps[Iok]
 
         # build array and append
         chrom = np.repeat(_c, start.shape[0])
-        _out = np.array([chrom, start, end, nsnps], dtype=object).T
+        _out = np.array([setid, chrom, start, end, nsnps],
+                        dtype=object).T
         out.append(_out)
 
     # concatenate and export
     out = np.concatenate(out)
 
     # convert to pandas dataframe and export
-    out = pd.DataFrame(out, columns=['chr', 'start', 'end', 'nsnps'])
+    out = pd.DataFrame(out, columns=['setid', 'chrom', 'start', 'end', 'nsnps'])
     return out
 
 

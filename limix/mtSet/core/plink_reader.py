@@ -138,7 +138,7 @@ def readBED(
             'iid': fam
         }
         return ret
-    SNPs = SP.zeros(((SP.ceil(0.25 * N) * 4), nSNPs), order=order)
+    SNPs = SP.zeros((int(SP.ceil(0.25 * N) * 4), nSNPs), order=order)
     bed = basefilename + '.bed'
     with open(bed, "rb") as f:
         mode = f.read(2)
@@ -147,14 +147,14 @@ def readBED(
         mode = f.read(1)  # \x01 = SNP major \x00 = individual major
         if mode != b'\x01':
             raise Exception('only SNP-major is implemented')
-        startbit = SP.ceil(0.25 * N) * start + 3
+        startbit = int(SP.ceil(0.25 * N)) * start + 3
         f.seek(int(startbit))
         for blockStart in SP.arange(0, nSNPs, blocksize, dtype=int):
             blockEnd = int(min(S, blockStart + blocksize))
             Sblock = min(nSNPs - blockStart, blocksize)
             nbyte = int(SP.ceil(0.25 * N) * Sblock)
             bytes = SP.array(bytearray(f.read(nbyte))).reshape(
-                (SP.ceil(0.25 * N), Sblock), order='F')
+                (int(SP.ceil(0.25 * N)), Sblock), order='F')
 
             SNPs[3::4, blockStart:blockEnd][bytes >= 64] = SP.nan
             SNPs[3::4, blockStart:blockEnd][bytes >= 128] = 1

@@ -31,6 +31,7 @@ def setup_package():
         'limix_runner=limix.scripts.limix_runner:entry_point',
         'mtSet_postprocess=limix.scripts.mtSet_postprocess:entry_point',
         'mtSet_preprocess=limix.scripts.mtSet_preprocess:entry_point',
+        'mtSet_definesets=limix.scripts.mtSet_definesets:entry_point',
         'mtSet_simPheno=limix.scripts.mtSet_simPheno:entry_point',
         'mtSet_analyze=limix.scripts.mtSet_analyze:entry_point',
         'limix_converter=limix.scripts.limix_converter:entry_point',
