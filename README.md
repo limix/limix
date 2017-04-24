@@ -28,13 +28,13 @@ http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb
 
 - **iSet**: an interaction set test with external context
   ([paper](http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006693))
-  ([Public interface](http://limix.readthedocs.io/iSet.html))
-  ([Tutorial](https://github.com/limix/limix-tutorials/tree/master/iSet))
+  ([public interface](http://limix.readthedocs.io/iSet.html))
+  ([tutorial](https://github.com/limix/limix-tutorials/tree/master/iSet))
   
 - **mtSet**: an efficient multi-trait set test
   ([paper](http://www.nature.com/nmeth/journal/v12/n8/abs/nmeth.3439.html))
-  ([Public interface](http://limix.readthedocs.io/mtSet.html))
-  ([Tutorial](https://github.com/limix/limix-tutorials/tree/master/mtSet))
+  ([public interface](http://limix.readthedocs.io/mtSet.html))
+  ([tutorial](https://github.com/limix/limix-tutorials/tree/master/mtSet))
 
 ## Install
 
