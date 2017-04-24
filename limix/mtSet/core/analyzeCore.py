@@ -11,7 +11,7 @@ from .read_utils import readCovarianceMatrixFile
 from .read_utils import readCovariatesFile
 from .read_utils import readPhenoFile
 from limix.data import BedReader
-from limix.util import unique_variants
+from limix.util import unique_variants as f_uni_variants
 import scipy as sp
 import warnings
 import pandas as pd
@@ -30,7 +30,9 @@ def scan(
         F,
         colCovarType_r='lowrank',
         rank_r=1,
-        factr=1e7):
+        factr=1e7,
+        unique_variants=False,
+        standardize=False):
 
     if perm_i is not None:
         print(('Generating permutation (permutation %d)' % perm_i))
@@ -60,10 +62,18 @@ def scan(
         Xr = reader.getGenotypes(pos_start=_set['start'],
                                  pos_end=_set['end'],
                                  chrom=_set['chrom'],
-                                 impute=True,
-                                 standardize=True)
+                                 impute=True)
 
-        Xr = unique_variants(Xr)
+        if unique_variants:
+            Xr = f_uni_variants(Xr)
+
+        if standardize:
+            Xr -= Xr.mean(0)
+            Xr /= Xr.std(0)
+        else:
+            # encoding minor as 0
+            p = 0.5 * Xr.mean(0)
+            Xr[:, p > 0.5] = 2 - Xr[:, p > 0.5]
 
         if perm_i is not None:
             Xr = Xr[perm, :]
@@ -134,6 +144,8 @@ def analyze(options):
         F,
         options.colCovarType_r,
         options.rank_r,
-        options.factr)
+        options.factr,
+        options.unique_variants,
+        options.standardize)
     t1 = time.time()
     print(('... finished in %s seconds' % (t1 - t0)))

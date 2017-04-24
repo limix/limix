@@ -28,6 +28,18 @@ def entry_point():
     parser.add_option("--perm", dest='perm_i', type=int, default=None)
     parser.add_option("--factr", dest='factr', type=float, default=1e7)
 
+    parser.add_option(
+        "--unique_variants",
+        action="store_true",
+        dest='unique_variants',
+        default=False)
+
+    parser.add_option(
+        "--standardize",
+        action="store_true",
+        dest='standardize',
+        default=False)
+
     (options, args) = parser.parse_args()
 
     analyze(options)
