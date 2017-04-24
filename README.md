@@ -13,11 +13,11 @@ the user.
 Limix is smart about how particular models are fitted to save
 computational cost.
 
-Limix enable the user to perform
+Limix includes methods for
 - single-variant association and interaction testing,
 - variance decompostion analysis with linear mixed models,
 - association and interaction set tests,
-- and it includes many utils for statistical analysis, basic i/o and plotting.
+- as well as different utils for statistical analysis, basic i/o and plotting.
 
 A description of the public interface is found at
 https://limix.readthedocs.io/.
