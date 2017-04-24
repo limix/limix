@@ -28,7 +28,6 @@ def entry_point():
     parser.add_option("--resdir", dest='resdir', type=str, default='./')
 
     # start window, end window and permutations
-    parser.add_option("--minSnps", dest='minSnps', type=int, default=4)
     parser.add_option("--n_perms", type=int, default=10)
     parser.add_option("--start_wnd", dest='i0', type=int, default=None)
     parser.add_option("--end_wnd", dest='i1', type=int, default=None)
