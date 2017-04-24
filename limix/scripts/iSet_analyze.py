@@ -7,9 +7,10 @@ import numpy as np
 import pandas as pd
 import scipy as sp
 import csv
+from limix.util import unique_variants as f_uni_variants
+from limix.data import BedReader
 
 from ..mtSet.core.read_utils import readNullModelFile
-from ..mtSet.core.read_utils import readWindowsFile
 from ..mtSet.core.read_utils import readCovarianceMatrixFile
 from ..mtSet.core.read_utils import readCovariatesFile
 from ..mtSet.core.read_utils import readPhenoFile
@@ -33,6 +34,18 @@ def entry_point():
     parser.add_option("--end_wnd", dest='i1', type=int, default=None)
     parser.add_option("--factr", dest='factr', type=float, default=1e7)
 
+    parser.add_option(
+        "--unique_variants",
+        action="store_true",
+        dest='unique_variants',
+        default=False)
+
+    parser.add_option(
+        "--standardize",
+        action="store_true",
+        dest='standardize',
+        default=False)
+
     (options, args) = parser.parse_args()
 
     print('importing data')
@@ -41,15 +54,14 @@ def entry_point():
     if len(Y.shape) == 1:
         Y = Y[:, sp.newaxis]
 
-    wnds = readWindowsFile(options.wfile)
+    sets = pd.DataFrame.from_csv(options.wfile + '.wnd',
+                                 sep='\t',
+                                 index_col=None)
 
-    bim = plink_reader.readBIM(options.bfile, usecols=(0, 1, 2, 3))
-    fam = plink_reader.readFAM(options.bfile, usecols=(0, 1))
-    chrom = bim[:, 0].astype(float)
-    pos = bim[:, -1].astype(float)
+    reader = BedReader(options.bfile)
 
     i0 = 1 if options.i0 is None else options.i0
-    i1 = wnds.shape[0] if options.i1 is None else options.i1
+    i1 = sets.shape[0] if options.i1 is None else options.i1
 
     df = pd.DataFrame()
     df0 = pd.DataFrame()
@@ -64,26 +76,33 @@ def entry_point():
     if not os.path.exists(res_dir):
         os.makedirs(res_dir)
 
-    n_digits = len(str(wnds.shape[0]))
+    n_digits = len(str(sets.shape[0]))
     fname = str(i0).zfill(n_digits)
     fname += '_' + str(i1).zfill(n_digits)
     resfile = os.path.join(res_dir, fname)
 
     for wnd_i in range(i0, i1):
         t0 = time.time()
-        print(('.. window %d - (%d, %d-%d) - %d snps' %
-               (wnd_i, int(wnds[wnd_i, 1]), int(wnds[wnd_i, 2]), int(wnds[wnd_i, 3]), int(wnds[wnd_i, -1]))))
-        Xr = plink_reader.readBED(options.bfile, useMAFencoding=True, start=int(
-            wnds[wnd_i, 4]), nSNPs=int(wnds[wnd_i, 5]), bim=bim, fam=fam)['snps']
-        Xr = np.ascontiguousarray(Xr)
-        xr = sp.dot(sp.rand(Xr.shape[0]), Xr)
-        idxs_u = sp.sort(sp.unique(xr, return_index=True)[1])
-        if idxs_u.shape[0] < options.minSnps:
-            print('SKIPPED: number of snps lower than minSnps')
-            continue
-        Xr = Xr[:, idxs_u]
-        Xr -= Xr.mean(0)
-        Xr /= Xr.std(0)
+
+        _set = sets.ix[wnd_i]
+        print('.. set %d: %s' % (wnd_i, _set['setid']))
+
+        Xr = reader.getGenotypes(pos_start=_set['start'],
+                                 pos_end=_set['end'],
+                                 chrom=_set['chrom'],
+                                 impute=True)
+
+        if options.unique_variants:
+            Xr = f_uni_variants(Xr)
+
+        if options.standardize:
+            Xr -= Xr.mean(0)
+            Xr /= Xr.std(0)
+        else:
+            # encoding minor as 0
+            p = 0.5 * Xr.mean(0)
+            Xr[:, p > 0.5] = 2 - Xr[:, p > 0.5]
+
         Xr /= np.sqrt(Xr.shape[1])
         _df, _df0 = fit_iSet(Y, F=F, Xr=Xr, Ie=Ie, n_nulls=10)
         df = df.append(_df)

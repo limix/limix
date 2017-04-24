@@ -49,14 +49,11 @@ def scan(
 
     reader = BedReader(bfile)
 
-    # restrict to sets to fit
     wnd_ids = sp.arange(i0, i1)
-    _sets = sets.ix[wnd_ids]
-
     LLR = sp.zeros(_sets.shape[0])
     for wnd_i in wnd_ids:
 
-        _set = _sets.ix[wnd_i]
+        _set = sets.ix[wnd_i]
         print('.. set %d: %s' % (wnd_i, _set['setid']))
 
         Xr = reader.getGenotypes(pos_start=_set['start'],
