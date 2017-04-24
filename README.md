@@ -24,6 +24,8 @@ https://github.com/limix/limix-tutorials.
 These tutorials can also be viewed using the ipython notebook viewer:
 http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb.
 
+LATEST: interaction set test with context (iSet) ([Public interface](http://limix.readthedocs.io/iSet.html)) ([Tutorial](https://github.com/limix/limix-tutorials/tree/master/iSet))
+
 ## Install
 
 The recommended way of installing it is via
