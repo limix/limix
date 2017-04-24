@@ -22,7 +22,7 @@ iPython notebook tutorials are available from github repository:
 https://github.com/limix/limix-tutorials.
 
 These tutorials can also be viewed using the ipython notebook viewer:
-http://nbviewer.ipython.org/github/pmbio/limix-tutorials/blob/master/index.ipynb.
+http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb.
 
 ## Install
 
