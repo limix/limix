@@ -24,7 +24,7 @@ https://github.com/limix/limix-tutorials.
 These tutorials can also be viewed using the ipython notebook viewer:
 http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb.
 
-##### Highlights
+### Highlights
 
 - **iSet**: an interaction set test with external context
   ([paper](http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006693))
