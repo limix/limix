@@ -6,12 +6,8 @@
 [![Anaconda-Version](https://anaconda.org/conda-forge/limix/badges/version.svg)](https://anaconda.org/conda-forge/limix)
 [![Anaconda-Downloads](https://anaconda.org/conda-forge/limix/badges/downloads.svg)](https://anaconda.org/conda-forge/limix)
 
-Limix is a flexible and efficient linear mixed model library with interfaces
-to Python.
-Genomic analyses require flexible models that can be adapted to the needs of
-the user.
-Limix is smart about how particular models are fitted to save
-computational cost.
+Genomic analyses require flexible models that can be adapted to the needs of the user.
+Limix is a flexible and efficient linear mixed model library with interfaces to Python.
 
 Limix includes methods for
 - single-variant association and interaction testing,
