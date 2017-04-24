@@ -15,8 +15,8 @@ def entry_point():
 
     parser.add_option(
         "--filter_sets",
+        action="store_true",
         dest='filter_sets',
-        type=str,
         default=False)
 
     parser.add_option(
