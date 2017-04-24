@@ -47,7 +47,7 @@ pip install limix
 
 ## Problems
 
-If you encounter any issue, please, [submit it](https://github.com/PMBio/limix/issues).
+If you encounter any issue, please, [submit it](https://github.com/limix/limix/issues).
 
 ## Authors
 
