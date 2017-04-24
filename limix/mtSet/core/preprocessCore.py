@@ -329,4 +329,3 @@ def preprocess(options):
         fit_null(Y, cov['eval'], cov['evec'], options.nfile, F)
         t1 = time.time()
         print(('.. finished in %s seconds' % (t1 - t0)))
-

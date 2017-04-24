@@ -3,6 +3,7 @@ from limix.util import annotate_sets
 from limix.io import read_plink
 import time
 
+
 def definesets(opt):
 
     assert opt.bfile is not None, 'Please specify a bfile.'
@@ -35,10 +36,9 @@ def definesets(opt):
                              minSnps=opt.minSnps,
                              maxSnps=opt.maxSnps)
 
-    sets.to_csv(opt.wfile+'.wnd', sep='\t', index=False)
+    sets.to_csv(opt.wfile + '.wnd', sep='\t', index=False)
 
     print(('Number of variants:', G.shape[0]))
     print(('Number of windows:', sets.shape[0]))
     t1 = time.time()
     print(('.. finished in %s seconds' % (t1 - t0)))
-

@@ -42,7 +42,7 @@ def sets_from_bim(
         :class:`pandas.DataFrame`:
             dataframe of variant-sets. It has columns:
 
-            - `"setid"`: window id 
+            - `"setid"`: window id
             - `"chrom"`: chromosome
             - `"start"`: start position
             - `"end"`: end position

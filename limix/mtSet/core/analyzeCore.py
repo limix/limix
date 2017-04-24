@@ -52,11 +52,11 @@ def scan(
     _sets = sets.ix[wnd_ids]
 
     LLR = sp.zeros(_sets.shape[0])
-    for wnd_i in wnd_ids: 
+    for wnd_i in wnd_ids:
 
         _set = _sets.ix[wnd_i]
         print('.. set %d: %s' % (wnd_i, _set['setid']))
-        
+
         Xr = reader.getGenotypes(pos_start=_set['start'],
                                  pos_end=_set['end'],
                                  chrom=_set['chrom'],
@@ -90,7 +90,9 @@ def analyze(options):
     Y = readPhenoFile(options.pfile, idx=options.trait_idx)
     null = readNullModelFile(options.nfile)
 
-    sets = pd.DataFrame.from_csv(options.wfile+'.wnd', sep='\t', index_col=None)
+    sets = pd.DataFrame.from_csv(options.wfile + '.wnd',
+                                 sep='\t',
+                                 index_col=None)
 
     F = None
     if options.ffile:
@@ -135,4 +137,3 @@ def analyze(options):
         options.factr)
     t1 = time.time()
     print(('... finished in %s seconds' % (t1 - t0)))
-

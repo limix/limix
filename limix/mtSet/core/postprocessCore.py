@@ -63,4 +63,3 @@ def postprocess(options):
     print('.. export permutation results')
     perm_file = out_file + '.perm'
     df0.to_csv(perm_file, sep='\t', index=False)
-
