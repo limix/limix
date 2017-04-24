@@ -25,7 +25,7 @@ def setup_package():
     install_requires = ['scikit-learn', 'matplotlib', 'limix-core',
                         'dask[dataframe, distributed]', 'h5py', 'pandas-plink',
                         'limix-legacy']
-    tests_require = ['pytest']
+    tests_require = ['pytest', 'pytest-console-scripts']
 
     console_scripts = [
         'limix_runner=limix.scripts.limix_runner:entry_point',
