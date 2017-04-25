@@ -4,6 +4,7 @@ from numpy import asarray, diag, ones
 from numpy_sugar.linalg import economic_qs
 
 from glimix_core.glmm import GLMM
+from limix.qtl.lmm import LMM
 
 
 def qtl_test_glmm(snps,
@@ -75,7 +76,7 @@ def qtl_test_glmm(snps,
     mu = eta / tau
     var = 1. / tau
     s2_g = scale * (1 - delta)
-    tR = s2_g * R + diag(var - var.min() + 1e-4)
+    tR = s2_g * K + diag(var - var.min() + 1e-4)
 
     lmm = LMM(snps=snps, pheno=mu, K=tR, covs=covs, verbose=verbose)
 

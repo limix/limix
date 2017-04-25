@@ -1,5 +1,6 @@
 from numpy import dot, sqrt, zeros
 from numpy.random import RandomState
+from numpy.testing import assert_allclose
 
 from numpy_sugar.linalg import economic_qs
 
@@ -22,5 +23,6 @@ def test_qtl_glmm_binomial():
 
     y = (successes, ntrials)
 
-    import pdb; pdb.set_trace()
     lmm = qtl_test_glmm(X, y, 'binomial', K)
+    pv = lmm.getPv()
+    assert_allclose(pv, [[0.44235662804387088, 0.67945853854749583]])
