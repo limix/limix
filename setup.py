@@ -21,9 +21,9 @@ def setup_package():
     needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
     pytest_runner = ['pytest-runner>=2.9'] if needs_pytest else []
 
-    setup_requires = pytest_runner
+    setup_requires = ["cython", "numpy"] + pytest_runner
     install_requires = ['scikit-learn', 'matplotlib', 'limix-core',
-                        'dask[dataframe, distributed]', 'h5py', 'pandas-plink',
+                        'dask[dataframe]', 'h5py', 'pandas-plink',
                         'limix-legacy']
     tests_require = ['pytest', 'pytest-console-scripts']
 
