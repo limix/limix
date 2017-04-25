@@ -21,9 +21,9 @@ def setup_package():
     needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
     pytest_runner = ['pytest-runner>=2.9'] if needs_pytest else []
 
-    setup_requires = pytest_runner
-    install_requires = ['scikit-learn', 'matplotlib', 'limix-core',
-                        'dask[dataframe, distributed]', 'h5py', 'pandas-plink',
+    setup_requires = ["cython", "numpy"] + pytest_runner
+    install_requires = ['scikit-learn', 'limix-core',
+                        'dask[complete]', 'h5py', 'pandas-plink',
                         'limix-legacy']
     tests_require = ['pytest', 'pytest-console-scripts']
 
@@ -31,6 +31,7 @@ def setup_package():
         'limix_runner=limix.scripts.limix_runner:entry_point',
         'mtSet_postprocess=limix.scripts.mtSet_postprocess:entry_point',
         'mtSet_preprocess=limix.scripts.mtSet_preprocess:entry_point',
+        'mtSet_definesets=limix.scripts.mtSet_definesets:entry_point',
         'mtSet_simPheno=limix.scripts.mtSet_simPheno:entry_point',
         'mtSet_analyze=limix.scripts.mtSet_analyze:entry_point',
         'limix_converter=limix.scripts.limix_converter:entry_point',

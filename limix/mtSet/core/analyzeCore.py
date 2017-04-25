@@ -1,5 +1,4 @@
 import os
-import pdb
 import sys
 import csv
 import numpy as np
@@ -11,9 +10,11 @@ from .read_utils import readWindowsFile
 from .read_utils import readCovarianceMatrixFile
 from .read_utils import readCovariatesFile
 from .read_utils import readPhenoFile
-from . import plink_reader
+from limix.data import BedReader
+from limix.util import unique_variants as f_uni_variants
 import scipy as sp
 import warnings
+import pandas as pd
 
 
 def scan(
@@ -21,8 +22,7 @@ def scan(
         Y,
         cov,
         null,
-        wnds,
-        minSnps,
+        sets,
         i0,
         i1,
         perm_i,
@@ -30,7 +30,9 @@ def scan(
         F,
         colCovarType_r='lowrank',
         rank_r=1,
-        factr=1e7):
+        factr=1e7,
+        unique_variants=False,
+        standardize=False):
 
     if perm_i is not None:
         print(('Generating permutation (permutation %d)' % perm_i))
@@ -44,40 +46,42 @@ def scan(
         F=F,
         rank=rank_r)
     mtSet.setNull(null)
-    bim = plink_reader.readBIM(bfile, usecols=(0, 1, 2, 3))
-    fam = plink_reader.readFAM(bfile, usecols=(0, 1))
 
-    print('fitting model')
-    wnd_file = csv.writer(open(resfile, 'w'), delimiter='\t')
-    for wnd_i in range(i0, i1):
-        print(('.. window %d - (%d, %d-%d) - %d snps' %
-               (wnd_i, int(wnds[wnd_i, 1]), int(wnds[wnd_i, 2]), int(wnds[wnd_i, 3]), int(wnds[wnd_i, -1]))))
-        if int(wnds[wnd_i, -1]) < minSnps:
-            print('SKIPPED: number of snps lower than minSnps')
-            continue
-        # RV = bed.read(PositionRange(int(wnds[wnd_i,-2]),int(wnds[wnd_i,-1])))
-        RV = plink_reader.readBED(bfile,
-                                  useMAFencoding=True,
-                                  blocksize=1,
-                                  start=int(wnds[wnd_i,
-                                                 4]),
-                                  nSNPs=int(wnds[wnd_i,
-                                                 5]),
-                                  order='F',
-                                  standardizeSNPs=False,
-                                  ipos=2,
-                                  bim=bim,
-                                  fam=fam)
+    reader = BedReader(bfile)
 
-        Xr = RV['snps']
+    wnd_ids = sp.arange(i0, i1)
+    LLR = sp.zeros(_sets.shape[0])
+    for wnd_i in wnd_ids:
+
+        _set = sets.ix[wnd_i]
+        print('.. set %d: %s' % (wnd_i, _set['setid']))
+
+        Xr = reader.getGenotypes(pos_start=_set['start'],
+                                 pos_end=_set['end'],
+                                 chrom=_set['chrom'],
+                                 impute=True)
+
+        if unique_variants:
+            Xr = f_uni_variants(Xr)
+
+        if standardize:
+            Xr -= Xr.mean(0)
+            Xr /= Xr.std(0)
+        else:
+            # encoding minor as 0
+            p = 0.5 * Xr.mean(0)
+            Xr[:, p > 0.5] = 2 - Xr[:, p > 0.5]
+
         if perm_i is not None:
             Xr = Xr[perm, :]
 
-        Xr = np.ascontiguousarray(Xr)
-        rv = mtSet.optimize(Xr, factr=factr)
-        line = np.concatenate([wnds[wnd_i, :], rv['LLR']])
-        wnd_file.writerow(line)
-    pass
+        # multi trait set test fit
+        RV = mtSet.optimize(Xr, factr=factr)
+        LLR[wnd_i] = RV['LLR'][0]
+
+    # export results
+    _sets['LLR'] = LLR
+    _sets.to_csv(resfile, sep='\t', index=False)
 
 
 def analyze(options):
@@ -92,7 +96,10 @@ def analyze(options):
         cov = readCovarianceMatrixFile(options.cfile, readCov=False)
     Y = readPhenoFile(options.pfile, idx=options.trait_idx)
     null = readNullModelFile(options.nfile)
-    wnds = readWindowsFile(options.wfile)
+
+    sets = pd.DataFrame.from_csv(options.wfile + '.wnd',
+                                 sep='\t',
+                                 index_col=None)
 
     F = None
     if options.ffile:
@@ -105,7 +112,7 @@ def analyze(options):
     if options.i0 is None:
         options.i0 = 1
     if options.i1 is None:
-        options.i1 = wnds.shape[0]
+        options.i1 = sets.shape[0]
 
     # name of output file
     if options.perm_i is not None:
@@ -114,7 +121,7 @@ def analyze(options):
         res_dir = os.path.join(options.resdir, 'test')
     if not os.path.exists(res_dir):
         os.makedirs(res_dir)
-    n_digits = len(str(wnds.shape[0]))
+    n_digits = len(str(sets.shape[0]))
     fname = str(options.i0).zfill(n_digits)
     fname += '_' + str(options.i1).zfill(n_digits) + '.res'
     resfile = os.path.join(res_dir, fname)
@@ -126,8 +133,7 @@ def analyze(options):
         Y,
         cov,
         null,
-        wnds,
-        options.minSnps,
+        sets,
         options.i0,
         options.i1,
         options.perm_i,
@@ -135,6 +141,8 @@ def analyze(options):
         F,
         options.colCovarType_r,
         options.rank_r,
-        options.factr)
+        options.factr,
+        options.unique_variants,
+        options.standardize)
     t1 = time.time()
     print(('... finished in %s seconds' % (t1 - t0)))

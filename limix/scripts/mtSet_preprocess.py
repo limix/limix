@@ -8,7 +8,6 @@ def entry_point():
     parser.add_option("--cfile", dest='cfile', type=str, default=None)
     parser.add_option("--pfile", dest='pfile', type=str, default=None)
     parser.add_option("--nfile", dest='nfile', type=str, default=None)
-    parser.add_option("--wfile", dest='wfile', type=str, default=None)
     parser.add_option("--ffile", dest='ffile', type=str, default=None)
     parser.add_option("--trait_idx", dest='trait_idx', type=str, default=None)
 
@@ -30,22 +29,6 @@ def entry_point():
         "--fit_null",
         action="store_true",
         dest="fit_null",
-        default=False)
-
-    parser.add_option(
-        "--precompute_windows",
-        action="store_true",
-        dest='precompute_windows',
-        default=False)
-    parser.add_option(
-        "--window_size",
-        dest='window_size',
-        type=int,
-        default=3e4)
-    parser.add_option(
-        "--plot_windows",
-        action='store_true',
-        dest='plot_windows',
         default=False)
 
     (options, args) = parser.parse_args()
