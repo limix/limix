@@ -11,7 +11,6 @@ from .read_utils import readBimFile
 from .read_utils import readCovarianceMatrixFile
 from .read_utils import readPhenoFile
 from .read_utils import readCovariatesFile
-from .splitter_bed import splitGeno
 from . import plink_reader
 import scipy as sp
 import warnings
@@ -330,31 +329,3 @@ def preprocess(options):
         fit_null(Y, cov['eval'], cov['evec'], options.nfile, F)
         t1 = time.time()
         print(('.. finished in %s seconds' % (t1 - t0)))
-
-    """ precomputing the windows """
-    if options.precompute_windows:
-        if options.wfile is None:
-            options.wfile = os.path.split(
-                options.bfile)[-1] + '.%d' % options.window_size
-            warnings.warn('wfile not specifed, set to %s' % options.wfile)
-        print('Precomputing windows')
-        t0 = time.time()
-        pos = readBimFile(options.bfile)
-        nWnds, nSnps = splitGeno(
-            pos, size=options.window_size, out_file=options.wfile + '.wnd')
-        print(('Number of variants:', pos.shape[0]))
-        print(('Number of windows:', nWnds))
-        print(('Minimum number of snps:', nSnps.min()))
-        print(('Maximum number of snps:', nSnps.max()))
-        t1 = time.time()
-        print(('.. finished in %s seconds' % (t1 - t0)))
-
-    # plot distribution of nSnps
-    if options.plot_windows:
-        print('Plotting ditribution of number of SNPs')
-        plot_file = options.wfile + '.wnd.pdf'
-        plt = pl.subplot(1, 1, 1)
-        pl.hist(nSnps, 30)
-        pl.xlabel('Number of SNPs')
-        pl.ylabel('Number of windows')
-        pl.savefig(plot_file)
