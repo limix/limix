@@ -3,15 +3,52 @@ sudo: required
 dist: trusty
 git:
   depth: 5
+cache: pip
 env:
   global:
   - PKG_NAME=limix
   - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib limix-legacy limix-core
     sphinx_rtd_theme"
-python:
-- 2.7
-- 3.5
-- 3.6
+  - secure: RUxKNzaoy7uPjeXylS8S6xgKuK8a6WKS1Ba/IPRXBv7hWx/TAr93waAiA1oGQgq/tt2yfTNigRWv7lpJGObiLFOf5ehntRpc5NkncQv1fadCsdi+Chj7tlvUHS3qXAP+HHaP9hKIuFnPVbOofHCmx7gVNNnwtAPz/AGv0gJx9KXuk+m2Q7xAY7LTByZ6Pg5NR7GYt0WqDrUwxF5nl0yvSbQMaQ2+GUmhwL8fldKbDWnN9XG3OnKCcYqRm3RbFZeYqzCWBgDl6d+MZCXypbikUNa4qKjugd5SrclTFbzsgSf+3he9hg1vTK3M66MggVr0rcW6QntX6J+VHcQCOoUu9zavl/d3fDjXBd1/0KFFcm+IgQjm33FcNGjqcbHniQlN2mxGT8vhCWT2L2YUvJQrOsPeY437vQhXppLb6JK0VIzFHitAWbBjmc9vTiN+Gh3uzA4g2ppkgc2mCv5rYIF5UinArGiVJPjFL/oIXkMNw+0Lqg8a9r6wT1FhPn1Z9LIrvR1jRzGxU5hlkS4t2aZYhywhjG/yoWbmRA4/iuvb7yg35Nt5Lxly+deNxU9o52An9rL5n9MkspRtxtV+TLF9xIGsW4xysFE57Gg8GFD5LERUNZfd40+9teLjnn8TEPJI13ClTtF8K9jHT+18QKwW3XclOA99nsdckQ7KJt4Tdy0=
+matrix:
+  include:
+  - python: 2.7
+  - python: 3.5
+  - python: 3.6
+  - sudo: required
+    services:
+    - docker
+    env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+  - os: osx
+    osx_image: xcode7.3
+    language: generic
+    sudo: required
+    env: PYENV=py27
+  - os: osx
+    osx_image: xcode8.3
+    language: generic
+    sudo: required
+    env: PYENV=py27
+  - os: osx
+    osx_image: xcode7.3
+    language: generic
+    sudo: required
+    env: PYENV=py35
+  - os: osx
+    osx_image: xcode8.3
+    language: generic
+    sudo: required
+    env: PYENV=py35
+  - os: osx
+    osx_image: xcode7.3
+    language: generic
+    sudo: required
+    env: PYENV=py36
+  - os: osx
+    osx_image: xcode8.3
+    language: generic
+    sudo: required
+    env: PYENV=py36
 before_install:
 - travis_retry bash <(curl -s https://raw.githubusercontent.com/limix/travis-tools/master/get-travis-tools.sh)
 - travis_retry travis/before-install.sh
@@ -37,4 +74,4 @@ deploy:
     repo: limix/limix
   branches:
     only:
-      - master
+    - master
