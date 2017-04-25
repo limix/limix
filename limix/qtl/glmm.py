@@ -1,20 +1,20 @@
 from __future__ import division
 
-from numpy import asarray, ones
-
+from numpy import asarray, diag, ones
 from numpy_sugar.linalg import economic_qs
+
 from glimix_core.glmm import GLMM
 
-def qtl_test_glmm(
-        snps,
-        pheno,
-        lik,
-        K,
-        covs=None,
-        test='lrt',
-        NumIntervalsDeltaAlt=100,
-        searchDelta=False,
-        verbose=None):
+
+def qtl_test_glmm(snps,
+                  pheno,
+                  lik,
+                  K,
+                  covs=None,
+                  test='lrt',
+                  NumIntervalsDeltaAlt=100,
+                  searchDelta=False,
+                  verbose=None):
     """
     Wrapper function for univariate single-variant association testing
     using a generalised linear mixed model.
@@ -65,15 +65,18 @@ def qtl_test_glmm(
     glmm = GLMM(y, lik, covs, QS)
     glmm.feed().maximize(progress=verbose)
 
-    # lmm_ = LMM(
-    #     snps=snps,
-    #     pheno=pheno,
-    #     K=K,
-    #     covs=covs,
-    #     test=test,
-    #     NumIntervalsDelta0=NumIntervalsDelta0,
-    #     NumIntervalsDeltaAlt=NumIntervalsDeltaAlt,
-    #     searchDelta=searchDelta,
-    #     verbose=verbose)
-    # return lmm_
-    return None
+    # extract stuff from glmm
+    eta = glmm._site.eta
+    tau = glmm._site.tau
+    scale = float(glmm.scale)
+    delta = float(glmm.delta)
+
+    # define useful quantities
+    mu = eta / tau
+    var = 1. / tau
+    s2_g = scale * (1 - delta)
+    tR = s2_g * R + diag(var - var.min() + 1e-4)
+
+    lmm = LMM(snps=snps, pheno=mu, K=tR, covs=covs, verbose=verbose)
+
+    return lmm

@@ -7,8 +7,9 @@ cache: pip
 env:
   global:
   - PKG_NAME=limix
+  - NUMBA=true
   - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib limix-legacy limix-core
-    sphinx_rtd_theme"
+    sphinx_rtd_theme numba"
 matrix:
   include:
   - python: 2.7

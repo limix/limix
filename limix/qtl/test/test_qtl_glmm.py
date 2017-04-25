@@ -22,4 +22,5 @@ def test_qtl_glmm_binomial():
 
     y = (successes, ntrials)
 
-    qtl_test_glmm(X, y, 'binomial', K)
+    import pdb; pdb.set_trace()
+    lmm = qtl_test_glmm(X, y, 'binomial', K)
