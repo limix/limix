@@ -9,12 +9,21 @@ env:
   - PKG_NAME=limix
   - NUMBA=true
   - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib limix-legacy limix-core
-    sphinx_rtd_theme numba"
+    sphinx_rtd_theme"
 matrix:
   include:
   - python: 2.7
+    compiler: clang-3.8
+    env: NUMBA="true" LLVM_VERSION="3.8" CXX="clang++-3.8" LLVM_CONFIG="llvm-config-3.8"
+      "PATH=~/bin:$PATH"
   - python: 3.5
+    compiler: clang-3.8
+    env: NUMBA="true" LLVM_VERSION="3.8" CXX="clang++-3.8" LLVM_CONFIG="llvm-config-3.8"
+      "PATH=~/bin:$PATH"
   - python: 3.6
+    compiler: clang-3.8
+    env: NUMBA="true" LLVM_VERSION="3.8" CXX="clang++-3.8" LLVM_CONFIG="llvm-config-3.8"
+      "PATH=~/bin:$PATH"
 before_install:
 - travis_retry bash <(curl -s https://raw.githubusercontent.com/limix/travis-tools/master/get-travis-tools.sh)
 - travis_retry travis/before-install.sh
