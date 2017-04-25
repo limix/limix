@@ -5,8 +5,9 @@ git:
   depth: 5
 env:
   global:
-    - PKG_NAME=limix
-    - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib limix-legacy limix-core sphinx_rtd_theme"
+  - PKG_NAME=limix
+  - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib limix-legacy limix-core
+    sphinx_rtd_theme"
 python:
 - 2.7
 - 3.5
@@ -24,5 +25,16 @@ after_success:
 notifications:
   email:
     recipients:
-      - casale@ebi.ac.uk
+    - casale@ebi.ac.uk
     on_failure: always
+deploy:
+  provider: pypi
+  user: dhorta
+  password:
+    secure: Q27fcA59x0uSaSnMKt5TGIpO5WfIxJoOR62OmgwRxl9oFfVDJdzbbpAdouFYzxmSmXpnl/YotmbXSb2k8vB/3Dfiqz2e5K8Y9kWuZDOFAA+kVBuQB9RgaKR0oFJGgCwhhYkkvT5Vji1jYJqaUC2uEEz3swCrm/5/HidOo+2Zyp1S/ToTRNWPUHXRah1ohElkx/Hov2p3cEGadSuVUHkHvbsucxBvsZqDPRSdHkee9AtIpdCzQ2YAezva4mdj64ozrMyHNcuy5ooaFEY7BIMCTuKd2PmbimI+APFb3eZFTMiw9AZiY7wgLBNT7lqB6+0+aW+Q8kxDP9Xh7O2bPYUP83wLRDkq99f1CQcYhgevDseSNMS83wpg3DWOJtOfsfnU9bB3eg8YsCwaHSby5JXtub2rR9uY1gkZsLcmtsuhAUn2tavQ/7R0zC1/Jo6WPH6pI6koE/wjsZMSrs4/RqpQuGIqa2OYEBKFyxSb08gvWj+RFm0Shm/pVuM+YnlnuYVLd+0yCt87kPZgtnkgZSQieEU0A+BX600JOZOtIncB8UuQht+ifU5InLiqMkpNMaD5XtBwVKPyUnAc0PfwXExb/uuPMXYfIDcLkBxMhBXxJcNW8O2uwlhkMPHsRLl5LZpH7EmZqxj57qhCEhEBzhvTOHepHvwVSqZa+Bkv6H1YM9I=
+  on:
+    tags: true
+    repo: limix/limix
+  branches:
+    only:
+      - master
