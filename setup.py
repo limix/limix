@@ -22,7 +22,7 @@ def setup_package():
     pytest_runner = ['pytest-runner>=2.9'] if needs_pytest else []
 
     setup_requires = ["cython", "numpy"] + pytest_runner
-    install_requires = ['scikit-learn', 'matplotlib==1.5.2', 'limix-core',
+    install_requires = ['scikit-learn', 'limix-core',
                         'dask[complete]', 'h5py', 'pandas-plink',
                         'limix-legacy']
     tests_require = ['pytest', 'pytest-console-scripts']
