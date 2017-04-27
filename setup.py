@@ -23,8 +23,8 @@ def setup_package():
 
     setup_requires = ["cython", "numpy"] + pytest_runner
     install_requires = [
-        'scikit-learn', 'limix-core', 'dask[complete]', 'h5py', 'pandas-plink',
-        'limix-legacy'
+        'scikit-learn', 'limix-core>=1.0.1', 'dask[complete]', 'h5py',
+        'pandas-plink>=1.1.6', 'limix-legacy', 'glimix-core>=1.2.4'
     ]
     tests_require = ['pytest', 'pytest-console-scripts']
 
