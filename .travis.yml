@@ -1,23 +1,32 @@
 language: python
 sudo: required
 dist: trusty
+services: docker
 git:
   depth: 5
-cache: pip
-env:
-  global:
-  - PKG_NAME=limix
-  - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib limix-legacy limix-core
-    sphinx_rtd_theme"
+cache:
+  pip: true
+  directories:
+  - "$HOME/bin"
+  - "$HOME/.download"
 matrix:
   include:
   - python: 2.7
   - python: 3.5
   - python: 3.6
+  - env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+  - os: osx
+    language: generic
+    env: PYENV=py27
+  - os: osx
+    language: generic
+    env: PYENV=py35
+  - os: osx
+    language: generic
+    env: PYENV=py36
 before_install:
 - travis_retry bash <(curl -s https://raw.githubusercontent.com/limix/travis-tools/master/get-travis-tools.sh)
 - travis_retry travis/before-install.sh
-- travis_retry travis/test-before-install.sh
 script:
 - pip install pep8 --upgrade -q
 - find limix -name \*.py -exec pep8 --ignore=E402 --ignore=E501 {} +
@@ -25,18 +34,20 @@ script:
 after_success:
 - travis_retry travis/after-success.sh
 notifications:
-  email:
-    recipients:
-    - casale@ebi.ac.uk
-    on_failure: always
+  email: false
+env:
+  global:
+    secure:
+    - EO+UhNeafNWVnpl/n/FoU5T6dTyw857z4Xa9UYgzn2GnyxessDTiPElyFRrCIXaRmnIifAowoDmFyUhp2JMLPKVsVAuVcBAzAeB8B5QDUmUsJh/lgOGAyApZh670iK9+22a8S8vMhG5X9MojRvdTAASSp2B0JQ51vbxJBjnS9T4Ij7SVPDSDYGAlwHvYtKQYi0KXSKkq+DPt/ZG32f47aMFXCe9W8M3yUud394ThFf6ORMjoN8DHBGK2zE2DesnDAYYVmO/g6OTbVq44ppYucVZWCFnffNgTrB6JcHVTORsAOsW26+v9eNyjIvvZ6FW9I9DuYnuaaKVEyOC2qIQ22DYoWxwk7l0txy4YI13BmQEaZAM9esv8HwrUWquSpiHfA17oskMG1Bg0QS7/bSA25piGsViQRDyhPL3Iv3dhxzOuy8jQ43qQJeL4bJhDUcv8YJLhQJr1MTU1TdRPxrOZjW2zis4ZLM0K/ouw47nEyzxdJjyVuDlmCoXOyCJnnOIVkxOjPF/2R7+8mg7lxCEF4y2JQd4MWY9pzaXBxihp6sH1Ph8ijjZ52W0aCZGErUngMveqCytPeJ/05MixL6nH5DaILBw9i65nb9TiAqub4uAka/Bzywu2peqrYOBQl7rUGy8aHg0a1qMlYrmUMUraUO+9/CYAA2pmNT5RktL6a9g=
+    - PKG_NAME=limix
+    - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib
+        limix-legacy limix-core sphinx_rtd_theme"
 deploy:
   provider: pypi
   user: dhorta
   password:
-    secure: Q27fcA59x0uSaSnMKt5TGIpO5WfIxJoOR62OmgwRxl9oFfVDJdzbbpAdouFYzxmSmXpnl/YotmbXSb2k8vB/3Dfiqz2e5K8Y9kWuZDOFAA+kVBuQB9RgaKR0oFJGgCwhhYkkvT5Vji1jYJqaUC2uEEz3swCrm/5/HidOo+2Zyp1S/ToTRNWPUHXRah1ohElkx/Hov2p3cEGadSuVUHkHvbsucxBvsZqDPRSdHkee9AtIpdCzQ2YAezva4mdj64ozrMyHNcuy5ooaFEY7BIMCTuKd2PmbimI+APFb3eZFTMiw9AZiY7wgLBNT7lqB6+0+aW+Q8kxDP9Xh7O2bPYUP83wLRDkq99f1CQcYhgevDseSNMS83wpg3DWOJtOfsfnU9bB3eg8YsCwaHSby5JXtub2rR9uY1gkZsLcmtsuhAUn2tavQ/7R0zC1/Jo6WPH6pI6koE/wjsZMSrs4/RqpQuGIqa2OYEBKFyxSb08gvWj+RFm0Shm/pVuM+YnlnuYVLd+0yCt87kPZgtnkgZSQieEU0A+BX600JOZOtIncB8UuQht+ifU5InLiqMkpNMaD5XtBwVKPyUnAc0PfwXExb/uuPMXYfIDcLkBxMhBXxJcNW8O2uwlhkMPHsRLl5LZpH7EmZqxj57qhCEhEBzhvTOHepHvwVSqZa+Bkv6H1YM9I=
+    secure: NS5ir5qJr4f9FcwVwJhNt8WIwOxDHyV4UJ6e01sZ2hPtW/afukFuCTgJ4duFJuYHWFlgMk1Kv3pEhQnTKwzi4MO7fqV7N0hg7e6L42OOL3BB0XamCtBnMY+76hPnXTSkGhA3wDrqBQ/dzBstN739qNPh3IeC8oax7otKh8QzyZfmIQHYqXQJqdTx6Cdap/gR4CF56h+VuNs7aGSRuvjVWV9lIOHsK/ZCKIE1QTq7aRnOAUU6fXtdE4uEqwOl4bzU1HauxElonSudaYiv+NTLNkB7YRR4Ur1VTa7HXNhs9y/RYId0R6xputp+ousutQg5mlGD/z2Qaez6hlwoCgAqIsVNeiLnNQinXx1Z+lJSLQfnw2AX5zi9HgAsgb6ts6gJm2vTCVuOBpcti0uJd9l+0LR0IuGLYwWz1lXQN7/hsAeQFpK/A4tzlDMGQV0wxNFvCq/hSe7LnVehnTOVmJ+HU51XAqF766HYyf+/KcKhaY8IDlpkuLxmTAvY5/vk/JPhmt8JtDP6q+afwSOiM47ciClRtXkRv4zrL/D8euDC1TtLb5Kqxwo59e7cPGB/kLaA9904i0FOcoclv0NZGxdRgXPNYS9ULofjGHzn0Cn5H4FVcYTS3YDYv6bSeNcodQ83zD4FBGvZLe1vuhRdwRbOWKcgeUJNeN0PTL7Txo7YchE=
   on:
     tags: true
     repo: limix/limix
-  branches:
-    only:
-    - master
+    branch: master

@@ -22,9 +22,10 @@ def setup_package():
     pytest_runner = ['pytest-runner>=2.9'] if needs_pytest else []
 
     setup_requires = ["cython", "numpy"] + pytest_runner
-    install_requires = ['scikit-learn', 'limix-core',
-                        'dask[complete]', 'h5py', 'pandas-plink',
-                        'limix-legacy']
+    install_requires = [
+        'scikit-learn', 'limix-core', 'dask[complete]', 'h5py', 'pandas-plink',
+        'limix-legacy'
+    ]
     tests_require = ['pytest', 'pytest-console-scripts']
 
     console_scripts = [
@@ -41,7 +42,7 @@ def setup_package():
 
     metadata = dict(
         name='limix',
-        version='1.0.0',
+        version='1.0.1',
         maintainer="Limix Developers",
         maintainer_email="horta@ebi.ac.uk",
         author=("Christoph Lippert, Danilo Horta, " +
