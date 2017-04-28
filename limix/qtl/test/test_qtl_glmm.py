@@ -1,10 +1,10 @@
 from numpy import dot, sqrt, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
-
 from numpy_sugar.linalg import economic_qs
 
 from limix.qtl import qtl_test_glmm
+
 
 def test_qtl_glmm_binomial():
     random = RandomState(0)
