@@ -4,7 +4,7 @@ channels:
 - defaults
 dependencies:
 - liknorm=1.2.3=0
-- cffi=1.8.0=py35_0
+- cffi=1.8.3=py35_0
 - pandas-plink=1.1.6=py35_2
 - pycparser=2.17=py35_0
 - bokeh=0.12.5=py35_0
