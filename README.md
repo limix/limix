@@ -2,9 +2,7 @@
 
 [![PyPI-License](https://img.shields.io/pypi/l/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/)
 [![PyPI-Version](https://img.shields.io/pypi/v/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/)
-[![Documentation Status](https://readthedocs.org/projects/limix/badge/?style=flat-square&version=1.0.x)](https://limix.readthedocs.io/)
-[![Anaconda-Version](https://anaconda.org/conda-forge/limix/badges/version.svg)](https://anaconda.org/conda-forge/limix)
-[![Anaconda-Downloads](https://anaconda.org/conda-forge/limix/badges/downloads.svg)](https://anaconda.org/conda-forge/limix)
+[![Documentation Status](https://readthedocs.org/projects/limix/badge/?style=flat-square&version=latest)](https://limix.readthedocs.io/)
 
 Genomic analyses require flexible models that can be adapted to the needs of the user.
 Limix is a flexible and efficient linear mixed model library with interfaces to Python.
@@ -30,7 +28,7 @@ http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb
   ([paper](http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006693))
   ([public interface](http://limix.readthedocs.io/iSet.html))
   ([tutorial](https://github.com/limix/limix-tutorials/tree/master/iSet))
-  
+
 - **mtSet**: an efficient multi-trait set test
   ([paper](http://www.nature.com/nmeth/journal/v12/n8/abs/nmeth.3439.html))
   ([public interface](http://limix.readthedocs.io/mtSet.html))

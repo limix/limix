@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as st
 from numpy import mean as _mean
@@ -67,6 +66,8 @@ def plot_normal(x, bins=20, nstd=2, figure=None):
             f = plot_normal(x, nstd=2)
             plt.show(f)
     """
+    import matplotlib.pyplot as plt
+
     if figure is None:
         figure = plt.figure()
 
@@ -85,10 +86,3 @@ def plot_normal(x, bins=20, nstd=2, figure=None):
     draw_normal(ax, mean_x, std_x, nstd, 'red')
 
     return figure
-
-
-if __name__ == '__main__':
-    random = np.random.RandomState(10)
-    x = random.randn(100) * 1
-    f = plot_normal(x, nstd=1.3)
-    plt.show(f)
