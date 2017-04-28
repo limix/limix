@@ -12,13 +12,7 @@ cache:
 matrix:
   include:
   - python: 2.7
-    compiler: clang-3.8
-    env: NUMBA="true" LLVM_VERSION="3.8" CXX="clang++-3.8" LLVM_CONFIG="llvm-config-3.8"
-      "PATH=~/bin:$PATH"
   - python: 3.5
-    compiler: clang-3.8
-    env: NUMBA="true" LLVM_VERSION="3.8" CXX="clang++-3.8" LLVM_CONFIG="llvm-config-3.8"
-      "PATH=~/bin:$PATH"
   - python: 3.6
   - env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
   - os: osx
