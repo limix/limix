@@ -3,6 +3,7 @@ channels:
 - conda-forge
 - defaults
 dependencies:
+- liknorm=1.2.3=0
 - cffi=1.7.0=py35_0
 - pandas-plink=1.1.6=py35_2
 - pycparser=2.17=py35_0
@@ -64,4 +65,4 @@ dependencies:
 - zlib=1.2.8=3
 - cython=0.25.2=py35_0
 - pip:
-   - https://pypi.python.org/packages/cd/d5/f2dc4723b46b427a32f83f80fe064649e9d4a143a039f3da0271ec81cb59/limix_legacy-0.8.11-cp35-cp35m-manylinux1_x86_64.whl#md5=dcc0dc6758609ec80d96dfb1bc455b85
+   - https://pypi.python.org/packages/f2/9c/1a2789b70bc52aa637c3b685adaeea8265bf4fcd9f47961f1f2b1b489779/limix_legacy-0.8.12-cp35-cp35m-manylinux1_x86_64.whl#md5=9b3c313c61084c13e91145669381924f
