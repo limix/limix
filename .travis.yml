@@ -20,7 +20,6 @@ matrix:
     env: NUMBA="true" LLVM_VERSION="3.8" CXX="clang++-3.8" LLVM_CONFIG="llvm-config-3.8"
       "PATH=~/bin:$PATH"
   - python: 3.6
-<<<<<<< HEAD
   - env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
   - os: osx
     language: generic
