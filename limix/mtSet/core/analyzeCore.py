@@ -80,8 +80,8 @@ def scan(
         LLR[wnd_i] = RV['LLR'][0]
 
     # export results
-    _sets['LLR'] = LLR
-    _sets.to_csv(resfile, sep='\t', index=False)
+    sets['LLR'] = LLR
+    sets.to_csv(resfile, sep='\t', index=False)
 
 
 def analyze(options):
