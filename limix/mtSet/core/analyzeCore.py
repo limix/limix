@@ -50,7 +50,7 @@ def scan(
     reader = BedReader(bfile)
 
     wnd_ids = sp.arange(i0, i1)
-    LLR = sp.zeros(_sets.shape[0])
+    LLR = sp.zeros(sets.shape[0])
     for wnd_i in wnd_ids:
 
         _set = sets.ix[wnd_i]
