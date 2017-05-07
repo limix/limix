@@ -51,7 +51,7 @@ If you encounter any issue, please, [submit it](https://github.com/limix/limix/i
 
 * **Christoph Lippert** - [https://github.com/clippert](https://github.com/clippert)
 * **Danilo Horta** - [https://github.com/Horta](https://github.com/Horta)
-* **Franceso Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
+* **Francesco Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
 * **Oliver Stegle** - [https://github.com/ostegle](https://github.com/ostegle)
 
 ## License
