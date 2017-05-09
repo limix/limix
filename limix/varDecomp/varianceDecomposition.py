@@ -492,7 +492,7 @@ class VarianceDecomposition(object):
         from limix.util.util_functions import vec
         from limix_core.mean import MeanKronSum
         from limix_core.gp import GP2KronSum
-        from limix_core.cov import SumCov
+        from limix_core.covar import SumCov
         if self._inference == 'GP2KronSum':
             signalPos = sp.where(
                 sp.arange(self.n_randEffs) != self.noisPos)[0][0]
