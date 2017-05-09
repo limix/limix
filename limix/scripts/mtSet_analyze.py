@@ -1,10 +1,9 @@
-import sys
-import os
-from limix.mtSet.core.analyzeCore import analyze
 from optparse import OptionParser
 
 
 def entry_point():
+    from limix.mtSet.core.analyzeCore import analyze
+
     parser = OptionParser()
     parser.add_option("--bfile", dest='bfile', type=str, default=None)
     parser.add_option("--cfile", dest='cfile', type=str, default=None)
