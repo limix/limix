@@ -1,6 +1,3 @@
-from pandas import read_csv, MultiIndex
-
-
 def read_gen(prefix):
     r"""
     Read GEN files into Pandas data frames.
@@ -47,6 +44,8 @@ def read_gen(prefix):
         3  1.0000  0.0000   0  0.0000  1.0000
         4  1.0000  0.0000   1  0.0000  0.0000
     """
+
+    from pandas import read_csv, MultiIndex
 
     df_sample = read_csv(prefix + '.sample', header=0, sep=' ', skiprows=[1])
 

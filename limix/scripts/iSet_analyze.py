@@ -1,23 +1,16 @@
-import time
-import sys
-import os
-from limix.iSet.iset import fit_iSet
-from optparse import OptionParser
-import numpy as np
-import pandas as pd
-import scipy as sp
-import csv
-from limix.util import unique_variants as f_uni_variants
-from limix.data import BedReader
-
-from ..mtSet.core.read_utils import readNullModelFile
-from ..mtSet.core.read_utils import readCovarianceMatrixFile
-from ..mtSet.core.read_utils import readCovariatesFile
-from ..mtSet.core.read_utils import readPhenoFile
-from ..mtSet.core import plink_reader
-
-
 def entry_point():
+    import os
+    import time
+    from optparse import OptionParser
+
+    import numpy as np
+    import pandas as pd
+    import scipy as sp
+
+    from limix.data import BedReader
+    from limix.iSet.iset import fit_iSet
+    from limix.util import unique_variants as f_uni_variants
+
     parser = OptionParser()
     parser.add_option("--bfile", dest='bfile', type=str, default=None)
     # parser.add_option("--cfile", dest='cfile', type=str, default=None)
@@ -53,9 +46,8 @@ def entry_point():
     if len(Y.shape) == 1:
         Y = Y[:, sp.newaxis]
 
-    sets = pd.DataFrame.from_csv(options.wfile + '.wnd',
-                                 sep='\t',
-                                 index_col=None)
+    sets = pd.DataFrame.from_csv(
+        options.wfile + '.wnd', sep='\t', index_col=None)
 
     reader = BedReader(options.bfile)
 
@@ -86,10 +78,11 @@ def entry_point():
         _set = sets.ix[wnd_i]
         print('.. set %d: %s' % (wnd_i, _set['setid']))
 
-        Xr = reader.getGenotypes(pos_start=_set['start'],
-                                 pos_end=_set['end'],
-                                 chrom=_set['chrom'],
-                                 impute=True)
+        Xr = reader.getGenotypes(
+            pos_start=_set['start'],
+            pos_end=_set['end'],
+            chrom=_set['chrom'],
+            impute=True)
 
         if options.unique_variants:
             Xr = f_uni_variants(Xr)

@@ -1,11 +1,3 @@
-import h5py
-import dask.array as da
-import dask.dataframe as dd
-import pandas as pd
-
-from numpy.testing import assert_allclose, assert_equal
-
-
 class h5data_fetcher(object):
     r"""
     Fetch datasets from HDF5 files.
@@ -31,6 +23,7 @@ class h5data_fetcher(object):
         self._filename = filename
 
     def __enter__(self):
+        import h5py
         self._f = h5py.File(self._filename, 'r')
         return self
 
@@ -47,12 +40,13 @@ class h5data_fetcher(object):
         -------
         X : dask array
         """
+        from dask.array import from_array
         data = self._f[data_path]
         if data.chunks is None:
             chunks = data.shape
         else:
             chunks = data.chunks
-        return da.from_array(data, chunks=chunks)
+        return from_array(data, chunks=chunks)
 
     def __exit__(self, *exc):
         self._f.close()
