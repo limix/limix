@@ -1,30 +1,16 @@
-import sys
-import limix
-from limix_core.covar import LowRankCov
-from limix_core.covar import FixedCov
-from limix_core.covar import FreeFormCov
-from limix_core.covar import CategoricalLR
-from limix_core.mean import MeanBase
-from limix_core.gp import GP
 import scipy as sp
-import scipy.stats as st
-from limix.mtSet.core.iset_utils import *
-import numpy as np
-import numpy.linalg as nla
 import scipy.linalg as la
-import copy
-import pdb
-from limix.util.preprocess import gaussianize
-from scipy.optimize import fmin
-import time
-import pandas as pd
-from .linalg_utils import msqrt
 from .linalg_utils import lowrank_approx
 
 ntype_dict = {'assoc': 'null', 'gxe': 'block', 'gxehet': 'rank1'}
 
 
 def define_gp(Y, Xr, mean, Ie, type):
+    from limix_core.covar import LowRankCov
+    from limix_core.covar import FixedCov
+    from limix_core.covar import FreeFormCov
+    from limix_core.covar import CategoricalLR
+    from limix_core.gp import GP
     P = 2
     if type == 'null':
         _Cr = FixedCov(sp.ones([2, 2]))
@@ -69,6 +55,7 @@ class MvSetTestInc():
         W = sp.zeros((Y.shape[0], 2 * F.shape[1]))
         W[:, :F.shape[1]] = Ie[:, sp.newaxis] * F
         W[:, F.shape[1]:] = (~Ie[:, sp.newaxis]) * F
+        from limix_core.mean import MeanBase
         self.mean = MeanBase(Y, W)
         # avoid SVD failus by adding some jitter
         Xr += 2e-6 * (sp.rand(*Xr.shape) - 0.5)
@@ -229,66 +216,3 @@ class MvSetTestInc():
                 RV['var_r'] = sp.array(
                     [var_block, var_rank1 - var_block, var_r - var_rank1])
         return RV
-
-
-if 0:
-    def _sim_from(self, set_covar='block', seed=None, qq=False):
-        # 1. region term
-        if set_covar == 'block':
-            Cr = self.block['Cr']
-            Cg = self.block['Cg']
-            Cn = self.block['Cn']
-        if set_covar == 'rank1':
-            Cr = self.lr['Cr']
-            Cg = self.lr['Cg']
-            Cn = self.lr['Cn']
-        Lc = msqrt(Cr)
-        U, Sh, V = nla.svd(self.Xr, full_matrices=0)
-        Lr = sp.zeros((self.Y.shape[0], self.Y.shape[0]))
-        Lr[:, :Sh.shape[0]] = U * Sh[sp.newaxis, :]
-        Z = sp.randn(*self.Y.shape)
-        Yr = sp.dot(Lr, sp.dot(Z, Lc.T))
-        # 2. bg term
-        Lc = msqrt(Cg)
-        Lr = self.XXh
-        Z = sp.randn(*self.Y.shape)
-        Yg = sp.dot(Lr, sp.dot(Z, Lc.T))
-        # noise terms
-        Lc = msqrt(Cn)
-        Z = sp.randn(*self.Y.shape)
-        Yn = sp.dot(Z, Lc.T)
-        # normalize
-        Y = Yr + Yg + Yn
-        if qq:
-            Y = gaussianize(Y)
-            Y -= Y.mean(0)
-            Y /= Y.std(0)
-        return Y
-
-if __name__ == '__main__':
-
-    if 1:
-
-        N = 1000
-        S = 20
-        Xr = 1. * (sp.rand(N, S) < 0.2)
-        Ie = sp.randn(N) < 0.
-        Y = sp.randn(N, 1)
-        F = sp.ones((N, 1))
-
-        pdb.set_trace()
-
-        t0 = time.time()
-        mvset = MvSetTestInc(Y=Y, Xr=Xr, F=F, Ie=Ie, factr=1e7)
-        mvset.assoc()
-        mvset.gxe()
-        mvset.gxehet()
-        print('.. permutations')
-        mvset.assoc_null()
-        print('.. bootstrap gxe')
-        mvset.gxe_null()
-        print('.. bootstrap gxehet')
-        mvset.gxehet_null()
-        print(time.time() - t0)
-
-        pdb.set_trace()
