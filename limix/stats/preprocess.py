@@ -43,8 +43,8 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     r"""
     Determine pair-wise independent variants.
 
-    Determine independent variants by calculating squared Pearson
-    correlations between pairs of variants inside a sliding window.
+    Independent variants are defined via squared Pearson correlations between
+    pairs of variants inside a sliding window.
 
     Parameters
     ----------
