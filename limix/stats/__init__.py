@@ -9,6 +9,7 @@ Statistics
 - :func:`.qvalues`
 - :func:`.empirical_pvalues`
 - :class:`.Chi2mixture`
+- :func:`.indep_pairwise`
 
 Public interface
 ^^^^^^^^^^^^^^^^

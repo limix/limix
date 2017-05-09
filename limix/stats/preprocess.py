@@ -39,15 +39,52 @@ def _pdist_threshold(mark, dist, thr):
             l += 1
 
 
-# sample by snp
-def indep_pairwise(X, window_size, window_step, threshold, verbose=True):
+def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
+    r"""
+    Determine pair-wise independent variants.
+
+    Determine independent variants by calculating squared Pearson
+    correlations between pairs of variants inside a sliding window.
+
+    Parameters
+    ----------
+    X : array_like
+        Path prefix to the set of PLINK files.
+    window_size : int
+        Number of variants inside each window.
+    step_size : int
+        Number of variants the sliding window skips.
+    threshold : float
+        Squared Pearson correlation threshold for independence.
+    verbose : bool
+        `True` for progress information; `False` otherwise.
+
+    Returns
+    -------
+    ok : boolean array defining independent variants
+
+    Examples
+    --------
+    .. doctest::
+
+        >>> from numpy.random import RandomState
+        >>> from limix.stats import indep_pairwise
+        >>>
+        >>> random = RandomState(0)
+        >>> X = random.randn(10, 20)
+        >>>
+        >>> indep_pairwise(X, 4, 2, 0.5, verbose=False)
+        array([ True,  True, False,  True,  True,  True,  True,  True,  True,
+                True,  True,  True,  True,  True,  True,  True,  True,  True,
+                True,  True], dtype=bool)
+    """
     left = 0
     excls = zeros(X.shape[1], dtype=bool)
     excl = zeros(window_size, dtype=bool)
 
-    assert window_step <= window_size
+    assert step_size <= window_size
 
-    n = (X.shape[1] + window_step) // window_step
+    n = (X.shape[1] + step_size) // step_size
     for i in tqdm(range(n), desc='Indep. pairwise', disable=not verbose):
 
         right = min(left + window_size, X.shape[1])
@@ -60,6 +97,6 @@ def indep_pairwise(X, window_size, window_step, threshold, verbose=True):
 
         excls[left:right] |= e
 
-        left += window_step
+        left += step_size
 
     return logical_not(excls)
