@@ -25,7 +25,7 @@ def read_csv(filename):
         2  force     int     f     c
     """
     from dask.dataframe import read_csv as _read_csv
-    
+
     df = _read_csv(filename)
     df.set_index(df.columns[0], inplace=True)
     return df
