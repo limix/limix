@@ -1,40 +1,28 @@
-import sys
 import limix
-from limix_core.covar import LowRankCov
-from limix_core.covar import FixedCov
-from limix_core.covar import FreeFormCov
-from limix_core.gp import GP2KronSumLR
-from limix_core.gp import GP2KronSum
 import scipy as sp
-import scipy.stats as st
-from limix.mtSet.core.iset_utils import *
-import numpy as np
-import numpy.linalg as nla
-import scipy.linalg as la
-import copy
-import pdb
-from limix.util.preprocess import gaussianize
-from scipy.optimize import fmin
-import time
-import pandas as pd
-from .linalg_utils import msqrt
 from .linalg_utils import lowrank_approx
 
 ntype_dict = {'assoc': 'null', 'gxe': 'block', 'gxehet': 'rank1'}
 
 
 def define_gp(Y, Xr, F, type, Rr):
+    from limix_core.covar import LowRankCov
+    from limix_core.covar import FixedCov
+    from limix_core.covar import FreeFormCov
+    from limix_core.gp import GP2KronSumLR
+    from limix_core.gp import GP2KronSum
+
     P = Y.shape[1]
     _A = sp.eye(P)
     if type in ['null', 'rank1']:
-        _Cr = limix.core.covar.LowRankCov(P, 1)
+        _Cr = LowRankCov(P, 1)
     elif type == 'block':
-        _Cr = limix.core.covar.FixedCov(sp.ones((P, P)))
+        _Cr = FixedCov(sp.ones((P, P)))
     elif type == 'full':
-        _Cr = limix.core.covar.FreeFormCov(P)
+        _Cr = FreeFormCov(P)
     else:
         print('poppo')
-    _Cn = limix.core.covar.FreeFormCov(P)
+    _Cn = FreeFormCov(P)
     if type == 'null':
         _gp = GP2KronSumLR(
             Y=Y, G=sp.ones(
@@ -222,231 +210,3 @@ class MvSetTest():
                 RV['var_r'] = sp.array(
                     [var_block, var_rank1 - var_block, var_r - var_rank1])
         return RV
-
-
-if 0:
-    def _sim_from(self, set_covar='block', seed=None, qq=False):
-        # 1. region term
-        if set_covar == 'block':
-            Cr = self.block['Cr']
-            Cg = self.block['Cg']
-            Cn = self.block['Cn']
-        if set_covar == 'rank1':
-            Cr = self.lr['Cr']
-            Cg = self.lr['Cg']
-            Cn = self.lr['Cn']
-        Lc = msqrt(Cr)
-        U, Sh, V = nla.svd(self.Xr, full_matrices=0)
-        Lr = sp.zeros((self.Y.shape[0], self.Y.shape[0]))
-        Lr[:, :Sh.shape[0]] = U * Sh[sp.newaxis, :]
-        Z = sp.randn(*self.Y.shape)
-        Yr = sp.dot(Lr, sp.dot(Z, Lc.T))
-        # 2. bg term
-        Lc = msqrt(Cg)
-        Lr = self.XXh
-        Z = sp.randn(*self.Y.shape)
-        Yg = sp.dot(Lr, sp.dot(Z, Lc.T))
-        # noise terms
-        Lc = msqrt(Cn)
-        Z = sp.randn(*self.Y.shape)
-        Yn = sp.dot(Z, Lc.T)
-        # normalize
-        Y = Yr + Yg + Yn
-        if qq:
-            Y = gaussianize(Y)
-            Y -= Y.mean(0)
-            Y /= Y.std(0)
-        return Y
-
-if __name__ == '__main__':
-
-    if 0:
-
-        N = 10000
-        P = 2
-        S = 20
-        Xr = 1. * (sp.rand(N, S) < 0.2)
-        Y = sp.randn(N, P)
-        F = sp.ones((N, 1))
-
-        t0 = time.time()
-        mvset = MvSetTest(Y=Y, Xr=Xr, F=F, factr=1e7)
-        mvset.assoc()
-        mvset.gxehet()
-        print('.. permutations')
-        mvset.assoc_null()
-        print('.. bootstrap gxe')
-        mvset.gxe_null()
-        print('.. bootstrap gxehet')
-        mvset.gxehet_null()
-        print(time.time() - t0)
-
-        pdb.set_trace()
-
-    if 0:
-        n_times = 100
-
-        LLR_assoc = sp.zeros(n_times)
-        LLR_gxe = sp.zeros(n_times)
-        LLR_gxehet = sp.zeros(n_times)
-        score_assoc = sp.zeros(n_times)
-        score_gxe = sp.zeros(n_times)
-        score_gxehet = sp.zeros(n_times)
-
-        for time_i in range(n_times):
-            print(time_i)
-
-            N = 10000
-            P = 2
-            S = 20
-            Xr = 1. * (sp.rand(N, S) < 0.2)
-            Xr -= Xr.mean(0)
-            Xr /= Xr.std(0)
-            Xr /= sp.sqrt(Xr.shape[1])
-            Y = sp.randn(N, P)
-            F = sp.ones((N, 1))
-
-            t0 = time.time()
-            mvset = MvSetTest(Y=Y, Xr=Xr, F=F, factr=1e7)
-            LLR_assoc[time_i] = mvset.assoc()
-            LLR_gxe[time_i] = mvset.gxe()
-            LLR_gxehet[time_i] = mvset.gxehet()
-            print(time.time() - t0)
-
-            t0 = time.time()
-            score_assoc[time_i], _ = mvset.score(test='assoc')
-            score_gxe[time_i], _ = mvset.score(test='gxe')
-            score_gxehet[time_i], _ = mvset.score(test='gxehet')
-            print(time.time() - t0)
-
-        t0 = time.time()
-        pdb.set_trace()
-        import pylab as pl
-        pl.ion()
-        pl.subplot(221)
-        pl.plot(LLR_assoc, score_assoc, '.k')
-        pl.subplot(222)
-        pl.plot(LLR_gxe, score_gxe, '.k')
-        pl.subplot(223)
-        pl.plot(LLR_gxehet, score_gxehet, '.k')
-        pdb.set_trace()
-
-    if 1:
-        """
-        Basic experiment for score test tests if optimisation of hyper matters
-        """
-        n_times = 100
-        score_assoc = sp.zeros(n_times)
-        score0_assoc = sp.zeros(n_times)
-        score_gxehet = sp.zeros(n_times)
-        score0_gxehet = sp.zeros(n_times)
-        for time_i in range(n_times):
-            print(time_i)
-            N = 10000
-            P = 2
-            S = 20
-            Xr = 1. * (sp.rand(N, S) < 0.2)
-            Xr -= Xr.mean(0)
-            Xr /= Xr.std(0)
-            Xr /= sp.sqrt(Xr.shape[1])
-            Y = sp.randn(N, P)
-            F = sp.ones((N, 1))
-
-            t0 = time.time()
-            mvset = MvSetTest(Y=Y, Xr=Xr, F=F, factr=1e7)
-            mvset.gxehet()
-            score_assoc[time_i], _ = mvset.score(test='assoc')
-            score0_assoc[time_i], _ = mvset.score(test='assoc', null=True)
-            score_gxehet[time_i], _ = mvset.score(test='gxehet')
-            score0_gxehet[time_i], _ = mvset.score(test='gxehet', null=True)
-
-        pdb.set_trace()
-
-    """
-    Some stuff dor the Hessian that I am not using at the moment
-    """
-    if 0:
-        # H = 0.5 * trace_term - quadratic_term
-        # expected_H = -0.5 * trace_term
-        # average_H = quadratic_term
-        # 1. trace_term = tr(Ki_dKp_Ki_dKp)
-        rankCr = 2
-        T = []
-        KiT = []
-        for i in range(3):
-            _S, _U = la.eigh(_Cr.K_grad_i(i))
-            Cr_h = _U * sp.sqrt(_S)
-            T.append(
-                sp.reshape(
-                    sp.kron(
-                        Cr_h, Xr), (N, P, rankCr * S), order='F'))
-            KiT.append(gp.covar.solve_t(T[i]))
-        Ht = sp.zeros((3, 3))
-        for i in range(3):
-            Ht[i, i] = (sp.einsum('qpn,qpm->nm', T[i], KiT[i])**2).sum()
-            for j in range(0, i):
-                Ht[i, j] = (sp.einsum('qpn,qpm->nm', T[i], KiT[j])**2).sum()
-                Ht[j, i] = Ht[i, j]
-        if Y.shape[0] <= 1000:
-            Ki = la.inv(
-                sp.kron(
-                    mvset.gp[type].covar.Cn.K(),
-                    sp.eye(
-                        Y.shape[0])))
-            XrXr = sp.dot(Xr, Xr.T)
-            KidK = [sp.dot(Ki, sp.kron(_Cr.K_grad_i(i), XrXr))
-                    for i in range(3)]
-            Ht0 = sp.zeros((3, 3))
-            for i in range(3):
-                for j in range(3):
-                    Ht0[i, j] = sp.trace(sp.dot(KidK[i], KidK[j]))
-            pdb.set_trace()
-
-    if 0:
-        # 2. quadratic_term = y_Ki_dKp_Ki_dKq_Ki_y
-        Z = Y - sp.dot(F, mvset.gp[type].mean.B[0])
-        XrXrKiZ = sp.dot(Xr, sp.dot(Xr.T, gp.covar.solve_t(Z)))
-        XrXrKiZC = [sp.dot(XrXrKiZ, _Cr.K_grad_i(i).T) for i in range(3)]
-        KiXrXrKiZC = [gp.covar.solve_t(XrXrKiZC[i]) for i in range(3)]
-        Hq = sp.zeros((3, 3))
-        for i in range(3):
-            Hq[i, i] = (XrXrKiZC[i] * KiXrXrKiZC[i]).sum()
-            for j in range(i):
-                Hq[i, j] = (XrXrKiZC[i] * KiXrXrKiZC[j]).sum()
-                Hq[j, i] = Hq[i, j]
-        if Y.shape[0] <= 1000:
-            z = sp.reshape(Z, (Z.size, 1), order='F')
-            dK = [sp.kron(_Cr.K_grad_i(i), XrXr) for i in range(3)]
-            Kiz = sp.dot(Ki, z)
-            Hq0 = sp.zeros((3, 3))
-            for i in range(3):
-                for j in range(3):
-                    Hq0[i, j] = sp.dot(z.T, sp.dot(
-                        KidK[i], sp.dot(KidK[j], Kiz)))
-            pdb.set_trace()
-
-    if 0:
-        # compute score with hessian
-
-        H = 0.5 * Ht  # -0.5*Ht+Hq
-
-        Hi = la.inv(H)
-        score1[time_i] = (SSS * sp.dot(Hi, SSS)).sum()
-        C = FreeFormCov(2)
-
-        def f1(x):
-            C.setParams(x)
-            b = C.K()[sp.tril_indices(2)]
-            delta = (b - SSS)
-            val = (delta * sp.dot(Hi, delta)).sum()
-            db_dx0 = C.K_grad_i(0)[sp.tril_indices(2)]
-            db_dx1 = C.K_grad_i(1)[sp.tril_indices(2)]
-            db_dx2 = C.K_grad_i(2)[sp.tril_indices(2)]
-            grad = 2 * sp.array([(delta * sp.dot(Hi, db_dx0)).sum(),
-                                 (delta * sp.dot(Hi, db_dx1)).sum(),
-                                 (delta * sp.dot(Hi, db_dx2)).sum()])
-            return val, grad
-        x_opt, dscore1, info = sp.optimize.fmin_l_bfgs_b(f1, sp.randn(3))
-        conv[time_i] = (info['grad']**2).mean() < 1e-5
-        score1c[time_i] = score1[time_i] - dscore1
-        print(time.time() - t0)

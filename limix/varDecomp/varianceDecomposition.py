@@ -16,15 +16,9 @@ import copy
 import sys
 import warnings
 
-import limix.util.preprocess as preprocess
 import scipy as sp
 import scipy.linalg
 import scipy.stats
-from limix.util.preprocess import covar_rescaling_factor
-from limix.util.util_functions import vec
-from limix_core.covar import *
-from limix_core.gp import *
-from limix_core.mean import *
 
 
 class VarianceDecomposition(object):
@@ -91,6 +85,8 @@ class VarianceDecomposition(object):
 
     def __init__(self, Y, standardize=False):
 
+        from limix.util import preprocess
+
         # check whether Y is a vector, if yes reshape
         if (len(Y.shape) == 1):
             Y = Y[:, sp.newaxis]
@@ -132,6 +128,8 @@ class VarianceDecomposition(object):
             Y:              phenotype matrix [N, P]
             standardize:    if True, phenotype is standardized (zero mean, unit variance)
         """
+        from limix.util import preprocess
+
         assert Y.shape[
             0] == self.N, 'VarianceDecomposition:: Incompatible shape'
         assert Y.shape[
@@ -214,6 +212,7 @@ class VarianceDecomposition(object):
             assert Kcross.shape[
                 1] == self.Ntest, 'VarianceDecomposition:: Incompatible shape for Kcross'
 
+        from limix.util.preprocess import covar_rescaling_factor
         if normalize:
             cc = covar_rescaling_factor(K)
             K *= cc
@@ -490,6 +489,10 @@ class VarianceDecomposition(object):
         """
         Internal method for initialization of the GP inference objetct
         """
+        from limix.util.util_functions import vec
+        from limix_core.mean import MeanKronSum
+        from limix_core.gp import GP2KronSum
+        from limix_core.covar import SumCov
         if self._inference == 'GP2KronSum':
             signalPos = sp.where(
                 sp.arange(self.n_randEffs) != self.noisPos)[0][0]
@@ -528,6 +531,9 @@ class VarianceDecomposition(object):
         Returns:
             LIMIX::Covariance for Trait covariance matrix
         """
+        from limix_core.covar import (FreeFormCov, FixedCov, DiagonalCov,
+                                      LowRankCov, SumCov)
+
         assert trait_covar_type in [
             'freeform', 'diag', 'lowrank', 'lowrank_id', 'lowrank_diag',
             'block', 'block_id', 'block_diag', 'fixed'
@@ -672,8 +678,9 @@ class VarianceDecomposition(object):
             for param_i in range(n_params):
                 out += C.Kgrad_param(param_i)**2 * Sigma1[param_i, param_i]
                 for param_j in range(param_i):
-                    out += 2 * abs(C.Kgrad_param(param_i) *
-                                   C.Kgrad_param(param_j)) * Sigma1[param_i, param_j]
+                    out += 2 * abs(
+                        C.Kgrad_param(param_i) *
+                        C.Kgrad_param(param_j)) * Sigma1[param_i, param_j]
         out = sp.sqrt(out)
         return out
 

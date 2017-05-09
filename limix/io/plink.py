@@ -1,6 +1,3 @@
-import pandas_plink as pp
-
-
 def read_plink(prefix, verbose=True):
     r"""
     Read PLINK files into Pandas data frames.
@@ -73,4 +70,5 @@ def read_plink(prefix, verbose=True):
          [1 2 2]
          [2 1 2]]
     """
-    return pp.read_plink(prefix, verbose=verbose)
+    from pandas_plink import read_plink
+    return read_plink(prefix, verbose=verbose)

@@ -1,13 +1,9 @@
-from optparse import OptionParser
-from limix.mtSet.core.iset_utils import calc_emp_pv_eff
-import pandas as pd
-import glob
-import os
-import time
-import sys
-
-
 def entry_point():
+    from optparse import OptionParser
+    from limix.mtSet.core.iset_utils import calc_emp_pv_eff
+    import pandas as pd
+    import glob
+    import os
 
     parser = OptionParser()
     parser.add_option("--resdir", dest='resdir', type=str, default='./')

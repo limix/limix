@@ -1,8 +1,9 @@
-from limix.mtSet.core.preprocessCore import preprocess
 from optparse import OptionParser
 
 
 def entry_point():
+    from limix.mtSet.core.preprocessCore import preprocess
+
     parser = OptionParser()
     parser.add_option("--bfile", dest='bfile', type=str, default=None)
     parser.add_option("--cfile", dest='cfile', type=str, default=None)
@@ -19,17 +20,11 @@ def entry_point():
     parser.add_option("--compute_PCs", dest="compute_PCs", default=0, type=int)
 
     parser.add_option(
-        "--plink_path",
-        dest='plink_path',
-        type=str,
-        default='plink')
+        "--plink_path", dest='plink_path', type=str, default='plink')
     parser.add_option("--sim_type", dest='sim_type', type=str, default='RRM')
 
     parser.add_option(
-        "--fit_null",
-        action="store_true",
-        dest="fit_null",
-        default=False)
+        "--fit_null", action="store_true", dest="fit_null", default=False)
 
     (options, args) = parser.parse_args()
 

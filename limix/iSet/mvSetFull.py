@@ -1,43 +1,30 @@
-import sys
-import limix
-from limix_core.covar import LowRankCov
-from limix_core.covar import FixedCov
-from limix_core.covar import FreeFormCov
-from limix_core.gp import GP3KronSumLR
-from limix_core.gp import GP2KronSum
 import scipy as sp
-import scipy.stats as st
-from limix.mtSet.core.iset_utils import *
-import numpy as np
-import numpy.linalg as nla
 import scipy.linalg as la
-import copy
-import pdb
-from limix.util.preprocess import gaussianize
-from scipy.optimize import fmin
-import time
-import pandas as pd
-from .linalg_utils import msqrt
 from .linalg_utils import lowrank_approx
 
 ntype_dict = {'assoc': 'null', 'gxe': 'block', 'gxehet': 'rank1'}
 
 
 def define_gp(Y, Xr, Sg, Ug, type):
+    from limix_core.covar import LowRankCov
+    from limix_core.covar import FixedCov
+    from limix_core.covar import FreeFormCov
+    from limix_core.gp import GP3KronSumLR
+    from limix_core.gp import GP2KronSum
     P = Y.shape[1]
     _A = sp.eye(P)
     if type in 'rank1':
-        _Cr = limix.core.covar.LowRankCov(P, 1)
+        _Cr = LowRankCov(P, 1)
     elif type == 'block':
-        _Cr = limix.core.covar.FixedCov(sp.ones((P, P)))
+        _Cr = FixedCov(sp.ones((P, P)))
     elif type == 'full':
-        _Cr = limix.core.covar.FreeFormCov(P)
+        _Cr = FreeFormCov(P)
     elif type == 'null':
         pass
     else:
         print('poppo')
-    _Cn = limix.core.covar.FreeFormCov(P)
-    _Cg = limix.core.covar.FreeFormCov(P)
+    _Cn = FreeFormCov(P)
+    _Cg = FreeFormCov(P)
     if type == 'null':
         _gp = GP2KronSum(Y=Y, Cg=_Cg, Cn=_Cn, S_R=Sg, U_R=Ug)
     else:
@@ -209,35 +196,3 @@ class MvSetTestFull():
                 RV['var_r'] = sp.array(
                     [var_block, var_rank1 - var_block, var_r - var_rank1])
         return RV
-
-
-if __name__ == '__main__':
-
-    if 1:
-
-        N = 1000
-        P = 2
-        S = 20
-        Xr = 1. * (sp.rand(N, S) < 0.2)
-        Y = sp.randn(N, P)
-        X = sp.randn(N, 100)
-        Rg = sp.dot(X, X.T) / float(X.shape[1])
-        Rg += 1e-4 * sp.eye(X.shape[0])
-        Sg, Ug = la.eigh(Rg)
-
-        pdb.set_trace()
-
-        t0 = time.time()
-        mvset = MvSetTestFull(Y=Y, Xr=Xr, Sg=Sg, Ug=Ug, factr=1e7)
-        mvset.assoc()
-        mvset.gxe()
-        mvset.gxehet()
-        print('.. permutations')
-        mvset.assoc_null(n_nulls=2)
-        print('.. bootstrap gxe')
-        mvset.gxe_null(n_nulls=2)
-        print('.. bootstrap gxehet')
-        mvset.gxehet_null(n_nulls=2)
-        print(time.time() - t0)
-
-        pdb.set_trace()

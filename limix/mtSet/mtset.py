@@ -1,20 +1,7 @@
-import sys
-from limix.util.preprocess import remove_dependent_cols
-from limix.util.util_functions import smartDumpDictHdf5
-
-# core
-from limix_core.gp import GP2KronSum
-from limix_core.gp import GP2KronSumLR
-from limix_core.gp import GP3KronSumLR
-from limix_core.covar import FreeFormCov
-
 import h5py
-import pdb
 import scipy as sp
 import scipy.linalg as la
-import scipy.stats as st
 import time as TIME
-import copy
 import warnings
 import os
 
@@ -132,6 +119,10 @@ class MTSet():
             traitID=None,
             F=None,
             rank=1):
+        from limix_core.gp import GP2KronSum
+        from limix_core.gp import GP2KronSumLR
+        from limix_core.gp import GP3KronSumLR
+        from limix_core.covar import FreeFormCov
         # data
         noneNone = S_R is not None and U_R is not None
         self.bgRE = R is not None or noneNone
@@ -145,6 +136,7 @@ class MTSet():
         msg += ' the methods limix.util.preprocess.regressOut and'
         msg += ' limix.util.preprocess.gaussianize'
         assert not (F is not None and self.bgRE), msg
+        from limix.util.preprocess import remove_dependent_cols
         if F is not None:
             F = remove_dependent_cols(F)
             A = sp.eye(Y.shape[1])
@@ -312,6 +304,10 @@ class MTSet():
                 - **LMLgrad** (*ndarray*): norm of the gradient of the NLL.
                 - **time** (*time*): elapsed time (in seconds).
         """
+        from limix_core.gp import GP2KronSum
+        from limix_core.gp import GP2KronSumLR
+        from limix_core.gp import GP3KronSumLR
+        from limix_core.covar import FreeFormCov
         if seed is not None:
             sp.random.seed(seed)
 
@@ -382,6 +378,7 @@ class MTSet():
             RV['nit'] = sp.array([info['nit']])
             RV['funcalls'] = sp.array([info['funcalls']])
             self.null = RV
+            from limix.util.util_functions import smartDumpDictHdf5
             if cache:
                 f = h5py.File(out_file, 'w')
                 smartDumpDictHdf5(RV, f)
@@ -579,6 +576,7 @@ class MTSet():
                 self.stSet.Y = self.Y[:, p:p + 1]
                 RV[trait_id] = self.stSet.fitNull()
             self.nullST = RV
+            from limix.util.util_functions import smartDumpDictHdf5
             if cache:
                 f = h5py.File(out_file, 'w')
                 smartDumpDictHdf5(RV, f)
