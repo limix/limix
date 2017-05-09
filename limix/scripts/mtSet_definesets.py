@@ -1,5 +1,6 @@
-from limix.mtSet.core.definesetsCore import definesets
 from optparse import OptionParser
+
+from limix.mtSet.core.definesetsCore import definesets
 
 
 def entry_point():
@@ -20,10 +21,7 @@ def entry_point():
         default=False)
 
     parser.add_option(
-        "--window_size",
-        dest='window_size',
-        type=int,
-        default=3e4)
+        "--window_size", dest='window_size', type=int, default=3e4)
 
     parser.add_option("--step", dest='step', type=int, default=15e3)
 
