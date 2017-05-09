@@ -20,6 +20,7 @@ from .kinship import gower_norm
 from .fdr import qvalues
 from .teststats import empirical_pvalues
 from .chi2mixture import Chi2mixture
+from .preprocess import indep_pairwise
 
 __all__ = ['pca', 'boxcox', 'gower_norm', 'qvalues',
-           'empirical_pvalues', 'Chi2mixture']
+           'empirical_pvalues', 'Chi2mixture', 'indep_pairwise']
