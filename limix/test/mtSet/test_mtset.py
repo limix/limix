@@ -1,5 +1,5 @@
 import unittest
-import limix
+from limix import MTSet
 import scipy as sp
 import scipy.linalg as LA
 import pdb
@@ -22,7 +22,7 @@ class TestMTSet(unittest.TestCase):
 
     def test_mtSetNull(self):
         fbasename = 'mtSetNull'
-        setTest = limix.MTSet(Y=self.Y, R=self.XX)
+        setTest = MTSet(Y=self.Y, R=self.XX)
         nullMTInfo = setTest.fitNull(cache=False)
         ext = {'Cg': nullMTInfo['Cg'], 'Cn': nullMTInfo['Cn']}
         if self.write:
@@ -33,7 +33,7 @@ class TestMTSet(unittest.TestCase):
     def test_mtSetNull_eigenCache(self):
         fbasename = 'mtSetNull'
         S, U = LA.eigh(self.XX)
-        setTest = limix.MTSet(Y=self.Y, S_R=S, U_R=U)
+        setTest = MTSet(Y=self.Y, S_R=S, U_R=U)
         nullMTInfo = setTest.fitNull(cache=False)
         ext = {'Cg': nullMTInfo['Cg'], 'Cn': nullMTInfo['Cn']}
         if self.write:
@@ -43,7 +43,7 @@ class TestMTSet(unittest.TestCase):
 
     def test_mtSet_base(self):
         fbasename = 'mtSet_base'
-        setTest = limix.MTSet(self.Y, R=self.XX)
+        setTest = MTSet(self.Y, R=self.XX)
         optInfo = setTest.optimize(self.Xr)
         ext = {'Cr': optInfo['Cr'],
                'Cg': optInfo['Cg'],
@@ -56,7 +56,7 @@ class TestMTSet(unittest.TestCase):
     def test_mtSet_eigenCache(self):
         fbasename = 'mtSet_base'
         S, U = LA.eigh(self.XX)
-        setTest = limix.MTSet(Y=self.Y, S_R=S, U_R=U)
+        setTest = MTSet(Y=self.Y, S_R=S, U_R=U)
         optInfo = setTest.optimize(self.Xr)
         ext = {'Cr': optInfo['Cr'],
                'Cg': optInfo['Cg'],
@@ -66,7 +66,7 @@ class TestMTSet(unittest.TestCase):
 
     def test_mtSetPCnull(self):
         fbasename = 'mtSetPCnull'
-        setTest = limix.MTSet(Y=self.Y)
+        setTest = MTSet(Y=self.Y)
         nullMTInfo = setTest.fitNull(cache=False)
         ext = {'Cn': nullMTInfo['Cn']}
         if self.write:
@@ -76,7 +76,7 @@ class TestMTSet(unittest.TestCase):
 
     def test_mtSetPCnull_fixed(self):
         fbasename = 'mtSetPCnull_fixed'
-        setTest = limix.MTSet(Y=self.Y, F=self.Xr)
+        setTest = MTSet(Y=self.Y, F=self.Xr)
         nullMTInfo = setTest.fitNull(cache=False)
         ext = {'Cg': nullMTInfo['Cg'], 'Cn': nullMTInfo['Cn']}
         if self.write:
@@ -86,7 +86,7 @@ class TestMTSet(unittest.TestCase):
 
     def test_mtSetPC_base(self):
         fbasename = 'mtSetPC_base'
-        setTest = limix.MTSet(Y=self.Y)
+        setTest = MTSet(Y=self.Y)
         optInfo = setTest.optimize(self.Xr)
         ext = {'Cr': optInfo['Cr'],
                'Cn': optInfo['Cn']}
@@ -97,7 +97,7 @@ class TestMTSet(unittest.TestCase):
 
     def test_mtSetPC_fixed(self):
         fbasename = 'mtSetPC_fixed'
-        setTest = limix.MTSet(Y=self.Y, F=self.Xr[:, :2])
+        setTest = MTSet(Y=self.Y, F=self.Xr[:, :2])
         optInfo = setTest.optimize(self.Xr)
         ext = {'Cr': optInfo['Cr'],
                'Cn': optInfo['Cn']}
