@@ -100,34 +100,43 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     import tempfile
     import shutil
 
-    dirpath = tempfile.mkdtemp()
-    cache = Chest(path=dirpath, available_memory=8e9)
-    with dask.set_options(cache=cache):
+    #dirpath = tempfile.mkdtemp()
+    #cache = Chest(path=dirpath, available_memory=8e8)
+    #with dask.set_options(cache=cache):
+    #import pdb; pdb.set_trace()
 
-        with tqdm(total=n, desc='Indep. pairwise',
-                  disable=not verbose) as pbar:
+    with tqdm(total=n, desc='Indep. pairwise',
+              disable=not verbose) as pbar:
 
-            while len(steps) > 0:
-                i = 0
-                right = 0
-                delayeds = []
-                while i < len(steps):
+        while len(steps) > 0:
+            i = 0
+            right = 0
+            delayeds = []
+            while i < len(steps):
 
-                    step = steps[i]
-                    left = step * step_size
-                    if left < right:
-                        i += 1
-                        continue
+                step = steps[i]
+                left = step * step_size
+                if left < right:
+                    i += 1
+                    continue
 
-                    del steps[i]
-                    right = min(left + window_size, X.shape[1])
-                    x = ascontiguousarray(X[:, left:right].T)
-                    delayeds.append(delayed(func)(x, excls[left:right], threshold))
+                del steps[i]
+                right = min(left + window_size, X.shape[1])
+                x = ascontiguousarray(X[:, left:right].T)
 
-                Parallel(backend="threading")(delayeds)
-                pbar.update(len(delayeds))
+                delayeds.append(delayed(func)(x, excls[left:right], threshold))
+                if len(delayeds) == 12:
+                    Parallel(n_jobs=12)(delayeds)
+                    pbar.update(len(delayeds))
+                    delayeds = []
 
-    shutil.rmtree(dirpath)
+
+            #Parallel(backend="threading")(delayeds)
+            #import pdb; pdb.set_trace()
+            Parallel(n_jobs=12)(delayeds)
+            pbar.update(len(delayeds))
+
+    #shutil.rmtree(dirpath)
     # import atexit
     # atexit.register(lambda: shutil.rmtree(dirpath))
 
