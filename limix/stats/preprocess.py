@@ -94,27 +94,41 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
 
     steps = list(range(n))
 
-    with tqdm(total=n, desc='Indep. pairwise',
-              disable=not verbose) as pbar:
+    import dask
+    from chest import Chest
 
-        while len(steps) > 0:
-            i = 0
-            right = 0
-            delayeds = []
-            while i < len(steps):
+    import tempfile
+    import shutil
 
-                step = steps[i]
-                left = step * step_size
-                if left < right:
-                    i += 1
-                    continue
+    dirpath = tempfile.mkdtemp()
+    cache = Chest(path=dirpath, available_memory=8e9)
+    with dask.set_options(cache=cache):
 
-                del steps[i]
-                right = min(left + window_size, X.shape[1])
-                x = ascontiguousarray(X[:, left:right].T)
-                delayeds.append(delayed(func)(x, excls[left:right], threshold))
+        with tqdm(total=n, desc='Indep. pairwise',
+                  disable=not verbose) as pbar:
 
-            Parallel()(delayeds)
-            pbar.update(len(delayeds))
+            while len(steps) > 0:
+                i = 0
+                right = 0
+                delayeds = []
+                while i < len(steps):
+
+                    step = steps[i]
+                    left = step * step_size
+                    if left < right:
+                        i += 1
+                        continue
+
+                    del steps[i]
+                    right = min(left + window_size, X.shape[1])
+                    x = ascontiguousarray(X[:, left:right].T)
+                    delayeds.append(delayed(func)(x, excls[left:right], threshold))
+
+                Parallel(backend="threading")(delayeds)
+                pbar.update(len(delayeds))
+
+    shutil.rmtree(dirpath)
+    # import atexit
+    # atexit.register(lambda: shutil.rmtree(dirpath))
 
     return logical_not(excls)
