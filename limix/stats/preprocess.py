@@ -123,6 +123,9 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
                     pbar.update(len(delayeds))
                     delayeds = []
 
+            if len(delayeds) == 0:
+                continue
+
             Parallel(
                 n_jobs=min(len(delayeds), cc), backend='threading')(delayeds)
             pbar.update(len(delayeds))
