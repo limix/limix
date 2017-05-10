@@ -112,6 +112,7 @@ def plot_manhattan(pv, position=None, posCum=None, chromBounds=None,
             plt.subplot(111)
             plot_manhattan(pv, [chrom, pos])
             plt.tight_layout()
+
             plt.show()
     """
     import matplotlib.pylab as plt
