@@ -5,6 +5,7 @@ from numpy import (ascontiguousarray, double, einsum, logical_not, newaxis,
                    sqrt, zeros)
 from scipy.spatial import _distance_wrap
 from tqdm import tqdm
+from joblib import Parallel, delayed
 
 
 def _row_norms(X):
@@ -38,6 +39,11 @@ def _pdist_threshold(mark, dist, thr):
                 mark[j] = True
             l += 1
 
+def func(x, excls, threshold):
+    dist = _sq_pearson(x)
+    e = zeros(x.shape[0], dtype=bool)
+    _pdist_threshold(e, dist, threshold)
+    excls |= e
 
 def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     r"""
@@ -88,40 +94,27 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
 
     steps = list(range(n))
 
-    while len(steps) > 0:
+    with tqdm(total=n, desc='Indep. pairwise',
+              disable=not verbose) as pbar:
 
-        i = 0
-        right = 0
-        while i < len(steps):
+        while len(steps) > 0:
+            i = 0
+            right = 0
+            delayeds = []
+            while i < len(steps):
 
-            step = steps[i]
-            left = step * step_size
-            if left < right:
-                i += 1
-                continue
+                step = steps[i]
+                left = step * step_size
+                if left < right:
+                    i += 1
+                    continue
 
-            del steps[i]
-            right = min(left + window_size, X.shape[1])
+                del steps[i]
+                right = min(left + window_size, X.shape[1])
+                x = ascontiguousarray(X[:, left:right].T)
+                delayeds.append(delayed(func)(x, excls[left:right], threshold))
 
-            x = ascontiguousarray(X[:, left:right].T)
-
-            dist = _sq_pearson(x)
-            e = excl[:x.shape[0]]
-            _pdist_threshold(e, dist, threshold)
-            excls[left:right] |= e
-
-    # for i in tqdm(range(n), desc='Indep. pairwise', disable=not verbose):
-    #
-    #     right = min(left + window_size, X.shape[1])
-    #     x = ascontiguousarray(X[:, left:right].T)
-    #
-    #     dist = _sq_pearson(x)
-    #
-    #     e = excl[:x.shape[0]]
-    #     _pdist_threshold(e, dist, threshold)
-    #
-    #     excls[left:right] |= e
-    #
-    #     left += step_size
+            Parallel()(delayeds)
+            pbar.update(len(delayeds))
 
     return logical_not(excls)
