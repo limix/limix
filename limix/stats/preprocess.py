@@ -95,7 +95,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     n = (X.shape[1] + step_size) // step_size
 
     steps = list(range(n))
-    cc = cpu_count()
+    cc = min(1, cpu_count())
 
     with tqdm(total=n, desc='Indep. pairwise', disable=not verbose) as pbar:
 
