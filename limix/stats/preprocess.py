@@ -49,7 +49,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     Parameters
     ----------
     X : array_like
-        Path prefix to the set of PLINK files.
+        Sample by variants matrix.
     window_size : int
         Number of variants inside each window.
     step_size : int
