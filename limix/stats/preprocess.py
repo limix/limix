@@ -5,7 +5,7 @@ from numpy import (ascontiguousarray, double, einsum, logical_not, newaxis,
                    sqrt, zeros)
 from scipy.spatial import _distance_wrap
 from tqdm import tqdm
-from joblib import Parallel, delayed
+from joblib import Parallel, delayed, cpu_count
 
 
 def _row_norms(X):
@@ -93,17 +93,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     n = (X.shape[1] + step_size) // step_size
 
     steps = list(range(n))
-
-    import dask
-    from chest import Chest
-
-    import tempfile
-    import shutil
-
-    #dirpath = tempfile.mkdtemp()
-    #cache = Chest(path=dirpath, available_memory=8e8)
-    #with dask.set_options(cache=cache):
-    #import pdb; pdb.set_trace()
+    cc = cpu_count()
 
     with tqdm(total=n, desc='Indep. pairwise',
               disable=not verbose) as pbar:
@@ -125,19 +115,15 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
                 x = ascontiguousarray(X[:, left:right].T)
 
                 delayeds.append(delayed(func)(x, excls[left:right], threshold))
-                if len(delayeds) == 12:
-                    Parallel(n_jobs=12)(delayeds)
+                if len(delayeds) == cc:
+                    Parallel(n_jobs=min(len(delayeds), cc),
+                             backend='threading')(delayeds)
                     pbar.update(len(delayeds))
                     delayeds = []
 
 
-            #Parallel(backend="threading")(delayeds)
-            #import pdb; pdb.set_trace()
-            Parallel(n_jobs=12)(delayeds)
+            Parallel(n_jobs=min(len(delayeds), cc),
+                     backend='threading')(delayeds)
             pbar.update(len(delayeds))
-
-    #shutil.rmtree(dirpath)
-    # import atexit
-    # atexit.register(lambda: shutil.rmtree(dirpath))
 
     return logical_not(excls)
