@@ -85,18 +85,43 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     assert step_size <= window_size
 
     n = (X.shape[1] + step_size) // step_size
-    for i in tqdm(range(n), desc='Indep. pairwise', disable=not verbose):
 
-        right = min(left + window_size, X.shape[1])
-        x = ascontiguousarray(X[:, left:right].T)
+    steps = list(range(n))
 
-        dist = _sq_pearson(x)
+    while len(steps) > 0:
 
-        e = excl[:x.shape[0]]
-        _pdist_threshold(e, dist, threshold)
+        i = 0
+        right = 0
+        while i < len(steps):
 
-        excls[left:right] |= e
+            step = steps[i]
+            left = step * step_size
+            if left < right:
+                i += 1
+                continue
 
-        left += step_size
+            del steps[i]
+            right = min(left + window_size, X.shape[1])
+
+            x = ascontiguousarray(X[:, left:right].T)
+
+            dist = _sq_pearson(x)
+            e = excl[:x.shape[0]]
+            _pdist_threshold(e, dist, threshold)
+            excls[left:right] |= e
+
+    # for i in tqdm(range(n), desc='Indep. pairwise', disable=not verbose):
+    #
+    #     right = min(left + window_size, X.shape[1])
+    #     x = ascontiguousarray(X[:, left:right].T)
+    #
+    #     dist = _sq_pearson(x)
+    #
+    #     e = excl[:x.shape[0]]
+    #     _pdist_threshold(e, dist, threshold)
+    #
+    #     excls[left:right] |= e
+    #
+    #     left += step_size
 
     return logical_not(excls)
