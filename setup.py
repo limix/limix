@@ -25,7 +25,7 @@ def setup_package():
     install_requires = [
         'scikit-learn', 'limix-core>=1.0.1',
         'dask[array,bag,dataframe,delayed]>=0.14',
-        'h5py', 'pandas-plink>=1.1.6', 'limix-legacy', 'glimix-core>=1.2.4',
+        'h5py', 'pandas-plink>=1.1.7', 'limix-legacy', 'glimix-core>=1.2.4',
         'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.18'
     ]
     tests_require = ['pytest', 'pytest-console-scripts']
