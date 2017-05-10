@@ -96,23 +96,24 @@ def plot_manhattan(pv, position=None, posCum=None, chromBounds=None,
 
         .. plot::
 
-            from numpy.random import RandomState
-            from numpy import arange, ones, kron
-            from limix.plot import plot_manhattan
-            from matplotlib import pyplot as plt
-            random = RandomState(1)
-
-            pv = random.rand(5000)
-            pv[1200:1250] = random.rand(50)**4
-
-            chrom  = kron(arange(1,6), ones(1000))
-            pos = kron(ones(5), arange(1,1001))
-
-            fig = plt.figure(1, figsize=(8,3))
-            plt.subplot(111)
-            plot_manhattan(pv, [chrom, pos])
-            plt.tight_layout()
-            plt.show()
+            >>> from numpy.random import RandomState
+            >>> from numpy import arange, ones, kron
+            >>> from limix.plot import plot_manhattan
+            >>> from matplotlib import pyplot as plt
+            >>> random = RandomState(1)
+            >>>
+            >>> pv = random.rand(5000)
+            >>> pv[1200:1250] = random.rand(50)**4
+            >>>
+            >>> chrom  = kron(arange(1,6), ones(1000))
+            >>> pos = kron(ones(5), arange(1,1001))
+            >>>
+            >>> fig = plt.figure(1, figsize=(8,3))
+            >>> plt.subplot(111)
+            >>> plot_manhattan(pv, [chrom, pos])
+            >>> plt.tight_layout()
+            >>>
+            >>> plt.show()
     """
     import matplotlib.pylab as plt
     from limix.util import estCumPos
