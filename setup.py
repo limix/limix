@@ -46,7 +46,7 @@ def setup_package():
 
     metadata = dict(
         name='limix',
-        version='1.0.4',
+        version='1.0.5',
         maintainer="Limix Developers",
         maintainer_email="horta@ebi.ac.uk",
         author=("Christoph Lippert, Danilo Horta, " +
