@@ -12,7 +12,7 @@ def query_and(*queries):
         >>> query3 = 'c == 1'
         >>> query = query_and(query1, query2, query3)
         >>>
-        >>> print query
+        >>> print(query)
         a < b & b >= c & c == 1
     """
     if len(queries) >= 1:
@@ -68,7 +68,7 @@ def build_geno_query(idx_start=None,
         ...                          pos_end=80000,
         ...                          chrom=1)
         >>>
-        >>> print query
+        >>> print(query)
         i >= 4 & i < 10 & pos >= 45200 & pos < 80000 & chrom == '1'
     """
     queries = []

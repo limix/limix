@@ -17,7 +17,7 @@ class BedReader():
     Examples
     --------
 
-    How you define it
+    Basics
 
     .. doctest::
 
@@ -35,7 +35,7 @@ class BedReader():
         3     1   rs2691310  0.0  46844  A  T  3
         4     1   rs4030303  0.0  72434  0  G  4
 
-    How you load genotype values
+    Query and load genotype values into memory:
 
     .. doctest::
 
@@ -63,7 +63,7 @@ class BedReader():
          [ 2.  2.  1.  2.]
          [ 2.  2.  0.  2.]]
 
-    How you do lazy subsetting of genetic variants
+    Lazy subsetting using queries:
 
     .. doctest::
         >>> reader_sub = reader.subset_snps(gquery)
@@ -81,7 +81,7 @@ class BedReader():
          [ 2.  2.  1.  2.]
          [ 2.  2.  0.  2.]]
 
-    You can do it in place as well
+    You can do it in place as well:
 
     .. doctest::
         >>> query1 = build_geno_query(pos_start=72500, pos_end=78000)

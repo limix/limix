@@ -23,5 +23,5 @@ class GIter:
             self.current = _end
             return rv
 
-    def next(self): # for python2 compatibility
+    def next(self):  # for python2 compatibility
         return self.__next__()
