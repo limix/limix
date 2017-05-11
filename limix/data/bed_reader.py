@@ -5,42 +5,6 @@ from limix.io import read_plink
 from sklearn.preprocessing import Imputer
 
 
-def build_query(idx_start=None,
-                idx_end=None,
-                pos_start=None,
-                pos_end=None,
-                chrom=None):
-    queries = []
-
-    # gather all queries
-    if idx_start is not None:
-        query = "i >= %d" % idx_start
-        queries.append(query)
-
-    if idx_end is not None:
-        query = "i < %d" % idx_end
-        queries.append(query)
-
-    if pos_start is not None:
-        query = "pos >= %d" % pos_start
-        queries.append(query)
-
-    if pos_end is not None:
-        query = "pos <% d" % pos_end
-        queries.append(query)
-
-    if chrom is not None:
-        query = "chrom == '%s'" % str(chrom)
-        queries.append(query)
-
-    if len(queries) >= 1:
-        query = ' & '.join(queries)
-    else:
-        query = None
-
-    return query
-
-
 class BedReader():
     r"""
     Class to read and make queries on plink binary files.
@@ -57,7 +21,8 @@ class BedReader():
 
     .. doctest::
 
-        >>> from limix.data.bed_reader import BedReader
+        >>> from limix.data import BedReader
+        >>> from limix.data import build_geno_query
         >>> from pandas_plink import example_file_prefix
         >>>
         >>> reader = BedReader(example_file_prefix())
@@ -74,11 +39,15 @@ class BedReader():
 
     .. doctest::
 
-        >>> X, snpinfo = reader.getGenotypes(idx_start=4,
-        ...                                  idx_end=10,
-        ...                                  pos_start=45200,
-        ...                                  pos_end=80000,
-        ...                                  chrom=1,
+        >>> # build genotype query
+        >>> gquery = build_geno_query(idx_start=4,
+        ...                           idx_end=10,
+        ...                           pos_start=45200,
+        ...                           pos_end=80000,
+        ...                           chrom=1)
+        >>>
+        >>> # apply geno query and impute
+        >>> X, snpinfo = reader.getGenotypes(gquery,
         ...                                  impute=True,
         ...                                  return_snpinfo=True)
         >>>
@@ -97,11 +66,7 @@ class BedReader():
     How you do lazy subsetting of genetic variants 
 
     .. doctest::
-        >>> reader_sub = reader.subset_snps(idx_start=4,
-        ...                                 idx_end=10,
-        ...                                 pos_start=45200,
-        ...                                 pos_end=80000,
-        ...                                 chrom=1)
+        >>> reader_sub = reader.subset_snps(gquery)
         >>>
         >>> print(reader_sub.getSnpInfo().head())
           chrom        snp   cm    pos a0 a1  i
@@ -119,9 +84,9 @@ class BedReader():
     You can do it in place as well 
 
     .. doctest::
-        >>> reader_sub.subset_snps(pos_start=72500,
-        ...                        pos_end=78000,
-        ...                        inplace=True)
+        >>> query1 = build_geno_query(pos_start=72500, pos_end=78000)
+        >>>
+        >>> reader_sub.subset_snps(query1, inplace=True)
         >>>
         >>> print(reader_sub.getSnpInfo())
           chrom        snp   cm    pos a0 a1  i
@@ -178,38 +143,15 @@ class BedReader():
         """
         return self._snpinfo
 
-    def subset_snps(self,
-                    idx_start=None,
-                    idx_end=None,
-                    pos_start=None,
-                    pos_end=None,
-                    chrom=None,
-                    inplace=False):
+    def subset_snps(self, query=None, inplace=False):
         r""" Builds a new bed reader with filtered variants.
 
         Parameters
         ----------
-        idx_start : int, optional
-            start idx.
-            If not None (default),
-            the query 'idx >= idx_start' is considered.
-        idx_end : int, optional
-            end idx.
-            If not None (default),
-            the query 'idx < idx_end' is considered.
-        pos_start : int, optional
-            start chromosomal position.
-            If not None (default),
-            the query 'pos >= pos_start' is considered.
-        pos_end : int, optional
-            end chromosomal position.
-            If not None (default),
-            the query 'pos < pos_end' is considered.
-        chrom : int, optional
-            chromosome.
-            If not None (default),
-            the query 'chrom == chrom' is considered.
-        copy : bool
+        query : str 
+            pandas query on the bim file.
+            The default value is None.
+        inplace : bool
             If True, the operation is done in place.
             Default is False.
 
@@ -220,11 +162,6 @@ class BedReader():
                 (if inplace is False).
         """
         # query
-        query = build_query(idx_start=idx_start,
-                            idx_end=idx_end,
-                            pos_start=pos_start,
-                            pos_end=pos_end,
-                            chrom=chrom)
         geno, snpinfo = self._query(query)
         snpinfo = snpinfo.assign(i=pd.Series(sp.arange(snpinfo.shape[0]),
                                              index=snpinfo.index))
@@ -242,11 +179,7 @@ class BedReader():
             return R
 
     def getGenotypes(self,
-                     idx_start=None,
-                     idx_end=None,
-                     pos_start=None,
-                     pos_end=None,
-                     chrom=None,
+                     query=None,
                      impute=False,
                      standardize=False,
                      return_snpinfo=False):
@@ -254,26 +187,9 @@ class BedReader():
 
         Parameters
         ----------
-        idx_start : int, optional
-            start idx.
-            If not None (default),
-            the query 'idx >= idx_start' is considered.
-        idx_end : int, optional
-            end idx.
-            If not None (default),
-            the query 'idx < idx_end' is considered.
-        pos_start : int, optional
-            start chromosomal position.
-            If not None (default),
-            the query 'pos >= pos_start' is considered.
-        pos_end : int, optional
-            end chromosomal position.
-            If not None (default),
-            the query 'pos < pos_end' is considered.
-        chrom : int, optional
-            chromosome.
-            If not None (default),
-            the query 'chrom == chrom' is considered.
+        query : str 
+            pandas query on the bim file.
+            The default is None.
         impute : bool, optional
             list of chromosomes.
             If True,
@@ -301,11 +217,6 @@ class BedReader():
             impute = True
 
         # query
-        query = build_query(idx_start=idx_start,
-                            idx_end=idx_end,
-                            pos_start=pos_start,
-                            pos_end=pos_end,
-                            chrom=chrom)
         geno, snpinfo = self._query(query)
 
         # compute
