@@ -17,7 +17,7 @@ class BedReader():
     Examples
     --------
 
-    How you define it 
+    How you define it
 
     .. doctest::
 
@@ -63,7 +63,7 @@ class BedReader():
          [ 2.  2.  1.  2.]
          [ 2.  2.  0.  2.]]
 
-    How you do lazy subsetting of genetic variants 
+    How you do lazy subsetting of genetic variants
 
     .. doctest::
         >>> reader_sub = reader.subset_snps(gquery)
@@ -81,7 +81,7 @@ class BedReader():
          [ 2.  2.  1.  2.]
          [ 2.  2.  0.  2.]]
 
-    You can do it in place as well 
+    You can do it in place as well
 
     .. doctest::
         >>> query1 = build_geno_query(pos_start=72500, pos_end=78000)
@@ -148,7 +148,7 @@ class BedReader():
 
         Parameters
         ----------
-        query : str 
+        query : str
             pandas query on the bim file.
             The default value is None.
         inplace : bool
@@ -187,7 +187,7 @@ class BedReader():
 
         Parameters
         ----------
-        query : str 
+        query : str
             pandas query on the bim file.
             The default is None.
         impute : bool, optional

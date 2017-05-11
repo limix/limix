@@ -21,6 +21,7 @@ def query_and(*queries):
         query = None
     return query
 
+
 def build_geno_query(idx_start=None,
                      idx_end=None,
                      pos_start=None,
@@ -59,7 +60,7 @@ def build_geno_query(idx_start=None,
     Examples
     --------
     .. doctest::
-        >>> from limix.data import build_geno_query 
+        >>> from limix.data import build_geno_query
         >>>
         >>> query = build_geno_query(idx_start=4,
         ...                          idx_end=10,
