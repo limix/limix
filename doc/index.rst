@@ -9,6 +9,7 @@ Limix's documentation
 
    install
    qtl
+   heritability
    varDecomp
    mtSet
    iSet
