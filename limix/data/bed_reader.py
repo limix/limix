@@ -53,7 +53,7 @@ class BedReader():
     Examples
     --------
 
-    Basic example of usage.
+    How you define it 
 
     .. doctest::
 
@@ -69,7 +69,11 @@ class BedReader():
         2     1   rs2949421  0.0  45413  0  0  2
         3     1   rs2691310  0.0  46844  A  T  3
         4     1   rs4030303  0.0  72434  0  G  4
-        >>>
+
+    How you load genotype values
+
+    .. doctest::
+
         >>> X, snpinfo = reader.getGenotypes(idx_start=4,
         ...                                  idx_end=10,
         ...                                  pos_start=45200,
@@ -80,17 +84,17 @@ class BedReader():
         >>>
         >>> print(snpinfo)
           chrom        snp   cm    pos a0 a1  i
-        4     1  rs4030303  0.0  72434  0  G  4
-        5     1  rs4030300  0.0  72515  0  C  5
-        6     1  rs3855952  0.0  77689  G  A  6
-        7     1   rs940550  0.0  78032  0  T  7
+        0     1  rs4030303  0.0  72434  0  G  4
+        1     1  rs4030300  0.0  72515  0  C  5
+        2     1  rs3855952  0.0  77689  G  A  6
+        3     1   rs940550  0.0  78032  0  T  7
         >>>
         >>> print(X)
         [[ 2.  2.  2.  2.]
          [ 2.  2.  1.  2.]
          [ 2.  2.  0.  2.]]
 
-    Example of lazt selection using subsampling.
+    How you do lazy subsetting of genetic variants 
 
     .. doctest::
         >>> reader_sub = reader.subset_snps(idx_start=4,
@@ -98,12 +102,41 @@ class BedReader():
         ...                                 pos_start=45200,
         ...                                 pos_end=80000,
         ...                                 chrom=1)
-        >>> X, snpinfo = reader_sub.getGenotypes(impute=True,
-        ...                                      return_snpinfo=True)
-        >>> print(X)
+        >>>
+        >>> print(reader_sub.getSnpInfo().head())
+          chrom        snp   cm    pos a0 a1  i
+        0     1  rs4030303  0.0  72434  0  G  0
+        1     1  rs4030300  0.0  72515  0  C  1
+        2     1  rs3855952  0.0  77689  G  A  2
+        3     1   rs940550  0.0  78032  0  T  3
+        >>>
+        >>> # only when using getGenotypes, the genotypes are loaded
+        >>> print( reader_sub.getGenotypes( impute=True ) )
         [[ 2.  2.  2.  2.]
          [ 2.  2.  1.  2.]
          [ 2.  2.  0.  2.]]
+
+    You can do it in place as well 
+
+    .. doctest::
+        >>> reader_sub.subset_snps(pos_start=72500,
+        ...                        pos_end=78000,
+        ...                        inplace=True)
+        >>>
+        >>> print(reader_sub.getSnpInfo())
+          chrom        snp   cm    pos a0 a1  i
+        0     1  rs4030300  0.0  72515  0  C  0
+        1     1  rs3855952  0.0  77689  G  A  1
+
+    and you can even iterate on genotypes to enable
+    low-memory genome-wide analyses.
+
+    .. doctest::
+        >>> 
+        >>>
+
+    Have fun!
+
     """
 
     def __init__(self, prefix):
@@ -167,7 +200,8 @@ class BedReader():
         Returns
         -------
             R : :class:`limix.BedReader`
-                Bed reader with filtered variants.
+                Bed reader with filtered variants
+                (if inplace is False).
         """
         # query
         query = build_query(idx_start=idx_start,
@@ -175,19 +209,21 @@ class BedReader():
                             pos_start=pos_start,
                             pos_end=pos_end,
                             chrom=chrom)
-        X, snpinfo = self._query(query)
+        geno, snpinfo = self._query(query)
+        snpinfo = snpinfo.assign(i=pd.Series(sp.arange(snpinfo.shape[0]),
+                                             index=snpinfo.index))
 
-        if not inplace:
+        if inplace:
+            # replace
+            self._geno = geno
+            self._snpinfo = snpinfo
+        else:
             # copy (note the first copy is not deep)
             R = copy.copy(self)
             R._ind_info = copy.copy(self._ind_info)
-        else:
-            # replace
-            R = self
-        R._geno = X
-        R._snpinfo = snpinfo
-
-        return R
+            R._geno = geno
+            R._snpinfo = snpinfo
+            return R
 
     def getGenotypes(self,
                      idx_start=None,
@@ -254,10 +290,10 @@ class BedReader():
                             pos_start=pos_start,
                             pos_end=pos_end,
                             chrom=chrom)
-        X, snpinfo = self._query(query)
+        geno, snpinfo = self._query(query)
 
         # compute
-        X = X.compute().T
+        X = geno.compute().T
 
         # impute and standardize
         if impute:
@@ -277,5 +313,6 @@ class BedReader():
         if query is None:
             return self._geno, self._snpinfo
         snpinfo = self._snpinfo.query(query)
+        snpinfo.reset_index(inplace=True, drop=True)
         geno = self._geno[snpinfo.i, :]
         return geno, snpinfo
