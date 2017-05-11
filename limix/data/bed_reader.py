@@ -132,8 +132,15 @@ class BedReader():
     low-memory genome-wide analyses.
 
     .. doctest::
-        >>> 
+        >>> from limix.data import GIter
         >>>
+        >>> for gr in GIter(reader, batch_size=2):
+        ...     print(gr.getGenotypes().shape)
+        (3, 2)
+        (3, 2)
+        (3, 2)
+        (3, 2)
+        (3, 2)
 
     Have fun!
 
@@ -155,6 +162,15 @@ class BedReader():
                                 strategy='mean',
                                 axis=0,
                                 copy=False)
+
+    def __str__(self):
+        rv = '<' + str(self.__class__)
+        rv += ' instance at '
+        rv += hex(id(self)) + '>\n'
+        rv += 'File: ' + self._prefix + '\n'
+        rv += 'Dims: %d inds, %d snps' % (self._geno.shape[1],
+                                          self._geno.shape[0])
+        return rv
 
     def getSnpInfo(self):
         r"""
@@ -296,6 +312,7 @@ class BedReader():
         X = geno.compute().T
 
         # impute and standardize
+        import pdb
         if impute:
             X = self._imputer.fit_transform(X)
 
