@@ -13,7 +13,7 @@ class GIter:
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if self.current >= self.end:
             raise StopIteration
         else:
@@ -22,3 +22,6 @@ class GIter:
             rv = self.gr.subset_snps(query)
             self.current = _end
             return rv
+
+    def next(self): # for python2 compatibility
+        return self.__next__()
