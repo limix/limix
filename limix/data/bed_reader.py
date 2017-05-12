@@ -66,6 +66,7 @@ class BedReader():
     Lazy subsetting using queries:
 
     .. doctest::
+
         >>> reader_sub = reader.subset_snps(gquery)
         >>>
         >>> print(reader_sub.getSnpInfo().head())
@@ -84,6 +85,7 @@ class BedReader():
     You can do it in place as well:
 
     .. doctest::
+
         >>> query1 = build_geno_query(pos_start=72500, pos_end=78000)
         >>>
         >>> reader_sub.subset_snps(query1, inplace=True)
@@ -97,6 +99,7 @@ class BedReader():
     low-memory genome-wide analyses.
 
     .. doctest::
+
         >>> from limix.data import GIter
         >>>
         >>> for gr in GIter(reader, batch_size=2):
