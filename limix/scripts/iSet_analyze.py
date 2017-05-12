@@ -7,9 +7,9 @@ def entry_point():
     import pandas as pd
     import scipy as sp
 
-    from limix.data import BedReader
-    from limix.iSet.iset import fit_iSet
-    from limix.util import unique_variants as f_uni_variants
+    from ..data import BedReader
+    from ..iSet.iset import fit_iSet
+    from ..util import unique_variants as f_uni_variants
 
     parser = OptionParser()
     parser.add_option("--bfile", dest='bfile', type=str, default=None)
