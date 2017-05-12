@@ -3,13 +3,26 @@ r"""
 Plotting utilities
 ******************
 
-- :func:`.plot_manhattan`
-- :func:`.qqplot`
-- :func:`.plot_normal`
-- :func:`.plot_kinship`
+Manhattan
+^^^^^^^^^
 
-Public interface
-^^^^^^^^^^^^^^^^
+.. autofunction:: limix.plot.plot_manhattan
+
+QQ plot
+^^^^^^^
+
+.. autofunction:: limix.plot.qqplot
+
+Kinship
+^^^^^^^
+
+.. autofunction:: limix.plot.plot_kinship
+
+Normal distribution
+^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: limix.plot.plot_normal
+
 """
 
 from .plot_normal import plot_normal
