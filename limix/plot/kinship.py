@@ -14,7 +14,7 @@ def plot_kinship(K):
 
     .. plot::
 
-        from limix.io.numpy import see_kinship
+        from limix.io.npy import see_kinship
         from limix.io.examples import numpy_kinship_file_example
 
         see_kinship(numpy_kinship_file_example())
