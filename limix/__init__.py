@@ -13,7 +13,8 @@ import limix_core as core
 from pkg_resources import DistributionNotFound as _DistributionNotFound
 from pkg_resources import get_distribution as _get_distribution
 
-from . import io, iSet, mtSet, plot, qtl, scripts, stats, util, varDecomp
+from . import (heritability, io, iSet, mtSet, plot, qtl, scripts, stats, util,
+               varDecomp)
 from .mtSet import MTSet
 
 try:
@@ -42,5 +43,5 @@ def test():
 
 __all__ = [
     'test', 'core', 'io', 'plot', 'qtl', 'stats', 'util', 'varDecomp', 'mtSet',
-    'iSet', 'scripts', 'MTSet'
+    'iSet', 'scripts', 'MTSet', 'heritability'
 ]
