@@ -1,7 +1,23 @@
 from numpy import asarray
 
 
-def plot_kinship(K, title=''):
+def plot_kinship(K):
+    r"""Plot Kinship matrix.
+
+    Parameters
+    ----------
+    K : array_like
+        Kinship matrix.
+
+    Examples
+    --------
+
+    .. plot::
+
+        import limix
+        import os
+        limix.io.numpy.see_kinship(os.getcwd() + '/data/1000G_kinship.npy')
+    """
     from matplotlib import pyplot as plt
     from matplotlib import cm as cm
 

@@ -6,6 +6,7 @@ Plotting utilities
 - :func:`.plot_manhattan`
 - :func:`.qqplot`
 - :func:`.plot_normal`
+- :func:`.plot_kinship`
 
 Public interface
 ^^^^^^^^^^^^^^^^
