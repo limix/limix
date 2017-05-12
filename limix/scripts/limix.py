@@ -8,6 +8,8 @@ def do_see(args):
 
     if ft == 'hdf5':
         limix.io.hdf5.see(args.file, show_chunks=args.show_chunks)
+    elif ft == 'csv':
+        limix.io.csv.see(args.file)
     else:
         print("Unknown file type: %s." % args.file)
 

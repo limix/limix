@@ -29,3 +29,19 @@ def read_csv(filename):
     df = _read_csv(filename)
     df.set_index(df.columns[0], inplace=True)
     return df
+
+def see(filepath):
+    """Shows a human-friendly representation of a CSV file.
+
+    Parameters
+    ----------
+    filepath : str
+        CSV file path.
+
+    Returns
+    -------
+    str
+        CSV representation.
+    """
+    from pandas import read_csv
+    print(read_csv(filepath).head())
