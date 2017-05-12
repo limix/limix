@@ -12,42 +12,27 @@ def do_see(args):
         print("Unknown file type: %s." % args.file)
 
 
-def parse_see(args):
-    p = ArgumentParser(prog='limix')
-    p.add_argument('file')
-    p.add_argument(['-h', '--help'], dest='help', action='store_true')
-    p.add_argument('--show-chunks', dest='show_chunks', action='store_true')
-    p.set_defaults(help=False)
-    p.set_defaults(show_chunks=False)
-
-    args = p.parse_args(args)
-
-    if args.help:
-        p.print_help()
-    else:
-        do_see(args)
-
+def see_parser(parser):
+    parser.add_argument('file', help='file path')
+    parser.add_argument(
+        '--show-chunks',
+        dest='show_chunks',
+        action='store_true',
+        help='show chunk information')
+    parser.set_defaults(show_chunks=False)
+    parser.set_defaults(func=do_see)
+    return parser
 
 def entry_point():
     p = ArgumentParser()
 
-    sub = p.add_subparsers(title='subcommands')
+    subparsers = p.add_subparsers(title='subcommands')
+    see_parser(subparsers.add_parser('see'))
 
-    s = sub.add_parser('see')
-    s.add_argument('file', help='file path')
-    s.add_argument('--show-chunks', dest='show_chunks', action='store_true',
-                   help='show chunk information')
-    s.set_defaults(show_chunks=False)
-
-    # s.set_defaults(func=parse_see)
-    #
     args = p.parse_args()
-    # args, rargs = p.parse_known_args()
-
-    #
-    # if hasattr(args, 'func'):
-    #     func = args.func
-    #     del args.func
-    #     func(rargs)
-    # else:
-    #     p.print_help()
+    if hasattr(args, 'func'):
+        func = args.func
+        del args.func
+        func(args)
+    else:
+        p.print_help()
