@@ -10,6 +10,10 @@ def do_see(args):
         limix.io.hdf5.see(args.file, show_chunks=args.show_chunks)
     elif ft == 'csv':
         limix.io.csv.see(args.file)
+    elif ft == 'grm.raw':
+        limix.io.plink.see_kinship(args.file)
+    elif ft == 'npy':
+        limix.io.numpy.see_kinship(args.file)
     else:
         print("Unknown file type: %s." % args.file)
 

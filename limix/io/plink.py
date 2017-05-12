@@ -1,3 +1,5 @@
+from numpy import loadtxt
+
 def read_plink(prefix, verbose=True):
     r"""
     Read PLINK files into Pandas data frames.
@@ -72,3 +74,14 @@ def read_plink(prefix, verbose=True):
     """
     from pandas_plink import read_plink
     return read_plink(prefix, verbose=verbose)
+
+def read_grm_raw(filepath):
+    return loadtxt(filepath)
+
+def see_kinship(filepath):
+    import limix
+
+    if filepath.endswith('.grm.raw'):
+        K = read_grm_raw(filepath)
+
+    limix.plot.plot_kinship(K)
