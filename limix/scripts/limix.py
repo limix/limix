@@ -13,7 +13,7 @@ def do_see(args):
     elif ft == 'grm.raw':
         limix.io.plink.see_kinship(args.file)
     elif ft == 'npy':
-        limix.io.numpy.see_kinship(args.file)
+        limix.io.npy.see_kinship(args.file)
     else:
         print("Unknown file type: %s." % args.file)
 
