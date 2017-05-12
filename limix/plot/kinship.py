@@ -14,9 +14,10 @@ def plot_kinship(K):
 
     .. plot::
 
-        import limix
-        import os
-        limix.io.numpy.see_kinship(os.getcwd() + '/data/1000G_kinship.npy')
+        from limix.io.numpy import see_kinship
+        from limix.io.examples import numpy_kinship_file_example
+
+        see_kinship(numpy_kinship_file_example())
     """
     from matplotlib import pyplot as plt
     from matplotlib import cm as cm
