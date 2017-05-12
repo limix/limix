@@ -1,6 +1,5 @@
-import h5py
-
 import asciitree
+import h5py
 
 
 class h5data_fetcher(object):
@@ -103,6 +102,7 @@ def _visititems(root, func, level=0, prefix=''):
             _visititems(root[k], func, level + 1, prefix)
         else:
             _visititems(root[k], func, 0, prefix + root.name)
+
 
 def _tree(f, root_name='/', ret=False, show_chunks=False):
     _names = []

@@ -30,6 +30,7 @@ def read_csv(filename):
     df.set_index(df.columns[0], inplace=True)
     return df
 
+
 def see(filepath):
     """Shows a human-friendly representation of a CSV file.
 

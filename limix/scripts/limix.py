@@ -29,6 +29,7 @@ def see_parser(parser):
     parser.set_defaults(func=do_see)
     return parser
 
+
 def entry_point():
     p = ArgumentParser()
 
