@@ -3,13 +3,26 @@ r"""
 I/O module
 **********
 
-- :func:`.read_plink`
-- :class:`.h5data_fetcher`
-- :func:`.read_csv`
-- :func:`.read_gen`
+PLINK reader
+^^^^^^^^^^^^
 
-Public interface
-^^^^^^^^^^^^^^^^
+.. autofunction:: limix.io.read_plink
+
+HDF5 reader
+^^^^^^^^^^^
+
+.. :autoclass:: limix.io.h5data_fetcher
+
+CSV reader
+^^^^^^^^^^
+
+.. autofunction:: limix.io.read_csv
+
+GEN reader
+^^^^^^^^^^
+
+.. autofunction:: limix.io.read_gen
+
 """
 
 from . import examples

@@ -5,8 +5,11 @@ Heritability estimation
 
 - :func:`.estimate`
 
-Public interface
-^^^^^^^^^^^^^^^^
+Heritability
+^^^^^^^^^^^^
+
+.. autofunction:: limix.heritability.estimate
+
 """
 
 from .estimate import estimate
