@@ -3,17 +3,27 @@ r"""
 Single-variant testing
 **********************
 
-- :func:`.qtl_test_lm`
-- :func:`.qtl_test_lmm`
-- :func:`.qtl_test_glmm`
-- :func:`.qtl_test_lmm_kronecker`
-- :func:`.qtl_test_interaction_lmm_kronecker`
-- :func:`.qtl_test_interaction_lmm`
-- :func:`.forward_lmm`
-- :class:`.LMM`
+Linear models
+^^^^^^^^^^^^^
 
-Public interface
-^^^^^^^^^^^^^^^^
+.. autofunction:: limix.qtl.qtl_test_lm
+
+Linear mixed models
+^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: limix.qtl.qtl_test_lmm
+.. autofunction:: limix.qtl.qtl_test_interaction_lmm
+.. autofunction:: limix.qtl.qtl_test_lmm_kronecker
+.. autofunction:: limix.qtl.qtl_test_interaction_lmm_kronecker
+.. autofunction:: limix.qtl.forward_lmm
+.. autoclass:: limix.qtl.LMM
+  :members:
+
+Generalised linear mixed models
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: limix.qtl.qtl_test_glmm
+
 """
 
 from .qtl import qtl_test_lm

@@ -2,7 +2,7 @@ from optparse import OptionParser
 
 
 def entry_point():
-    from limix.mtSet.core.simPhenoCore import simPheno
+    from ..mtSet.core.simPhenoCore import simPheno
 
     parser = OptionParser()
     parser.add_option("--bfile", dest='bfile', type=str, default=None)

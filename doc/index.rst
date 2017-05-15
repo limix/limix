@@ -8,6 +8,7 @@ Limix's documentation
    :maxdepth: 2
 
    install
+   cmd
    qtl
    heritability
    varDecomp

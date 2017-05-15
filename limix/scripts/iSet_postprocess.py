@@ -1,6 +1,6 @@
 def entry_point():
     from optparse import OptionParser
-    from limix.mtSet.core.iset_utils import calc_emp_pv_eff
+    from ..mtSet.core.iset_utils import calc_emp_pv_eff
     import pandas as pd
     import glob
     import os
