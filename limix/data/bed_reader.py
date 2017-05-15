@@ -1,5 +1,6 @@
 import scipy as sp
 import pandas as pd
+import copy
 from limix.io import read_plink
 from sklearn.preprocessing import Imputer
 
@@ -15,9 +16,13 @@ class BedReader():
 
     Examples
     --------
+
+    Basics
+
     .. doctest::
 
-        >>> from limix.data.bed_reader import BedReader
+        >>> from limix.data import BedReader
+        >>> from limix.data import build_geno_query
         >>> from pandas_plink import example_file_prefix
         >>>
         >>> reader = BedReader(example_file_prefix())
@@ -29,26 +34,84 @@ class BedReader():
         2     1   rs2949421  0.0  45413  0  0  2
         3     1   rs2691310  0.0  46844  A  T  3
         4     1   rs4030303  0.0  72434  0  G  4
+
+    Query and load genotype values into memory:
+
+    .. doctest::
+
+        >>> # build genotype query
+        >>> gquery = build_geno_query(idx_start=4,
+        ...                           idx_end=10,
+        ...                           pos_start=45200,
+        ...                           pos_end=80000,
+        ...                           chrom=1)
         >>>
-        >>> X, snpinfo = reader.getGenotypes(idx_start=4,
-        ...                                  idx_end=10,
-        ...                                  pos_start=45200,
-        ...                                  pos_end=80000,
-        ...                                  chrom=1,
+        >>> # apply geno query and impute
+        >>> X, snpinfo = reader.getGenotypes(gquery,
         ...                                  impute=True,
         ...                                  return_snpinfo=True)
         >>>
         >>> print(snpinfo)
           chrom        snp   cm    pos a0 a1  i
-        4     1  rs4030303  0.0  72434  0  G  4
-        5     1  rs4030300  0.0  72515  0  C  5
-        6     1  rs3855952  0.0  77689  G  A  6
-        7     1   rs940550  0.0  78032  0  T  7
+        0     1  rs4030303  0.0  72434  0  G  4
+        1     1  rs4030300  0.0  72515  0  C  5
+        2     1  rs3855952  0.0  77689  G  A  6
+        3     1   rs940550  0.0  78032  0  T  7
         >>>
         >>> print(X)
         [[ 2.  2.  2.  2.]
          [ 2.  2.  1.  2.]
          [ 2.  2.  0.  2.]]
+
+    Lazy subsetting using queries:
+
+    .. doctest::
+
+        >>> reader_sub = reader.subset_snps(gquery)
+        >>>
+        >>> print(reader_sub.getSnpInfo().head())
+          chrom        snp   cm    pos a0 a1  i
+        0     1  rs4030303  0.0  72434  0  G  0
+        1     1  rs4030300  0.0  72515  0  C  1
+        2     1  rs3855952  0.0  77689  G  A  2
+        3     1   rs940550  0.0  78032  0  T  3
+        >>>
+        >>> # only when using getGenotypes, the genotypes are loaded
+        >>> print( reader_sub.getGenotypes( impute=True ) )
+        [[ 2.  2.  2.  2.]
+         [ 2.  2.  1.  2.]
+         [ 2.  2.  0.  2.]]
+
+    You can do it in place as well:
+
+    .. doctest::
+
+        >>> query1 = build_geno_query(pos_start=72500, pos_end=78000)
+        >>>
+        >>> reader_sub.subset_snps(query1, inplace=True)
+        >>>
+        >>> print(reader_sub.getSnpInfo())
+          chrom        snp   cm    pos a0 a1  i
+        0     1  rs4030300  0.0  72515  0  C  0
+        1     1  rs3855952  0.0  77689  G  A  1
+
+    and you can even iterate on genotypes to enable
+    low-memory genome-wide analyses.
+
+    .. doctest::
+
+        >>> from limix.data import GIter
+        >>>
+        >>> for gr in GIter(reader, batch_size=2):
+        ...     print(gr.getGenotypes().shape)
+        (3, 2)
+        (3, 2)
+        (3, 2)
+        (3, 2)
+        (3, 2)
+
+    Have fun!
+
     """
 
     def __init__(self, prefix):
@@ -68,18 +131,58 @@ class BedReader():
                                 axis=0,
                                 copy=False)
 
+    def __str__(self):
+        rv = '<' + str(self.__class__)
+        rv += ' instance at '
+        rv += hex(id(self)) + '>\n'
+        rv += 'File: ' + self._prefix + '\n'
+        rv += 'Dims: %d inds, %d snps' % (self._geno.shape[1],
+                                          self._geno.shape[0])
+        return rv
+
     def getSnpInfo(self):
         r"""
         Return pandas dataframe with all variant info.
         """
         return self._snpinfo
 
+    def subset_snps(self, query=None, inplace=False):
+        r""" Builds a new bed reader with filtered variants.
+
+        Parameters
+        ----------
+        query : str
+            pandas query on the bim file.
+            The default value is None.
+        inplace : bool
+            If True, the operation is done in place.
+            Default is False.
+
+        Returns
+        -------
+            R : :class:`limix.BedReader`
+                Bed reader with filtered variants
+                (if inplace is False).
+        """
+        # query
+        geno, snpinfo = self._query(query)
+        snpinfo = snpinfo.assign(i=pd.Series(sp.arange(snpinfo.shape[0]),
+                                             index=snpinfo.index))
+
+        if inplace:
+            # replace
+            self._geno = geno
+            self._snpinfo = snpinfo
+        else:
+            # copy (note the first copy is not deep)
+            R = copy.copy(self)
+            R._ind_info = copy.copy(self._ind_info)
+            R._geno = geno
+            R._snpinfo = snpinfo
+            return R
+
     def getGenotypes(self,
-                     idx_start=None,
-                     idx_end=None,
-                     pos_start=None,
-                     pos_end=None,
-                     chrom=None,
+                     query=None,
                      impute=False,
                      standardize=False,
                      return_snpinfo=False):
@@ -87,26 +190,9 @@ class BedReader():
 
         Parameters
         ----------
-        idx_start : int, optional
-            start idx.
-            If not None (default),
-            the query 'idx >= idx_start' is considered.
-        idx_end : int, optional
-            end idx.
-            If not None (default),
-            the query 'idx < idx_end' is considered.
-        pos_start : int, optional
-            start chromosomal position.
-            If not None (default),
-            the query 'pos >= pos_start' is considered.
-        pos_end : int, optional
-            end chromosomal position.
-            If not None (default),
-            the query 'pos < pos_end' is considered.
-        chrom : int, optional
-            chromosome.
-            If not None (default),
-            the query 'chrom == chrom' is considered.
+        query : str
+            pandas query on the bim file.
+            The default is None.
         impute : bool, optional
             list of chromosomes.
             If True,
@@ -133,41 +219,14 @@ class BedReader():
         if standardize:
             impute = True
 
-        queries = []
+        # query
+        geno, snpinfo = self._query(query)
 
-        # gather all queries
-        if idx_start is not None:
-            query = "i >= %d" % idx_start
-            queries.append(query)
-
-        if idx_end is not None:
-            query = "i < %d" % idx_end
-            queries.append(query)
-
-        if pos_start is not None:
-            query = "pos >= %d" % pos_start
-            queries.append(query)
-
-        if pos_end is not None:
-            query = "pos <% d" % pos_end
-            queries.append(query)
-
-        if chrom is not None:
-            query = "chrom == '%s'" % str(chrom)
-            queries.append(query)
-
-        # load and query genotype data
-
-        if len(queries) >= 1:
-            query = ' & '.join(queries)
-            snpinfo = self._snpinfo.query(query)
-            X = self._geno[snpinfo.i, :].compute().T
-        else:
-            snpinfo = self._snpinfo.copy()
-            X = self._geno.compute().T
+        # compute
+        X = geno.compute().T
 
         # impute and standardize
-
+        import pdb
         if impute:
             X = self._imputer.fit_transform(X)
 
@@ -180,3 +239,11 @@ class BedReader():
             return X, snpinfo
         else:
             return X
+
+    def _query(self, query):
+        if query is None:
+            return self._geno, self._snpinfo
+        snpinfo = self._snpinfo.query(query)
+        snpinfo.reset_index(inplace=True, drop=True)
+        geno = self._geno[snpinfo.i, :]
+        return geno, snpinfo

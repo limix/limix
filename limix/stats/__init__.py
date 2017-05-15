@@ -3,17 +3,34 @@ r"""
 Statistics
 **********
 
-- :func:`.pca`
-- :func:`.boxcox`
-- :func:`.gower_norm`
-- :func:`.qvalues`
-- :func:`.empirical_pvalues`
-- :class:`.Chi2mixture`
-- :func:`.indep_pairwise`
-- :func:`.maf`
+PCA
+^^^
 
-Public interface
-^^^^^^^^^^^^^^^^
+.. autofunction:: limix.stats.pca
+
+Normalization
+^^^^^^^^^^^^^
+
+.. autofunction:: limix.stats.boxcox
+
+P-values
+^^^^^^^^
+
+.. autofunction:: limix.stats.qvalues
+.. autofunction:: limix.stats.empirical_pvalues
+
+Kinship processing
+^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: limix.stats.gower_norm
+.. autofunction:: limix.stats.indep_pairwise
+.. autofunction:: limix.stats.maf
+
+Chi2
+^^^^
+
+.. autofunction:: limix.stats.Chi2mixture
+
 """
 
 from .chi2mixture import Chi2mixture
