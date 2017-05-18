@@ -39,16 +39,16 @@ def read_plink(prefix, verbose=True):
         1  Sample_2  Sample_2         0         0      2    -9  1
         2  Sample_3  Sample_3  Sample_1  Sample_2      2    -9  2
         >>> print(bed.compute())
-        [[2 2 1]
-         [2 1 2]
-         [3 3 3]
-         [3 3 1]
-         [2 2 2]
-         [2 2 2]
-         [2 1 0]
-         [2 2 2]
-         [1 2 2]
-         [2 1 2]]
+        [[  2.   2.   1.]
+         [  2.   1.   2.]
+         [ nan  nan  nan]
+         [ nan  nan   1.]
+         [  2.   2.   2.]
+         [  2.   2.   2.]
+         [  2.   1.   0.]
+         [  2.   2.   2.]
+         [  1.   2.   2.]
+         [  2.   1.   2.]]
 
     Notice the ``i`` column in bim and fam data frames. It maps to the
     corresponding position of the bed matrix:
@@ -62,16 +62,16 @@ def read_plink(prefix, verbose=True):
         >>> chrom1 = bim.query("chrom=='1'")
         >>> X = bed[chrom1.i,:].compute()
         >>> print(X) #doctest: +NORMALIZE_WHITESPACE
-        [[2 2 1]
-         [2 1 2]
-         [3 3 3]
-         [3 3 1]
-         [2 2 2]
-         [2 2 2]
-         [2 1 0]
-         [2 2 2]
-         [1 2 2]
-         [2 1 2]]
+        [[  2.   2.   1.]
+         [  2.   1.   2.]
+         [ nan  nan  nan]
+         [ nan  nan   1.]
+         [  2.   2.   2.]
+         [  2.   2.   2.]
+         [  2.   1.   0.]
+         [  2.   2.   2.]
+         [  1.   2.   2.]
+         [  2.   1.   2.]]
     """
     from pandas_plink import read_plink
     return read_plink(prefix, verbose=verbose)
