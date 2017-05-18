@@ -1,4 +1,4 @@
-def read_csv(filename, sep=' ', header=True):
+def read_csv(filename, sep=',', header=True):
     r"""Read a CSV file.
 
     Parameters
