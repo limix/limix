@@ -1,10 +1,12 @@
 from numpy import copyto, sqrt
 
+
 def linear_kinship(G):
     G = G - G.mean(0)
     G /= G.std(0)
     G /= sqrt(G.shape[1])
     return G.dot(G.T)
+
 
 def gower_norm(K, out=None):
     r"""Perform Gower rescaling of covariance matrix K.
