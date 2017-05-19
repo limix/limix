@@ -1,4 +1,4 @@
-from numpy import copyto
+from numpy import copyto, sqrt
 
 
 def gower_norm(K, out=None):
@@ -33,3 +33,10 @@ def gower_norm(K, out=None):
 
     copyto(out, K)
     out *= c
+
+def linear_kinship(G):
+    G = G - G.mean(0)
+    G /= G.std(0)
+    G /= sqrt(G.shape[1])
+    K = G.dot(G.T)
+    return K

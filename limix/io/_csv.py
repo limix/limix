@@ -1,14 +1,16 @@
-def read_csv(filename):
+def read_csv(filename, sep=' ', header=True):
     r"""Read a CSV file.
 
     Parameters
     ----------
     filename : str
         Path to a CSV file.
+    sep : str
+        Separator.
 
     Returns
     -------
-    data : dask dataframe
+    data : dask dataframes
 
     Examples
     --------
@@ -26,9 +28,8 @@ def read_csv(filename):
     """
     from dask.dataframe import read_csv as _read_csv
 
-    df = _read_csv(filename)
-    df.set_index(df.columns[0], inplace=True)
-    return df
+    header = 0 if header else None
+    return _read_csv(filename, sep=sep)
 
 
 def see(filepath):

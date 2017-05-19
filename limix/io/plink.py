@@ -88,3 +88,18 @@ def see_kinship(filepath):
         K = read_grm_raw(filepath)
 
     limix.plot.plot_kinship(K)
+
+
+def _print_title(title, msg):
+    k = msg.find("\n") - len(title) - 2
+    left = ("-" * (k // 2)) + " "
+    right = " " + ("-" * (k // 2 + k % 2))
+    print(left + title + right)
+    print(msg)
+
+
+def see_bed(filepath):
+    (bim, fam, bed) = read_plink(filepath)
+
+    _print_title("Samples", repr(bim))
+    _print_title("Genotype", repr(fam))
