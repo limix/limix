@@ -4,7 +4,10 @@ from argparse import ArgumentParser
 def do_see(args):
     import limix
 
-    ft = limix.io.file_type(args.file)
+    if args.type is None:
+        ft = limix.io.file_type(args.file)
+    else:
+        ft = args.type
 
     if ft == 'hdf5':
         limix.io.hdf5.see(args.file, show_chunks=args.show_chunks)
@@ -17,7 +20,7 @@ def do_see(args):
     elif ft == 'image':
         limix.plot.see_image(args.file)
     else:
-        print("Unknown file type: %s." % args.file)
+        print("Unknown file type: %s" % args.file)
 
 
 def see_parser(parser):
@@ -26,7 +29,8 @@ def see_parser(parser):
         '--show-chunks',
         dest='show_chunks',
         action='store_true',
-        help='show chunk information')
+        help='show chunk information for hdf5 files')
+    parser.add_argument('--type', dest='type', help='specify file type')
     parser.set_defaults(show_chunks=False)
     parser.set_defaults(func=do_see)
     return parser
