@@ -49,6 +49,31 @@ def qtl_test_glmm(snps,
 
     Returns:
         :class:`limix.qtl.LMM`: LIMIX LMM object
+
+    Examples
+    --------
+    .. doctest::
+
+        >>> from numpy import dot, exp, sqrt
+        >>> from numpy.random import RandomState
+        >>> from limix.qtl import qtl_test_glmm
+        >>>
+        >>> random = RandomState(0)
+        >>>
+        >>> G = random.randn(100, 500) / sqrt(500)
+        >>> beta = 0.01 * random.randn(500)
+        >>>
+        >>> z = dot(G, beta) + 0.1 * random.randn(100)
+        >>> z += dot(G[:, 0], 1) # causal SNP
+        >>>
+        >>> y = random.poisson(exp(z))
+        >>>
+        >>> candidates = G[:, :5]
+        >>> K = dot(G[:, 5:], G[:, 5:].T)
+        >>> lm = qtl_test_glmm(candidates, y, 'poisson', K)
+        >>>
+        >>> print(lm.getPv())
+        [[ 0.0028  0.6277  0.5614  0.3263  0.3524]]
     """
     snps = asarray(snps, float)
 
