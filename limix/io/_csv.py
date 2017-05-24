@@ -1,4 +1,4 @@
-def read_csv(filename):
+def read_csv(filename, sep=None, header=True):
     r"""Read a CSV file.
 
     Parameters
@@ -26,6 +26,65 @@ def read_csv(filename):
     """
     from dask.dataframe import read_csv as _read_csv
 
-    df = _read_csv(filename)
-    df.set_index(df.columns[0], inplace=True)
-    return df
+    if sep is None:
+        sep = _infer_separator(filename)
+
+    header = 0 if header else None
+    return _read_csv(filename, sep=sep, header=header)
+
+
+def see(filepath):
+    """Shows a human-friendly representation of a CSV file.
+
+    Parameters
+    ----------
+    filepath : str
+        CSV file path.
+
+    Returns
+    -------
+    str
+        CSV representation.
+    """
+    from pandas import read_csv
+    sep = _infer_separator(filepath)
+    print(read_csv(filepath, sep=sep).describe())
+
+
+def _count(candidates, line):
+    counter = {c: 0 for c in candidates}
+    for i in line:
+        if i in candidates:
+            counter[i] += 1
+    return counter
+
+
+def _update(counter, c):
+    for (k, v) in c.items():
+        if counter[k] != v:
+            del counter[k]
+
+
+def _infer_separator(fn):
+    nmax = 9
+
+    with open(fn, 'r') as f:
+        line = f.readline().strip()
+        counter = _count(set(line), line)
+
+        for i in range(nmax - 1):
+            line = f.readline().strip()
+            if len(line) == 0:
+                break
+            c = _count(set(counter.keys()), line)
+            _update(counter, c)
+            if len(counter) == 1:
+                return counter.keys()[0]
+
+    for c in set([',', '\t', ' ']):
+        if c in counter:
+            return c
+
+    counter = list(counter.items())
+    counter = sorted(counter, key=lambda kv: kv[1])
+    return counter[-1][0]

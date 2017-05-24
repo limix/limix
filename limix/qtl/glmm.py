@@ -1,5 +1,7 @@
 from __future__ import division
 
+from time import time
+
 from numpy import asarray, diag, ones
 from numpy_sugar.linalg import economic_qs
 
@@ -47,6 +49,31 @@ def qtl_test_glmm(snps,
 
     Returns:
         :class:`limix.qtl.LMM`: LIMIX LMM object
+
+    Examples
+    --------
+    .. doctest::
+
+        >>> from numpy import dot, exp, sqrt
+        >>> from numpy.random import RandomState
+        >>> from limix.qtl import qtl_test_glmm
+        >>>
+        >>> random = RandomState(0)
+        >>>
+        >>> G = random.randn(100, 500) / sqrt(500)
+        >>> beta = 0.01 * random.randn(500)
+        >>>
+        >>> z = dot(G, beta) + 0.1 * random.randn(100)
+        >>> z += dot(G[:, 0], 1) # causal SNP
+        >>>
+        >>> y = random.poisson(exp(z))
+        >>>
+        >>> candidates = G[:, :5]
+        >>> K = dot(G[:, 5:], G[:, 5:].T)
+        >>> lm = qtl_test_glmm(candidates, y, 'poisson', K)
+        >>>
+        >>> print(lm.getPv())
+        [[ 0.0028  0.6277  0.5614  0.3263  0.3524]]
     """
     snps = asarray(snps, float)
 
@@ -62,9 +89,12 @@ def qtl_test_glmm(snps,
     else:
         y = asarray(pheno, float)
 
+    start = time()
     QS = economic_qs(K)
     glmm = GLMM(y, lik, covs, QS)
     glmm.feed().maximize(progress=verbose)
+    if verbose:
+        print("Elapsed time for GLMM part: %.3f" % (time() - start))
 
     # extract stuff from glmm
     eta = glmm._site.eta
@@ -78,6 +108,9 @@ def qtl_test_glmm(snps,
     s2_g = scale * (1 - delta)
     tR = s2_g * K + diag(var - var.min() + 1e-4)
 
+    start = time()
     lmm = LMM(snps=snps, pheno=mu, K=tR, covs=covs, verbose=verbose)
+    if verbose:
+        print("Elapsed time for LMM part: %.3f" % (time() - start))
 
     return lmm

@@ -1,6 +1,6 @@
 from optparse import OptionParser
 
-from limix.mtSet.core.definesetsCore import definesets
+from ..mtSet.core.definesetsCore import definesets
 
 
 def entry_point():
