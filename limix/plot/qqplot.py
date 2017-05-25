@@ -36,7 +36,7 @@ def _qqplot_bar(M=1000000, alphaLevel=0.05, distr='log10'):
     return betaUp, betaDown, theoreticalPvals
 
 
-def qqplot(pv, distr='log10', alphaLevel=0.05, ax=None):
+def qqplot(pv, label='unknown', distr='log10', alphaLevel=0.05, ax=None):
     r"""Produces a Quantile-Quantile plot of the observed P value
         distribution against the theoretical one under the null.
 
@@ -104,7 +104,7 @@ def qqplot(pv, distr='log10', alphaLevel=0.05, ax=None):
 
     plt.plot(qnull, qemp, '.')
     # plt.plot([0,qemp.m0x()], [0,qemp.max()],'r')
-    plt.plot([0, qnull.max()], [0, qnull.max()], 'r')
+    plt.plot([0, qnull.max()], [0, qnull.max()], 'r', label=label)
     plt.ylabel(xl)
     plt.xlabel(yl)
     if alphaLevel is not None:
