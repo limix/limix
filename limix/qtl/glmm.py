@@ -75,14 +75,15 @@ def qtl_test_glmm(snps,
         >>> print(lm.getPv())
         [[ 0.0028  0.6277  0.5614  0.3263  0.3524]]
     """
-    snps = asarray(snps, float)
+
+    snps = _asarray(snps)
 
     if covs is None:
         covs = ones((snps.shape[0], 1))
     else:
-        covs = asarray(covs, float)
+        covs = _asarray(covs)
 
-    K = asarray(K, float)
+    K = _asarray(K)
 
     if isinstance(pheno, (tuple, list)):
         y = tuple([asarray(p, float) for p in pheno])
@@ -114,3 +115,10 @@ def qtl_test_glmm(snps,
         print("Elapsed time for LMM part: %.3f" % (time() - start))
 
     return lmm
+
+def _asarray(X):
+    import dask.array as da
+
+    if not isinstance(X, da.Array):
+        X = asarray(X, float)
+    return X
