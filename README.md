@@ -1,4 +1,4 @@
-# TODO for 1.2.0
+# TODO for 1.1.0
 
 - [ ] limix.qtl.qtl_test_lmm: 10k by 500k datasets, low memory footprint
       (i.e., <=60 GB).
@@ -14,7 +14,7 @@
       doesn't converge.
 - [ ] Convert documentation style to numpy style, of every function.
 
-# TODO for 1.3.0
+# TODO for 1.2.0
 
 - [ ] Nicely print a summary of a QTL and heritability result.
 - [ ] I/O for BGEN file format.
