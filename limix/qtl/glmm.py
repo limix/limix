@@ -1,5 +1,7 @@
 from __future__ import division
 
+from time import time
+
 from numpy import asarray, diag, ones
 from numpy_sugar.linalg import economic_qs
 
@@ -62,9 +64,12 @@ def qtl_test_glmm(snps,
     else:
         y = asarray(pheno, float)
 
+    start = time()
     QS = economic_qs(K)
     glmm = GLMM(y, lik, covs, QS)
     glmm.feed().maximize(progress=verbose)
+    if verbose:
+        print("Elapsed time for GLMM part: %.3f" % (time() - start))
 
     # extract stuff from glmm
     eta = glmm._site.eta
@@ -78,6 +83,9 @@ def qtl_test_glmm(snps,
     s2_g = scale * (1 - delta)
     tR = s2_g * K + diag(var - var.min() + 1e-4)
 
+    start = time()
     lmm = LMM(snps=snps, pheno=mu, K=tR, covs=covs, verbose=verbose)
+    if verbose:
+        print("Elapsed time for LMM part: %.3f" % (time() - start))
 
     return lmm
