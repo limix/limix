@@ -30,7 +30,7 @@ def setup_package():
         'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.18', 'distributed',
         'numpy-sugar>=1.0.41', 'ncephes>=1.0.38', 'asciitree>=0.3.3'
     ]
-    tests_require = ['pytest', 'pytest-console-scripts']
+    tests_require = ['pytest', 'pytest-console-scripts', 'pytest-pep8']
 
     console_scripts = [
         'limix_runner=limix.scripts.limix_runner:entry_point',

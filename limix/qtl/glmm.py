@@ -116,6 +116,7 @@ def qtl_test_glmm(snps,
 
     return lmm
 
+
 def _asarray(X):
     import dask.array as da
 
