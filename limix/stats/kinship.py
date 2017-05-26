@@ -1,5 +1,4 @@
-from numpy import copyto, sqrt, zeros, ascontiguousarray
-
+from numpy import ascontiguousarray, copyto, sqrt, zeros
 from tqdm import tqdm
 
 

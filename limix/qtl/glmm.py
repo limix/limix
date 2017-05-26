@@ -73,7 +73,7 @@ def qtl_test_glmm(snps,
         >>> lm = qtl_test_glmm(candidates, y, 'poisson', K)
         >>>
         >>> print(lm.getPv())
-        [[ 0.0028  0.6277  0.5614  0.3263  0.3524]]
+        [[ 0.0027  0.6274  0.5665  0.3283  0.3513]]
     """
     snps = asarray(snps, float)
 
