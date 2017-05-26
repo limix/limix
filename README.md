@@ -4,6 +4,8 @@
       (i.e., <=60 GB).
 - [ ] limix.qtl.qtl_test_glmm: 10k by 500k datasets, low memory footprint
       (i.e., <=60 GB).
+- [ ] Both limix.qtl.qtl_test_glmm and limix.qtl.qtl_test_lmm should accept
+      and take advantage of dask array.
 - [ ] limix.qtl.qtl_test_lmm: show progress bar like limix.qtl.qtl_test_glmm.
 - [ ] limix.qtl.qtl_test_lmm, limix.qtl.qtl_test_glmm: raise exception for
       wrong parameters (NaN, Inf) and coerce sequences to numpy arrays.
