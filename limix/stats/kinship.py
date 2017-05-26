@@ -32,11 +32,11 @@ def linear_kinship(G, out=None, progress=True):
         start = i * (p // nsteps)
         stop = min(start + p // nsteps, p)
 
-        X = X - X.mean(0)
-        X /= X.std(0)
-        X /= sqrt(p)
+        G = G - G.mean(0)
+        G /= G.std(0)
+        G /= sqrt(p)
 
-        out += ascontiguousarray(X.dot(X.T), float)
+        out += ascontiguousarray(G.dot(G.T), float)
 
     return out
 
