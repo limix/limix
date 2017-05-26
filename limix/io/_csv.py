@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-def read_csv(filename, sep=' ', header=True):
-=======
 def read_csv(filename, sep=',', header=True):
->>>>>>> f8dd4a2854c72d46e4458831e386bd9fb79820b2
     r"""Read a CSV file.
 
     Parameters
@@ -33,11 +29,7 @@ def read_csv(filename, sep=',', header=True):
     from dask.dataframe import read_csv as _read_csv
 
     header = 0 if header else None
-<<<<<<< HEAD
-    return _read_csv(filename, sep=sep)
-=======
     return _read_csv(filename, sep=sep, header=header)
->>>>>>> f8dd4a2854c72d46e4458831e386bd9fb79820b2
 
 
 def see(filepath):
