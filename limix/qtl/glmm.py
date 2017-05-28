@@ -60,10 +60,10 @@ def qtl_test_glmm(snps,
         >>>
         >>> random = RandomState(0)
         >>>
-        >>> G = random.randn(100, 500) / sqrt(500)
+        >>> G = random.randn(250, 500) / sqrt(500)
         >>> beta = 0.01 * random.randn(500)
         >>>
-        >>> z = dot(G, beta) + 0.1 * random.randn(100)
+        >>> z = dot(G, beta) + 0.1 * random.randn(250)
         >>> z += dot(G[:, 0], 1) # causal SNP
         >>>
         >>> y = random.poisson(exp(z))
@@ -73,7 +73,7 @@ def qtl_test_glmm(snps,
         >>> lm = qtl_test_glmm(candidates, y, 'poisson', K)
         >>>
         >>> print(lm.getPv())
-        [[ 0.0027  0.6274  0.5665  0.3283  0.3513]]
+        [[ 0.0708  0.3274  0.5869  0.7342  0.7814]]
     """
 
     snps = _asarray(snps)
