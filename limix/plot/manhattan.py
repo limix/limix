@@ -12,180 +12,99 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import scipy as sp
+from __future__ import division
+
+from numpy import arange, asarray, cumsum, flipud, log10
 
 
-def plot_manhattan(pv, position=None, posCum=None, chromBounds=None,
-                   thr=None, qv=None, lim=None, xticklabels=True,
-                   alphaNS=0.1, alphaS=0.5, colorNS='DarkBlue',
-                   colorS='Orange', ax=None, thr_plotting=None,
-                   labelS=None, labelNS=None):
-    r"""Produce a manhattan plot.
+def plot_manhattan(df,
+                   alpha=None,
+                   null_style=dict(alpha=0.1, color='DarkBlue'),
+                   alt_style=dict(alpha=0.5, color='Orange'),
+                   ax=None):
 
-    Args:
-        pv (array_like): pvalues.
+    import matplotlib.pyplot as plt
 
-        position (list or :class:`pandas.DataFrame`, optional):
-            positions in chromosome/chromosomal basepair position format.
-            It can be specified as
+    ax = plt.gca() if ax is None else ax
 
-            - list ``[chrom, pos]`` where ``chrom`` and ``pos`` are
-              *ndarray* with chromosome values and basepair positions;
-            - pandas DataFrame of chromosome values (key='chrom') and
-              basepair positions (key='pos').
+    if 'pos' not in df:
+        df['pos'] = arange(df.shape[0])
 
-            Alternatively, variant positions can be specified by
-            setting directly the cumulative position (``posCum``).
+    df = _abs_pos(df)
 
-        posCum (array_like, optional):
-            cumulative position.
-            It has effect only if ``position`` is not specified.
-            By default, ``posCum`` is set to ``range(S)`` where
-            `S` is the number of variants.
+    if alpha is None:
+        alpha = 0.01 / df.shape[0]
 
-        chromBounds (array_like, optional):
-            chrom boundaries on cumulative positions.
-            It has effect only if ``position`` is not specified.
-            If neither ``position`` nor ``chromBounds`` are
-            specified, chomosome boundaries are not plotted.
+    ytop = -1.2 * log10(min(df['pv'].min(), alpha))
 
-        qv (array_like, optional):
-            qvalues.
-            If provided, threshold for significance is set
-            on qvalues but pvalues are plotted.
+    _plot_chrom_strips(ax, df, ytop)
+    _plot_points(ax, df, alpha, null_style, alt_style)
+    _set_frame(ax, df, ytop)
 
-        thr (float, optional):
-            threshold for significance.
-            The default is 0.01 significance level (bonferroni-adjusted)
-            if qvs are not specified, or 0.01 FDR if qvs specified.
+    ax.set_ylabel('-log$_{10}$pv')
+    ax.set_xlabel('chromosome')
 
-        lim (float, optional):
-            top limit on y-axis.
-            The default value is -1.2*log(pv.min()).
+    _set_ticks(ax, _chrom_bounds(df))
 
-        xticklabels (bool, optional):
-            if true, xtick labels are printed.
-            The default value is True.
+    return ax
 
-        alphaNS (float, optional):
-            transparency value of non-significant variants.
-            Must be in [0, 1].
 
-        alphaS (float, optional):
-            transparency of significant variants. Must be in [0, 1].
-
-        ax (:class:`matplotlib.axes.AxesSubplot`):
-            the target handle for this figure.
-            If None, the current axes is set.
-
-        thr_plotting (float):
-            if specified, only P-values that are smaller
-            than thr_plotting are plotted.
-
-        labelS (str):
-            optional plotting label for significant variants.
-
-        labelNS (str):
-            optional plotting label for non significnat loci.
-
-    Returns:
-        :class:`matplotlib.axes.AxesSubplot`: matplotlib subplot
-
-    Examples
-    --------
-
-        .. plot::
-
-            from numpy.random import RandomState
-            from numpy import arange, ones, kron
-            from limix.plot import plot_manhattan
-            from matplotlib import pyplot as plt
-            random = RandomState(1)
-
-            pv = random.rand(5000)
-            pv[1200:1250] = random.rand(50)**4
-
-            chrom  = kron(arange(1,6), ones(1000))
-            pos = kron(ones(5), arange(1,1001))
-
-            fig = plt.figure(1, figsize=(8,3))
-            plt.subplot(111)
-            plot_manhattan(pv, [chrom, pos])
-            plt.tight_layout()
-
-            plt.show()
-    """
-    import matplotlib.pylab as plt
-    from limix.util import estCumPos
-    if ax is None:
-        ax = plt.gca()
-
-    if position is not None:
-        posCum, chromBounds = estCumPos(position, return_chromstart=True)
-    elif posCum is None:
-        posCum = sp.arange(len(pv))
-
-    if thr is None:
-        thr = 0.01 / float(posCum.shape[0])
-
-    if lim is None:
-        lim = -1.2 * sp.log10(sp.minimum(pv.min(), thr))
-
-    if chromBounds is None:
-        chromBounds = sp.array([[0, posCum.max()]])
-    else:
-        chromBounds = sp.concatenate([chromBounds, sp.array([posCum.max()])])
-
-    n_chroms = chromBounds.shape[0]
-    for chrom_i in range(0, n_chroms - 1, 2):
-        plt.fill_between(posCum, 0, lim, where=(posCum > chromBounds[chrom_i]) & (
-            posCum < chromBounds[chrom_i + 1]), facecolor='LightGray', linewidth=0, alpha=0.5)
-
-    if thr_plotting is not None:
-        if pv is not None:
-            i_small = pv < thr_plotting
-        elif qv is not None:
-            i_small = qv < thr_plotting
-
-        if qv is not None:
-            qv = qv[i_small]
-        if pv is not None:
-            pv = pv[i_small]
-        if posCum is not None:
-            posCum = posCum[i_small]
-
-    if qv is None:
-        Isign = pv < thr
-    else:
-        Isign = qv < thr
-
-    plt.plot(posCum[~Isign], -sp.log10(pv[~Isign]), '.',
-             color=colorNS, ms=5, alpha=alphaNS, label=labelNS)
-    plt.plot(posCum[Isign], -sp.log10(pv[Isign]), '.',
-             color=colorS, ms=5, alpha=alphaS, label=labelS)
-
-    if qv is not None:
-        plt.plot([0, posCum.max()], [-sp.log10(thr), -
-                                     sp.log10(thr)], '--', color='Gray')
-
-    plt.ylim(0, lim)
-
-    plt.ylabel('-log$_{10}$pv')
-    plt.xlim(0, posCum.max())
-    xticks = sp.array([chromBounds[i:i + 2].mean()
-                       for i in range(chromBounds.shape[0] - 1)])
-    ax.set_xticks(xticks)
-    plt.xticks(fontsize=6)
-
-    if xticklabels:
-        ax.set_xticklabels(sp.arange(1, n_chroms + 1))
-        plt.xlabel('Chromosome')
-    else:
-        ax.set_xticklabels([])
+def _set_frame(ax, df, ytop):
+    ax.set_ylim(0, ytop)
+    ax.set_xlim(0, df['abs_pos'].max())
 
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
+
+
+def _plot_points(ax, df, alpha, null_style, alt_style):
+    ok = df['pv'] >= alpha
+    ax.plot(df['abs_pos'][ok], -log10(df['pv'][ok]), '.', ms=5, **null_style)
+
+    ok = df['pv'] < alpha
+    ax.plot(df['abs_pos'][ok], -log10(df['pv'][ok]), '.', ms=5, **alt_style)
+
+
+def _plot_chrom_strips(ax, df, ytop):
+    uchroms = df['chrom'].unique()
+    for i in range(0, len(uchroms), 2):
+        ax.fill_between(
+            df['abs_pos'],
+            0,
+            ytop,
+            where=df['chrom'] == uchroms[i],
+            facecolor='LightGray',
+            linewidth=0,
+            alpha=0.5)
+
+
+def _set_ticks(ax, chrom_bounds):
+    n = len(chrom_bounds) - 1
+    xticks = asarray([chrom_bounds[i:i + 2].mean() for i in range(n)])
+    ax.set_xticks(xticks)
+    ax.tick_params(axis='x', which='both', labelsize=6)
+    ax.set_xticklabels(arange(1, n + 2))
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
 
-    return ax
+
+def _abs_pos(df):
+    uchroms = df['chrom'].unique()
+    chrom_ends = [df['pos'][df['chrom'] == c].max() for c in uchroms]
+
+    offset = flipud(cumsum(chrom_ends)[:-1])
+
+    df['abs_pos'] = df['pos'].copy()
+
+    uchroms = list(reversed(uchroms))
+    for i in range(len(offset)):
+        ix = df['chrom'] == uchroms[i]
+        df.loc[ix, 'abs_pos'] = df.loc[ix, 'abs_pos'] + offset[i]
+
+    return df
+
+
+def _chrom_bounds(df):
+    uchroms = df['chrom'].unique()
+    v = [df['abs_pos'][df['chrom'] == c].min() for c in uchroms]
+    return asarray(v + [df['abs_pos'].max()])
