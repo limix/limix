@@ -1,17 +1,3 @@
-# Copyright(c) 2014, The LIMIX developers (Christoph Lippert, Paolo Francesco Casale, Oliver Stegle)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 from __future__ import division
 
 from numpy import arange, asarray, cumsum, flipud, log10
@@ -22,6 +8,43 @@ def plot_manhattan(df,
                    null_style=dict(alpha=0.1, color='DarkBlue'),
                    alt_style=dict(alpha=0.5, color='Orange'),
                    ax=None):
+    r"""Produce a manhattan plot.
+
+    Parameters
+    ----------
+    df : :class:`pandas.DataFrame`
+        A Pandas DataFrame containing columns pv for p-values, pos for
+        base-pair positions, and chrom for chromossome names..
+    alpha : float
+        Threshold for significance. Defaults to 0.01 significance level
+        (bonferroni-adjusted).
+    ax : :class:`matplotlib.axes.AxesSubplot`:
+        The target handle for this figure. If None, the current axes is set.
+
+    Returns
+    -------
+    :class:`matplotlib.axes.AxesSubplot`
+        Axes object.
+
+    Examples
+    --------
+    .. plot::
+
+        from numpy.random import RandomState
+        from numpy import arange, ones, kron
+        import pandas as pd
+        from limix.plot import plot_manhattan
+        from matplotlib import pyplot as plt
+        random = RandomState(1)
+        pv = random.rand(5000)
+        pv[1200:1250] = random.rand(50)**4
+        chrom  = kron(arange(1,6), ones(1000))
+        pos = kron(ones(5), arange(1,1001))
+        data = dict(pv=pv, chrom=chrom, pos=pos)
+        plot_manhattan(pd.DataFrame(data=data))
+        plt.tight_layout()
+        plt.show()
+    """
 
     import matplotlib.pyplot as plt
 
@@ -29,6 +52,12 @@ def plot_manhattan(df,
 
     if 'pos' not in df:
         df['pos'] = arange(df.shape[0])
+
+    if 'label' not in df:
+        chrom = df['chrom'].astype(int).astype(str)
+        pos = df['pos'].astype(int).astype(str)
+        df['label'] = (
+            'chrom' + chrom + '_pos' + pos)
 
     df = _abs_pos(df)
 
@@ -58,11 +87,16 @@ def _set_frame(ax, df, ytop):
 
 
 def _plot_points(ax, df, alpha, null_style, alt_style):
-    ok = df['pv'] >= alpha
-    ax.plot(df['abs_pos'][ok], -log10(df['pv'][ok]), '.', ms=5, **null_style)
+    null_df = df.loc[df['pv'] >= alpha, :]
+    alt_df = df.loc[df['pv'] < alpha, :]
 
-    ok = df['pv'] < alpha
-    ax.plot(df['abs_pos'][ok], -log10(df['pv'][ok]), '.', ms=5, **alt_style)
+    ax.plot(null_df['abs_pos'], -log10(null_df['pv']), '.', ms=5, **null_style)
+    ax.plot(alt_df['abs_pos'], -log10(alt_df['pv']), '.', ms=5, **alt_style)
+
+    for i in range(alt_df.shape[0]):
+        x = alt_df['abs_pos'].values[i]
+        y = -log10(alt_df['pv'].values[i])
+        _annotate(ax, x, y, alt_df['label'].values[i])
 
 
 def _plot_chrom_strips(ax, df, ytop):
@@ -108,3 +142,17 @@ def _chrom_bounds(df):
     uchroms = df['chrom'].unique()
     v = [df['abs_pos'][df['chrom'] == c].min() for c in uchroms]
     return asarray(v + [df['abs_pos'].max()])
+
+
+def _annotate(ax, x, y, text):
+    ax.annotate(
+        text,
+        xy=(x, y),
+        xytext=(-18, 18),
+        textcoords='offset points',
+        fontsize=6,
+        ha='center',
+        va='bottom',
+        bbox=dict(boxstyle='round,pad=0.2', fc='yellow', alpha=0.3),
+        arrowprops=dict(
+            arrowstyle='->', connectionstyle='arc3,rad=0.5', color='red'))

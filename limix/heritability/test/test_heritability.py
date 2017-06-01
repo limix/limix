@@ -24,7 +24,7 @@ def test_heritability_estimate_binomial():
     y = (successes, ntrials)
 
     assert_allclose(
-        estimate(y, 'binomial', K, verbose=False), 0.89363722034281523)
+        estimate(y, 'binomial', K, verbose=False), 0.8937449693087052)
 
 
 def test_heritability_estimate_poisson():
@@ -36,4 +36,5 @@ def test_heritability_estimate_poisson():
     z = dot(G, random.randn(100)) / sqrt(100)
     y = random.poisson(exp(z))
 
-    assert_allclose(estimate(y, 'poisson', K, verbose=False), 0.699554864853)
+    assert_allclose(
+        estimate(y, 'poisson', K, verbose=False), 0.6998737749318877)
