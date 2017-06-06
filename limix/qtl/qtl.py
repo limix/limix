@@ -123,24 +123,24 @@ def qtl_test_lmm(snps,
     Examples
     --------
 
-        .. doctest::
+    .. doctest::
 
-            >>> from numpy.random import RandomState
-            >>> from numpy import dot
-            >>> from limix.qtl import qtl_test_lmm
-            >>> random = RandomState(1)
-            >>>
-            >>> N = 100
-            >>> S = 1000
-            >>>
-            >>> snps = (random.rand(N, S) < 0.2).astype(float)
-            >>> pheno = random.randn(N, 1)
-            >>> W = random.randn(N, 10)
-            >>> kinship = dot(W, W.T) / float(10)
-            >>>
-            >>> lmm = qtl_test_lmm(snps, pheno, kinship)
-            >>> print(lmm.getPv()[:,:4])
-            [[ 0.8571  0.4668  0.5872  0.5589]]
+        >>> from numpy.random import RandomState
+        >>> from numpy import dot
+        >>> from limix.qtl import qtl_test_lmm
+        >>> random = RandomState(1)
+        >>>
+        >>> N = 100
+        >>> S = 1000
+        >>>
+        >>> snps = (random.rand(N, S) < 0.2).astype(float)
+        >>> pheno = random.randn(N, 1)
+        >>> W = random.randn(N, 10)
+        >>> kinship = dot(W, W.T) / float(10)
+        >>>
+        >>> lmm = qtl_test_lmm(snps, pheno, kinship)
+        >>> print(lmm.getPv()[:,:4])
+        [[ 0.8571  0.4668  0.5872  0.5589]]
     """
     snps = asarray(snps, float)
     pheno = asarray(pheno, float)
