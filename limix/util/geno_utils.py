@@ -174,13 +174,12 @@ def unique_variants(snps, return_idxs=False):
 
     _s = sp.dot(sp.rand(snps.shape[0]), snps)
 
-    r = []
     v, ix = sp.unique(_s, return_index=True)
     idxs_u = sp.sort(ix)
 
-    r += [snps[:, idxs_u]]
+    snps = snps[:, idxs_u]
 
     if return_idxs:
-        r += [ix]
+        return (snps, ix)
 
-    return tuple(r)
+    return snps
