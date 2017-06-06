@@ -16,7 +16,7 @@ QQ plot
 Power plots
 ^^^^^^^^^^^
 
-.. autofunction:: limix.plot.plot_fdr
+.. autofunction:: limix.plot.plot_bonferroni
 
 Kinship
 ^^^^^^^
@@ -35,7 +35,7 @@ from .qqplot import qqplot
 from .manhattan import plot_manhattan
 from .kinship import plot_kinship
 from .image import see_image
-from .power import plot_fdr
+from .power import plot_bonferroni
 
 __all__ = ['plot_manhattan', 'qqplot', 'plot_normal', 'plot_kinship',
-           'see_image', 'plot_fdr']
+           'see_image', 'plot_bonferroni']
