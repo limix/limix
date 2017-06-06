@@ -4,6 +4,47 @@ from numpy import asarray, linspace
 
 
 def plot_power_curve(df, color=None, ax=None):
+    r"""Plot number of hits across significance levels.
+
+    Parameters
+    ----------
+
+    df : :class:`pandas.DataFrame`
+        Data frame with `pv` and `label` columns.
+    color : dict
+        Map colors to labels.
+    ax : :class:`matplotlib.axes.AxesSubplot`
+        The target handle for this figure. If None, the current axes is set.
+
+    Returns
+    -------
+    :class:`matplotlib.axes.AxesSubplot`
+        Axes.
+
+    Examples
+    --------
+
+    .. plot::
+
+        from limix.plot import plot_power_curve
+        from pandas import DataFrame
+        from numpy.random import RandomState
+        from matplotlib import pyplot as plt
+        random = RandomState(1)
+        nsnps = 10000
+
+        pv0 = list(random.rand(nsnps))
+        pv1 = list(0.7 * random.rand(nsnps))
+
+        fig = plt.figure(1, figsize=(5,5))
+        plt.subplot(111)
+
+        data = dict(pv=pv0 + pv1,
+                    label=['label0'] * nsnps + ['label1'] * nsnps)
+        df = DataFrame(data=data)
+        plot_power_curve(df)
+        plt.show()
+    """
 
     import matplotlib.pyplot as plt
 
@@ -18,7 +59,10 @@ def plot_power_curve(df, color=None, ax=None):
 
     for label in labels:
         ax.plot(
-            alphas, asarray(y[label], int), color=color[label], label=label)
+            alphas,
+            asarray(nhits[label], int),
+            color=color[label],
+            label=label)
 
     _set_labels(ax)
 
@@ -39,7 +83,8 @@ def _collect_nhits(df):
             n = (df_['pv'] < alpha).sum()
             nhits[label] += [n]
 
-    nhits = asarray(nhits[label], int)
+    for label in labels:
+        nhits[label] = asarray(nhits[label], int)
 
     return (alphas, nhits)
 
