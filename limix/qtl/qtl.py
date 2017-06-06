@@ -15,12 +15,15 @@
 qtl.py contains wrappers around C++ Limix objects to streamline common tasks in GWAS.
 """
 
-import numpy as np
-import scipy.stats as st
-import scipy as sp
-from limix.stats import qvalues
-from limix.qtl.lmm import LMM
 import time
+
+import numpy as np
+import scipy as sp
+import scipy.stats as st
+from numpy import asarray
+
+from limix.qtl.lmm import LMM
+from limix.stats import qvalues
 
 
 def qtl_test_lm(snps, pheno, covs=None, test='lrt', verbose=None):
@@ -69,25 +72,19 @@ def qtl_test_lm(snps, pheno, covs=None, test='lrt', verbose=None):
             [[ 0.8796  0.5065  0.5666  0.6016]]
     """
     lm = qtl_test_lmm(
-        snps=snps,
-        pheno=pheno,
-        K=None,
-        covs=covs,
-        test=test,
-        verbose=verbose)
+        snps=snps, pheno=pheno, K=None, covs=covs, test=test, verbose=verbose)
     return lm
 
 
-def qtl_test_lmm(
-        snps,
-        pheno,
-        K=None,
-        covs=None,
-        test='lrt',
-        NumIntervalsDelta0=100,
-        NumIntervalsDeltaAlt=100,
-        searchDelta=False,
-        verbose=None):
+def qtl_test_lmm(snps,
+                 pheno,
+                 K=None,
+                 covs=None,
+                 test='lrt',
+                 NumIntervalsDelta0=100,
+                 NumIntervalsDeltaAlt=100,
+                 searchDelta=False,
+                 verbose=None):
     """
     Wrapper function for univariate single-variant association testing
     using a linear mixed model.
@@ -145,6 +142,8 @@ def qtl_test_lmm(
             >>> print(lmm.getPv()[:,:4])
             [[ 0.8571  0.4668  0.5872  0.5589]]
     """
+    snps = asarray(snps, float)
+    pheno = asarray(pheno, float)
     lmm_ = LMM(
         snps=snps,
         pheno=pheno,
@@ -158,19 +157,18 @@ def qtl_test_lmm(
     return lmm_
 
 
-def qtl_test_lmm_kronecker(
-        snps,
-        phenos,
-        covs=None,
-        Acovs=None,
-        Asnps=None,
-        K1r=None,
-        K1c=None,
-        K2r=None,
-        K2c=None,
-        NumIntervalsDelta0=100,
-        NumIntervalsDeltaAlt=100,
-        searchDelta=False):
+def qtl_test_lmm_kronecker(snps,
+                           phenos,
+                           covs=None,
+                           Acovs=None,
+                           Asnps=None,
+                           K1r=None,
+                           K1c=None,
+                           K2r=None,
+                           K2c=None,
+                           NumIntervalsDelta0=100,
+                           NumIntervalsDeltaAlt=100,
+                           searchDelta=False):
     r"""
     Wrapper function for single-variant multi-trait association testing class
     using linear mixed models.
@@ -374,21 +372,20 @@ def qtl_test_lmm_kronecker(
     return lmm, pv
 
 
-def qtl_test_interaction_lmm_kronecker(
-        snps,
-        phenos,
-        covs=None,
-        Acovs=None,
-        Asnps1=None,
-        Asnps0=None,
-        K1r=None,
-        K1c=None,
-        K2r=None,
-        K2c=None,
-        NumIntervalsDelta0=100,
-        NumIntervalsDeltaAlt=100,
-        searchDelta=False,
-        return_lmm=False):
+def qtl_test_interaction_lmm_kronecker(snps,
+                                       phenos,
+                                       covs=None,
+                                       Acovs=None,
+                                       Asnps1=None,
+                                       Asnps0=None,
+                                       K1r=None,
+                                       K1c=None,
+                                       K2r=None,
+                                       K2c=None,
+                                       NumIntervalsDelta0=100,
+                                       NumIntervalsDeltaAlt=100,
+                                       searchDelta=False,
+                                       return_lmm=False):
     r"""
     Wrapper function for single-variant multi-trait interaction test
 
@@ -536,9 +533,9 @@ def qtl_test_interaction_lmm_kronecker(
         Asnps0 = [Asnps0]
     if (not isinstance(Asnps1, list)):
         Asnps1 = [Asnps1]
-    assert (
-        len(Asnps0) == 1) and (
-        len(Asnps1) > 0), "need at least one Snp design matrix for null and alt model"
+    assert (len(Asnps0) == 1) and (
+        len(Asnps1) >
+        0), "need at least one Snp design matrix for null and alt model"
 
     # one row per column design matrix
     pv = np.zeros((len(Asnps1), snps.shape[1]))
@@ -602,14 +599,13 @@ def qtl_test_interaction_lmm_kronecker(
         return pv, pv0, pvAlt
 
 
-def qtl_test_interaction_lmm(
-        snps,
-        pheno,
-        Inter,
-        Inter0=None,
-        covs=None,
-        K=None,
-        test='lrt'):
+def qtl_test_interaction_lmm(snps,
+                             pheno,
+                             Inter,
+                             Inter0=None,
+                             covs=None,
+                             K=None,
+                             test='lrt'):
     r"""
     Wrapper function for single-variant interaction test using LMMs.
 
@@ -715,17 +711,16 @@ def qtl_test_interaction_lmm(
 """ MULTI LOCUS MODEL """
 
 
-def forward_lmm(
-        snps,
-        pheno,
-        K=None,
-        covs=None,
-        qvalues=False,
-        threshold=5e-8,
-        maxiter=2,
-        test='lrt',
-        verbose=None,
-        **kw_args):
+def forward_lmm(snps,
+                pheno,
+                K=None,
+                covs=None,
+                qvalues=False,
+                threshold=5e-8,
+                maxiter=2,
+                test='lrt',
+                verbose=None,
+                **kw_args):
     r"""
     Wrapper function for univariate single-variant test with forward selection
 
@@ -820,7 +815,8 @@ def forward_lmm(
     pvadded = []
     qvadded = []
     if qvalues:
-        assert pv.shape[0] == 1, "This is untested with the fdr package. pv.shape[0]==1 failed"
+        assert pv.shape[
+            0] == 1, "This is untested with the fdr package. pv.shape[0]==1 failed"
         qvall = []
         qv = qvalues(pv)
         qvall.append(qv)
@@ -861,23 +857,22 @@ def forward_lmm(
 
 
 # TOOD: use **kw_args to forward params.. see below
-def forward_lmm_kronecker(
-        snps,
-        phenos,
-        Asnps=None,
-        Acond=None,
-        K1r=None,
-        K1c=None,
-        K2r=None,
-        K2c=None,
-        covs=None,
-        Acovs=None,
-        threshold=5e-8,
-        maxiter=2,
-        qvalues=False,
-        update_covariances=False,
-        verbose=None,
-        **kw_args):
+def forward_lmm_kronecker(snps,
+                          phenos,
+                          Asnps=None,
+                          Acond=None,
+                          K1r=None,
+                          K1c=None,
+                          K2r=None,
+                          K2c=None,
+                          covs=None,
+                          Acovs=None,
+                          threshold=5e-8,
+                          maxiter=2,
+                          qvalues=False,
+                          update_covariances=False,
+                          verbose=None,
+                          **kw_args):
     """
     Kronecker fixed effects test with forward selection
 
@@ -958,7 +953,15 @@ def forward_lmm_kronecker(
         assert K2c.shape[1] == P, 'K2c: dimensions dismatch'
     t0 = time.time()
     lm, pv = qtl_test_lmm_kronecker(
-        snps=snps, phenos=phenos, Asnps=Asnps, K1r=K1r, K2r=K2r, K1c=K1c, K2c=K2c, covs=covs, Acovs=Acovs)
+        snps=snps,
+        phenos=phenos,
+        Asnps=Asnps,
+        K1r=K1r,
+        K2r=K2r,
+        K1c=K1c,
+        K2c=K2c,
+        covs=covs,
+        Acovs=Acovs)
 
     # get pv
     # start stuff
@@ -977,7 +980,8 @@ def forward_lmm_kronecker(
     score = pv[imin].min()
     niter = 1
     if qvalues:
-        assert pv.shape[0] == 1, "This is untested with the fdr package. pv.shape[0]==1 failed"
+        assert pv.shape[
+            0] == 1, "This is untested with the fdr package. pv.shape[0]==1 failed"
         qvall = []
         qv = qvalues(pv)
         qvall.append(qv)
@@ -991,7 +995,8 @@ def forward_lmm_kronecker(
             qvadded.append(qv[imin])
         if update_covariances and vc is not None:
             vc.addFixedTerm(snps[:, imin[1]:(imin[1] + 1)], Acond[imin[0]])
-            vc.setScales()  # CL: don't know what this does, but findLocalOptima crashes becahuse vc.noisPos=None
+            vc.setScales(
+            )  # CL: don't know what this does, but findLocalOptima crashes becahuse vc.noisPos=None
             vc.findLocalOptima(fast=True)
             K1c = vc.getTraitCovar(0)
             K2c = vc.getTraitCovar(1)
@@ -1030,20 +1035,19 @@ def forward_lmm_kronecker(
 """ INTERNAL """
 
 
-def _estimateKronCovariances(
-        phenos,
-        K1r=None,
-        K1c=None,
-        K2r=None,
-        K2c=None,
-        covs=None,
-        Acovs=None,
-        trait_covar_type='freeform',
-        rank=1,
-        lambd=None,
-        verbose=True,
-        init_method='random',
-        old_opt=True):
+def _estimateKronCovariances(phenos,
+                             K1r=None,
+                             K1c=None,
+                             K2r=None,
+                             K2c=None,
+                             covs=None,
+                             Acovs=None,
+                             trait_covar_type='freeform',
+                             rank=1,
+                             lambd=None,
+                             verbose=True,
+                             init_method='random',
+                             old_opt=True):
     """
     estimates the background covariance model before testing
 
@@ -1086,10 +1090,7 @@ def _estimateKronCovariances(
     if K2r is not None:
         # TODO: fix this; forces second term to be the noise covariance
         vc.addRandomEffect(
-            is_noise=True,
-            K=K2r,
-            trait_covar_type='freeform',
-            rank=rank)
+            is_noise=True, K=K2r, trait_covar_type='freeform', rank=rank)
     for ic in range(len(Acovs)):
         vc.addFixedEffect(covs[ic], Acovs[ic])
     start = time.time()
@@ -1097,9 +1098,7 @@ def _estimateKronCovariances(
         conv = vc.optimize(fast=True)
     elif lambd is not None:
         conv = vc.optimize(
-            init_method=init_method,
-            verbose=verbose,
-            lambd=lambd)
+            init_method=init_method, verbose=verbose, lambd=lambd)
     else:
         conv = vc.optimize(init_method=init_method, verbose=verbose)
     assert conv, "Variance Decomposition has not converged"
@@ -1132,13 +1131,12 @@ def _updateKronCovs(covs, Acovs, N, P):
 
 # TODO: we need to fix. THis does not work as interact_GxE is not existing
 # I vote we also use **kw_args to forward parameters to interact_Gxe?
-def qtl_test_interaction_GxG(
-        pheno,
-        snps1,
-        snps2=None,
-        K=None,
-        covs=None,
-        test='lrt'):
+def qtl_test_interaction_GxG(pheno,
+                             snps1,
+                             snps2=None,
+                             K=None,
+                             covs=None,
+                             test='lrt'):
     """
     Epistasis test between two sets of SNPs
 
@@ -1161,22 +1159,16 @@ def qtl_test_interaction_GxG(
     if snps2 is None:
         snps2 = snps1
     return qtl_test_interaction_GxE_1dof(
-        snps=snps1,
-        pheno=pheno,
-        env=snps2,
-        covs=covs,
-        K=K,
-        test=test)
+        snps=snps1, pheno=pheno, env=snps2, covs=covs, K=K, test=test)
 
 
-def qtl_test_interaction_GxE_1dof(
-        snps,
-        pheno,
-        env,
-        K=None,
-        covs=None,
-        test='lrt',
-        verbose=None):
+def qtl_test_interaction_GxE_1dof(snps,
+                                  pheno,
+                                  env,
+                                  K=None,
+                                  covs=None,
+                                  test='lrt',
+                                  verbose=None):
     """
     Univariate GxE fixed effects interaction linear mixed model test for all
     pairs of SNPs and environmental variables.
@@ -1202,8 +1194,8 @@ def qtl_test_interaction_GxE_1dof(
         K = np.eye(N)
     if covs is None:
         covs = np.ones((N, 1))
-    assert (env.shape[0] == N and pheno.shape[0] == N and K.shape[0] ==
-            N and K.shape[1] == N and covs.shape[0] == N), "shapes missmatch"
+    assert (env.shape[0] == N and pheno.shape[0] == N and K.shape[0] == N and
+            K.shape[1] == N and covs.shape[0] == N), "shapes missmatch"
     Inter0 = np.ones((N, 1))
     pv = np.zeros((env.shape[1], snps.shape[1]))
     if verbose:
@@ -1213,23 +1205,22 @@ def qtl_test_interaction_GxE_1dof(
     for i in range(env.shape[1]):
         t0_i = time.time()
         cov_i = np.concatenate((covs, env[:, i:(i + 1)]), 1)
-        lm_i = qtl_test_interaction_lmm(snps=snps,
-                                        pheno=pheno,
-                                        covs=cov_i,
-                                        Inter=env[:,
-                                                  i:(i + 1)],
-                                        Inter0=Inter0,
-                                        test=test)
+        lm_i = qtl_test_interaction_lmm(
+            snps=snps,
+            pheno=pheno,
+            covs=cov_i,
+            Inter=env[:, i:(i + 1)],
+            Inter0=Inter0,
+            test=test)
         pv[i, :] = lm_i.getPv()[0, :]
         t1_i = time.time()
         if verbose:
             print(("Finished %i out of %i interaction scans in %.2f seconds." %
                    ((i + 1), env.shape[1], (t1_i - t0_i))))
     t1 = time.time()
-    print(
-        (
-            "-----------------------------------------------------------\nFinished all %i interaction scans in %.2f seconds." %
-         (env.shape[1], (t1 - t0))))
+    print((
+        "-----------------------------------------------------------\nFinished all %i interaction scans in %.2f seconds."
+        % (env.shape[1], (t1 - t0))))
     return pv
 
 

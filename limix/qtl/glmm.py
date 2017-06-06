@@ -2,11 +2,13 @@ from __future__ import division
 
 from time import time
 
-from numpy import asarray, diag, ones
+from numpy import asarray as npy_asarray
+from numpy import diag, ones
 from numpy_sugar.linalg import economic_qs
 
 from glimix_core.glmm import GLMM
 from limix.qtl.lmm import LMM
+from limix.util import asarray
 
 
 def qtl_test_glmm(snps,
@@ -76,19 +78,19 @@ def qtl_test_glmm(snps,
         [[ 0.0694  0.3336  0.5899  0.7388  0.7796]]
     """
 
-    snps = _asarray(snps)
+    snps = asarray(snps)
 
     if covs is None:
         covs = ones((snps.shape[0], 1))
     else:
-        covs = _asarray(covs)
+        covs = asarray(covs)
 
-    K = _asarray(K)
+    K = asarray(K)
 
     if isinstance(pheno, (tuple, list)):
-        y = tuple([asarray(p, float) for p in pheno])
+        y = tuple([npy_asarray(p, float) for p in pheno])
     else:
-        y = asarray(pheno, float)
+        y = npy_asarray(pheno, float)
 
     start = time()
     QS = economic_qs(K)
@@ -115,11 +117,3 @@ def qtl_test_glmm(snps,
     #     print("Elapsed time for LMM part: %.3f" % (time() - start))
 
     return lmm
-
-
-def _asarray(X):
-    import dask.array as da
-
-    if not isinstance(X, da.Array):
-        X = asarray(X, float)
-    return X
