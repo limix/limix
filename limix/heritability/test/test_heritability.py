@@ -36,4 +36,5 @@ def test_heritability_estimate_poisson():
     z = dot(G, random.randn(100)) / sqrt(100)
     y = random.poisson(exp(z))
 
-    assert_allclose(estimate(y, 'poisson', K, verbose=False), 0.6998737749318877)
+    assert_allclose(
+        estimate(y, 'poisson', K, verbose=False), 0.6998737749318877)

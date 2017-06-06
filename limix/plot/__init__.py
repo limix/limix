@@ -13,6 +13,11 @@ QQ plot
 
 .. autofunction:: limix.plot.qqplot
 
+Power plots
+^^^^^^^^^^^
+
+.. autofunction:: limix.plot.plot_power_curve
+
 Kinship
 ^^^^^^^
 
@@ -30,6 +35,7 @@ from .qqplot import qqplot
 from .manhattan import plot_manhattan
 from .kinship import plot_kinship
 from .image import see_image
+from .power import plot_power_curve
 
 __all__ = ['plot_manhattan', 'qqplot', 'plot_normal', 'plot_kinship',
-           'see_image']
+           'see_image', 'plot_power_curve']

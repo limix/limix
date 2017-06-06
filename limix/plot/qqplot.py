@@ -1,17 +1,3 @@
-# Copyright(c) 2014, The LIMIX developers (Christoph Lippert, Paolo Francesco Casale, Oliver Stegle)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import scipy as sp
 import scipy.stats as st
 
@@ -36,45 +22,48 @@ def _qqplot_bar(M=1000000, alphaLevel=0.05, distr='log10'):
     return betaUp, betaDown, theoreticalPvals
 
 
-def qqplot(pv, label='unknown', distr='log10', alphaLevel=0.05, ax=None):
+def qqplot(pv, label='unknown', distr='log10', alphaLevel=0.05, ax=None,
+           color=None):
     r"""Produces a Quantile-Quantile plot of the observed P value
         distribution against the theoretical one under the null.
 
-    Args:
-        pv (array-like): pvalues
-        distr ({'log10', 'chi2'}): scale of the distribution.
-                                   If 'log10' is specified,
-                                   the distribution of the -log10
-                                   P values is considered.
-                                   If the distribution of the
-                                   corresponding chi2-distributed
-                                   test statistcs is considered.
-                                   The default value is 'log10'.
-        alphaLevel (float): significance bound.
-        ax (:class:`matplotlib.axes.AxesSubplot`):
-                the target handle for this figure.
-                If None, the current axes is set.
+    Parameters
+    ----------
 
-    Returns:
-        :class:`matplotlib.axes.AxesSubplot`: matplotlib subplot
+    pv : array_like
+        P-values.
+    distr : {'log10', 'chi2'}
+        Scale of the distribution. If 'log10' is specified, the distribution
+        of the -log10 P values is considered.
+        If the distribution of the corresponding chi2-distributed test
+        statistics is considered. Defaults to 'log10'.
+    alphaLevel : float
+        Significance bound.
+    ax : :class:`matplotlib.axes.AxesSubplot`
+        The target handle for this figure. If None, the current axes is set.
+
+    Returns
+    -------
+    :class:`matplotlib.axes.AxesSubplot`
+        Axes.
 
     Examples
     --------
 
-        .. plot::
+    .. plot::
 
-            from limix.plot import qqplot
-            from numpy.random import RandomState
-            from matplotlib import pyplot as plt
-            random = RandomState(1)
+        from limix.plot import qqplot
+        from numpy.random import RandomState
+        from matplotlib import pyplot as plt
+        random = RandomState(1)
 
-            pv = random.rand(10000)
+        pv = random.rand(10000)
 
-            fig = plt.figure(1, figsize=(5,5))
-            plt.subplot(111)
-            qqplot(pv)
-            plt.tight_layout()
-            plt.show()
+        fig = plt.figure(1, figsize=(5,5))
+        plt.subplot(111)
+        qqplot(pv)
+        plt.tight_layout()
+        plt.show()
     """
     import matplotlib.pylab as plt
     if ax is None:
@@ -102,9 +91,9 @@ def qqplot(pv, label='unknown', distr='log10', alphaLevel=0.05, ax=None):
         xl = '-log10(P) observed'
         yl = '-log10(P) expected'
 
-    plt.plot(qnull, qemp, '.')
+    plt.plot(qnull, qemp, '.', color=color, label=label)
     # plt.plot([0,qemp.m0x()], [0,qemp.max()],'r')
-    plt.plot([0, qnull.max()], [0, qnull.max()], 'r', label=label)
+    plt.plot([0, qnull.max()], [0, qnull.max()], 'r')
     plt.ylabel(xl)
     plt.xlabel(yl)
     if alphaLevel is not None:

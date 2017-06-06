@@ -17,7 +17,7 @@ def qtl_test_glmm(snps,
                   test='lrt',
                   NumIntervalsDeltaAlt=100,
                   searchDelta=False,
-                  verbose=None):
+                  verbose=True):
     """
     Wrapper function for univariate single-variant association testing
     using a generalised linear mixed model.
@@ -60,29 +60,30 @@ def qtl_test_glmm(snps,
         >>>
         >>> random = RandomState(0)
         >>>
-        >>> G = random.randn(100, 500) / sqrt(500)
+        >>> G = random.randn(250, 500) / sqrt(500)
         >>> beta = 0.01 * random.randn(500)
         >>>
-        >>> z = dot(G, beta) + 0.1 * random.randn(100)
+        >>> z = dot(G, beta) + 0.1 * random.randn(250)
         >>> z += dot(G[:, 0], 1) # causal SNP
         >>>
         >>> y = random.poisson(exp(z))
         >>>
         >>> candidates = G[:, :5]
         >>> K = dot(G[:, 5:], G[:, 5:].T)
-        >>> lm = qtl_test_glmm(candidates, y, 'poisson', K)
+        >>> lm = qtl_test_glmm(candidates, y, 'poisson', K, verbose=False)
         >>>
         >>> print(lm.getPv())
-        [[ 0.0029  0.6335  0.5451  0.3153  0.3669]]
+        [[ 0.0694  0.3336  0.5899  0.7388  0.7796]]
     """
-    snps = asarray(snps, float)
+
+    snps = _asarray(snps)
 
     if covs is None:
         covs = ones((snps.shape[0], 1))
     else:
-        covs = asarray(covs, float)
+        covs = _asarray(covs)
 
-    K = asarray(K, float)
+    K = _asarray(K)
 
     if isinstance(pheno, (tuple, list)):
         y = tuple([asarray(p, float) for p in pheno])
@@ -93,8 +94,8 @@ def qtl_test_glmm(snps,
     QS = economic_qs(K)
     glmm = GLMM(y, lik, covs, QS)
     glmm.feed().maximize(progress=verbose)
-    if verbose:
-        print("Elapsed time for GLMM part: %.3f" % (time() - start))
+    # if verbose:
+    #     print("Elapsed time for GLMM part: %.3f" % (time() - start))
 
     # extract stuff from glmm
     eta = glmm._site.eta
@@ -110,7 +111,15 @@ def qtl_test_glmm(snps,
 
     start = time()
     lmm = LMM(snps=snps, pheno=mu, K=tR, covs=covs, verbose=verbose)
-    if verbose:
-        print("Elapsed time for LMM part: %.3f" % (time() - start))
+    # if verbose:
+    #     print("Elapsed time for LMM part: %.3f" % (time() - start))
 
     return lmm
+
+
+def _asarray(X):
+    import dask.array as da
+
+    if not isinstance(X, da.Array):
+        X = asarray(X, float)
+    return X
