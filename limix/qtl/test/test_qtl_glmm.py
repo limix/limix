@@ -25,4 +25,4 @@ def test_qtl_glmm_binomial():
 
     lmm = qtl_test_glmm(X, y, 'binomial', K)
     pv = lmm.getPv()
-    assert_allclose(pv, [[0.44235662804387088, 0.67945853854749583]])
+    assert_allclose(pv, [[0.442442913806, 0.679877018353]])
