@@ -17,6 +17,8 @@ def do_see(args):
         limix.io.plink.see_kinship(args.file)
     elif ft == 'npy':
         limix.io.npy.see_kinship(args.file)
+    elif ft == 'bed':
+        limix.io.plink.see_bed(args.file)
     elif ft == 'image':
         limix.plot.see_image(args.file)
     else:

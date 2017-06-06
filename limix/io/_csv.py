@@ -5,10 +5,12 @@ def read_csv(filename, sep=None, header=True):
     ----------
     filename : str
         Path to a CSV file.
+    sep : str
+        Separator.
 
     Returns
     -------
-    data : dask dataframe
+    data : dask dataframes
 
     Examples
     --------
