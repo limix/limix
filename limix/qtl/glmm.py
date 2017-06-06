@@ -70,10 +70,10 @@ def qtl_test_glmm(snps,
         >>>
         >>> candidates = G[:, :5]
         >>> K = dot(G[:, 5:], G[:, 5:].T)
-        >>> lm = qtl_test_glmm(candidates, y, 'poisson', K)
+        >>> lm = qtl_test_glmm(candidates, y, 'poisson', K, verbose=False)
         >>>
         >>> print(lm.getPv())
-        [[ 0.0708  0.3274  0.5869  0.7342  0.7814]]
+        [[ 0.0694  0.3336  0.5899  0.7388  0.7796]]
     """
 
     snps = _asarray(snps)
@@ -94,8 +94,8 @@ def qtl_test_glmm(snps,
     QS = economic_qs(K)
     glmm = GLMM(y, lik, covs, QS)
     glmm.feed().maximize(progress=verbose)
-    if verbose:
-        print("Elapsed time for GLMM part: %.3f" % (time() - start))
+    # if verbose:
+    #     print("Elapsed time for GLMM part: %.3f" % (time() - start))
 
     # extract stuff from glmm
     eta = glmm._site.eta
@@ -111,8 +111,8 @@ def qtl_test_glmm(snps,
 
     start = time()
     lmm = LMM(snps=snps, pheno=mu, K=tR, covs=covs, verbose=verbose)
-    if verbose:
-        print("Elapsed time for LMM part: %.3f" % (time() - start))
+    # if verbose:
+    #     print("Elapsed time for LMM part: %.3f" % (time() - start))
 
     return lmm
 

@@ -1,5 +1,5 @@
-import scipy as sp
 import pandas as pd
+import scipy as sp
 
 
 def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
@@ -102,8 +102,8 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
         if len(pos) != len(chrom):
             raise ValueError('pos and chrom should have the same length')
 
-        position = pd.DataFrame(sp.array([pos, chrom]).T,
-                                columns=['pos', 'chrom'])
+        position = pd.DataFrame(
+            sp.array([pos, chrom]).T, columns=['pos', 'chrom'])
 
     RV = position.copy()
 
@@ -130,7 +130,7 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
         return pos_cum
 
 
-def unique_variants(snps):
+def unique_variants(snps, return_idxs=False):
     r"""
     Filters out variants with the same genetic profile.
 
@@ -173,6 +173,14 @@ def unique_variants(snps):
     """
 
     _s = sp.dot(sp.rand(snps.shape[0]), snps)
-    idxs_u = sp.sort(sp.unique(_s, return_index=True)[1])
 
-    return snps[:, idxs_u]
+    r = []
+    v, ix = sp.unique(_s, return_index=True)
+    idxs_u = sp.sort(ix)
+
+    r += [snps[:, idxs_u]]
+
+    if return_idxs:
+        r += [ix]
+
+    return tuple(r)
