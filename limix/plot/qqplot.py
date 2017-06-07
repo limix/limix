@@ -4,22 +4,18 @@ from numpy import append, arange, asarray, flipud, linspace, log10, sort
 from scipy.special import betaincinv
 
 
-def qqplot(pv, label='unknown', alphaLevel=0.05, style=dict(), ax=None):
-    r"""Produces a Quantile-Quantile plot of the observed P value
-        distribution against the theoretical one under the null.
+def qqplot(df, alpha=0.05, style=None, ax=None):
+    r"""Quantile-Quantile plot of observed p-values versus theoretical ones.
 
     Parameters
     ----------
 
-    pv : array_like
-        P-values.
-    distr : {'log10', 'chi2'}
-        Scale of the distribution. If 'log10' is specified, the distribution
-        of the -log10 P values is considered.
-        If the distribution of the corresponding chi2-distributed test
-        statistics is considered. Defaults to 'log10'.
-    alphaLevel : float
-        Significance bound.
+    df : data_frame
+        Data frame.
+    alpha : float
+        Significance level defining the band boundary.
+    style : dict
+        Keyword arguments forwarded to ``plot`` function.
     ax : :class:`matplotlib.axes.AxesSubplot`
         The target handle for this figure. If None, the current axes is set.
 
@@ -33,17 +29,18 @@ def qqplot(pv, label='unknown', alphaLevel=0.05, style=dict(), ax=None):
 
     .. plot::
 
+        import pandas as pd
         from limix.plot import qqplot
         from numpy.random import RandomState
         from matplotlib import pyplot as plt
         random = RandomState(1)
 
-        pv = random.rand(10000)
+        pv0 = random.rand(10000)
+        pv1 = random.rand(10000)
 
-        fig = plt.figure(1, figsize=(5,5))
-        plt.subplot(111)
-        qqplot(pv)
-        plt.tight_layout()
+        data = dict(pv=list(pv0) + list(pv1),
+                    label=['label0'] * len(pv0) + ['label1'] * len(pv1))
+        qqplot(pd.DataFrame(data=data))
         plt.show()
     """
 
@@ -51,15 +48,20 @@ def qqplot(pv, label='unknown', alphaLevel=0.05, style=dict(), ax=None):
 
     ax = plt.gca() if ax is None else ax
 
-    pv = asarray(pv, float)
+    labels = list(df['label'].unique())
+    if style is None:
+        style = {label: dict() for label in labels}
 
-    qnull = -log10((0.5 + arange(len(pv))) / len(pv))
-    qemp = -log10(sort(pv))
+    for label in labels:
+        pv = asarray(df.loc[df['label'] == label, 'pv'], float)
 
-    ax.plot(qnull, qemp, '.', label=label, **style)
+        qnull = -log10((0.5 + arange(len(pv))) / len(pv))
+        qemp = -log10(sort(pv))
+
+        ax.plot(qnull, qemp, '.', label=label, **style[label])
+
     ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
-
-    _plot_confidence_band(qnull, alphaLevel, ax)
+    _plot_confidence_band(qnull, alpha, ax)
     _set_axis_labels(ax)
 
     _set_frame(ax)
@@ -77,6 +79,7 @@ def _set_frame(ax):
 def _set_axis_labels(ax):
     ax.set_ylabel('-log$_{10}$pv observed')
     ax.set_xlabel('-log$_{10}$pv expected')
+    ax.legend(loc=2)
 
 
 def _expected(n):

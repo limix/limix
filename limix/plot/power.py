@@ -51,7 +51,7 @@ def plot_power_curve(df, color=None, ax=None):
     ax = plt.gca() if ax is None else ax
     labels = list(df['label'].unique())
 
-    opts = {label:dict() for label in labels}
+    opts = {label: dict() for label in labels}
 
     if color is not None:
         for label in color.keys():
@@ -60,11 +60,7 @@ def plot_power_curve(df, color=None, ax=None):
     alphas, nhits = _collect_nhits(df)
 
     for label in labels:
-        ax.plot(
-            alphas,
-            asarray(nhits[label], int),
-            label=label,
-            **opts[label])
+        ax.plot(alphas, asarray(nhits[label], int), label=label, **opts[label])
 
     _set_labels(ax)
 
