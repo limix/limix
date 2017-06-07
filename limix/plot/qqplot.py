@@ -1,29 +1,10 @@
-import scipy as sp
-import scipy.stats as st
+from __future__ import division
+
+from numpy import append, arange, asarray, flipud, linspace, log10, sort
+from scipy.special import betaincinv
 
 
-def _qqplot_bar(M=1000000, alphaLevel=0.05, distr='log10'):
-    """calculate theoretical expectations for qqplot"""
-    mRange = 10**(sp.arange(sp.log10(0.5), sp.log10(M - 0.5) +
-                            0.1, 0.1))  # should be exp or 10**?
-    numPts = len(mRange)
-    betaalphaLevel = sp.zeros(numPts)  # down in the plot
-    betaOneMinusalphaLevel = sp.zeros(numPts)  # up in the plot
-    betaInvHalf = sp.zeros(numPts)
-    for n in range(numPts):
-        m = mRange[n]  # numPLessThanThresh=m
-        betaInvHalf[n] = st.beta.ppf(0.5, m, M - m)
-        betaalphaLevel[n] = st.beta.ppf(alphaLevel, m, M - m)
-        betaOneMinusalphaLevel[n] = st.beta.ppf(1 - alphaLevel, m, M - m)
-    betaDown = betaInvHalf - betaalphaLevel
-    betaUp = betaOneMinusalphaLevel - betaInvHalf
-
-    theoreticalPvals = mRange / M
-    return betaUp, betaDown, theoreticalPvals
-
-
-def qqplot(pv, label='unknown', distr='log10', alphaLevel=0.05, ax=None,
-           color=None):
+def qqplot(pv, label='unknown', alphaLevel=0.05, style=dict(), ax=None):
     r"""Produces a Quantile-Quantile plot of the observed P value
         distribution against the theoretical one under the null.
 
@@ -65,51 +46,64 @@ def qqplot(pv, label='unknown', distr='log10', alphaLevel=0.05, ax=None,
         plt.tight_layout()
         plt.show()
     """
-    import matplotlib.pylab as plt
-    if ax is None:
-        ax = plt.gca()
 
-    shape_ok = (len(pv.shape) == 1) or (
-        (len(pv.shape) == 2) and pv.shape[1] == 1)
-    assert shape_ok, 'qqplot requires a 1D array of p-values'
+    import matplotlib.pyplot as plt
 
-    tests = pv.shape[0]
-    pnull = (0.5 + sp.arange(tests)) / tests
-    # pnull = np.sort(np.random.uniform(size = tests))
-    Ipv = sp.argsort(pv)
+    ax = plt.gca() if ax is None else ax
 
-    if distr == 'chi2':
-        qnull = sp.stats.chi2.isf(pnull, 1)
-        qemp = (sp.stats.chi2.isf(pv[Ipv], 1))
-        xl = 'LOD scores'
-        yl = '$\chi^2$ quantiles'
+    pv = asarray(pv, float)
 
-    if distr == 'log10':
-        qnull = -sp.log10(pnull)
-        qemp = -sp.log10(pv[Ipv])
+    qnull = -log10((0.5 + arange(len(pv))) / len(pv))
+    qemp = -log10(sort(pv))
 
-        xl = '-log10(P) observed'
-        yl = '-log10(P) expected'
+    ax.plot(qnull, qemp, '.', label=label, **style)
+    ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
 
-    plt.plot(qnull, qemp, '.', color=color, label=label)
-    # plt.plot([0,qemp.m0x()], [0,qemp.max()],'r')
-    plt.plot([0, qnull.max()], [0, qnull.max()], 'r')
-    plt.ylabel(xl)
-    plt.xlabel(yl)
-    if alphaLevel is not None:
-        if distr == 'log10':
-            betaUp, betaDown, theoreticalPvals = _qqplot_bar(
-                M=tests, alphaLevel=alphaLevel, distr=distr)
-            lower = -sp.log10(theoreticalPvals - betaDown)
-            upper = -sp.log10(theoreticalPvals + betaUp)
-            plt.fill_between(-sp.log10(theoreticalPvals),
-                             lower, upper, color='grey', alpha=0.5)
-            # plt.plot(-sp.log10(theoreticalPvals),lower,'g-.')
-            # plt.plot(-sp.log10(theoreticalPvals),upper,'g-.')
+    _plot_confidence_band(qnull, alphaLevel, ax)
+    _set_axis_labels(ax)
 
+    _set_frame(ax)
+
+    return ax
+
+
+def _set_frame(ax):
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
 
-    return ax
+
+def _set_axis_labels(ax):
+    ax.set_ylabel('-log$_{10}$pv observed')
+    ax.set_xlabel('-log$_{10}$pv expected')
+
+
+def _expected(n):
+    lnpv = linspace(1 / (n + 1), n / (n + 1), n, endpoint=True)
+    return flipud(-log10(lnpv))
+
+
+def _rank_confidence_band(nranks, significance_level):
+    alpha = significance_level
+
+    k0 = arange(1, nranks + 1)
+    k1 = flipud(k0).copy()
+
+    top = betaincinv(k0, k1, 1 - alpha)
+    mean = k0 / (nranks + 1)
+    bottom = betaincinv(k0, k1, alpha)
+
+    return (bottom, mean, top)
+
+
+def _plot_confidence_band(null_pvals, significance_level, ax):
+
+    (bo, me, to) = _rank_confidence_band(len(null_pvals), significance_level)
+
+    me = -log10(me)
+    bo = -log10(bo)
+    to = -log10(to)
+
+    ax.fill_between(
+        null_pvals, bo, to, facecolor='black', edgecolor='black', alpha=0.15)
