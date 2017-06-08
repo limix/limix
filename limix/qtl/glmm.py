@@ -17,7 +17,7 @@ def qtl_test_glmm(snps,
                   test='lrt',
                   NumIntervalsDeltaAlt=100,
                   searchDelta=False,
-                  verbose=None):
+                  verbose=True):
     """
     Wrapper function for univariate single-variant association testing
     using a generalised linear mixed model.
