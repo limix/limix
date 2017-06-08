@@ -14,17 +14,14 @@ Public interface
 ^^^^^^^^^^^^^^^^
 """
 
-from .set_utils import sets_from_bim
-from .set_utils import annotate_sets
-from .geno_utils import estCumPos
-from .geno_utils import unique_variants
+from . import preprocess
+from ._array import asarray
+from .geno_utils import estCumPos, unique_variants
+from .set_utils import annotate_sets, sets_from_bim
 from .temp import TemporaryDirectory
 from .url import urlretrieve
-from . import preprocess
 
-__all__ = ['sets_from_bim',
-           'annotate_sets',
-           'estCumPos',
-           'unique_variants',
-           'TemporaryDirectory',
-           'urlretrieve']
+__all__ = [
+    'sets_from_bim', 'annotate_sets', 'estCumPos', 'unique_variants',
+    'TemporaryDirectory', 'urlretrieve', 'asarray'
+]

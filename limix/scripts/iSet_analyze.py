@@ -8,7 +8,7 @@ def entry_point():
     import scipy as sp
 
     from ..data import BedReader
-    from ..iSet.iset import fit_iSet
+    from ..iset.iset import fit_iset
     from ..util import unique_variants as f_uni_variants
 
     parser = OptionParser()
@@ -96,10 +96,10 @@ def entry_point():
             Xr[:, p > 0.5] = 2 - Xr[:, p > 0.5]
 
         Xr /= np.sqrt(Xr.shape[1])
-        _df, _df0 = fit_iSet(Y, F=F, Xr=Xr, Ie=Ie, n_nulls=10)
+        _df, _df0 = fit_iset(Y, F=F, Xr=Xr, Ie=Ie, n_nulls=10)
         df = df.append(_df)
         df0 = df0.append(_df0)
         print('Elapsed:', time.time() - t0)
 
-    df.to_csv(resfile + '.iSet.real')
-    df0.to_csv(resfile + '.iSet.perm')
+    df.to_csv(resfile + '.iset.real')
+    df0.to_csv(resfile + '.iset.perm')
