@@ -1,11 +1,11 @@
-from .mvSet import MvSetTest
-from .mvSetFull import MvSetTestFull
-from .mvSetInc import MvSetTestInc
+from .mvset import MvSetTest
+from .mvsetfull import MvSetTestFull
+from .mvsetinc import MvSetTestInc
 import pandas as pd
 import scipy as sp
 
 
-def fit_iSet(
+def fit_iset(
         Y=None,
         Xr=None,
         F=None,
@@ -16,7 +16,7 @@ def fit_iSet(
         n_nulls=10,
         factr=1e7):
     """
-    Fit interaction set test (iSet).
+    Fit interaction set test (iset).
 
     Args:
         Y (ndarray):
@@ -63,23 +63,23 @@ def fit_iSet(
     Returns:
         (tuple): tuple containing:
             - **df** (*:class:`pandas.DataFrame`*):
-              contains test statistcs of mtSet, iSet, and iSet-GxC tests and
+              contains test statistcs of mtSet, iset, and iset-GxC tests and
               the variance exaplained by persistent, GxC and
               heterogeneity-GxC effects.
             - **df0** (*:class:`pandas.DataFrame`*):
-              contains null test statistcs of mtSet, iSet, and iSet-GxC tests.
+              contains null test statistcs of mtSet, iset, and iset-GxC tests.
 
     Examples
     --------
 
-        This example shows how to fit iSet when considering complete designs and
+        This example shows how to fit iset when considering complete designs and
         modelling population structure/relatedness by introducing the top principle
         components of the genetic relatedness matrix (``pc_rrm``) as fixed effects.
 
         .. doctest::
 
             >>> from numpy.random import RandomState
-            >>> from limix.iSet import fit_iSet
+            >>> from limix.iset import fit_iset
             >>> from numpy import ones, concatenate
             >>> import scipy as sp
             >>>
@@ -96,18 +96,18 @@ def fit_iSet(
             >>> pc_rrm = random.randn(N, 4)
             >>> covs = concatenate([mean, pc_rrm], 1)
             >>>
-            >>> df, df0 = fit_iSet(Y=pheno, Xr=snps, F=covs, n_nulls=2)
+            >>> df, df0 = fit_iset(Y=pheno, Xr=snps, F=covs, n_nulls=2)
             >>>
             >>> print(df.round(3).T)
                                        0
             Heterogeneity-GxC var  0.000
             Persistent Var         0.005
             Rescaling-GxC Var      0.005
-            iSet LLR               0.137
-            iSet-het LLR          -0.000
+            iset LLR               0.137
+            iset-het LLR          -0.000
             mtSet LLR              0.166
 
-        This example shows how to fit iSet when considering complete designs
+        This example shows how to fit iset when considering complete designs
         and modelling population structure/relatedness using the full
         genetic relatedness matrix.
 
@@ -121,22 +121,22 @@ def fit_iSet(
             >>> kinship = dot(W, W.T) / float(10)
             >>> kinship+= 1e-4 * eye(N)
             >>>
-            >>> df, df0 = fit_iSet(Y=pheno, Xr=snps, Rg=kinship, n_nulls=2)
+            >>> df, df0 = fit_iset(Y=pheno, Xr=snps, Rg=kinship, n_nulls=2)
             >>>
             >>> print(df.round(3).T)
                                        0
             Heterogeneity-GxC var  0.000
             Persistent Var         0.005
             Rescaling-GxC Var      0.005
-            iSet LLR               1.098
-            iSet-het LLR           1.014
+            iset LLR               1.098
+            iset-het LLR           1.014
             mtSet LLR              0.154
 
-        This example shows how to fit iSet when considering stratified designs
+        This example shows how to fit iset when considering stratified designs
         and modelling population structure/relatedness by introducing
         the top principle components of the genetic relatedness matrix
         (``pc_rrm``) as fixed effects.
-        iSet does not support models with full genetic relatedness matrix
+        iset does not support models with full genetic relatedness matrix
         for stratified designs.
 
         .. doctest::
@@ -147,38 +147,38 @@ def fit_iSet(
             >>> pheno = random.randn(N, 1)
             >>> Ie = random.randn(N)<0.
             >>>
-            >>> df, df0 = fit_iSet(Y=pheno, Xr=snps, F=covs, Ie=Ie, n_nulls=2)
+            >>> df, df0 = fit_iset(Y=pheno, Xr=snps, F=covs, Ie=Ie, n_nulls=2)
             >>>
             >>> print(df.round(3).T)
                                        0
             Heterogeneity-GxC var -0.000
             Persistent Var         0.064
             Rescaling-GxC Var      0.006
-            iSet LLR               0.648
-            iSet-het LLR           0.000
+            iset LLR               0.648
+            iset-het LLR           0.000
             mtSet LLR              1.177
 
-        For more info and examples see the `iSet tutorial`_.
+        For more info and examples see the `iset tutorial`_.
 
-        .. _iSet tutorial: https://github.com/limix/limix-tutorials/tree/master/iSet
+        .. _iset tutorial: https://github.com/limix/limix-tutorials/tree/master/iset
 
     """
     # data
     noneNone = Sg is not None and Ug is not None
     bgRE = Rg is not None or noneNone
     # fixed effect
-    msg = 'The current implementation of the full rank iSet'
+    msg = 'The current implementation of the full rank iset'
     msg += ' does not support covariates.'
     msg += ' We reccommend to regress out covariates and'
     msg += ' subsequently quantile normalize the phenotypes'
-    msg += ' to a normal distribution prior to use mtSet/iSet.'
+    msg += ' to a normal distribution prior to use mtSet/iset.'
     msg += ' This can be done within the LIMIX framework using'
     msg += ' the methods limix.util.preprocess.regressOut and'
     msg += ' limix.util.preprocess.gaussianize'
     assert not (F is not None and bgRE), msg
     # strat
     strat = Ie is not None
-    msg = 'iSet for interaction analysis of stratified populations '
+    msg = 'iset for interaction analysis of stratified populations '
     msg += 'using contextual variables does not support random effect '
     msg += 'correction for confounding. '
     msg += 'Please use the fixed effects to correct for confounding. '
@@ -204,8 +204,8 @@ def fit_iSet(
 
     RV = {}
     RV['mtSet LLR'] = mvset.assoc()
-    RV['iSet LLR'] = mvset.gxe()
-    RV['iSet-het LLR'] = mvset.gxehet()
+    RV['iset LLR'] = mvset.gxe()
+    RV['iset-het LLR'] = mvset.gxehet()
     RV['Persistent Var'] = mvset.info['full']['var_r'][0]
     RV['Rescaling-GxC Var'] = mvset.info['full']['var_r'][1]
     RV['Heterogeneity-GxC var'] = mvset.info['full']['var_r'][2]
@@ -213,8 +213,8 @@ def fit_iSet(
 
     RV0 = {}
     RV0['mtSet LLR0'] = mvset.assoc_null(n_nulls=n_nulls)
-    RV0['iSet LLR0'] = mvset.gxe_null(n_nulls=n_nulls)
-    RV0['iSet-het LLR0'] = mvset.gxehet_null(n_nulls=n_nulls)
+    RV0['iset LLR0'] = mvset.gxe_null(n_nulls=n_nulls)
+    RV0['iset-het LLR0'] = mvset.gxehet_null(n_nulls=n_nulls)
     df0 = pd.DataFrame(RV0)
 
     return df, df0

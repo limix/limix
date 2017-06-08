@@ -17,7 +17,7 @@ def entry_point():
     tol = options.tol
 
     print('.. load permutation results')
-    file_name = os.path.join(resdir, '*.iSet.perm')
+    file_name = os.path.join(resdir, '*.iset.perm')
     files = glob.glob(file_name)
     df0 = pd.DataFrame()
     for _file in files:
@@ -25,7 +25,7 @@ def entry_point():
         df0 = df0.append(pd.read_csv(_file, index_col=0))
 
     print('.. load real results')
-    file_name = os.path.join(resdir, '*.iSet.real')
+    file_name = os.path.join(resdir, '*.iset.real')
     files = glob.glob(file_name)
     df = pd.DataFrame()
     for _file in files:
@@ -33,7 +33,7 @@ def entry_point():
         df = df.append(pd.read_csv(_file, index_col=0))
 
     # calculate P values for the three tests
-    for test in ['mtSet', 'iSet', 'iSet-het']:
+    for test in ['mtSet', 'iset', 'iset-het']:
         df[test + ' pv'] = calc_emp_pv_eff(df[test + ' LLR'].values,
                                            df0[test + ' LLR0'].values)
 
