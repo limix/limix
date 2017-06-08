@@ -47,7 +47,7 @@ class MTSet():
     .. doctest::
 
         >>> from numpy.random import RandomState
-        >>> from limix.mtSet import MTSet
+        >>> from limix.mtset import MTSet
         >>> from numpy import dot, eye, ones, concatenate
         >>> from numpy import set_printoptions
         >>> set_printoptions(4)

@@ -1,6 +1,6 @@
 from optparse import OptionParser
 
-from ..mtSet.core.definesetsCore import definesets
+from ..mtset.core.definesetscore import definesets
 
 
 def entry_point():

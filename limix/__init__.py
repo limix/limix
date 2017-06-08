@@ -13,9 +13,9 @@ import limix_core as core
 from pkg_resources import DistributionNotFound as _DistributionNotFound
 from pkg_resources import get_distribution as _get_distribution
 
-from . import (heritability, io, iset, mtSet, plot, qtl, scripts, stats, util,
+from . import (heritability, io, iset, mtset, plot, qtl, scripts, stats, util,
                varDecomp)
-from .mtSet import MTSet
+from .mtset import MTSet
 
 try:
     __version__ = _get_distribution('limix').version
