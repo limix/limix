@@ -9,6 +9,6 @@ Public interface
 ^^^^^^^^^^^^^^^^
 """
 
-from .varianceDecomposition import VarianceDecomposition
+from .variance_decomposition import VarianceDecomposition
 
 __all__ = ['VarianceDecomposition']

@@ -1,2 +1,2 @@
-.. automodule:: limix.varDecomp
+.. automodule:: limix.vardecomp
   :members:

@@ -18,12 +18,12 @@ def plot_manhattan(df,
     alpha : float
         Threshold for significance. Defaults to 0.01 significance level
         (bonferroni-adjusted).
-    ax : :class:`matplotlib.axes.AxesSubplot`:
+    ax : :class:`matplotlib.axes.Axes`:
         The target handle for this figure. If None, the current axes is set.
 
     Returns
     -------
-    :class:`matplotlib.axes.AxesSubplot`
+    :class:`matplotlib.axes.Axes`
         Axes object.
 
     Examples

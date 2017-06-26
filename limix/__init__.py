@@ -14,8 +14,7 @@ from pkg_resources import DistributionNotFound as _DistributionNotFound
 from pkg_resources import get_distribution as _get_distribution
 
 from . import (heritability, io, iset, mtset, plot, qtl, scripts, stats, util,
-               varDecomp)
-from .mtset import MTSet
+               vardecomp)
 
 try:
     __version__ = _get_distribution('limix').version
@@ -42,6 +41,6 @@ def test():
 
 
 __all__ = [
-    'test', 'core', 'io', 'plot', 'qtl', 'stats', 'util', 'varDecomp', 'mtSet',
-    'iset', 'scripts', 'MTSet', 'heritability'
+    'test', 'core', 'io', 'plot', 'qtl', 'stats', 'util', 'vardecomp', 'mtset',
+    'iset', 'scripts', 'heritability'
 ]

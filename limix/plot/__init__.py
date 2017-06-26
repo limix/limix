@@ -11,7 +11,7 @@ Manhattan
 QQ plot
 ^^^^^^^
 
-.. autofunction:: limix.plot.qqplot
+.. autofunction:: limix.plot.plot_qqplot
 
 Power plots
 ^^^^^^^^^^^

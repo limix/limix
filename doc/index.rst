@@ -11,9 +11,9 @@ Limix's documentation
    cmd
    qtl
    heritability
-   varDecomp
-   mtSet
-   iSet
+   vardecomp
+   mtset
+   iset
    io
    stats
    plot

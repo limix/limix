@@ -15,13 +15,14 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
     alpha : float
         Significance level defining the band boundary. Defaults to ``0.05``.
     style : dict
-        Keyword arguments forwarded to ``plot`` function.
-    ax : :class:`matplotlib.axes.AxesSubplot`
+        Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
+        function.
+    ax : :class:`matplotlib.axes.Axes`
         The target handle for this figure. If None, the current axes is set.
 
     Returns
     -------
-    :class:`matplotlib.axes.AxesSubplot`
+    :class:`matplotlib.axes.Axes`
         Axes.
 
     Examples
@@ -30,7 +31,7 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
     .. plot::
 
         import pandas as pd
-        from limix.plot import qqplot
+        from limix.plot import plot_qqplot
         from numpy.random import RandomState
         from matplotlib import pyplot as plt
         random = RandomState(1)
@@ -40,7 +41,7 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
 
         data = dict(pv=list(pv0) + list(pv1),
                     label=['label0'] * len(pv0) + ['label1'] * len(pv1))
-        qqplot(pd.DataFrame(data=data))
+        plot_qqplot(pd.DataFrame(data=data))
         plt.show()
     """
 

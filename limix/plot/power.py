@@ -13,12 +13,12 @@ def plot_power_curve(df, color=None, ax=None):
         Data frame with `pv` and `label` columns.
     color : dict
         Map colors to labels.
-    ax : :class:`matplotlib.axes.AxesSubplot`
+    ax : :class:`matplotlib.axes.Axes`
         The target handle for this figure. If None, the current axes is set.
 
     Returns
     -------
-    :class:`matplotlib.axes.AxesSubplot`
+    :class:`matplotlib.axes.Axes`
         Axes.
 
     Examples
