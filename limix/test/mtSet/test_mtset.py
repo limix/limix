@@ -1,9 +1,10 @@
+import os
 import unittest
-from limix import MTSet
+
 import scipy as sp
 import scipy.linalg as LA
-import pdb
-import os
+
+from limix.mtset import MTSet
 
 dir_name = os.path.dirname(os.path.realpath(__file__))
 base_folder = os.path.join(dir_name, 'data')
@@ -45,9 +46,7 @@ class TestMTSet(unittest.TestCase):
         fbasename = 'mtSet_base'
         setTest = MTSet(self.Y, R=self.XX)
         optInfo = setTest.optimize(self.Xr)
-        ext = {'Cr': optInfo['Cr'],
-               'Cg': optInfo['Cg'],
-               'Cn': optInfo['Cn']}
+        ext = {'Cr': optInfo['Cr'], 'Cg': optInfo['Cg'], 'Cn': optInfo['Cn']}
         if self.write:
             self.saveStuff(fbasename, ext)
         RV = self.assess(fbasename, ext)
@@ -58,9 +57,7 @@ class TestMTSet(unittest.TestCase):
         S, U = LA.eigh(self.XX)
         setTest = MTSet(Y=self.Y, S_R=S, U_R=U)
         optInfo = setTest.optimize(self.Xr)
-        ext = {'Cr': optInfo['Cr'],
-               'Cg': optInfo['Cg'],
-               'Cn': optInfo['Cn']}
+        ext = {'Cr': optInfo['Cr'], 'Cg': optInfo['Cg'], 'Cn': optInfo['Cn']}
         RV = self.assess(fbasename, ext)
         self.assertTrue(RV)
 
@@ -88,8 +85,7 @@ class TestMTSet(unittest.TestCase):
         fbasename = 'mtSetPC_base'
         setTest = MTSet(Y=self.Y)
         optInfo = setTest.optimize(self.Xr)
-        ext = {'Cr': optInfo['Cr'],
-               'Cn': optInfo['Cn']}
+        ext = {'Cr': optInfo['Cr'], 'Cn': optInfo['Cn']}
         if self.write:
             self.saveStuff(fbasename, ext)
         RV = self.assess(fbasename, ext)
@@ -99,8 +95,7 @@ class TestMTSet(unittest.TestCase):
         fbasename = 'mtSetPC_fixed'
         setTest = MTSet(Y=self.Y, F=self.Xr[:, :2])
         optInfo = setTest.optimize(self.Xr)
-        ext = {'Cr': optInfo['Cr'],
-               'Cn': optInfo['Cn']}
+        ext = {'Cr': optInfo['Cr'], 'Cn': optInfo['Cn']}
         if self.write:
             self.saveStuff(fbasename, ext)
         RV = self.assess(fbasename, ext)
@@ -125,8 +120,6 @@ class TestMTSet(unittest.TestCase):
         real = self.loadStuff(fbasename, list(ext.keys()))
         RV = sp.all([((ext[key] - real[key])**2).mean() < 1e-6
                      for key in list(ext.keys())])
-        if not RV:
-            pdb.set_trace()
         return RV
 
 
