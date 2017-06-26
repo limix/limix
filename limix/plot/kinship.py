@@ -9,7 +9,8 @@ def plot_kinship(K, style=None, ax=None):
     K : array_like
         Kinship matrix.
     style : dict
-        Keyword arguments forwarded to ``imshow`` function.
+        Keyword arguments forwarded to the :func:`matplotlib.axes.Axes.imshow`
+        function.
     ax : :class:`matplotlib.axes.Axes`
         The target handle for this figure. If None, the current axes is set.
 
