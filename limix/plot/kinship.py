@@ -1,34 +1,46 @@
 from numpy import asarray
 
 
-def plot_kinship(K):
+def plot_kinship(K, ax=None):
     r"""Plot Kinship matrix.
 
     Parameters
     ----------
     K : array_like
         Kinship matrix.
+    ax : :class:`matplotlib.axes.AxesSubplot`
+        The target handle for this figure. If None, the current axes is set.
+
+    Returns
+    -------
+    :class:`matplotlib.axes.AxesSubplot`
+        Axes.
 
     Examples
     --------
 
     .. plot::
 
-        from limix.io.npy import see_kinship
+        import numpy as np
+        from matplotlib import pyplot as plt
         from limix.io.examples import numpy_kinship_file_example
+        from limix.plot import plot_kinship
 
-        see_kinship(numpy_kinship_file_example())
+        K = np.load(numpy_kinship_file_example())
+        plot_kinship(K)
+        plt.tight_layout()
+        plt.show()
     """
-    from matplotlib import pyplot as plt
-    from matplotlib import cm as cm
+    import matplotlib.pyplot as plt
+
+    ax = plt.gca() if ax is None else ax
 
     K = asarray(K, float)
     mi = K.min()
     ma = K.max()
     K = (K - mi) / (ma - mi)
 
-    fig = plt.figure()
-    ax1 = fig.add_subplot(111)
-    cax = ax1.imshow(K, interpolation='nearest')
-    fig.colorbar(cax)
-    plt.show()
+    cax = ax.imshow(K, interpolation='nearest')
+    ax.figure.colorbar(cax)
+
+    return ax

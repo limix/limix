@@ -4,7 +4,7 @@ from numpy import append, arange, asarray, flipud, linspace, log10, sort
 from scipy.special import betaincinv
 
 
-def qqplot(df, alpha=0.05, style=None, ax=None):
+def plot_qqplot(df, alpha=0.05, style=None, ax=None):
     r"""Quantile-Quantile plot of observed p-values versus theoretical ones.
 
     Parameters
@@ -13,7 +13,7 @@ def qqplot(df, alpha=0.05, style=None, ax=None):
     df : data_frame
         Data frame.
     alpha : float
-        Significance level defining the band boundary.
+        Significance level defining the band boundary. Defaults to ``0.05``.
     style : dict
         Keyword arguments forwarded to ``plot`` function.
     ax : :class:`matplotlib.axes.AxesSubplot`
