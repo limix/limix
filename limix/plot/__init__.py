@@ -3,8 +3,8 @@ r"""
 Plotting utilities
 ******************
 
-Manhattan
-^^^^^^^^^
+Manhattan plot
+^^^^^^^^^^^^^^
 
 .. autofunction:: limix.plot.plot_manhattan
 
@@ -18,8 +18,8 @@ Power plots
 
 .. autofunction:: limix.plot.plot_power_curve
 
-Kinship
-^^^^^^^
+Kinship plot
+^^^^^^^^^^^^
 
 .. autofunction:: limix.plot.plot_kinship
 
@@ -27,6 +27,11 @@ Normal distribution
 ^^^^^^^^^^^^^^^^^^^
 
 .. autofunction:: limix.plot.plot_normal
+
+File plot
+^^^^^^^^^
+
+.. autofunction:: limix.plot.see_image
 
 """
 
