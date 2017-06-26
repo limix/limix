@@ -10,7 +10,7 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
     Parameters
     ----------
 
-    df : data_frame
+    df : :class:`pandas.DataFrame`
         Data frame.
     alpha : float
         Significance level defining the band boundary. Defaults to ``0.05``.

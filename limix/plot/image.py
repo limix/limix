@@ -1,4 +1,14 @@
 def see_image(filepath):
+    r"""Plot a image represented in a file.
+
+    It uses :func:`matplotlib.pyplot.imread` in order to read the provided
+    file and plot.
+
+    Parameters
+    ----------
+    filepath : str
+        File path to the image.
+    """
     import matplotlib.pyplot as plt
 
     plt.imshow(plt.imread(filepath))

@@ -10,7 +10,8 @@ def plot_normal(x, bins=20, nstd=2, style=None, ax=None):
 
     Parameters
     ----------
-    x : array_like)
+
+    x : array_like
         Values to be fitted.
     bins : int
         Number of histogram bins.
