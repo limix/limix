@@ -23,6 +23,13 @@ except _DistributionNotFound:
 
 
 def test():
+
+    try:
+        import pytest_pep8
+    except ImportError:
+        print("Please, install pytest-pep8 in order to proceed.")
+        return 1
+
     import os
     p = __import__('limix').__path__[0]
     src_path = os.path.abspath(p)
