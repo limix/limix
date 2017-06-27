@@ -11,7 +11,7 @@ Limix's documentation
    cmd
    qtl
    heritability
-   vardecomp
+   vardec
    mtset
    iset
    io

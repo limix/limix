@@ -1,19 +1,4 @@
-# Copyright(c) 2014, The LIMIX developers (Christoph Lippert, Paolo Francesco Casale, Oliver Stegle)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import copy
-import sys
 import warnings
 
 import scipy as sp
@@ -40,7 +25,7 @@ class VarianceDecomposition(object):
         .. doctest::
 
             >>> from numpy.random import RandomState
-            >>> from limix.vardecomp import VarianceDecomposition
+            >>> from limix.vardec import VarianceDecomposition
             >>> from numpy import dot, eye, ones
             >>> from numpy import set_printoptions
             >>> set_printoptions(4)
@@ -319,8 +304,8 @@ class VarianceDecomposition(object):
             elif perturb:
                 params = {
                     'covar':
-                    params0['covar'] + pertSize *
-                    sp.randn(params0['covar'].shape[0])
+                    params0['covar'] +
+                    pertSize * sp.randn(params0['covar'].shape[0])
                 }
                 self.gp.setParams(params)
             conv, info = self.gp.optimize(verbose=verbose)
@@ -679,8 +664,8 @@ class VarianceDecomposition(object):
                 out += C.Kgrad_param(param_i)**2 * Sigma1[param_i, param_i]
                 for param_j in range(param_i):
                     out += 2 * abs(
-                        C.Kgrad_param(param_i) *
-                        C.Kgrad_param(param_j)) * Sigma1[param_i, param_j]
+                        C.Kgrad_param(param_i) * C.Kgrad_param(param_j)
+                    ) * Sigma1[param_i, param_j]
         out = sp.sqrt(out)
         return out
 
