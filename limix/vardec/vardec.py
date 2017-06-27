@@ -9,63 +9,64 @@ import scipy.stats
 class VarianceDecomposition(object):
     r"""Class for variance decomposition
 
-    Args:
-        Y (ndarray):
-            (`N`, `P`) phenotype matrix
-        standardize (bool):
-            if True, impute missing phenotype values by mean value,
-            zero-mean and unit-variance phenotype.
-            The default value is False.
+    Parameters
+    ----------
+    Y : array_like
+        (`N`, `P`) phenotype matrix
+    standardize : bool
+        If True, impute missing phenotype values by mean value,
+        zero-mean and unit-variance phenotype.
+        The default value is False.
 
     Examples
     --------
 
-        Basic example of usage.
+    Basic example of usage.
 
-        .. doctest::
+    .. doctest::
 
-            >>> from numpy.random import RandomState
-            >>> from limix.vardec import VarianceDecomposition
-            >>> from numpy import dot, eye, ones
-            >>> from numpy import set_printoptions
-            >>> set_printoptions(4)
-            >>> random = RandomState(1)
-            >>>
-            >>> N = 100
-            >>> P = 3
-            >>>
-            >>> # generate data
-            >>> pheno = random.randn(N, P)
-            >>> W = random.randn(N, 10)
-            >>> kinship = dot(W, W.T) / float(10)
-            >>> kinship+= 1e-4*eye(N)
-            >>> F1 = ones((N, 1))
-            >>> A1 = eye(P)
-            >>> F2 = random.randn(N, 2)
-            >>> A2 = ones((1, P))
-            >>>
-            >>> vc = VarianceDecomposition(pheno)
-            >>> vc.addFixedEffect(F1, A1)
-            >>> vc.addFixedEffect(F2, A2)
-            >>> vc.addRandomEffect(K=kinship)
-            >>> vc.addRandomEffect(is_noise=True)
-            >>> conv = vc.optimize()
-            >>> print(conv)
-            True
-            >>>
-            >>> print(vc.getTraitCovar(0))
-            [[ 0.0097  0.023  -0.0032]
-             [ 0.023   0.0562 -0.0062]
-             [-0.0032 -0.0062  0.0096]]
-            >>> print(vc.getTraitCovar(1))
-            [[ 1.0029 -0.1212 -0.0052]
-             [-0.1212  0.8284 -0.0412]
-             [-0.0052 -0.0412  0.8147]]
-            >>> print(vc.getWeights(0))
-            [[ 0.039   0.0899  0.1213]]
-            >>> print(vc.getWeights(1))
-            [[-0.0176]
-             [-0.0095]]
+        >>> from numpy.random import RandomState
+        >>> from limix.vardec import VarianceDecomposition
+        >>> from numpy import dot, eye, ones
+        >>> from numpy import set_printoptions
+        >>> set_printoptions(4)
+        >>> random = RandomState(1)
+        >>>
+        >>> N = 100
+        >>> P = 3
+        >>>
+        >>> # generate data
+        >>> pheno = random.randn(N, P)
+        >>> W = random.randn(N, 10)
+        >>> kinship = dot(W, W.T) / float(10)
+        >>> kinship+= 1e-4*eye(N)
+        >>> F1 = ones((N, 1))
+        >>> A1 = eye(P)
+        >>> F2 = random.randn(N, 2)
+        >>> A2 = ones((1, P))
+        >>>
+        >>> vc = VarianceDecomposition(pheno)
+        >>> vc.addFixedEffect(F1, A1)
+        >>> vc.addFixedEffect(F2, A2)
+        >>> vc.addRandomEffect(K=kinship)
+        >>> vc.addRandomEffect(is_noise=True)
+        >>> conv = vc.optimize()
+        >>> print(conv)
+        True
+        >>>
+        >>> print(vc.getTraitCovar(0))
+        [[ 0.0097  0.023  -0.0032]
+         [ 0.023   0.0562 -0.0062]
+         [-0.0032 -0.0062  0.0096]]
+        >>> print(vc.getTraitCovar(1))
+        [[ 1.0029 -0.1212 -0.0052]
+         [-0.1212  0.8284 -0.0412]
+         [-0.0052 -0.0412  0.8147]]
+        >>> print(vc.getWeights(0))
+        [[ 0.039   0.0899  0.1213]]
+        >>> print(vc.getWeights(1))
+        [[-0.0176]
+         [-0.0095]]
     """
 
     def __init__(self, Y, standardize=False):
