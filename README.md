@@ -22,18 +22,6 @@ https://github.com/limix/limix-tutorials.
 These tutorials can also be viewed using the ipython notebook viewer:
 http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb.
 
-#### Highlights
-
-- **iSet**: an interaction set test with external context
-  ([paper](http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006693))
-  ([public interface](http://limix.readthedocs.io/iSet.html))
-  ([tutorial](https://github.com/limix/limix-tutorials/tree/master/iSet))
-
-- **mtSet**: an efficient multi-trait set test
-  ([paper](http://www.nature.com/nmeth/journal/v12/n8/abs/nmeth.3439.html))
-  ([public interface](http://limix.readthedocs.io/mtset.html))
-  ([tutorial](https://github.com/limix/limix-tutorials/tree/master/mtSet))
-
 ## Install
 
 The recommended way of installing it is via
