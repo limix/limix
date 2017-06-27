@@ -31,7 +31,7 @@ http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb
 
 - **mtSet**: an efficient multi-trait set test
   ([paper](http://www.nature.com/nmeth/journal/v12/n8/abs/nmeth.3439.html))
-  ([public interface](http://limix.readthedocs.io/mtSet.html))
+  ([public interface](http://limix.readthedocs.io/mtset.html))
   ([tutorial](https://github.com/limix/limix-tutorials/tree/master/mtSet))
 
 ## Install
@@ -50,7 +50,7 @@ If you encounter any issue, please, [submit it](https://github.com/limix/limix/i
 ## Authors
 
 * **Christoph Lippert** - [https://github.com/clippert](https://github.com/clippert)
-* **Danilo Horta** - [https://github.com/Horta](https://github.com/Horta)
+* **Danilo Horta** - [https://github.com/Horta](https://github.com/horta)
 * **Francesco Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
 * **Oliver Stegle** - [https://github.com/ostegle](https://github.com/ostegle)
 

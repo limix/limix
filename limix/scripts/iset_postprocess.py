@@ -33,7 +33,7 @@ def entry_point():
         df = df.append(pd.read_csv(_file, index_col=0))
 
     # calculate P values for the three tests
-    for test in ['mtSet', 'iset', 'iset-het']:
+    for test in ['mtset', 'iset', 'iset-het']:
         df[test + ' pv'] = calc_emp_pv_eff(df[test + ' LLR'].values,
                                            df0[test + ' LLR0'].values)
 
