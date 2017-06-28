@@ -1,3 +1,4 @@
+import scipy.linalg as la
 from numpy import isnan, zeros_like
 from scipy.stats import boxcox as sp_boxcox
 from scipy_sugar.stats import quantile_gaussianize
@@ -10,11 +11,15 @@ def boxcox(X):
     minimum value and adding 1.
     Then each phenotype is transformed by the Box-Cox transformation.
 
-    Args:
-        X (array_like): samples by phenotypes.
+    Parameters
+    ----------
+    X : array_like
+        Samples by phenotypes.
 
-    Returns:
-        array_like: Box-Cox power transformed array.
+    Returns
+    -------
+    array_like
+        Box-Cox power transformed array.
 
     Examples
     --------
@@ -46,9 +51,21 @@ def boxcox(X):
 
 
 def mean_standardize(Y, in_place=False):
-    """
-    standardize Y in a way that is robust to missing values
-    in_place: create a copy or carry out inplace opreations?
+    r"""Zero-mean and one-deviation normalization.
+
+    Standardize Y in a way that is robust to missing values
+
+    Parameters
+    ----------
+    Y : array_like
+        Array to be normalized.
+    in_place : bool
+        Whether to operate in-place.
+
+    Returns
+    -------
+    array_like
+        Normalized array.
     """
     if in_place:
         YY = Y
@@ -64,8 +81,14 @@ def mean_standardize(Y, in_place=False):
 
 
 def remove_dependent_cols(M, tol=1e-6, display=False):
-    """
-    Returns a matrix where dependent columsn have been removed
+    """Remove dependent columns.
+
+        Return a matrix with dependent columns removed.
+
+    Parameters
+    ----------
+        M : array_like
+
     """
     R = la.qr(M, mode='r')[0][:M.shape[1], :]
     I = (abs(R.diagonal()) > tol)

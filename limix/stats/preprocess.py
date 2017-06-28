@@ -3,7 +3,7 @@ from __future__ import division
 import scipy.spatial
 from joblib import Parallel, cpu_count, delayed
 from numpy import (asarray, ascontiguousarray, double, einsum, isfinite,
-                   logical_not, minimum, newaxis, sqrt, unique, zeros)
+                   logical_not, minimum, nansum, newaxis, sqrt, unique, zeros)
 from scipy.spatial import _distance_wrap
 from tqdm import tqdm
 
@@ -144,8 +144,8 @@ def _check_encoding(X):
 def maf(X):
     r"""Compute minor allele frequencies.
 
-    It assumes that `X` encodes 0, 1, and 2 representing the number
-    of alleles.
+    It assumes that ``X`` encodes 0, 1, and 2 representing the number
+    of alleles, or ``NaN`` to represent missing values.
 
     Args:
         X (array_like): Genotype matrix.
@@ -167,10 +167,16 @@ def maf(X):
             >>> print(maf(X))
             [ 0.49   0.49   0.445  0.495  0.5    0.45   0.48   0.48   0.47   0.435]
     """
+    import dask.array as da
+
     ok = _check_encoding(X)
     if not ok:
         raise ValueError("It assumes that X encodes 0, 1, and 2 only.")
-    s0 = X.sum(0)
+
+    if isinstance(X, da.Array):
+        s0 = da.nansum(X, axis=0)
+    else:
+        s0 = nansum(X, axis=0)
     s0 = s0 / (2 * X.shape[0])
     s1 = 1 - s0
     return minimum(s0, s1)
