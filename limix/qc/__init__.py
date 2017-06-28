@@ -12,8 +12,8 @@ Transformation
 
 """
 
-from transformation import (boxcox, mean_standardize, quantile_gaussianize,
-                            regress_out, remove_dependent_cols)
+from .transformation import (boxcox, mean_standardize, quantile_gaussianize,
+                             regress_out, remove_dependent_cols)
 
 __all__ = [
     'boxcox', 'mean_standardize', 'quantile_gaussianize', 'regress_out',

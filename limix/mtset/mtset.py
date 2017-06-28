@@ -1,9 +1,10 @@
+import os
+import time as TIME
+import warnings
+
 import h5py
 import scipy as sp
 import scipy.linalg as la
-import time as TIME
-import warnings
-import os
 
 
 class MTSet():
@@ -110,15 +111,14 @@ class MTSet():
          [ 0.0019  0.0207]]
     """
 
-    def __init__(
-            self,
-            Y=None,
-            R=None,
-            S_R=None,
-            U_R=None,
-            traitID=None,
-            F=None,
-            rank=1):
+    def __init__(self,
+                 Y=None,
+                 R=None,
+                 S_R=None,
+                 U_R=None,
+                 traitID=None,
+                 F=None,
+                 rank=1):
         from limix_core.gp import GP2KronSum
         from limix_core.gp import GP2KronSumLR
         from limix_core.gp import GP3KronSumLR
@@ -133,10 +133,10 @@ class MTSet():
         msg += ' subsequently quantile normalize the phenotypes'
         msg += ' to a normal distribution prior to use mtSet.'
         msg += ' This can be done within the LIMIX framework using'
-        msg += ' the methods limix.util.preprocess.regressOut and'
-        msg += ' limix.util.preprocess.gaussianize'
+        msg += ' the methods limix.qc.regress_out and'
+        msg += ' limix.qc.quantile_gaussianize'
         assert not (F is not None and self.bgRE), msg
-        from limix.util.preprocess import remove_dependent_cols
+        from limix.qc import remove_dependent_cols
         if F is not None:
             F = remove_dependent_cols(F)
             A = sp.eye(Y.shape[1])
@@ -152,14 +152,7 @@ class MTSet():
         G = 1. * (sp.rand(Y.shape[0], 1) < 0.2)
         if self.bgRE:
             self._gp = GP3KronSumLR(
-                Y=Y,
-                Cg=Cg,
-                Cn=Cn,
-                R=R,
-                S_R=S_R,
-                U_R=U_R,
-                G=G,
-                rank=rank)
+                Y=Y, Cg=Cg, Cn=Cn, R=R, S_R=S_R, U_R=U_R, G=G, rank=rank)
         else:
             self._gp = GP2KronSumLR(Y=Y, Cn=Cn, G=G, F=F, A=A)
         # null model params
@@ -243,17 +236,16 @@ class MTSet():
     ################################################
     # Fitting null model
     ###############################################
-    def fitNull(
-            self,
-            cache=False,
-            out_dir='./cache',
-            fname=None,
-            rewrite=False,
-            seed=None,
-            factr=1e3,
-            n_times=10,
-            init_method=None,
-            verbose=False):
+    def fitNull(self,
+                cache=False,
+                out_dir='./cache',
+                fname=None,
+                rewrite=False,
+                seed=None,
+                factr=1e3,
+                n_times=10,
+                init_method=None,
+                verbose=False):
         r"""
         Fit null model
 
@@ -340,8 +332,11 @@ class MTSet():
                     U_R=self.U_R)
             else:
                 self._gpNull = GP2KronSumLR(
-                    self.Y, self.Cn, G=sp.ones(
-                        (self.N, 1)), F=self.F, A=self.A)
+                    self.Y,
+                    self.Cn,
+                    G=sp.ones((self.N, 1)),
+                    F=self.F,
+                    A=self.A)
                 # freezes Cg to 0
                 n_params = self._gpNull.covar.Cr.getNumberParams()
                 self._gpNull.covar.Cr.setParams(1e-9 * sp.ones(n_params))
@@ -397,14 +392,13 @@ class MTSet():
     # Fitting alternative model
     ###########################################
 
-    def optimize(
-            self,
-            G,
-            params0=None,
-            n_times=10,
-            vmax=5,
-            factr=1e7,
-            verbose=False):
+    def optimize(self,
+                 G,
+                 params0=None,
+                 n_times=10,
+                 vmax=5,
+                 factr=1e7,
+                 verbose=False):
         """
         Fit alternative model
 
@@ -470,8 +464,10 @@ class MTSet():
         for i in range(n_times):
             if params_was_None:
                 n_params = self.Cr.getNumberParams()
-                _params0 = {'covar': sp.concatenate(
-                    [1e-3 * sp.randn(n_params), params0])}
+                _params0 = {
+                    'covar':
+                    sp.concatenate([1e-3 * sp.randn(n_params), params0])
+                }
             else:
                 _params0 = {'covar': params0}
             self._gp.setParams(_params0)
@@ -536,13 +532,12 @@ class MTSet():
         """
         return (self._gp.LML_grad()['covar']**2).mean()
 
-    def fitNullTraitByTrait(
-            self,
-            verbose=False,
-            cache=False,
-            out_dir='./cache',
-            fname=None,
-            rewrite=False):
+    def fitNullTraitByTrait(self,
+                            verbose=False,
+                            cache=False,
+                            out_dir='./cache',
+                            fname=None,
+                            rewrite=False):
         """
         Fit null model trait by trait
         """
@@ -606,8 +601,8 @@ class MTSet():
         if self.bgRE:
             if init_method == 'random':
                 params0 = {
-                    'covar': sp.randn(
-                        self._gpNull.covar.getNumberParams())}
+                    'covar': sp.randn(self._gpNull.covar.getNumberParams())
+                }
             else:
                 if self.P == 1:
                     params0 = {'covar': sp.sqrt(0.5) * sp.ones(2)}
@@ -625,23 +620,3 @@ class MTSet():
                 params_cn = chol[sp.tril_indices(self.P)]
             params0 = {'covar': params_cn}
         return params0
-
-
-if __name__ == '__main__':
-    from limix.util.preprocess import covar_rescale
-
-    sp.random.seed(0)
-
-    # generate phenotype
-    n = 1000
-    p = 4
-    f = 10
-    Y = sp.randn(n, p)
-    X = sp.randn(n, f)
-    G = sp.randn(n, f)
-    R = sp.dot(X, X.T)
-    R = covar_rescale(R)
-
-    mts = mtset(Y, R=R)
-    nullMTInfo = mts.fitNull(cache=False)
-    mts.optimize(G)

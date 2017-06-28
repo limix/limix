@@ -1,20 +1,20 @@
-from .mvset import MvSetTest
-from .mvsetfull import MvSetTestFull
-from .mvsetinc import MvSetTestInc
 import pandas as pd
 import scipy as sp
 
+from .mvset import MvSetTest
+from .mvsetfull import MvSetTestFull
+from .mvsetinc import MvSetTestInc
 
-def fit_iset(
-        Y=None,
-        Xr=None,
-        F=None,
-        Rg=None,
-        Ug=None,
-        Sg=None,
-        Ie=None,
-        n_nulls=10,
-        factr=1e7):
+
+def fit_iset(Y=None,
+             Xr=None,
+             F=None,
+             Rg=None,
+             Ug=None,
+             Sg=None,
+             Ie=None,
+             n_nulls=10,
+             factr=1e7):
     """
     Fit interaction set test (iset).
 
@@ -173,8 +173,8 @@ def fit_iset(
     msg += ' subsequently quantile normalize the phenotypes'
     msg += ' to a normal distribution prior to use mtSet/iset.'
     msg += ' This can be done within the LIMIX framework using'
-    msg += ' the methods limix.util.preprocess.regressOut and'
-    msg += ' limix.util.preprocess.gaussianize'
+    msg += ' the methods limix.qc.regress_out and'
+    msg += ' limix.qc.quantile_gaussianize'
     assert not (F is not None and bgRE), msg
     # strat
     strat = Ie is not None
