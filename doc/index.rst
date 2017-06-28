@@ -9,6 +9,7 @@ Limix's documentation
 
    install
    cmd
+   qc
    qtl
    heritability
    vardec

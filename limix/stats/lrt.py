@@ -30,4 +30,18 @@ def lrt_pvalues(null_lml, alt_lmls, dof=1):
 
 
 def effsizes_se(effsizes, pvalues):
+    r"""Standard errors of the effect sizes.
+
+    Parameters
+    ----------
+    effsizes : array_like
+        Effect sizes.
+    pvalues : array_like
+        Association significance corresponding to those effect sizes.
+
+    Returns
+    -------
+    array_like
+        Standard errors of the effect sizes.
+    """
     return npy_abs(effsizes) / sqrt(chi2(1).isf(pvalues))

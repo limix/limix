@@ -3,15 +3,14 @@ r"""
 Statistics
 **********
 
+.. autofunction:: limix.stats.effsizes_se
+.. autofunction:: limix.stats.lrt_pvalues
+
 PCA
 ^^^
 
 .. autofunction:: limix.stats.pca
 
-Normalization
-^^^^^^^^^^^^^
-
-.. autofunction:: limix.stats.boxcox
 
 P-values
 ^^^^^^^^
@@ -41,7 +40,6 @@ from .lrt import effsizes_se, lrt_pvalues
 from .pca import pca
 from .preprocess import indep_pairwise, maf
 from .teststats import empirical_pvalues
-from .trans import boxcox
 
 __all__ = [
     'pca', 'boxcox', 'gower_norm', 'qvalues', 'empirical_pvalues',
