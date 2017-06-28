@@ -165,8 +165,8 @@ def compute_maf(X):
     import dask.array as da
 
     if isinstance(X, da.Array):
-        s0 = da.nansum(X, axis=0)
-        denom = 2 * da.logical_not(da.isnan(X)).sum(axis=0)
+        s0 = da.nansum(X, axis=0).compute()
+        denom = 2 * (X.shape[0] - da.isnan(X)).sum(axis=0).compute()
     else:
         s0 = nansum(X, axis=0)
         denom = 2 * logical_not(isnan(X)).sum(axis=0)
