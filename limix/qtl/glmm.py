@@ -9,7 +9,8 @@ from numpy_sugar.linalg import economic_qs
 from scipy.stats import chi2
 
 from glimix_core.glmm import GLMM
-from limix.qtl.lmm import LMM
+from glimix_core.lmm import LMM
+from limix.stats import effsizes_se, lrt_pvalues
 from limix.util import asarray
 
 from .qtl_model import QTLModel
@@ -38,7 +39,7 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
 
     Returns
     -------
-        :class:`limix.qtl.LMM`: LIMIX LMM object
+        :class:`limix.qtl.glmm.QTLModel_GLMM`: LIMIX LMM object
 
     Examples
     --------
@@ -63,7 +64,11 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
         >>> model = qtl_test_glmm(candidates, y, 'poisson', K, verbose=False)
         >>>
         >>> print(model.variant_pvalues)
-        [ 0.0694  0.3336  0.5899  0.7388  0.7796]
+        [ 0.069   0.3346  0.5904  0.7392  0.779 ]
+        >>> print(model.variant_effsizes)
+        [ 2.4771 -1.2564 -0.706  -0.4766  0.3763]
+        >>> print(model.variant_effsizes_se)
+        [ 1.3624  1.3022  1.3117  1.4314  1.341 ]
     """
 
     G = asarray(G)
@@ -97,35 +102,39 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
     s2_g = scale * (1 - delta)
     tR = s2_g * K + diag(var - var.min() + 1e-4)
 
-    start = time()
-    lmm = LMM(snps=G, pheno=mu, K=tR, covs=M, verbose=verbose)
+    lmm = LMM(mu, X=M, QS=economic_qs(tR))
+    null_lml = lmm.lml()
+    flmm = lmm.get_fast_scanner()
+    alt_lmls, effsizes = flmm.fast_scan(G)
 
-    return QTLModel_GLMM(lmm)
+    return QTLModel_GLMM(null_lml, alt_lmls, effsizes)
 
 
 class QTLModel_GLMM(QTLModel):
-    def __init__(self, lmm):
-        self._lmm = lmm
+    def __init__(self, null_lml, alt_lmls, effsizes):
+        self._null_lml = null_lml
+        self._alt_lmls = alt_lmls
+        self._effsizes = effsizes
 
     @property
     def null_lml(self):
-        pass
+        return self._null_lml
 
     @property
     def alt_lmls(self):
-        pass
+        return self._alt_lmls
 
     @property
     def variant_effsizes(self):
-        return self._lmm.getBetaSNP().ravel()
+        return self._effsizes
 
     @property
     def variant_effsizes_se(self):
-        return self._lmm.getBetaSNPste().ravel()
+        return effsizes_se(self.variant_effsizes, self.variant_pvalues)
 
     @property
     def variant_pvalues(self):
-        return self._lmm.getPv().ravel()
+        return lrt_pvalues(self.null_lml, self.alt_lmls)
 
     @property
     def null_covariant_effsizes(self):
