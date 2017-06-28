@@ -2,7 +2,7 @@ from __future__ import division
 
 import scipy.spatial
 from joblib import Parallel, cpu_count, delayed
-from numpy import (asarray, ascontiguousarray, double, einsum, isfinite,
+from numpy import (asarray, ascontiguousarray, double, einsum, isnan,
                    logical_not, minimum, nansum, newaxis, sqrt, unique, zeros)
 from scipy.spatial import _distance_wrap
 from tqdm import tqdm
@@ -133,50 +133,59 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     return logical_not(excls)
 
 
-def _check_encoding(X):
-    u = unique(X)
-    u = u[isfinite(u)]
-    if len(u) > 3:
-        return False
-    return all([i in set([0, 1, 2]) for i in u])
-
-
-def maf(X):
+def compute_maf(X):
     r"""Compute minor allele frequencies.
 
     It assumes that ``X`` encodes 0, 1, and 2 representing the number
-    of alleles, or ``NaN`` to represent missing values.
+    of alleles (or dosage), or ``NaN`` to represent missing values.
 
-    Args:
-        X (array_like): Genotype matrix.
+    Parameters
+    ----------
+    X : array_like
+        Genotype matrix.
 
-    Returns:
-        array_like: minor allele frequencies.
+    Returns
+    -------
+    array_like
+        Minor allele frequencies.
 
     Examples
     --------
+    .. doctest::
 
-        .. doctest::
-
-            >>> from numpy.random import RandomState
-            >>> from limix.stats import maf
-            >>>
-            >>> random = RandomState(0)
-            >>> X = random.randint(0, 3, size=(100, 10))
-            >>>
-            >>> print(maf(X))
-            [ 0.49   0.49   0.445  0.495  0.5    0.45   0.48   0.48   0.47   0.435]
+        >>> from numpy.random import RandomState
+        >>> from limix.stats import compute_maf
+        >>>
+        >>> random = RandomState(0)
+        >>> X = random.randint(0, 3, size=(100, 10))
+        >>>
+        >>> print(compute_maf(X))
+        [ 0.49   0.49   0.445  0.495  0.5    0.45   0.48   0.48   0.47   0.435]
     """
     import dask.array as da
 
-    ok = _check_encoding(X)
-    if not ok:
-        raise ValueError("It assumes that X encodes 0, 1, and 2 only.")
-
     if isinstance(X, da.Array):
         s0 = da.nansum(X, axis=0)
+        denom = 2 * da.logical_not(da.isnan(X)).sum(axis=0)
     else:
         s0 = nansum(X, axis=0)
-    s0 = s0 / (2 * X.shape[0])
+        denom = 2 * logical_not(isnan(X)).sum(axis=0)
+    s0 = s0 / denom
     s1 = 1 - s0
     return minimum(s0, s1)
+
+
+def count_missingness(X):
+    r"""Count the number of missing values per column.
+
+    Returns
+    -------
+    array_like
+        Number of missing values per column.
+    """
+    import dask.array as da
+
+    if isinstance(X, da.Array):
+        return da.isnan(X).sum(axis=0)
+
+    return isnan(X).sum(axis=0)

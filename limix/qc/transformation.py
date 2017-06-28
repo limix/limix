@@ -1,3 +1,4 @@
+import scipy as sp
 import scipy.linalg as la
 from numpy import isnan, zeros_like
 from scipy.stats import boxcox as sp_boxcox
@@ -27,7 +28,7 @@ def boxcox(X):
     .. doctest::
 
         >>> from numpy.random import RandomState
-        >>> from limix.stats import boxcox
+        >>> from limix.qc import boxcox
         >>> from numpy import set_printoptions
         >>> set_printoptions(4)
         >>>

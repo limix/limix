@@ -5,6 +5,9 @@ import scipy as sp
 import scipy.linalg
 import scipy.stats
 
+from limix.qc import mean_standardize
+from limix.stats import gower_norm
+
 
 class VarianceDecomposition(object):
     r"""Class for variance decomposition
@@ -71,8 +74,6 @@ class VarianceDecomposition(object):
 
     def __init__(self, Y, standardize=False):
 
-        from limix.util import preprocess
-
         # check whether Y is a vector, if yes reshape
         if (len(Y.shape) == 1):
             Y = Y[:, sp.newaxis]
@@ -85,7 +86,7 @@ class VarianceDecomposition(object):
 
         # outsourced to handle missing values:
         if standardize:
-            Y = preprocess.standardize(Y)
+            Y = mean_standardize(Y)
 
         # set properties
         self.Y = Y
@@ -114,15 +115,13 @@ class VarianceDecomposition(object):
             Y:              phenotype matrix [N, P]
             standardize:    if True, phenotype is standardized (zero mean, unit variance)
         """
-        from limix.util import preprocess
-
         assert Y.shape[
             0] == self.N, 'VarianceDecomposition:: Incompatible shape'
         assert Y.shape[
             1] == self.P, 'VarianceDecomposition:: Incompatible shape'
 
         if standardize:
-            Y = preprocess.standardize(Y)
+            Y = mean_standardize(Y)
 
         # check that missing values match the current structure
         assert (~(sp.isnan(Y).any(axis=1)) == self.Iok).all(
@@ -198,14 +197,16 @@ class VarianceDecomposition(object):
             assert Kcross.shape[
                 1] == self.Ntest, 'VarianceDecomposition:: Incompatible shape for Kcross'
 
-        from limix.util.preprocess import covar_rescaling_factor
+        # from limix.util.preprocess import covar_rescaling_factor
         if normalize:
-            cc = covar_rescaling_factor(K)
-            K *= cc
+            gower_norm(K, out=K)
+            # cc = covar_rescaling_factor(K)
+            # K *= cc
             if Kcross is not None:
-                Kcross *= cc
+                gower_norm(Kcross, out=Kcross)
+                # Kcross *= cc
 
-        # add random effect
+            # add random effect
         self.sample_covars.append(K)
         self.sample_cross_covars.append(Kcross)
         _cov = self._buildTraitCovar(

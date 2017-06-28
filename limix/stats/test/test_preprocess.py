@@ -5,7 +5,7 @@ from numpy import logical_not
 from numpy.random import RandomState
 from numpy.testing import assert_allclose, assert_equal
 
-from limix.stats import indep_pairwise, maf
+from limix.stats import compute_maf, indep_pairwise
 
 
 def test_preprocess_indep_pairwise():
@@ -29,4 +29,5 @@ def test_preprocess_maf():
 
     X = random.randint(0, 3, size=(100, 10))
     assert_allclose(
-        maf(X), [0.49, 0.49, 0.445, 0.495, 0.5, 0.45, 0.48, 0.48, 0.47, 0.435])
+        compute_maf(X),
+        [0.49, 0.49, 0.445, 0.495, 0.5, 0.45, 0.48, 0.48, 0.47, 0.435])

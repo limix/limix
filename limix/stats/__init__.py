@@ -38,7 +38,7 @@ from .fdr import qvalues
 from .kinship import gower_norm, linear_kinship
 from .lrt import effsizes_se, lrt_pvalues
 from .pca import pca
-from .preprocess import indep_pairwise, maf
+from .preprocess import indep_pairwise, compute_maf
 from .teststats import empirical_pvalues
 
 __all__ = [
