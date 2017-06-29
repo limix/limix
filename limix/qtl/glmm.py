@@ -71,6 +71,12 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
         [ 1.3624  1.3022  1.3117  1.4314  1.341 ]
     """
 
+    if verbose:
+        lik_name = lik.lower()
+        lik_name = lik_name[0].upper() + lik_name[1:]
+        analysis_name = msg = "Quantitative trait locus analysis"
+        print("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
+
     G = asarray(G)
 
     if M is None:
@@ -86,7 +92,11 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
         y = npy_asarray(y, float)
 
     start = time()
-    QS = economic_qs(K)
+    if verbose:
+        print("Economic Eigen decomposition of the covariance matrix...")
+        QS = economic_qs(K)
+        print("done")
+
     glmm = GLMM(y, lik, M, QS)
     glmm.feed().maximize(progress=verbose)
 

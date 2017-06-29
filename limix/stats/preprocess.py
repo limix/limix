@@ -166,7 +166,7 @@ def compute_maf(X):
 
     if isinstance(X, da.Array):
         s0 = da.nansum(X, axis=0).compute()
-        denom = 2 * (X.shape[0] - da.isnan(X)).sum(axis=0).compute()
+        denom = 2 * (X.shape[0] - da.isnan(X).sum(axis=0)).compute()
     else:
         s0 = nansum(X, axis=0)
         denom = 2 * logical_not(isnan(X)).sum(axis=0)
