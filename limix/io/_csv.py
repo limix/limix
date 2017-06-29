@@ -81,7 +81,7 @@ def _infer_separator(fn):
             c = _count(set(counter.keys()), line)
             _update(counter, c)
             if len(counter) == 1:
-                return counter.keys()[0]
+                return next(iter(counter.keys()))
 
     for c in set([',', '\t', ' ']):
         if c in counter:
