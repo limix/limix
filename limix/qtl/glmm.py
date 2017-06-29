@@ -11,7 +11,7 @@ from scipy.stats import chi2
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
 from limix.stats import effsizes_se, lrt_pvalues
-from limix.util import asarray
+from limix.util import asarray, Timer
 
 from .qtl_model import QTLModel
 
@@ -92,10 +92,9 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
         y = npy_asarray(y, float)
 
     start = time()
-    if verbose:
-        print("Economic Eigen decomposition of the covariance matrix...")
+    desc = "Eigen decomposition of the covariance matrix..."
+    with Timer(desc=desc, disable=not verbose):
         QS = economic_qs(K)
-        print("done")
 
     glmm = GLMM(y, lik, M, QS)
     glmm.feed().maximize(progress=verbose)
