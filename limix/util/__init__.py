@@ -19,8 +19,9 @@ from .geno_utils import estCumPos, unique_variants
 from .set_utils import annotate_sets, sets_from_bim
 from .temp import TemporaryDirectory
 from .url import urlretrieve
+from .timer import Timer
 
 __all__ = [
     'sets_from_bim', 'annotate_sets', 'estCumPos', 'unique_variants',
-    'TemporaryDirectory', 'urlretrieve', 'asarray'
+    'TemporaryDirectory', 'urlretrieve', 'asarray', 'Timer'
 ]
