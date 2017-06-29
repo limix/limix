@@ -1,8 +1,9 @@
 from __future__ import division
 
 from numpy import abs as npy_abs
-from numpy import asarray, sqrt
+from numpy import asarray, sqrt, clip
 from scipy.stats import chi2
+from numpy_sugar import epsilon
 
 
 def lrt_pvalues(null_lml, alt_lmls, dof=1):
@@ -26,7 +27,8 @@ def lrt_pvalues(null_lml, alt_lmls, dof=1):
     """
     from scipy.stats import chi2
     lrs = -2 * null_lml + 2 * asarray(alt_lmls)
-    return chi2(df=dof).sf(lrs)
+    pv = chi2(df=dof).sf(lrs)
+    clip(pv, epsilon.tiny, 1 - epsilon.tiny)
 
 
 def effsizes_se(effsizes, pvalues):

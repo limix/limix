@@ -17,7 +17,7 @@ class Timer(object):
     def __enter__(self):
         self._tstart = time()
         if not self._disable:
-            sys.stdout.write(desc)
+            sys.stdout.write(self._desc)
             sys.stdout.flush()
         return self
 
