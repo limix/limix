@@ -10,7 +10,7 @@ from numpy_sugar.linalg import economic_qs
 
 from limix.util import Timer, asarray
 
-from .qtl_model import QTLModel, QTLModel_GLMM
+from .model import QTLModel, QTLModel_GLMM
 from .util import assure_named_covariates, named_covariates_to_array
 
 

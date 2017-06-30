@@ -3,6 +3,7 @@ from __future__ import division
 from numpy import abs as npy_abs
 from numpy import sqrt
 from scipy.stats import chi2
+from tabulate import tabulate
 
 from limix.stats import effsizes_se, lrt_pvalues
 
@@ -60,15 +61,6 @@ class QTLModel(object):
         """
         raise NotImplementedError
 
-    @property
-    def alt_covariant_effsizes(self):
-        r"""
-        Returns
-        -------
-        array_like
-            Estimated covariant effect sizes under the alternative hypothesis.
-        """
-        raise NotImplementedError
 
 class QTLModel_LMM(QTLModel):
     def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):

@@ -9,261 +9,8 @@ from numpy_sugar.linalg import economic_qs
 
 from limix.util import Timer, asarray
 
-from .qtl_model import QTLModel_LMM
+from .model import QTLModel_LMM
 from .util import assure_named_covariates, named_covariates_to_array
-
-
-# class LMM:
-#     r"""Basic class for univariate single-variant association testing with LMMs.
-#
-#     Args:
-#         snps (ndarray):
-#             (`N`, `S`) ndarray of `S` SNPs for `N` individuals.
-#         pheno (ndarray):
-#             (`N`, `P`) ndarray of `P` phenotype sfor `N` individuals.
-#             If phenotypes have missing values, then the subset of
-#             individuals used for each phenotype column will be subsetted.
-#         K (ndarray, optional):
-#             (`N`, `N`) ndarray of LMM-covariance/kinship coefficients (optional)
-#             If not provided, then standard linear regression is considered.
-#         covs (ndarray, optional):
-#             (`N`, `D`) ndarray of `D` covariates for `N` individuals.
-#             By default, ``covs`` is a (`N`, `1`) array of ones.
-#         test ({'lrt', 'f'}, optional):
-#             test statistic.
-#             'lrt' for likelihood ratio test (default) or 'f' for F-test.
-#         NumIntervalsDelta0 (int, optional):
-#             number of steps for delta optimization on the null model.
-#             By default ``NumIntervalsDelta0`` is 100.
-#         NumIntervalsDeltaAlt (int, optional):
-#             number of steps for delta optimization on the alternative model.
-#             Requires ``searchDelta=True`` to have an effect.
-#         searchDelta (bool, optional):
-#             if True, delta optimization on the alternative model is carried out.
-#             By default ``searchDelta`` is False.
-#         verbose (bool, optional):
-#             if True, details such as runtime as displayed.
-#
-#     Examples
-#     --------
-#
-#         Example of single-variant association testing using a linear mixed model.
-#
-#         .. doctest::
-#
-#             >>> from numpy.random import RandomState
-#             >>> from limix.qtl import LMM
-#             >>> from numpy import dot
-#             >>> from numpy import set_printoptions
-#             >>> set_printoptions(4)
-#             >>> random = RandomState(1)
-#             >>>
-#             >>> N = 100
-#             >>> S = 1000
-#             >>>
-#             >>> # generate data
-#             >>> snps = (random.rand(N, S) < 0.2).astype(float)
-#             >>> pheno = random.randn(N, 1)
-#             >>> W = random.randn(N, 10)
-#             >>> kinship = dot(W, W.T) / float(10)
-#             >>>
-#             >>> # run single-variant associaiton testing with LMM
-#             >>> lmm = LMM(snps, pheno, kinship)
-#             >>> pv = lmm.getPv()
-#             >>> beta = lmm.getBetaSNP()
-#             >>> beta_ste = lmm.getBetaSNPste()
-#             >>>
-#             >>> print(pv.shape)
-#             (1, 1000)
-#             >>> print(pv[:,:4])
-#             [[ 0.8571  0.4668  0.5872  0.5589]]
-#             >>> print(beta[:,:4])
-#             [[ 0.0436 -0.1695 -0.12    0.1388]]
-#             >>> print(beta_ste[:,:4])
-#             [[ 0.2422  0.2329  0.221   0.2375]]
-#
-#         As shown in the exmaple below,
-#         the method can be applied directly on multiple phenotypes.
-#         Each phenotype is indipendently tested against all variants one-by-one.
-#
-#         .. doctest::
-#
-#             >>> random = RandomState(1)
-#             >>>
-#             >>> P = 3
-#             >>> phenos = random.randn(N, P)
-#             >>>
-#             >>> lmm = LMM(snps, phenos, kinship)
-#             >>> pv = lmm.getPv()
-#             >>>
-#             >>> print(pv.shape)
-#             (3, 1000)
-#             >>> print(pv[:,:4])
-#             [[ 0.4712  0.694   0.3369  0.5221]
-#              [ 0.7336  0.8799  0.8109  0.1071]
-#              [ 0.0662  0.9203  0.2873  0.8268]]
-#     """
-#
-#     def __init__(self,
-#                  snps,
-#                  pheno,
-#                  K=None,
-#                  covs=None,
-#                  test='lrt',
-#                  NumIntervalsDelta0=100,
-#                  NumIntervalsDeltaAlt=100,
-#                  searchDelta=False,
-#                  verbose=None):
-#         # create column of 1 for fixed if nothing provide
-#         import limix_legacy.deprecated
-#         import limix_legacy.deprecated as dlimix_legacy
-#
-#         if len(pheno.shape) == 1:
-#             pheno = pheno[:, sp.newaxis]
-#
-#         self.verbose = dlimix_legacy.getVerbose(verbose)
-#         self.snps = snps
-#         self.pheno = pheno
-#         self.K = K
-#         self.covs = covs
-#         self.test = test
-#         self.NumIntervalsDelta0 = NumIntervalsDelta0
-#         self.NumIntervalsDeltaAlt = NumIntervalsDeltaAlt
-#         self.searchDelta = searchDelta
-#         self.verbose = verbose
-#         self.N = self.pheno.shape[0]
-#         self.P = self.pheno.shape[1]
-#         self.Iok = ~(np.isnan(self.pheno).any(axis=1))
-#         if self.K is None:
-#             self.searchDelta = False
-#             self.K = np.eye(self.snps.shape[0])
-#         if self.covs is None:
-#             self.covs = np.ones((self.snps.shape[0], 1))
-#
-#         self._lmm = None
-#         # run
-#         self.verbose = verbose
-#         self.process()
-#
-#     def process(self):
-#
-#         import limix_legacy.deprecated
-#         import limix_legacy.deprecated as dlimix_legacy
-#
-#         t0 = time.time()
-#         if self._lmm is None:
-#             self._lmm = limix_legacy.deprecated.CLMM()
-#             self._lmm.setK(self.K)
-#             self._lmm.setSNPs(self.snps)
-#             self._lmm.setPheno(self.pheno)
-#             self._lmm.setCovs(self.covs)
-#             if self.test == 'lrt':
-#                 self._lmm.setTestStatistics(self._lmm.TEST_LRT)
-#             elif self.test == 'f':
-#                 self._lmm.setTestStatistics(self._lmm.TEST_F)
-#             else:
-#                 print((self.test))
-#                 raise NotImplementedError("only f and lrt are implemented")
-#             # set number of delta grid optimizations?
-#             self._lmm.setNumIntervals0(self.NumIntervalsDelta0)
-#             if self.searchDelta:
-#                 self._lmm.setNumIntervalsAlt(self.NumIntervalsDeltaAlt)
-#             else:
-#                 self._lmm.setNumIntervalsAlt(0)
-#
-#         if not np.isnan(self.pheno).any():
-#             # process
-#             self._lmm.process()
-#             self.pvalues = self._lmm.getPv()
-#             self.beta_snp = self._lmm.getBetaSNP()
-#             self.beta_ste = self._lmm.getBetaSNPste()
-#             self.ldelta_0 = self._lmm.getLdelta0()
-#             self.ldelta_alt = self._lmm.getLdeltaAlt()
-#             self.NLL_0 = self._lmm.getNLL0()
-#             self.NLL_alt = self._lmm.getNLLAlt()
-#         else:
-#             if self._lmm is not None:
-#                 raise Exception(
-#                     'cannot reuse a CLMM object if missing variables are present'
-#                 )
-#             else:
-#                 self._lmm = limix_legacy.deprecated.CLMM()
-#             # test all phenotypes separately
-#             self.pvalues = np.zeros((self.phenos.shape[1], self.snps.shape[1]))
-#             self.beta_snp = np.zeros((self.phenos.shape[1],
-#                                       self.snps.shape[1]))
-#             self.beta_ste = np.zeros((self.phenos.shape[1],
-#                                       self.snps.shape[1]))
-#             self.ldelta_0 = np.zeros((self.phenos.shape[1],
-#                                       self.snps.shape[1]))
-#             self.ldelta_alt = np.zeros((self.phenos.shape[1],
-#                                         self.snps.shape[1]))
-#             self.NLL_0 = np.zeros((self.phenos.shape[1], self.snps.shape[1]))
-#             self.NLL_alt = np.zeros((self.phenos.shape[1], self.snps.shape[1]))
-#             self.test_statistics = np.zeros((self.phenos.shape[1],
-#                                              self.snps.shape[1]))
-#             for ip in np.arange(self.phenos.shape[1]):
-#                 pheno_ = self.phenos[:, ip]
-#                 i_nonz = ~(pheno_.isnan())
-#
-#                 self._lmm.setK(self.K[i_nonz, i_nonz])
-#                 self._lmm.setSNPs(self.snps[i_nonz])
-#                 self._lmm.setPheno(pheno_[i_nonz, np.newaxis])
-#                 self._lmm.setCovs(self.covs[i_nonz])
-#                 self._lmm.process()
-#                 self.pvalues[ip:ip + 1] = self._lmm.getPv()
-#                 self.beta_snp[ip:ip + 1] = self._lmm.getBetaSNP()
-#                 self.beta_ste[ip:ip + 1] = self._lmm.getBetaSNPste()
-#                 self.ldelta_0[ip:ip + 1] = self._lmm.getLdelta0()
-#                 self.ldelta_alt[ip:ip + 1] = self._lmm.getLdeltaAlt()
-#                 self.NLL_0[ip:ip + 1] = self._lmm.getNLL0()
-#                 self.NLL_alt[ip:ip + 1] = self._lmm.getNLLAlt()
-#                 self.test_statistics[ip:ip + 1] = self._lmm.getTestStatistics()
-#                 pass
-#         if self._lmm.getTestStatistics(
-#         ) == self._lmm.TEST_LRT and self.test != "lrt":
-#             raise NotImplementedError("only f and lrt are implemented")
-#         elif self._lmm.getTestStatistics(
-#         ) == self._lmm.TEST_F and self.test != "f":
-#             raise NotImplementedError("only f and lrt are implemented")
-#
-#         if self._lmm.getTestStatistics() == self._lmm.TEST_F:
-#             self.test_statistics = (self.beta_snp * self.beta_snp) / (
-#                 self.beta_ste * self.beta_ste)
-#         if self._lmm.getTestStatistics() == self._lmm.TEST_LRT:
-#             self.test_statistics = 2.0 * (self.NLL_0 - self.NLL_alt)
-#         t1 = time.time()
-#
-#         if self.verbose:
-#             print(("finished GWAS testing in %.2f seconds" % (t1 - t0)))
-#
-#     def setCovs(self, covs):
-#         self._lmm.setCovs(covs)
-#
-#     def getBetaSNP(self):
-#         """
-#         Returns:
-#             ndarray: (`P`, `S`) ndarray of SNP effect sizes.
-#         """
-#         return self.beta_snp
-#
-#     def getPv(self):
-#         """
-#         Returns:
-#             ndarray: (`P`, `S`) ndarray of P-values.
-#         """
-#         return self.pvalues
-#
-#     def getBetaSNPste(self):
-#         """
-#         Returns:
-#             ndarray: (`P`, `S`) ndarray of standard errors over SNP effects.
-#         """
-#         beta = self.getBetaSNP()
-#         pv = self.getPv()
-#         z = sp.sign(beta) * sp.sqrt(st.chi2(1).isf(pv))
-#         ste = beta / z
-#         return ste
 
 
 def qtl_test_lmm(G, y, K, M=None, test='lrt', verbose=True):
@@ -351,3 +98,147 @@ def qtl_test_lmm(G, y, K, M=None, test='lrt', verbose=True):
         print(model)
 
     return model
+
+def forward_lmm(snps,
+                pheno,
+                K=None,
+                covs=None,
+                qvalues=False,
+                threshold=5e-8,
+                maxiter=2,
+                test='lrt',
+                verbose=None,
+                **kw_args):
+    r"""
+    Wrapper function for univariate single-variant test with forward selection
+
+    Args:
+        snps (ndarray):
+            (`N`, `S`) ndarray of `S` SNPs for `N` individuals.
+        pheno (ndarray):
+            (`N`, `P`) ndarray of `P` phenotype sfor `N` individuals.
+            If phenotypes have missing values, then the subset of
+            individuals used for each phenotype column will be subsetted.
+        K (ndarray, optional):
+            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients (optional)
+            If not provided, then standard linear regression is considered.
+        covs (ndarray, optional):
+            (`N`, `D`) ndarray of `D` covariates for `N` individuals.
+            By default, ``covs`` is a (`N`, `1`) array of ones.
+        qvalues (bool, optional):
+            if True, ``threshold`` is set to Storey qvalues to control FDR.
+            (default is False)
+        threshold (float, optional):
+            P-value thrashold for inclusion in forward selection (default 5e-8).
+            If ``qvalues=True``, the threshold is set to to Storey qvalues.
+        maxiter (int, optional):
+            maximum number of interaction scans. First scan is
+            without inclusion, so maxiter-1 inclusions can be performed.
+            (default 2)
+        test ({'lrt', 'f'}, optional):
+            test statistic.
+            'lrt' for likelihood ratio test (default) or 'f' for F-test.
+        verbose (bool, optional):
+            print verbose output. (default is False)
+
+    Returns:
+        (tuple): tuple containing:
+            - **lmm** (*:class:`limix.qtl.LMM`*): LIMIX LMM object
+            - **res** (*dict*): {**iadded**, **pvadded**, **pvall**}.
+              **iadded** is an ndarray of indices of SNPs included in order
+              of inclusion, **pvadded** is an ndarray of Pvalues obtained by
+              the included SNPs in iteration and **pvall** is a  (`Nadded`, `S`)
+              ndarray of Pvalues for all iterations
+
+    Examples
+    --------
+
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> from numpy import dot, eye, ones
+            >>> from limix.qtl import forward_lmm
+            >>> random = RandomState(1)
+            >>>
+            >>> N = 100
+            >>> S = 1000
+            >>>
+            >>> snps = (random.rand(N, S) < 0.2).astype(float)
+            >>> pheno = random.randn(N, 1)
+            >>> W = random.randn(N, 10)
+            >>> kinship = dot(W, W.T) / float(10)
+            >>> kinship+= 1e-4 * eye(N)
+            >>>
+            >>> #forward lmm
+            >>> lmm, res = forward_lmm(snps, pheno, K=kinship, threshold=1.)
+            >>>
+            >>> print(res['pvall'].shape)
+            (2, 1000)
+            >>> print(res['pvall'][:,:4])
+            [[ 0.8571  0.4668  0.5872  0.5589]
+             [ 0.77    0.4226  0.6165  0.8727]]
+    """
+
+    import limix_legacy.deprecated
+    import limix_legacy.deprecated as dlimix_legacy
+    verbose = dlimix_legacy.getVerbose(verbose)
+
+    if K is None:
+        K = np.eye(snps.shape[0])
+    if covs is None:
+        covs = np.ones((snps.shape[0], 1))
+    # assert single trait
+    assert pheno.shape[1] == 1, 'forward_lmm only supports single phenotypes'
+
+    lm = qtl_test_lmm(snps, pheno.ravel(), K=K, M=covs, test=test, **kw_args)
+    pvall = []
+    pv = lm.variant_pvalues.ravel()
+    # hack to avoid issues with degenerate pv
+    pv[sp.isnan(pv)] = 1
+    pvall.append(pv)
+    imin = pv.argmin()
+    niter = 1
+    # start stuff
+    iadded = []
+    pvadded = []
+    qvadded = []
+    if qvalues:
+        assert pv.shape[
+            0] == 1, "This is untested with the fdr package. pv.shape[0]==1 failed"
+        qvall = []
+        qv = qvalues(pv)
+        qvall.append(qv)
+        score = qv.min()
+    else:
+        score = pv.min()
+    while (score < threshold) and niter < maxiter:
+        t0 = time.time()
+        iadded.append(imin)
+        pvadded.append(pv[imin])
+        if qvalues:
+            qvadded.append(qv[0, imin])
+        covs = np.concatenate((covs, snps[:, imin:(imin + 1)]), 1)
+        lm.setCovs(covs)
+        lm.process()
+        pv = lm.variant_pvalues.ravel()
+        pv[sp.isnan(pv)] = 1
+        pvall.append(pv)
+        imin = pv.argmin()
+        if qvalues:
+            qv = qvalues(pv)
+            qvall[niter:niter + 1, :] = qv
+            score = qv.min()
+        else:
+            score = pv.min()
+        t1 = time.time()
+        if verbose:
+            print(("finished GWAS testing in %.2f seconds" % (t1 - t0)))
+        niter = niter + 1
+    RV = {}
+    RV['iadded'] = iadded
+    RV['pvadded'] = pvadded
+    RV['pvall'] = np.array(pvall)
+    if qvalues:
+        RV['qvall'] = np.array(qvall)
+        RV['qvadded'] = qvadded
+    return lm, RV
