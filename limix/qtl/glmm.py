@@ -1,21 +1,16 @@
 from __future__ import division
 
 from collections import OrderedDict
-from time import time
-
-from numpy import abs as npy_abs
-from numpy import asarray as npy_asarray
-from numpy import diag, ones, sqrt
-from numpy_sugar.linalg import economic_qs
-from scipy.stats import chi2
-from tabulate import tabulate
 
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
-from limix.stats import effsizes_se, lrt_pvalues
+from numpy import asarray as npy_asarray
+from numpy import diag
+from numpy_sugar.linalg import economic_qs
+
 from limix.util import Timer, asarray
 
-from .qtl_model import QTLModel
+from .qtl_model import QTLModel, QTLModel_GLMM
 from .util import assure_named_covariates, named_covariates_to_array
 
 
@@ -42,7 +37,7 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
 
     Returns
     -------
-        :class:`limix.qtl.glmm.QTLModel_GLMM`: LIMIX LMM object
+        :class:`limix.qtl.model.QTLModel_GLMM`: QTL representation.
 
     Examples
     --------
@@ -77,7 +72,7 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
     if verbose:
         lik_name = lik.lower()
         lik_name = lik_name[0].upper() + lik_name[1:]
-        analysis_name = msg = "Quantitative trait locus analysis"
+        analysis_name = "Quantitative trait locus analysis"
         print("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
 
     G = asarray(G)
@@ -91,7 +86,6 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
     else:
         y = npy_asarray(y, float)
 
-    start = time()
     desc = "Eigen decomposition of the covariance matrix..."
     with Timer(desc=desc, disable=not verbose):
         QS = economic_qs(K)
@@ -131,56 +125,3 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
         print(model)
 
     return model
-
-
-class QTLModel_GLMM(QTLModel):
-    def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
-        self._null_lml = null_lml
-        self._alt_lmls = alt_lmls
-        self._effsizes = effsizes
-        self._null_covariate_effsizes = null_covariate_effsizes
-
-    @property
-    def null_lml(self):
-        return self._null_lml
-
-    @property
-    def alt_lmls(self):
-        return self._alt_lmls
-
-    @property
-    def variant_effsizes(self):
-        return self._effsizes
-
-    @property
-    def variant_effsizes_se(self):
-        return effsizes_se(self.variant_effsizes, self.variant_pvalues)
-
-    @property
-    def variant_pvalues(self):
-        return lrt_pvalues(self.null_lml, self.alt_lmls)
-
-    @property
-    def null_covariate_effsizes(self):
-        return self._null_covariate_effsizes
-
-    def __str__(self):
-        from pandas import DataFrame
-
-        data = dict(
-            effsizes=self.variant_effsizes,
-            effsizes_se=self.variant_effsizes_se,
-            pvalues=self.variant_pvalues)
-
-        variant_msg = str(DataFrame(data=data).describe())
-
-        data = self.null_covariate_effsizes
-
-        covariate_msg = tabulate(
-            [list(data.values())], headers=list(data.keys()), tablefmt="plain")
-
-        msg = 'Variants\n' + variant_msg
-        msg += '\n\nCovariate effect sizes for the'
-        msg += ' null model\n' + covariate_msg
-
-        return msg

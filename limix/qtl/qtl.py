@@ -24,6 +24,7 @@ from numpy import asarray
 
 from limix.qtl.lmm import LMM
 from limix.stats import qvalues
+from .lmm import qtl_test_lmm
 
 
 def qtl_test_lm(snps, pheno, covs=None, test='lrt', verbose=None):
@@ -74,87 +75,6 @@ def qtl_test_lm(snps, pheno, covs=None, test='lrt', verbose=None):
     lm = qtl_test_lmm(
         snps=snps, pheno=pheno, K=None, covs=covs, test=test, verbose=verbose)
     return lm
-
-
-def qtl_test_lmm(snps,
-                 pheno,
-                 K=None,
-                 covs=None,
-                 test='lrt',
-                 NumIntervalsDelta0=100,
-                 NumIntervalsDeltaAlt=100,
-                 searchDelta=False,
-                 verbose=None):
-    """
-    Wrapper function for univariate single-variant association testing
-    using a linear mixed model.
-
-    Args:
-        snps (ndarray):
-            (`N`, `S`) ndarray of `S` SNPs for `N` individuals.
-        pheno (ndarray):
-            (`N`, `P`) ndarray of `P` phenotype sfor `N` individuals.
-            If phenotypes have missing values, then the subset of
-            individuals used for each phenotype column will be subsetted.
-        K (ndarray, optional):
-            (`N`, `N`) ndarray of LMM-covariance/kinship coefficients.
-            If not provided, then standard linear regression is considered.
-        covs (ndarray, optional):
-            (`N`, `D`) ndarray of `D` covariates for `N` individuals.
-            By default, ``covs`` is a (`N`, `1`) array of ones.
-        test ({'lrt', 'f'}, optional):
-            test statistic.
-            'lrt' for likelihood ratio test (default) or 'f' for F-test.
-        NumIntervalsDelta0 (int, optional):
-            number of steps for delta optimization on the null model.
-            By default ``NumIntervalsDelta0`` is 100.
-        NumIntervalsDeltaAlt (int, optional):
-            number of steps for delta optimization on the alternative model.
-            Requires ``searchDelta=True`` to have an effect.
-        searchDelta (bool, optional):
-            if True, delta optimization on the alternative model is carried out.
-            By default ``searchDelta`` is False.
-        verbose (bool, optional):
-            if True, details such as runtime as displayed.
-
-    Returns:
-        :class:`limix.qtl.LMM`: LIMIX LMM object
-
-    Examples
-    --------
-
-    .. doctest::
-
-        >>> from numpy.random import RandomState
-        >>> from numpy import dot
-        >>> from limix.qtl import qtl_test_lmm
-        >>> random = RandomState(1)
-        >>>
-        >>> N = 100
-        >>> S = 1000
-        >>>
-        >>> snps = (random.rand(N, S) < 0.2).astype(float)
-        >>> pheno = random.randn(N, 1)
-        >>> W = random.randn(N, 10)
-        >>> kinship = dot(W, W.T) / float(10)
-        >>>
-        >>> lmm = qtl_test_lmm(snps, pheno, kinship)
-        >>> print(lmm.getPv()[:,:4])
-        [[ 0.8571  0.4668  0.5872  0.5589]]
-    """
-    snps = asarray(snps, float)
-    pheno = asarray(pheno, float)
-    lmm_ = LMM(
-        snps=snps,
-        pheno=pheno,
-        K=K,
-        covs=covs,
-        test=test,
-        NumIntervalsDelta0=NumIntervalsDelta0,
-        NumIntervalsDeltaAlt=NumIntervalsDeltaAlt,
-        searchDelta=searchDelta,
-        verbose=verbose)
-    return lmm_
 
 
 def qtl_test_lmm_kronecker(snps,
