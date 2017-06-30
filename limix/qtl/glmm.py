@@ -117,7 +117,7 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
     lmm = LMM(mu, X=named_covariates_to_array(M), QS=economic_qs(tR))
     null_lml = lmm.lml()
     flmm = lmm.get_fast_scanner()
-    alt_lmls, effsizes = flmm.fast_scan(G)
+    alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
     model = QTLModel_GLMM(null_lml, alt_lmls, effsizes,
                           null_covariate_effsizes)
 

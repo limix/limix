@@ -343,7 +343,7 @@ def qtl_test_lmm(G, y, K, M=None, test='lrt', verbose=True):
     null_covariate_effsizes = OrderedDict(null_covariate_effsizes)
 
     flmm = lmm.get_fast_scanner()
-    alt_lmls, effsizes = flmm.fast_scan(G)
+    alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
 
     model = QTLModel_LMM(null_lml, alt_lmls, effsizes, null_covariate_effsizes)
 
