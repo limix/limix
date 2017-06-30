@@ -12,6 +12,7 @@ from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
 from limix.stats import effsizes_se, lrt_pvalues
 from limix.util import asarray, Timer
+from .util import assure_named_covariates, named_covariates_to_array
 
 from .qtl_model import QTLModel
 
@@ -79,10 +80,7 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
 
     G = asarray(G)
 
-    if M is None:
-        M = ones((G.shape[0], 1))
-    else:
-        M = asarray(M)
+    M = assure_named_covariates(M, G.shape[0])
 
     K = asarray(K)
 
@@ -96,7 +94,7 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
     with Timer(desc=desc, disable=not verbose):
         QS = economic_qs(K)
 
-    glmm = GLMM(y, lik, M, QS)
+    glmm = GLMM(y, lik, named_covariates_to_array(M), QS)
     glmm.feed().maximize(progress=verbose)
 
     # extract stuff from glmm
@@ -111,7 +109,7 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
     s2_g = scale * (1 - delta)
     tR = s2_g * K + diag(var - var.min() + 1e-4)
 
-    lmm = LMM(mu, X=M, QS=economic_qs(tR))
+    lmm = LMM(mu, X=named_covariates_to_array(M), QS=economic_qs(tR))
     null_lml = lmm.lml()
     flmm = lmm.get_fast_scanner()
     alt_lmls, effsizes = flmm.fast_scan(G)
