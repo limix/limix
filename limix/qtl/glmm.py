@@ -1,6 +1,9 @@
 from __future__ import division
 
 from time import time
+from collections import OrderedDict
+
+from tabulate import tabulate
 
 from numpy import abs as npy_abs
 from numpy import asarray as npy_asarray
@@ -103,6 +106,15 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
     scale = float(glmm.scale)
     delta = float(glmm.delta)
 
+    beta = glmm.beta
+
+    null_covariate_effsizes = []
+
+    keys = list(M.keys())
+    for i in range(len(M)):
+        null_covariate_effsizes.append((keys[i], beta[i]))
+    null_covariate_effsizes = OrderedDict(null_covariate_effsizes)
+
     # define useful quantities
     mu = eta / tau
     var = 1. / tau
@@ -113,15 +125,21 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
     null_lml = lmm.lml()
     flmm = lmm.get_fast_scanner()
     alt_lmls, effsizes = flmm.fast_scan(G)
+    model = QTLModel_GLMM(null_lml, alt_lmls, effsizes,
+                          null_covariate_effsizes)
 
-    return QTLModel_GLMM(null_lml, alt_lmls, effsizes)
+    if verbose:
+        print(model)
+
+    return model
 
 
 class QTLModel_GLMM(QTLModel):
-    def __init__(self, null_lml, alt_lmls, effsizes):
+    def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
         self._null_lml = null_lml
         self._alt_lmls = alt_lmls
         self._effsizes = effsizes
+        self._null_covariate_effsizes = null_covariate_effsizes
 
     @property
     def null_lml(self):
@@ -144,12 +162,8 @@ class QTLModel_GLMM(QTLModel):
         return lrt_pvalues(self.null_lml, self.alt_lmls)
 
     @property
-    def null_covariant_effsizes(self):
-        pass
-
-    @property
-    def alt_covariant_effsizes(self):
-        return dict(offset=ones(5) * 1.5)
+    def null_covariate_effsizes(self):
+        return self._null_covariate_effsizes
 
     def __str__(self):
         from pandas import DataFrame
@@ -161,11 +175,14 @@ class QTLModel_GLMM(QTLModel):
 
         variant_msg = str(DataFrame(data=data).describe())
 
-        data = dict(self.alt_covariant_effsizes)
+        data = self.null_covariate_effsizes
 
-        covariant_msg = str(DataFrame(data=data).describe())
+        covariate_msg = tabulate([list(data.values())],
+                                 headers=list(data.keys()),
+                                tablefmt="plain")
 
-        msg = 'variants\n' + variant_msg
-        msg += '\n\ncovariants\n' + covariant_msg
+        msg = 'Variants\n' + variant_msg
+        msg += '\n\nCovariate effect sizes for the'
+        msg += ' null model\n' + covariate_msg
 
         return msg
