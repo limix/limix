@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
+
 import numpy as np
 import scipy as sp
 import scipy.stats as st
-import time
 
 
 class LMM:
@@ -109,17 +110,16 @@ class LMM:
              [ 0.0662  0.9203  0.2873  0.8268]]
     """
 
-    def __init__(
-            self,
-            snps,
-            pheno,
-            K=None,
-            covs=None,
-            test='lrt',
-            NumIntervalsDelta0=100,
-            NumIntervalsDeltaAlt=100,
-            searchDelta=False,
-            verbose=None):
+    def __init__(self,
+                 snps,
+                 pheno,
+                 K=None,
+                 covs=None,
+                 test='lrt',
+                 NumIntervalsDelta0=100,
+                 NumIntervalsDeltaAlt=100,
+                 searchDelta=False,
+                 verbose=None):
         # create column of 1 for fixed if nothing provide
         import limix_legacy.deprecated
         import limix_legacy.deprecated as dlimix_legacy
@@ -190,23 +190,24 @@ class LMM:
         else:
             if self._lmm is not None:
                 raise Exception(
-                    'cannot reuse a CLMM object if missing variables are present')
+                    'cannot reuse a CLMM object if missing variables are present'
+                )
             else:
                 self._lmm = limix_legacy.deprecated.CLMM()
             # test all phenotypes separately
             self.pvalues = np.zeros((self.phenos.shape[1], self.snps.shape[1]))
-            self.beta_snp = np.zeros(
-                (self.phenos.shape[1], self.snps.shape[1]))
-            self.beta_ste = np.zeros(
-                (self.phenos.shape[1], self.snps.shape[1]))
-            self.ldelta_0 = np.zeros(
-                (self.phenos.shape[1], self.snps.shape[1]))
-            self.ldelta_alt = np.zeros(
-                (self.phenos.shape[1], self.snps.shape[1]))
+            self.beta_snp = np.zeros((self.phenos.shape[1],
+                                      self.snps.shape[1]))
+            self.beta_ste = np.zeros((self.phenos.shape[1],
+                                      self.snps.shape[1]))
+            self.ldelta_0 = np.zeros((self.phenos.shape[1],
+                                      self.snps.shape[1]))
+            self.ldelta_alt = np.zeros((self.phenos.shape[1],
+                                        self.snps.shape[1]))
             self.NLL_0 = np.zeros((self.phenos.shape[1], self.snps.shape[1]))
             self.NLL_alt = np.zeros((self.phenos.shape[1], self.snps.shape[1]))
-            self.test_statistics = np.zeros(
-                (self.phenos.shape[1], self.snps.shape[1]))
+            self.test_statistics = np.zeros((self.phenos.shape[1],
+                                             self.snps.shape[1]))
             for ip in np.arange(self.phenos.shape[1]):
                 pheno_ = self.phenos[:, ip]
                 i_nonz = ~(pheno_.isnan())
@@ -225,14 +226,16 @@ class LMM:
                 self.NLL_alt[ip:ip + 1] = self._lmm.getNLLAlt()
                 self.test_statistics[ip:ip + 1] = self._lmm.getTestStatistics()
                 pass
-        if self._lmm.getTestStatistics() == self._lmm.TEST_LRT and self.test != "lrt":
+        if self._lmm.getTestStatistics(
+        ) == self._lmm.TEST_LRT and self.test != "lrt":
             raise NotImplementedError("only f and lrt are implemented")
-        elif self._lmm.getTestStatistics() == self._lmm.TEST_F and self.test != "f":
+        elif self._lmm.getTestStatistics(
+        ) == self._lmm.TEST_F and self.test != "f":
             raise NotImplementedError("only f and lrt are implemented")
 
         if self._lmm.getTestStatistics() == self._lmm.TEST_F:
-            self.test_statistics = (
-                self.beta_snp * self.beta_snp) / (self.beta_ste * self.beta_ste)
+            self.test_statistics = (self.beta_snp * self.beta_snp) / (
+                self.beta_ste * self.beta_ste)
         if self._lmm.getTestStatistics() == self._lmm.TEST_LRT:
             self.test_statistics = 2.0 * (self.NLL_0 - self.NLL_alt)
         t1 = time.time()

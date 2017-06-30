@@ -2,11 +2,12 @@ from __future__ import division
 
 from collections import OrderedDict
 
-from numpy import ones
-from numpy import stack as npy_stack
-
 import dask.array as da
+from numpy import stack as npy_stack
+from numpy import ones
+
 from limix.util import asarray
+
 
 def assure_named_covariates(M, nsamples):
 
@@ -21,6 +22,7 @@ def assure_named_covariates(M, nsamples):
         M = OrderedDict(M)
 
     return M
+
 
 def named_covariates_to_array(M):
     k = next(iter(M.keys()))

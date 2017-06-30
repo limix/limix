@@ -26,15 +26,14 @@ Generalised linear mixed models
 
 """
 
-from .qtl import qtl_test_lm
-from .qtl import qtl_test_lmm
-from .qtl import qtl_test_lmm_kronecker
-from .qtl import qtl_test_interaction_lmm_kronecker
-from .qtl import qtl_test_interaction_lmm
-from .qtl import forward_lmm
 from .glmm import qtl_test_glmm
 from .lmm import LMM
+from .qtl import (forward_lmm, qtl_test_interaction_lmm,
+                  qtl_test_interaction_lmm_kronecker, qtl_test_lm,
+                  qtl_test_lmm, qtl_test_lmm_kronecker)
 
-__all__ = ['qtl_test_lm', 'qtl_test_lmm', 'qtl_test_lmm_kronecker',
-           'qtl_test_interaction_lmm_kronecker', 'qtl_test_interaction_lmm',
-           'forward_lmm', 'LMM', 'qtl_test_glmm']
+__all__ = [
+    'qtl_test_lm', 'qtl_test_lmm', 'qtl_test_lmm_kronecker',
+    'qtl_test_interaction_lmm_kronecker', 'qtl_test_interaction_lmm',
+    'forward_lmm', 'LMM', 'qtl_test_glmm'
+]

@@ -1,23 +1,22 @@
 from __future__ import division
 
-from time import time
 from collections import OrderedDict
-
-from tabulate import tabulate
+from time import time
 
 from numpy import abs as npy_abs
 from numpy import asarray as npy_asarray
 from numpy import diag, ones, sqrt
 from numpy_sugar.linalg import economic_qs
 from scipy.stats import chi2
+from tabulate import tabulate
 
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
 from limix.stats import effsizes_se, lrt_pvalues
-from limix.util import asarray, Timer
-from .util import assure_named_covariates, named_covariates_to_array
+from limix.util import Timer, asarray
 
 from .qtl_model import QTLModel
+from .util import assure_named_covariates, named_covariates_to_array
 
 
 def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
@@ -177,9 +176,8 @@ class QTLModel_GLMM(QTLModel):
 
         data = self.null_covariate_effsizes
 
-        covariate_msg = tabulate([list(data.values())],
-                                 headers=list(data.keys()),
-                                tablefmt="plain")
+        covariate_msg = tabulate(
+            [list(data.values())], headers=list(data.keys()), tablefmt="plain")
 
         msg = 'Variants\n' + variant_msg
         msg += '\n\nCovariate effect sizes for the'
