@@ -37,7 +37,8 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
 
     Returns
     -------
-        :class:`limix.qtl.model.QTLModel_GLMM`: QTL representation.
+    :class:`limix.qtl.model.QTLModel_GLMM`
+        QTL representation.
 
     Examples
     --------
