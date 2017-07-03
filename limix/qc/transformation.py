@@ -1,3 +1,4 @@
+from numpy import asarray, isfinite
 import scipy as sp
 import scipy.linalg as la
 from numpy import isnan, zeros_like
@@ -51,16 +52,16 @@ def boxcox(X):
     return X_transformed
 
 
-def mean_standardize(Y, in_place=False):
+def mean_standardize(X, inplace=False):
     r"""Zero-mean and one-deviation normalization.
 
-    Standardize Y in a way that is robust to missing values
+    Standardize Y in a way that is robust to missing values.
 
     Parameters
     ----------
     Y : array_like
         Array to be normalized.
-    in_place : bool
+    inplace : bool
         Whether to operate in-place.
 
     Returns
@@ -68,18 +69,22 @@ def mean_standardize(Y, in_place=False):
     array_like
         Normalized array.
     """
-    if in_place:
-        YY = Y
-    else:
-        YY = Y.copy()
-    for i in range(YY.shape[1]):
-        Iok = ~SP.isnan(YY[:, i])
-        Ym = YY[Iok, i].mean()
-        YY[:, i] -= Ym
-        Ys = YY[Iok, i].std()
-        YY[:, i] /= Ys
-    return YY
+    import dask.array as da
 
+    if isinstance(X, da.Array):
+        X = X.astype(float)
+        X = X - da.nanmean(X, axis=0)
+        X = X / da.nanstd(X, axis=0)
+    else:
+        X = asarray(X, float)
+        if inplace:
+            X -= X.nanmean(0)
+        else:
+            X = X - X.nanmean(0)
+        dev = X.nanstd(0)
+        X[:, dev > 0] /= dev[dev > 0]
+
+    return X
 
 def remove_dependent_cols(M, tol=1e-6, display=False):
     """Remove dependent columns.

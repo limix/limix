@@ -186,6 +186,6 @@ def count_missingness(X):
     import dask.array as da
 
     if isinstance(X, da.Array):
-        return da.isnan(X).sum(axis=0)
+        return da.isnan(X).sum(axis=0).compute()
 
     return isnan(X).sum(axis=0)

@@ -38,11 +38,11 @@ from .fdr import qvalues
 from .kinship import gower_norm, linear_kinship
 from .lrt import effsizes_se, lrt_pvalues
 from .pca import pca
-from .preprocess import indep_pairwise, compute_maf
+from .preprocess import indep_pairwise, compute_maf, count_missingness
 from .teststats import empirical_pvalues
 
 __all__ = [
     'pca', 'boxcox', 'gower_norm', 'qvalues', 'empirical_pvalues',
     'Chi2mixture', 'indep_pairwise', 'maf', 'linear_kinship', 'lrt_pvalues',
-    'effsizes_se'
+    'effsizes_se', 'count_missingness'
 ]
