@@ -48,13 +48,13 @@ def estimate(y, lik, K, M=None, verbose=True):
         >>>
         >>> random = RandomState(0)
         >>>
-        >>> G = random.randn(50, 100)
+        >>> G = random.randn(150, 200) / sqrt(200)
         >>> K = dot(G, G.T)
-        >>> z = dot(G, random.randn(100)) / sqrt(100)
+        >>> z = dot(G, random.randn(200)) + random.randn(150)
         >>> y = random.poisson(exp(z))
         >>>
         >>> print('%.2f' % estimate(y, 'poisson', K, verbose=False))
-        0.70
+        0.18
     """
 
     if verbose:
@@ -80,7 +80,7 @@ def estimate(y, lik, K, M=None, verbose=True):
 
     if lik == 'normal':
         method = LMM(y, named_covariates_to_array(M), QS)
-        method.lml()
+        method.learn()
     else:
         method = GLMM(y, lik, named_covariates_to_array(M), QS)
         method.feed().maximize(progress=verbose)

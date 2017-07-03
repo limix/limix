@@ -1,7 +1,6 @@
-from numpy import asarray, isfinite
 import scipy as sp
 import scipy.linalg as la
-from numpy import isnan, zeros_like
+from numpy import asarray, isfinite, isnan, zeros_like
 from scipy.stats import boxcox as sp_boxcox
 from scipy_sugar.stats import quantile_gaussianize
 
@@ -85,6 +84,7 @@ def mean_standardize(X, inplace=False):
         X[:, dev > 0] /= dev[dev > 0]
 
     return X
+
 
 def remove_dependent_cols(M, tol=1e-6, display=False):
     """Remove dependent columns.

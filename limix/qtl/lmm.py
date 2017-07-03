@@ -59,7 +59,7 @@ def qtl_test_lmm(G, y, K, M=None, test='lrt', verbose=True):
         >>>
         >>> model = qtl_test_lmm(snps, pheno, kinship, verbose=False)
         >>> print(model.variant_pvalues[:4])
-        [ 0.7216  0.285   0.6636  0.3537]
+        [ 1.      1.      0.6377  1.    ]
     """
     if verbose:
         analysis_name = "Quantitative trait locus analysis"
@@ -78,6 +78,7 @@ def qtl_test_lmm(G, y, K, M=None, test='lrt', verbose=True):
         QS = economic_qs(K)
 
     lmm = LMM(y, X=named_covariates_to_array(M), QS=QS)
+    lmm.learn()
     null_lml = lmm.lml()
 
     beta = lmm.beta

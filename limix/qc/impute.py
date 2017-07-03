@@ -2,8 +2,8 @@ from __future__ import division
 
 from numpy import isnan
 
-def get_imputer(m):
 
+def get_imputer(m):
     def impute(X):
         A = X.copy()
 
@@ -18,6 +18,7 @@ def get_imputer(m):
 
     return impute
 
+
 def mean_impute(G):
     import dask.array as da
 
@@ -29,8 +30,7 @@ def mean_impute(G):
         for i in range(len(G.chunks[1])):
             end = start + G.chunks[1][i]
             impute = get_imputer(m[start:end])
-            arrs.append(G[:, start:end].map_blocks(impute,
-                                                   dtype=float))
+            arrs.append(G[:, start:end].map_blocks(impute, dtype=float))
             start = end
         G = da.concatenate(arrs, axis=1)
     else:
