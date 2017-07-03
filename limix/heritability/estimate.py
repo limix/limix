@@ -7,6 +7,7 @@ from numpy_sugar.linalg import economic_qs
 
 from limix.util import Timer, asarray
 from limix.stats.kinship import gower_norm
+from ..covariates import assure_named_covariates, named_covariates_to_array
 
 
 def estimate(y, lik, K, M=None, verbose=True):
