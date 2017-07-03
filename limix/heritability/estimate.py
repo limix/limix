@@ -3,6 +3,7 @@ from __future__ import division
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
 from numpy import ascontiguousarray, copy, ones, var
+from numpy import asarray as npy_asarray
 from numpy_sugar.linalg import economic_qs
 
 from limix.util import Timer, asarray
@@ -62,10 +63,8 @@ def estimate(y, lik, K, M=None, verbose=True):
         analysis_name = "Heritability estimation"
         print("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
 
-    M = assure_named_covariates(M, G.shape[0])
-
     K = asarray(K)
-
+    M = assure_named_covariates(M, K.shape[0])
     K = gower_norm(K)
 
     if isinstance(y, (tuple, list)):
@@ -84,9 +83,6 @@ def estimate(y, lik, K, M=None, verbose=True):
     else:
         glmm = GLMM(y, lik, named_covariates_to_array(M), QS)
         glmm.feed().maximize(progress=verbose)
-
-    glmm = GLMM(pheno, lik, covs, QS)
-    glmm.feed().maximize(progress=verbose)
 
     g = glmm.scale * (1 - glmm.delta)
     e = glmm.scale * glmm.delta
