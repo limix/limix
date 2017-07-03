@@ -42,3 +42,20 @@ def test_heritability_estimate_poisson():
         estimate(y, 'poisson', K, verbose=False),
         0.6998737749318877,
         rtol=1e-3)
+
+def test_heritability_estimate_normal():
+    random = RandomState(0)
+    nsamples = 50
+
+    G = random.randn(50, 100)
+    K = dot(G, G.T)
+    z = dot(G, random.randn(100)) / sqrt(100)
+    y = z + 0.2 * random.randn(50)
+
+    h2 = estimate(y, 'normal', K, verbose=False)
+    print(h2)
+
+    # assert_allclose(
+    #     estimate(y, 'poisson', K, verbose=False),
+    #     0.6998737749318877,
+    #     rtol=1e-3)

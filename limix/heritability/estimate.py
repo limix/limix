@@ -79,13 +79,18 @@ def estimate(y, lik, K, M=None, verbose=True):
     lik = lik.lower()
 
     if lik == 'normal':
-        raise NotImplementedError
+        method = LMM(y, named_covariates_to_array(M), QS)
+        method.lml()
     else:
-        glmm = GLMM(y, lik, named_covariates_to_array(M), QS)
-        glmm.feed().maximize(progress=verbose)
+        method = GLMM(y, lik, named_covariates_to_array(M), QS)
+        method.feed().maximize(progress=verbose)
 
-    g = glmm.scale * (1 - glmm.delta)
-    e = glmm.scale * glmm.delta
-    h2 = g / (var(glmm.mean()) + g + e)
+    g = method.scale * (1 - method.delta)
+    e = method.scale * method.delta
 
-    return h2
+    if lik == 'normal':
+        v = method.fixed_effects_variance
+    else:
+        v = var(method.mean())
+
+    return g / (v + g + e)
