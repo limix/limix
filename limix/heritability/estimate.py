@@ -94,7 +94,4 @@ def estimate(y, lik, K, M=None, verbose=True):
     else:
         v = var(method.mean())
 
-    if lik == 'bernoulli':
-        e += (pi * pi) / 3
-
     return g / (v + g + e)
