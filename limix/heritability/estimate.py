@@ -2,12 +2,13 @@ from __future__ import division
 
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
-from numpy import ascontiguousarray, copy, ones, var
 from numpy import asarray as npy_asarray
+from numpy import ascontiguousarray, copy, ones, pi, var
 from numpy_sugar.linalg import economic_qs
 
-from limix.util import Timer, asarray
 from limix.stats.kinship import gower_norm
+from limix.util import Timer, asarray
+
 from ..covariates import assure_named_covariates, named_covariates_to_array
 
 
@@ -92,5 +93,8 @@ def estimate(y, lik, K, M=None, verbose=True):
         v = method.fixed_effects_variance
     else:
         v = var(method.mean())
+
+    if lik == 'bernoulli':
+        e += (pi * pi) / 3
 
     return g / (v + g + e)
