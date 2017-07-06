@@ -10,6 +10,7 @@ from limix.stats.kinship import gower_norm
 from limix.util import Timer, asarray
 
 from ..covariates import assure_named_covariates, named_covariates_to_array
+from optimix import OptimixError
 
 
 def estimate(y, lik, K, M=None, verbose=True):
@@ -79,12 +80,16 @@ def estimate(y, lik, K, M=None, verbose=True):
 
     lik = lik.lower()
 
-    if lik == 'normal':
-        method = LMM(y, named_covariates_to_array(M), QS)
-        method.learn()
-    else:
-        method = GLMM(y, lik, named_covariates_to_array(M), QS)
-        method.feed().maximize(progress=verbose)
+    try:
+        if lik == 'normal':
+            method = LMM(y, named_covariates_to_array(M), QS)
+            method.learn()
+        else:
+            method = GLMM(y, lik, named_covariates_to_array(M), QS)
+            method.feed().maximize(progress=verbose)
+    except OptimixError as e:
+        print(e)
+        return 0.0
 
     g = method.scale * (1 - method.delta)
     e = method.scale * method.delta
