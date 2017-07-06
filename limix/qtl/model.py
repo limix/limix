@@ -62,6 +62,59 @@ class QTLModel(object):
         raise NotImplementedError
 
 
+class QTLModel_LM(QTLModel):
+    def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
+        self._null_lml = null_lml
+        self._alt_lmls = alt_lmls
+        self._effsizes = effsizes
+        self._null_covariate_effsizes = null_covariate_effsizes
+
+    @property
+    def null_lml(self):
+        return self._null_lml
+
+    @property
+    def alt_lmls(self):
+        return self._alt_lmls
+
+    @property
+    def variant_effsizes(self):
+        return self._effsizes
+
+    @property
+    def variant_effsizes_se(self):
+        return effsizes_se(self.variant_effsizes, self.variant_pvalues)
+
+    @property
+    def variant_pvalues(self):
+        return lrt_pvalues(self.null_lml, self.alt_lmls)
+
+    @property
+    def null_covariate_effsizes(self):
+        return self._null_covariate_effsizes
+
+    def __str__(self):
+        from pandas import DataFrame
+
+        data = dict(
+            effsizes=self.variant_effsizes,
+            effsizes_se=self.variant_effsizes_se,
+            pvalues=self.variant_pvalues)
+
+        variant_msg = str(DataFrame(data=data).describe())
+
+        data = self.null_covariate_effsizes
+
+        covariate_msg = tabulate(
+            [list(data.values())], headers=list(data.keys()), tablefmt="plain")
+
+        msg = 'Variants\n' + variant_msg
+        msg += '\n\nCovariate effect sizes for the'
+        msg += ' null model\n' + covariate_msg
+
+        return msg
+
+
 class QTLModel_LMM(QTLModel):
     def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
         self._null_lml = null_lml
