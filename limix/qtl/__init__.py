@@ -17,7 +17,7 @@ Generalised linear mixed models
 """
 
 from .glmm import qtl_test_glmm
-from .lm import qtl_test_lm
+#from .lm import qtl_test_lm
 from .lmm import qtl_test_lmm
 
 __all__ = ['qtl_test_lmm', 'qtl_test_glmm', 'qtl_test_lm']
