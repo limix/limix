@@ -1,4 +1,17 @@
-# def qtl_test_lm(snps, pheno, covs=None, test='lrt', verbose=None):
+# from __future__ import division
+#
+# from collections import OrderedDict
+#
+# import statsmodels.api as sm
+# from numpy import asarray as npy_asarray
+#
+# from limix.util import asarray
+#
+# from .model import QTLModel_LM
+# from .util import assure_named_covariates, named_covariates_to_array
+#
+#
+# def qtl_test_lm(G, y, M=None, test='lrt', verbose=True):
 #     """
 #     Wrapper function for univariate single-variant association testing
 #     using a linear model.
@@ -43,6 +56,36 @@
 #             >>> print(lm.variant_pvalues[:4])
 #             [ 0.8796  0.5065  0.5666  0.6016]
 #     """
-#     lm = qtl_test_lmm(
-#         snps=snps, pheno=pheno, K=None, covs=covs, test=test, verbose=verbose)
-#     return lm
+#     if verbose:
+#         analysis_name = "Quantitative trait locus analysis"
+#         print("*** %s using LM ***" % (analysis_name, ))
+#
+#     G = asarray(G)
+#
+#     M = assure_named_covariates(M, G.shape[0])
+#
+#     y = npy_asarray(y, float)
+#
+#     lm = sm.OLS(y, named_covariates_to_array(M))
+#
+#     res = lm.fit()
+#     null_lml = lm.loglike()
+#
+#     beta = res.params
+#     null_covariate_effsizes = []
+#
+#     keys = list(M.keys())
+#     for i in range(len(M)):
+#         null_covariate_effsizes.append((keys[i], beta[i]))
+#     null_covariate_effsizes = OrderedDict(null_covariate_effsizes)
+#
+#     # lm.fit(named_covariates_to_array(M), y)
+#
+#     # lm = qtl_test_lmm(
+#     #     snps=snps, pheno=pheno, K=None, covs=covs, test=test, verbose=verbose)
+#     # return lm
+#
+#     if verbose:
+#         print(model)
+#
+#     return model

@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import os
 import sys
 
-
 from setuptools import find_packages, setup
 
 try:
@@ -24,12 +23,12 @@ def setup_package():
 
     setup_requires = ["cython", "numpy"] + pytest_runner
     install_requires = [
-        'scikit-learn', 'limix-core>=1.0.1', 'tabulate>=0.7.7',
+        'scikit-learn>=0.18.1', 'limix-core>=1.0.1', 'tabulate>=0.7.7',
         'dask[array,bag,dataframe,delayed]>=0.14', 'h5py',
         'pandas-plink>=1.1.7', 'limix-legacy', 'glimix-core>=1.2.15',
         'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.18', 'distributed',
         'numpy-sugar>=1.0.47', 'ncephes>=1.0.38', 'asciitree>=0.3.3',
-        'humanfriendly>=3.6.1'
+        'humanfriendly>=3.6.1', 'statsmodels>=0.8'
     ]
     tests_require = ['pytest', 'pytest-console-scripts', 'pytest-pep8']
 
