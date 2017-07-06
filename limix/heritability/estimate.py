@@ -88,6 +88,8 @@ def estimate(y, lik, K, M=None, verbose=True):
 
     g = method.scale * (1 - method.delta)
     e = method.scale * method.delta
+    if lik == 'bernoulli':
+        e += pi * pi / 3
 
     if lik == 'normal':
         v = method.fixed_effects_variance
