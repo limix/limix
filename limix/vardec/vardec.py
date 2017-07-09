@@ -40,7 +40,7 @@ class VarianceDecomposition(object):
         .. doctest::
 
             >>> from numpy.random import RandomState
-            >>> from limix.varDecomp import VarianceDecomposition
+            >>> from limix.vardec import VarianceDecomposition
             >>> from numpy import dot, eye, ones
             >>> from numpy import set_printoptions
             >>> set_printoptions(4)

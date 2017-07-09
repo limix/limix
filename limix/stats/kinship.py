@@ -2,7 +2,7 @@ from numpy import ascontiguousarray, copyto, sqrt, zeros
 from tqdm import tqdm
 
 
-def linear_kinship(G, out=None, progress=True):
+def linear_kinship(G, out=None, verbose=True):
     r"""Estimate Kinship matrix via linear kernel.
 
     Examples
@@ -27,7 +27,7 @@ def linear_kinship(G, out=None, progress=True):
 
     nsteps = min(30, p)
 
-    for i in tqdm(range(nsteps), disable=not progress):
+    for i in tqdm(range(nsteps), disable=not verbose):
         start = i * (p // nsteps)
         stop = min(start + p // nsteps, p)
 

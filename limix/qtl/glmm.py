@@ -93,7 +93,7 @@ def qtl_test_glmm(snps,
     start = time()
     QS = economic_qs(K)
     glmm = GLMM(y, lik, covs, QS)
-    glmm.feed().maximize(progress=verbose)
+    glmm.feed().maximize(verbose=verbose)
     # if verbose:
     #     print("Elapsed time for GLMM part: %.3f" % (time() - start))
 
