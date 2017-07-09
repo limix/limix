@@ -1,4 +1,4 @@
-from numpy import ascontiguousarray, copyto, sqrt, zeros
+from numpy import ascontiguousarray, copyto, zeros
 from tqdm import tqdm
 
 
@@ -16,26 +16,28 @@ def linear_kinship(G, out=None, verbose=True):
         >>> X = random.randn(4, 100)
         >>> K = linear_kinship(X, verbose=False)
         >>> print(K)
-        [[ 27.3944  -5.785  -10.2402 -11.3693]
-         [ -5.785   26.9655  -7.068  -14.1125]
-         [-10.2402  -7.068   28.7332 -11.425 ]
-         [-11.3693 -14.1125 -11.425   36.9068]]
+        [[ 0.9131 -0.1928 -0.3413 -0.379 ]
+         [-0.1928  0.8989 -0.2356 -0.4704]
+         [-0.3413 -0.2356  0.9578 -0.3808]
+         [-0.379  -0.4704 -0.3808  1.2302]]
     """
     (n, p) = G.shape
     if out is None:
         out = zeros((n, n))
 
-    nsteps = min(30, p)
+    nsteps = min(100, p)
 
     for i in tqdm(range(nsteps), disable=not verbose):
         start = i * (p // nsteps)
         stop = min(start + p // nsteps, p)
 
-        G = G - G.mean(0)
-        G /= G.std(0)
-        G /= sqrt(p)
+        X = G[:, start:stop]
+        X = X - X.mean(0)
+        X /= X.std(0)
 
-        out += ascontiguousarray(G.dot(G.T), float)
+        out += ascontiguousarray(X.dot(X.T), float)
+
+    out /= p
 
     return out
 
