@@ -41,6 +41,6 @@ def test():
 
 
 __all__ = [
-    'test', 'core', 'io', 'plot', 'qtl', 'stats', 'util', 'varDecomp', 'mtSet',
-    'iSet', 'scripts', 'MTSet', 'heritability'
+    'test', 'core', 'io', 'plot', 'qtl', 'stats', 'util', 'vardec', 'mtset',
+    'iset', 'scripts', 'heritability'
 ]

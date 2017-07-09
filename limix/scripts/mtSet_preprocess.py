@@ -2,7 +2,7 @@ from optparse import OptionParser
 
 
 def entry_point():
-    from ..mtSet.core.preprocessCore import preprocess
+    from ..mtset.core.preprocessCore import preprocess
 
     parser = OptionParser()
     parser.add_option("--bfile", dest='bfile', type=str, default=None)

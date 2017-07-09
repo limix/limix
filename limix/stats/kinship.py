@@ -14,7 +14,7 @@ def linear_kinship(G, out=None, progress=True):
         >>>
         >>> random = RandomState(1)
         >>> X = random.randn(4, 100)
-        >>> K = linear_kinship(X, progress=False)
+        >>> K = linear_kinship(X, verbose=False)
         >>> print(K)
         [[ 27.3944  -5.785  -10.2402 -11.3693]
          [ -5.785   26.9655  -7.068  -14.1125]

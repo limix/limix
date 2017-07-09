@@ -1,2 +1,2 @@
-.. automodule:: limix.iSet
+.. automodule:: limix.iset
   :members:

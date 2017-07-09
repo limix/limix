@@ -61,7 +61,7 @@ def estimate(pheno, lik, K, covs=None, verbose=True):
         covs = ones((p, 1))
 
     glmm = GLMM(pheno, lik, covs, QS)
-    glmm.feed().maximize(progress=verbose)
+    glmm.feed().maximize(verbose=verbose)
 
     g = glmm.scale * (1 - glmm.delta)
     e = glmm.scale * glmm.delta

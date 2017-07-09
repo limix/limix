@@ -2,7 +2,7 @@ from optparse import OptionParser
 
 
 def entry_point():
-    from ..mtSet.core.postprocessCore import postprocess
+    from ..mtset.core.postprocessCore import postprocess
 
     parser = OptionParser()
     parser.add_option("--resdir", dest='resdir', type=str, default='./')

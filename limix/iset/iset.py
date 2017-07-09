@@ -1,20 +1,20 @@
-from .mvSet import MvSetTest
-from .mvSetFull import MvSetTestFull
-from .mvSetInc import MvSetTestInc
 import pandas as pd
 import scipy as sp
 
+from .mvset import MvSetTest
+from .mvsetfull import MvSetTestFull
+from .mvsetinc import MvSetTestInc
 
-def fit_iSet(
-        Y=None,
-        Xr=None,
-        F=None,
-        Rg=None,
-        Ug=None,
-        Sg=None,
-        Ie=None,
-        n_nulls=10,
-        factr=1e7):
+
+def fit_iSet(Y=None,
+             Xr=None,
+             F=None,
+             Rg=None,
+             Ug=None,
+             Sg=None,
+             Ie=None,
+             n_nulls=10,
+             factr=1e7):
     """
     Fit interaction set test (iSet).
 
@@ -79,7 +79,7 @@ def fit_iSet(
         .. doctest::
 
             >>> from numpy.random import RandomState
-            >>> from limix.iSet import fit_iSet
+            >>> from limix.iset import fit_iSet
             >>> from numpy import ones, concatenate
             >>> import scipy as sp
             >>>
