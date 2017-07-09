@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import os
 import sys
 
-
 from setuptools import find_packages, setup
 
 try:
@@ -26,9 +25,9 @@ def setup_package():
     install_requires = [
         'scikit-learn', 'limix-core>=1.0.1',
         'dask[array,bag,dataframe,delayed]>=0.14', 'h5py',
-        'pandas-plink>=1.1.7', 'limix-legacy', 'glimix-core>=1.2.13',
-        'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.18', 'distributed',
-        'numpy-sugar>=1.0.41', 'ncephes>=1.0.38', 'asciitree>=0.3.3'
+        'pandas-plink>=1.2.1', 'limix-legacy>=0.8.12', 'glimix-core>=1.2.19',
+        'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.19', 'distributed',
+        'numpy-sugar>=1.0.47', 'ncephes>=1.0.40', 'asciitree>=0.3.3'
     ]
     tests_require = ['pytest', 'pytest-console-scripts', 'pytest-pep8']
 
@@ -48,7 +47,7 @@ def setup_package():
 
     metadata = dict(
         name='limix',
-        version='1.0.9',
+        version='1.0.10',
         maintainer="Limix Developers",
         maintainer_email="horta@ebi.ac.uk",
         author=("Christoph Lippert, Danilo Horta, " +
