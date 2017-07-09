@@ -33,21 +33,21 @@ def setup_package():
 
     console_scripts = [
         'limix_runner=limix.scripts.limix_runner:entry_point',
-        'mtSet_postprocess=limix.scripts.mtSet_postprocess:entry_point',
-        'mtSet_preprocess=limix.scripts.mtSet_preprocess:entry_point',
-        'mtSet_definesets=limix.scripts.mtSet_definesets:entry_point',
-        'mtSet_simPheno=limix.scripts.mtSet_simPheno:entry_point',
-        'mtSet_analyze=limix.scripts.mtSet_analyze:entry_point',
+        'mtset_postprocess=limix.scripts.mtset_postprocess:entry_point',
+        'mtset_preprocess=limix.scripts.mtset_preprocess:entry_point',
+        'mtset_definesets=limix.scripts.mtset_definesets:entry_point',
+        'mtset_simpheno=limix.scripts.mtset_simpheno:entry_point',
+        'mtset_analyze=limix.scripts.mtset_analyze:entry_point',
         'limix_converter=limix.scripts.limix_converter:entry_point',
-        'iSet_analyze=limix.scripts.iSet_analyze:entry_point',
-        'iSet_postprocess=limix.scripts.iSet_postprocess:entry_point',
+        'iset_analyze=limix.scripts.iset_analyze:entry_point',
+        'iset_postprocess=limix.scripts.iset_postprocess:entry_point',
         'limix=limix.scripts.limix:entry_point',
         'ilimix=limix.scripts.ilimix:entry_point'
     ]
 
     metadata = dict(
         name='limix',
-        version='1.0.10',
+        version='1.0.11',
         maintainer="Limix Developers",
         maintainer_email="horta@ebi.ac.uk",
         author=("Christoph Lippert, Danilo Horta, " +
