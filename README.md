@@ -1,27 +1,3 @@
-# TODO for 1.1.0
-
-- [ ] limix.qtl.qtl_test_lmm: 10k by 500k datasets, low memory footprint
-      (i.e., <=60 GB).
-- [ ] limix.qtl.qtl_test_glmm: 10k by 500k datasets, low memory footprint
-      (i.e., <=60 GB).
-- [ ] Both limix.qtl.qtl_test_glmm and limix.qtl.qtl_test_lmm should accept
-      and take advantage of dask array.
-- [ ] limix.qtl.qtl_test_lmm: show progress bar like limix.qtl.qtl_test_glmm.
-- [ ] limix.qtl.qtl_test_lmm, limix.qtl.qtl_test_glmm: raise exception for
-      wrong parameters (NaN, Inf) and coerce sequences to numpy arrays.
-- [ ] Standardize arguments, set labels, set title, set colors, for plotting
-      functions: limix.plot.plot_manhattan, limix.plot.qqplot,
-      limix.plot.plot_kinship.
-- [ ] Define ConvergenceError exception to be raised whenever our methods
-      doesn't converge.
-- [ ] Convert documentation style to numpy style, of every function.
-
-# TODO for 1.2.0
-
-- [ ] Nicely print a summary of a QTL and heritability result.
-- [ ] I/O for BGEN file format.
-- [ ] Add full-world QTL and heritability analysis into readthedocs.
-
 # Limix
 
 [![PyPI-License](https://img.shields.io/pypi/l/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/)
@@ -46,7 +22,7 @@ https://github.com/limix/limix-tutorials.
 These tutorials can also be viewed using the ipython notebook viewer:
 http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb.
 
-#### Highlights
+## Highlights
 
 - **iSet**: an interaction set test with external context
   ([paper](http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006693))
