@@ -10,5 +10,5 @@ include limix/io/examples/data/csv/data.csv
 include limix/io/examples/data/gen/example.gen
 include limix/io/examples/data/gen/example.sample
 include limix/io/examples/data/numpy/1000G_kinship.npy
-include limix/test/mtSet/data/*.txt
+include limix/test/mtset/data/*.txt
 recursive-include limix *.py
