@@ -37,11 +37,19 @@ http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb
 ## Install
 
 The recommended way of installing it is via
-[pip](https://pypi.python.org/pypi/pip)
+[conda](http://conda.pydata.org/docs/index.html)
+```bash
+conda install -c conda-forge limix
+```
 
+An alternative way would be via pip
 ```bash
 pip install limix
 ```
+
+In the second option, you will need to sort out some of
+its dependencies.
+At least the [liknorm](https://github.com/limix/liknorm) one.
 
 ## Problems
 
