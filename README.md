@@ -2,6 +2,7 @@
 
 [![PyPI-License](https://img.shields.io/pypi/l/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/)
 [![PyPI-Version](https://img.shields.io/pypi/v/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/limix/badges/version.svg)](https://anaconda.org/conda-forge/limix)
 [![Documentation Status](https://readthedocs.org/projects/limix/badge/?style=flat-square&version=latest)](https://limix.readthedocs.io/)
 
 Genomic analyses require flexible models that can be adapted to the needs of the user.
