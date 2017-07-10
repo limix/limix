@@ -53,7 +53,7 @@ def setup_package():
         author=("Christoph Lippert, Danilo Horta, " +
                 "Francesco Paolo Casale, Oliver Stegle"),
         author_email="stegle@ebi.ac.uk",
-        license="Apache License 2.0'",
+        license="Apache License 2.0",
         description="A flexible and fast mixed model toolbox.",
         long_description=long_description,
         url='https://github.com/limix/limix',
