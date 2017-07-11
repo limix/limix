@@ -88,8 +88,8 @@ def scan(G, y, lik, K, M=None, verbose=True):
         model = QTLModel_LMM(null_lml, alt_lmls, effsizes,
                              null_covariate_effsizes)
     else:
-        method = GLMM(y, lik, named_covariates_to_array(M), QS)
-        method.feed().maximize(verbose=verbose)
+        glmm = GLMM(y, lik, named_covariates_to_array(M), QS)
+        glmm.feed().maximize(verbose=verbose)
 
         # extract stuff from glmm
         eta = glmm._site.eta
@@ -113,6 +113,7 @@ def scan(G, y, lik, K, M=None, verbose=True):
         tR = s2_g * K + diag(var - var.min() + 1e-4)
 
         lmm = LMM(mu, X=named_covariates_to_array(M), QS=economic_qs(tR))
+        lmm.learn(verbose=verbose)
         null_lml = lmm.lml()
         flmm = lmm.get_fast_scanner()
         alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
