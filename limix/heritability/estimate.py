@@ -86,7 +86,7 @@ def estimate(y, lik, K, M=None, verbose=True):
             method.learn()
         else:
             method = GLMM(y, lik, named_covariates_to_array(M), QS)
-            method.feed().maximize(progress=verbose)
+            method.feed().maximize(verbose=verbose)
     except OptimixError as e:
         print(e)
         return 0.0

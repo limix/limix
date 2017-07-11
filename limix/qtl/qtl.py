@@ -10,6 +10,7 @@ from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
 from limix.util import Timer, asarray
 
+from limix.stats.kinship import gower_norm
 from .model import QTLModel_GLMM, QTLModel_LMM
 from .util import assure_named_covariates, named_covariates_to_array
 
@@ -67,8 +68,8 @@ def scan(G, y, lik, K, M=None, verbose=True):
     lik = lik.lower()
 
     if lik == 'normal':
-        method = LMM(y, named_covariates_to_array(M), QS)
-        method.learn()
+        lmm = LMM(y, named_covariates_to_array(M), QS)
+        lmm.learn()
 
         null_lml = lmm.lml()
 
