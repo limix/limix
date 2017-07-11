@@ -69,7 +69,7 @@ def scan(G, y, lik, K, M=None, verbose=True):
 
     if lik == 'normal':
         lmm = LMM(y, named_covariates_to_array(M), QS)
-        lmm.learn()
+        lmm.learn(verbose=verbose)
 
         null_lml = lmm.lml()
 

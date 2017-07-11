@@ -83,7 +83,7 @@ def estimate(y, lik, K, M=None, verbose=True):
     try:
         if lik == 'normal':
             method = LMM(y, named_covariates_to_array(M), QS)
-            method.learn()
+            method.learn(verbose=verbose)
         else:
             method = GLMM(y, lik, named_covariates_to_array(M), QS)
             method.feed().maximize(verbose=verbose)

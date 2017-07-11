@@ -116,6 +116,7 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
     tR = s2_g * K + diag(var - var.min() + 1e-4)
 
     lmm = LMM(mu, X=named_covariates_to_array(M), QS=economic_qs(tR))
+    lmm.learn(verbose=verbose)
     null_lml = lmm.lml()
     flmm = lmm.get_fast_scanner()
     alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)

@@ -78,7 +78,7 @@ def qtl_test_lmm(G, y, K, M=None, test='lrt', verbose=True):
         QS = economic_qs(K)
 
     lmm = LMM(y, X=named_covariates_to_array(M), QS=QS)
-    lmm.learn()
+    lmm.learn(verbose=verbose)
     null_lml = lmm.lml()
 
     beta = lmm.beta
