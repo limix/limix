@@ -89,7 +89,7 @@ def scan(G, y, lik, K, M=None, verbose=True):
                              null_covariate_effsizes)
     else:
         method = GLMM(y, lik, named_covariates_to_array(M), QS)
-        method.feed().maximize(progress=verbose)
+        method.feed().maximize(verbose=verbose)
 
         # extract stuff from glmm
         eta = glmm._site.eta
