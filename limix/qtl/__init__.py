@@ -17,7 +17,6 @@ Generalised linear mixed models
 """
 
 from .glmm import qtl_test_glmm
-#from .lm import qtl_test_lm
 from .lmm import qtl_test_lmm
 from .qtl import scan
 
