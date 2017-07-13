@@ -1,6 +1,7 @@
 from __future__ import division
 
-from numpy import append, arange, asarray, flipud, linspace, log10, sort
+from numpy import append, arange, asarray, flipud, linspace, log10, ones, sort
+from numpy.random import RandomState
 from scipy.special import betaincinv
 
 
@@ -55,11 +56,12 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
 
     for label in labels:
         pv = asarray(df.loc[df['label'] == label, 'pv'], float)
+        ok = _subsample(pv)
 
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
         qemp = -log10(sort(pv))
 
-        ax.plot(qnull, qemp, '.', label=label, **style[label])
+        ax.plot(qnull[ok], qemp[ok], '.', label=label, **style[label])
 
     ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
     _plot_confidence_band(qnull, alpha, ax)
@@ -111,3 +113,24 @@ def _plot_confidence_band(null_pvals, significance_level, ax):
 
     ax.fill_between(
         null_pvals, bo, to, facecolor='black', edgecolor='black', alpha=0.15)
+
+
+def _subsample(pvalues):
+    resolution = 1000
+
+    if len(pvalues) <= resolution:
+        return ones(len(pvalues), dtype=bool)
+
+    p = 1 - pvalues
+
+    ok = p <= 0.05
+
+    random = RandomState(0)
+    nok = ~ok
+    snok = sum(nok)
+
+    resolution = min(snok, resolution)
+    idx = random.choice(snok, resolution, p[nok] / sum(p[nok]), replace=False)
+    ok[nok][idx] = True
+
+    return ok
