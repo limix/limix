@@ -57,10 +57,7 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
     for label in labels:
         pv = asarray(df.loc[df['label'] == label, 'pv'], float)
         ok = _subsample(pv)
-<<<<<<< HEAD
         ok = flipud(ok)
-=======
->>>>>>> da39c93635c100c87879926d22c64796bc355c1e
 
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
         qemp = -log10(sort(pv))
