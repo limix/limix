@@ -1,6 +1,7 @@
 from __future__ import division
 
-from numpy import append, arange, asarray, flipud, linspace, log10, sort
+from numpy import append, arange, asarray, flipud, linspace, log10, ones, sort
+from numpy.random import RandomState
 from scipy.special import betaincinv
 
 
@@ -55,14 +56,16 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
 
     for label in labels:
         pv = asarray(df.loc[df['label'] == label, 'pv'], float)
+        ok = _subsample(pv)
+        ok = flipud(ok)
 
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
         qemp = -log10(sort(pv))
 
-        ax.plot(qnull, qemp, '.', label=label, **style[label])
+        ax.plot(qnull[ok], qemp[ok], '.', label=label, **style[label])
 
     ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
-    _plot_confidence_band(qnull, alpha, ax)
+    _plot_confidence_band(ok, qnull, alpha, ax)
     _set_axis_labels(ax)
 
     _set_frame(ax)
@@ -88,10 +91,10 @@ def _expected(n):
     return flipud(-log10(lnpv))
 
 
-def _rank_confidence_band(nranks, significance_level):
+def _rank_confidence_band(nranks, significance_level, ok):
     alpha = significance_level
 
-    k0 = arange(1, nranks + 1)
+    k0 = arange(1, nranks + 1)[ok]
     k1 = flipud(k0).copy()
 
     top = betaincinv(k0, k1, 1 - alpha)
@@ -101,13 +104,36 @@ def _rank_confidence_band(nranks, significance_level):
     return (bottom, mean, top)
 
 
-def _plot_confidence_band(null_pvals, significance_level, ax):
+def _plot_confidence_band(ok, null_qvals, significance_level, ax):
 
-    (bo, me, to) = _rank_confidence_band(len(null_pvals), significance_level)
+    n = len(ok)
+    ok[:min(n, 2):] = True
+    (bo, me, to) = _rank_confidence_band(len(null_qvals), significance_level, ok)
 
     me = -log10(me)
     bo = -log10(bo)
     to = -log10(to)
 
     ax.fill_between(
-        null_pvals, bo, to, facecolor='black', edgecolor='black', alpha=0.15)
+        null_qvals[ok], bo, to, facecolor='black', edgecolor='black', alpha=0.15)
+
+
+def _subsample(pvalues):
+    resolution = 100
+
+    if len(pvalues) <= resolution:
+        return ones(len(pvalues), dtype=bool)
+
+    p = 1 - pvalues
+
+    ok = p <= 0.05
+
+    random = RandomState(0)
+    nok = ~ok
+    snok = sum(nok)
+
+    resolution = min(snok, resolution)
+    idx = random.choice(snok, resolution, p=p[nok] / sum(p[nok]), replace=False)
+    ok[nok][idx] = True
+
+    return ok
