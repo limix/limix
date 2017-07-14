@@ -1,6 +1,8 @@
 from __future__ import division
 
-from numpy import append, arange, asarray, flipud, linspace, log10, ones, sort, sum
+from numpy import append, arange, asarray, flipud, linspace, log10, ones
+from numpy import sort, sum, searchsorted, where, percentile
+from numpy import ascontiguousarray
 from numpy.random import RandomState
 from scipy.special import betaincinv
 
@@ -61,7 +63,10 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
         qemp = -log10(pv)
 
-        ax.plot(qnull[ok], qemp[ok], '.', label=label, **style[label])
+        ax.plot(qnull[ok], qemp[ok], '-bo',
+                label=label, markeredgewidth=0.5,
+                markersize=2.2, **style[label],
+                linewidth=0.65)
 
     ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
     _plot_confidence_band(ok, qnull, alpha, ax)
@@ -93,23 +98,22 @@ def _expected(n):
 def _rank_confidence_band(nranks, significance_level, ok):
     alpha = significance_level
 
-    k0 = arange(1, nranks + 1)[ok]
+    k0 = arange(1, nranks + 1)
     k1 = flipud(k0).copy()
 
+    k0 = ascontiguousarray(k0[ok])
+    k1 = ascontiguousarray(k1[ok])
+
     top = betaincinv(k0, k1, 1 - alpha)
-    mean = k0 / (nranks + 1)
     bottom = betaincinv(k0, k1, alpha)
 
-    return (bottom, mean, top)
+    return (bottom, top)
 
 
 def _plot_confidence_band(ok, null_qvals, significance_level, ax):
 
-    n = len(ok)
-    ok[:min(n, 2):] = True
-    (bo, me, to) = _rank_confidence_band(len(null_qvals), significance_level, ok)
+    (bo, to) = _rank_confidence_band(len(null_qvals), significance_level, ok)
 
-    me = -log10(me)
     bo = -log10(bo)
     to = -log10(to)
 
@@ -122,19 +126,25 @@ def _subsample(pvalues):
 
     if len(pvalues) <= resolution:
         return ones(len(pvalues), dtype=bool)
-
-    p = 1 - pvalues
-
-    ok = p >= 0.999
-    ok[0] = True
-    ok[-1] = True
-
-    random = RandomState(0)
+    
+    ok = pvalues <= percentile(pvalues, 0.1)
     nok = ~ok
+
+    qv = -log10(pvalues[nok])
+    qv_min = qv[-1]
+    qv_max = qv[0]
+
     snok = sum(nok)
 
     resolution = min(snok, resolution)
-    idx = random.choice(snok, resolution, p=p[nok] / sum(p[nok]), replace=False)
-    ok[nok][idx] = True
+
+    qv_chosen = linspace(qv_min, qv_max, resolution)
+    pv_chosen = 10**(-qv_chosen)
+    
+    idx = searchsorted(pvalues[nok], pv_chosen)
+    ok[where(nok)[0][idx]] = True
+
+    ok[0] = True
+    ok[-1] = True
 
     return ok
