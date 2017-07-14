@@ -1,6 +1,6 @@
 from __future__ import division
 
-from numpy import append, arange, asarray, flipud, linspace, log10, ones, sort
+from numpy import append, arange, asarray, flipud, linspace, log10, ones, sort, sum
 from numpy.random import RandomState
 from scipy.special import betaincinv
 
@@ -55,12 +55,11 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
         style = {label: dict() for label in labels}
 
     for label in labels:
-        pv = asarray(df.loc[df['label'] == label, 'pv'], float)
+        pv = sort(asarray(df.loc[df['label'] == label, 'pv'], float))
         ok = _subsample(pv)
-        ok = flipud(ok)
 
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
-        qemp = -log10(sort(pv))
+        qemp = -log10(pv)
 
         ax.plot(qnull[ok], qemp[ok], '.', label=label, **style[label])
 
@@ -119,14 +118,16 @@ def _plot_confidence_band(ok, null_qvals, significance_level, ax):
 
 
 def _subsample(pvalues):
-    resolution = 100
+    resolution = 500
 
     if len(pvalues) <= resolution:
         return ones(len(pvalues), dtype=bool)
 
     p = 1 - pvalues
 
-    ok = p <= 0.05
+    ok = p >= 0.999
+    ok[0] = True
+    ok[-1] = True
 
     random = RandomState(0)
     nok = ~ok
