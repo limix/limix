@@ -2,12 +2,12 @@ from __future__ import division
 
 from collections import OrderedDict
 
-from glimix_core.glmm import GLMM
-from glimix_core.lmm import LMM
 from numpy import asarray as npy_asarray
 from numpy import diag
 from numpy_sugar.linalg import economic_qs
 
+from glimix_core.glmm import GLMM
+from glimix_core.lmm import LMM
 from limix.util import Timer, asarray
 
 from .model import QTLModel_GLMM
@@ -63,11 +63,11 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
         >>> model = qtl_test_glmm(candidates, y, 'poisson', K, verbose=False)
         >>>
         >>> print(model.variant_pvalues)
-        [ 0.069   0.3346  0.5904  0.7392  0.779 ]
+        [ 0.0694  0.3336  0.5899  0.7387  0.7796]
         >>> print(model.variant_effsizes)
-        [ 2.4771 -1.2564 -0.706  -0.4766  0.3763]
+        [ 2.4732 -1.2588 -0.7068 -0.4772  0.3752]
         >>> print(model.variant_effsizes_se)
-        [ 1.3624  1.3022  1.3117  1.4314  1.341 ]
+        [ 1.362   1.3018  1.3112  1.4309  1.3405]
     """
 
     if verbose:
@@ -92,7 +92,7 @@ def qtl_test_glmm(G, y, lik, K, M=None, verbose=True):
         QS = economic_qs(K)
 
     glmm = GLMM(y, lik, named_covariates_to_array(M), QS)
-    glmm.feed().maximize(progress=verbose)
+    glmm.feed().maximize(verbose=verbose)
 
     # extract stuff from glmm
     eta = glmm._site.eta
