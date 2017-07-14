@@ -8,13 +8,13 @@ def plot_power_curve(df, color=None, ax=None):
 
     Parameters
     ----------
-
     df : :class:`pandas.DataFrame`
         Data frame with `pv` and `label` columns.
     color : dict
         Map colors to labels.
     ax : :class:`matplotlib.axes.Axes`
-        The target handle for this figure. If None, the current axes is set.
+        The target handle for this figure. If ``None``, the current axes is
+        set.
 
     Returns
     -------
@@ -23,7 +23,6 @@ def plot_power_curve(df, color=None, ax=None):
 
     Examples
     --------
-
     .. plot::
 
         from limix.plot import plot_power_curve

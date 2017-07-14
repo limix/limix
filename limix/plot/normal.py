@@ -10,7 +10,6 @@ def plot_normal(x, bins=20, nstd=2, style=None, ax=None):
 
     Parameters
     ----------
-
     x : array_like
         Values to be fitted.
     bins : int
@@ -21,7 +20,8 @@ def plot_normal(x, bins=20, nstd=2, style=None, ax=None):
         Keyword arguments forwarded to the :func:`matplotlib.axes.Axes.plot`
         function.
     ax : :class:`matplotlib.axes.Axes`
-        The target handle for this figure. If None, the current axes is set.
+        The target handle for this figure. If ``None``, the current axes is
+        set.
 
     Returns
     -------
@@ -30,7 +30,6 @@ def plot_normal(x, bins=20, nstd=2, style=None, ax=None):
 
     Examples
     --------
-
     .. plot::
 
         from numpy.random import RandomState

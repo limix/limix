@@ -25,7 +25,8 @@ def plot_manhattan(df,
         Keyword arguments forwarded to the :func:`matplotlib.axes.Axes.plot`
         function when plotting the significant results.
     ax : :class:`matplotlib.axes.Axes`:
-        The target handle for this figure. If None, the current axes is set.
+        The target handle for this figure. If ``None``, the current axes is
+        set.
 
     Returns
     -------
