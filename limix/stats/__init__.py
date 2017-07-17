@@ -5,6 +5,7 @@ Statistics
 
 .. autofunction:: limix.stats.effsizes_se
 .. autofunction:: limix.stats.lrt_pvalues
+.. autofunction:: limix.stats.confusion_matrix
 
 PCA
 ^^^
