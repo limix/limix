@@ -34,15 +34,16 @@ Chi2
 """
 
 from .chi2mixture import Chi2mixture
+from .confusion import confusion_matrix
 from .fdr import qvalues
 from .kinship import gower_norm, linear_kinship
 from .lrt import effsizes_se, lrt_pvalues
 from .pca import pca
-from .preprocess import indep_pairwise, compute_maf, count_missingness
+from .preprocess import compute_maf, count_missingness, indep_pairwise
 from .teststats import empirical_pvalues
 
 __all__ = [
     'pca', 'boxcox', 'gower_norm', 'qvalues', 'empirical_pvalues',
     'Chi2mixture', 'indep_pairwise', 'maf', 'linear_kinship', 'lrt_pvalues',
-    'effsizes_se', 'count_missingness'
+    'effsizes_se', 'count_missingness', 'confusion_matrix'
 ]
