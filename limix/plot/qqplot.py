@@ -1,8 +1,8 @@
 from __future__ import division
 
-from numpy import append, arange, asarray, flipud, linspace, log10, ones
-from numpy import sort, sum, searchsorted, where, percentile
-from numpy import ascontiguousarray
+from numpy import (append, arange, asarray, ascontiguousarray, flipud,
+                   linspace, log10, ones, percentile, searchsorted, sort, sum,
+                   where)
 from numpy.random import RandomState
 from scipy.special import betaincinv
 
@@ -63,10 +63,15 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
         qemp = -log10(pv)
 
-        ax.plot(qnull[ok], qemp[ok], '-bo',
-                label=label, markeredgewidth=0.5,
-                markersize=2.2, **style[label],
-                linewidth=0.65)
+        ax.plot(
+            qnull[ok],
+            qemp[ok],
+            '-bo',
+            label=label,
+            markeredgewidth=0.5,
+            markersize=2.2,
+            **style[label],
+            linewidth=0.65)
 
     ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
     _plot_confidence_band(ok, qnull, alpha, ax)
@@ -118,7 +123,12 @@ def _plot_confidence_band(ok, null_qvals, significance_level, ax):
     to = -log10(to)
 
     ax.fill_between(
-        null_qvals[ok], bo, to, facecolor='black', edgecolor='black', alpha=0.15)
+        null_qvals[ok],
+        bo,
+        to,
+        facecolor='black',
+        edgecolor='black',
+        alpha=0.15)
 
 
 def _subsample(pvalues):
@@ -126,7 +136,7 @@ def _subsample(pvalues):
 
     if len(pvalues) <= resolution:
         return ones(len(pvalues), dtype=bool)
-    
+
     ok = pvalues <= percentile(pvalues, 0.1)
     nok = ~ok
 
@@ -140,7 +150,7 @@ def _subsample(pvalues):
 
     qv_chosen = linspace(qv_min, qv_max, resolution)
     pv_chosen = 10**(-qv_chosen)
-    
+
     idx = searchsorted(pvalues[nok], pv_chosen)
     ok[where(nok)[0][idx]] = True
 

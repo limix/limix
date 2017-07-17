@@ -1,6 +1,6 @@
 from __future__ import division
 
-from numpy import asarray, linspace
+from numpy import argsort, asarray, linspace
 
 
 def plot_power(df, style=None, ax=None):
@@ -55,8 +55,6 @@ def plot_power(df, style=None, ax=None):
     if style is None:
         style = {label: dict() for label in labels}
 
-    opts = {label: dict() for label in labels}
-
     alphas, nhits = _collect_nhits(df)
 
     for label in labels:
@@ -94,8 +92,9 @@ def _set_labels(ax):
     ax.legend()
 
 
-def plot_power_known(df, style=None, ax=None):
+def plot_power_known(df, alpha=0.05, style=None, ax=None):
 
+    from limix.stats import confusion_matrix
     import matplotlib.pyplot as plt
 
     ax = plt.gca() if ax is None else ax
@@ -104,14 +103,25 @@ def plot_power_known(df, style=None, ax=None):
     if style is None:
         style = {label: dict() for label in labels}
 
-    opts = {label: dict() for label in labels}
-
-    alphas, nhits = _collect_nhits(df)
-
     for label in labels:
-        ax.plot(
-            alphas, asarray(nhits[label], int), label=label, **style[label])
 
-    _set_labels(ax)
+        df0 = df.query("label=='%s'" % label)
+        cm = confusion_matrix(df0)
+        y = cm.tpr[1:]
+        x = cm.fpr[1:]
+
+        idx = argsort(x)
+        x = x[idx]
+        y = y[idx]
+
+        ok = x <= alpha
+        x = x[ok]
+        y = y[ok]
+
+        ax.plot(x, y * 100, label=label, **style[label])
+
+    ax.set_xlabel('significance level')
+    ax.set_ylabel('percentage of hits')
+    ax.legend()
 
     return ax

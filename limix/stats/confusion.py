@@ -73,12 +73,12 @@ def confusion_matrix(df, wsize=50000):
     logger = logging.getLogger(__name__)
     wsize = int(wsize)
 
+    if 'chrom' not in df:
+        df = df.assign(chrom=['1'] * len(df))
+
     df.sort_values(by=['chrom', 'pos'], inplace=True)
 
     chromids = df['chrom'].unique()
-
-    if len(chromids) == 0:
-        raise ValueError("At least one chromossome is needed.")
 
     offset = 0
     idx_offset = 0
