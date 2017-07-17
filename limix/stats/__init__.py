@@ -24,7 +24,7 @@ Kinship processing
 .. autofunction:: limix.stats.linear_kinship
 .. autofunction:: limix.stats.gower_norm
 .. autofunction:: limix.stats.indep_pairwise
-.. autofunction:: limix.stats.maf
+.. autofunction:: limix.stats.compute_maf
 
 Chi2
 ^^^^
@@ -44,6 +44,6 @@ from .teststats import empirical_pvalues
 
 __all__ = [
     'pca', 'boxcox', 'gower_norm', 'qvalues', 'empirical_pvalues',
-    'Chi2mixture', 'indep_pairwise', 'maf', 'linear_kinship', 'lrt_pvalues',
-    'effsizes_se', 'count_missingness', 'confusion_matrix'
+    'Chi2mixture', 'indep_pairwise', 'compute_maf', 'linear_kinship',
+    'lrt_pvalues', 'effsizes_se', 'count_missingness', 'confusion_matrix'
 ]

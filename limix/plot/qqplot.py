@@ -65,7 +65,7 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
         ax.plot(
             qnull[ok],
             qemp[ok],
-            '-bo',
+            '-o',
             label=label,
             markeredgewidth=0.5,
             markersize=2.2,

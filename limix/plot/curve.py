@@ -28,6 +28,7 @@ def plot_curve(data, style=None, ax=None):
         import matplotlib.pyplot as plt
         import numpy as np
         import pandas as pd
+        from limix.plot import plot_curve
 
         random = np.random.RandomState(0)
 
@@ -40,7 +41,7 @@ def plot_curve(data, style=None, ax=None):
         data = [dict(label='methodA', x=x, y=y, ybottom=ybottom, ytop=ytop)]
         plot_curve(data)
 
-        plt.show
+        plt.show()
     """
 
     import matplotlib.pyplot as plt
