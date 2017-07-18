@@ -11,7 +11,7 @@ from glimix_core.lmm import LMM
 from limix.stats.kinship import gower_norm
 from limix.util import Timer, asarray
 
-from .model import QTLModel_GLMM, QTLModel_LMM
+from .model import QTLModel
 from .util import assure_named_covariates, named_covariates_to_array
 
 
@@ -145,8 +145,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         flmm = lmm.get_fast_scanner()
         alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
 
-        model = QTLModel_LMM(null_lml, alt_lmls, effsizes,
-                             null_covariate_effsizes)
+        model = QTLModel(null_lml, alt_lmls, effsizes, null_covariate_effsizes)
     else:
         glmm = GLMM(y, lik, named_covariates_to_array(M), QS)
         if fix_delta:
@@ -182,8 +181,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         null_lml = lmm.lml()
         flmm = lmm.get_fast_scanner()
         alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
-        model = QTLModel_GLMM(null_lml, alt_lmls, effsizes,
-                              null_covariate_effsizes)
+        model = QTLModel(null_lml, alt_lmls, effsizes, null_covariate_effsizes)
 
     if verbose:
         print(model)

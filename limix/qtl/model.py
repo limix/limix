@@ -9,194 +9,81 @@ from limix.stats import effsizes_se, lrt_pvalues
 
 
 class QTLModel(object):
-    def __init__(self):
-        pass
+    r"""Result of a QTL analysis.
+
+    An instance of this class is returned by :func:`limix.qtl.scan`.
+    """
+
+    def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
+        self._null_lml = null_lml
+        self._alt_lmls = alt_lmls
+        self._effsizes = effsizes
+        self._null_covariate_effsizes = null_covariate_effsizes
 
     @property
     def null_lml(self):
-        raise NotImplementedError
+        r"""Log of the marginal likelihood under the null hypothesis.
+
+        Returns
+        -------
+        float
+            Log of marginal likelihood.
+        """
+        return self._null_lml
 
     @property
     def alt_lmls(self):
-        raise NotImplementedError
+        r"""Log of the marginal likelihoods across tested variants.
+
+        Returns
+        -------
+        array_like
+            Log of marginal likelihoods.
+        """
+        return self._alt_lmls
 
     @property
     def variant_effsizes(self):
-        r"""
+        r"""Variant effect-sizes.
+
         Returns
         -------
         array_like
             Estimated variant effect sizes.
         """
-        raise NotImplementedError
+        return self._effsizes
 
     @property
     def variant_pvalues(self):
-        r"""
+        r"""Variant p-values.
+
         Returns
         -------
+        array_like
             Association significance between variant and phenotype.
         """
-        raise NotImplementedError
+        return lrt_pvalues(self.null_lml, self.alt_lmls)
 
     @property
     def variant_effsizes_se(self):
-        r"""
+        r"""Standard errors of the variant effect sizes.
+
         Returns
         -------
         array_like
             Estimated standard errors of the variant effect sizes.
         """
-        effsizes = self.variant_effsizes
-        pv = self.variant_pvalues
-        return npy_abs(effsizes) / sqrt(chi2(1).isf(pv))
+        return effsizes_se(self.variant_effsizes, self.variant_pvalues)
 
     @property
-    def null_covariant_effsizes(self):
-        r"""
+    def null_covariate_effsizes(self):
+        r"""Covariate effect-sizes under the null hypothesis.
+
         Returns
         -------
         array_like
             Estimated covariant effect sizes under the null hypothesis.
         """
-        raise NotImplementedError
-
-
-class QTLModel_LM(QTLModel):
-    def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
-        self._null_lml = null_lml
-        self._alt_lmls = alt_lmls
-        self._effsizes = effsizes
-        self._null_covariate_effsizes = null_covariate_effsizes
-
-    @property
-    def null_lml(self):
-        return self._null_lml
-
-    @property
-    def alt_lmls(self):
-        return self._alt_lmls
-
-    @property
-    def variant_effsizes(self):
-        return self._effsizes
-
-    @property
-    def variant_effsizes_se(self):
-        return effsizes_se(self.variant_effsizes, self.variant_pvalues)
-
-    @property
-    def variant_pvalues(self):
-        return lrt_pvalues(self.null_lml, self.alt_lmls)
-
-    @property
-    def null_covariate_effsizes(self):
-        return self._null_covariate_effsizes
-
-    def __str__(self):
-        from pandas import DataFrame
-
-        data = dict(
-            effsizes=self.variant_effsizes,
-            effsizes_se=self.variant_effsizes_se,
-            pvalues=self.variant_pvalues)
-
-        variant_msg = str(DataFrame(data=data).describe())
-
-        data = self.null_covariate_effsizes
-
-        covariate_msg = tabulate(
-            [list(data.values())], headers=list(data.keys()), tablefmt="plain")
-
-        msg = 'Variants\n' + variant_msg
-        msg += '\n\nCovariate effect sizes for the'
-        msg += ' null model\n' + covariate_msg
-
-        return msg
-
-
-class QTLModel_LMM(QTLModel):
-    def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
-        self._null_lml = null_lml
-        self._alt_lmls = alt_lmls
-        self._effsizes = effsizes
-        self._null_covariate_effsizes = null_covariate_effsizes
-
-    @property
-    def null_lml(self):
-        return self._null_lml
-
-    @property
-    def alt_lmls(self):
-        return self._alt_lmls
-
-    @property
-    def variant_effsizes(self):
-        return self._effsizes
-
-    @property
-    def variant_effsizes_se(self):
-        return effsizes_se(self.variant_effsizes, self.variant_pvalues)
-
-    @property
-    def variant_pvalues(self):
-        return lrt_pvalues(self.null_lml, self.alt_lmls)
-
-    @property
-    def null_covariate_effsizes(self):
-        return self._null_covariate_effsizes
-
-    def __str__(self):
-        from pandas import DataFrame
-
-        data = dict(
-            effsizes=self.variant_effsizes,
-            effsizes_se=self.variant_effsizes_se,
-            pvalues=self.variant_pvalues)
-
-        variant_msg = str(DataFrame(data=data).describe())
-
-        data = self.null_covariate_effsizes
-
-        covariate_msg = tabulate(
-            [list(data.values())], headers=list(data.keys()), tablefmt="plain")
-
-        msg = 'Variants\n' + variant_msg
-        msg += '\n\nCovariate effect sizes for the'
-        msg += ' null model\n' + covariate_msg
-
-        return msg
-
-
-class QTLModel_GLMM(QTLModel):
-    def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
-        self._null_lml = null_lml
-        self._alt_lmls = alt_lmls
-        self._effsizes = effsizes
-        self._null_covariate_effsizes = null_covariate_effsizes
-
-    @property
-    def null_lml(self):
-        return self._null_lml
-
-    @property
-    def alt_lmls(self):
-        return self._alt_lmls
-
-    @property
-    def variant_effsizes(self):
-        return self._effsizes
-
-    @property
-    def variant_effsizes_se(self):
-        return effsizes_se(self.variant_effsizes, self.variant_pvalues)
-
-    @property
-    def variant_pvalues(self):
-        return lrt_pvalues(self.null_lml, self.alt_lmls)
-
-    @property
-    def null_covariate_effsizes(self):
         return self._null_covariate_effsizes
 
     def __str__(self):
