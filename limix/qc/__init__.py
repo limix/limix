@@ -3,17 +3,27 @@ r"""
 Quality control
 ***************
 
-This module provides tools to help you normalise your data according to your
-needs, such as `Box-Cox transformation`_ (:func:`limix.qc.boxcox`),
-missing value imputation (:func:`limix.qc.mean_impute`), zero-mean
-standardisation (:func:`limix.qc.mean_standardize`), and Normal quantile
-normalisation (:func:`limix.qc.quantile_gaussianize`).
+Introduction
+^^^^^^^^^^^^
 
+This module provides the following functions to help normalise your data
+according to your needs:
+
+- `Box-Cox transformation`_ (:func:`limix.qc.boxcox`)
+- Missing value imputation (:func:`limix.qc.mean_impute`)
+- zero-mean Standardisation (:func:`limix.qc.mean_standardize`)
+- Normal quantile normalisation (:func:`limix.qc.quantile_gaussianize`)
+- Pairwise variant independence (:func:`limix.qc.indep_pairwise`)
+- `Minor allele frequency`_ (:func:`limix.qc.compute_maf`)
+- Number of missing values (:func:`limix.qc.count_missingness`)
+- Plain linear regression (:func:`limix.qc.regress_out`)
+- Removal of dependent columns (:func:`limix.qc.remove_dependent_cols`)
 
 .. _Box-Cox transformation: https://en.wikipedia.org/wiki/Power_transform#Box.E2.80.93Cox_transformation
+.. _Minor allele frequency: https://en.wikipedia.org/wiki/Minor_allele_frequency
 
 Interface
-^^^^^^^^^^^^^^
+^^^^^^^^^
 
 .. autofunction:: limix.qc.boxcox
 .. autofunction:: limix.qc.mean_impute

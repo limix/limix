@@ -1,7 +1,6 @@
 def regress_out(Y, X, return_b=False):
-    """
-    regresses out X from Y
-    """
+    r"""Regresses out X from Y"""
+    from scipy.linalg import pinv
     Xd = la.pinv(X)
     b = Xd.dot(Y)
     Y_out = Y - X.dot(b)

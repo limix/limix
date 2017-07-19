@@ -24,7 +24,6 @@ Kinship processing
 
 .. autofunction:: limix.stats.linear_kinship
 .. autofunction:: limix.stats.gower_norm
-.. autofunction:: limix.stats.compute_maf
 
 Chi2
 ^^^^

@@ -38,18 +38,18 @@ def mean_impute(G):
 
         >>> from numpy.random import RandomState
         >>> from numpy import nan
-        >>> from limix.qc import boxcox
+        >>> from limix.qc import mean_impute
         >>>
         >>> random = RandomState(0)
         >>> X = random.randn(5, 2)
         >>> X[0, 0] = nan
         >>>
-        >>> print(boxcox(X))
-        [[    nan  0.9544]
-         [ 1.0986  1.6946]
-         [ 2.0183  0.    ]
-         [ 1.0691  0.644 ]
-         [ 0.      0.9597]]
+        >>> print(mean_impute(X))
+        [[ 0.9233  0.4002]
+         [ 0.9787  2.2409]
+         [ 1.8676 -0.9773]
+         [ 0.9501 -0.1514]
+         [-0.1032  0.4106]]
     """
     import dask.array as da
 
@@ -65,7 +65,7 @@ def mean_impute(G):
             start = end
         G = da.concatenate(arrs, axis=1)
     else:
-        m = nanmean(G, axis=0).compute()
+        m = nanmean(G, axis=0)
         for i in range(len(m)):
             G[isnan(G[:, i]), i] = m[i]
 
