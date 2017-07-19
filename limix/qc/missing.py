@@ -1,2 +1,19 @@
-# TODO: implement call rate
-# call_rate = 1-np.isnan(genotype_matrix).sum(1)/float(genotype_matrix.shape[1]
+from __future__ import division
+
+from numpy import isnan
+
+
+def count_missingness(X):
+    r"""Count the number of missing values per column.
+
+    Returns
+    -------
+    array_like
+        Number of missing values per column.
+    """
+    import dask.array as da
+
+    if isinstance(X, da.Array):
+        return da.isnan(X).sum(axis=0).compute()
+
+    return isnan(X).sum(axis=0)

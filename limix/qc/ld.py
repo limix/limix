@@ -2,8 +2,8 @@ from __future__ import division
 
 import scipy.spatial
 from joblib import Parallel, cpu_count, delayed
-from numpy import (asarray, ascontiguousarray, double, einsum, isnan,
-                   logical_not, minimum, nansum, newaxis, sqrt, unique, zeros)
+from numpy import (ascontiguousarray, double, einsum, logical_not, newaxis,
+                   sqrt, zeros)
 from scipy.spatial import _distance_wrap
 from tqdm import tqdm
 
@@ -48,8 +48,7 @@ def func(x, excls, threshold):
 
 
 def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
-    r"""
-    Determine pair-wise independent variants.
+    r"""Determine pair-wise independent variants.
 
     Independent variants are defined via squared Pearson correlations between
     pairs of variants inside a sliding window.
@@ -76,7 +75,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     .. doctest::
 
         >>> from numpy.random import RandomState
-        >>> from limix.stats import indep_pairwise
+        >>> from limix.qc import indep_pairwise
         >>>
         >>> random = RandomState(0)
         >>> X = random.randn(10, 20)
@@ -131,61 +130,3 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
             pbar.update(len(delayeds))
 
     return logical_not(excls)
-
-
-def compute_maf(X):
-    r"""Compute minor allele frequencies.
-
-    It assumes that ``X`` encodes 0, 1, and 2 representing the number
-    of alleles (or dosage), or ``NaN`` to represent missing values.
-
-    Parameters
-    ----------
-    X : array_like
-        Genotype matrix.
-
-    Returns
-    -------
-    array_like
-        Minor allele frequencies.
-
-    Examples
-    --------
-    .. doctest::
-
-        >>> from numpy.random import RandomState
-        >>> from limix.stats import compute_maf
-        >>>
-        >>> random = RandomState(0)
-        >>> X = random.randint(0, 3, size=(100, 10))
-        >>>
-        >>> print(compute_maf(X))
-        [ 0.49   0.49   0.445  0.495  0.5    0.45   0.48   0.48   0.47   0.435]
-    """
-    import dask.array as da
-
-    if isinstance(X, da.Array):
-        s0 = da.nansum(X, axis=0).compute()
-        denom = 2 * (X.shape[0] - da.isnan(X).sum(axis=0)).compute()
-    else:
-        s0 = nansum(X, axis=0)
-        denom = 2 * logical_not(isnan(X)).sum(axis=0)
-    s0 = s0 / denom
-    s1 = 1 - s0
-    return minimum(s0, s1)
-
-
-def count_missingness(X):
-    r"""Count the number of missing values per column.
-
-    Returns
-    -------
-    array_like
-        Number of missing values per column.
-    """
-    import dask.array as da
-
-    if isinstance(X, da.Array):
-        return da.isnan(X).sum(axis=0).compute()
-
-    return isnan(X).sum(axis=0)

@@ -5,10 +5,10 @@ from numpy import logical_not
 from numpy.random import RandomState
 from numpy.testing import assert_allclose, assert_equal
 
-from limix.stats import compute_maf, indep_pairwise
+from limix.qc import compute_maf, indep_pairwise
 
 
-def test_preprocess_indep_pairwise():
+def test_qc_indep_pairwise():
     random = RandomState(0)
 
     X = random.randn(3, 100)
@@ -24,7 +24,7 @@ def test_preprocess_indep_pairwise():
     assert_equal(indep_pairwise(X, 4, 2, 0.5, verbose=False)[-4:], tail)
 
 
-def test_preprocess_maf():
+def test_qc_maf():
     random = RandomState(0)
 
     X = random.randint(0, 3, size=(100, 10))
