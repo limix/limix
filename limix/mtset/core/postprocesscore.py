@@ -18,7 +18,7 @@ def postprocess(options):
     permutation and test pvalues
     """
 
-    from limix.stats import Chi2mixture
+    from limix.stats import Chi2Mixture
 
     resdir = options.resdir
     out_file = options.outfile
@@ -36,7 +36,7 @@ def postprocess(options):
 
     print('.. fit test statistics')
     t0 = time.time()
-    c2m = Chi2mixture(tol=4e-3)
+    c2m = Chi2Mixture(tol=4e-3)
     c2m.estimate_chi2mixture(df0['LLR'].values)
     t1 = time.time()
     print(('finished in %s seconds' % (t1 - t0)))

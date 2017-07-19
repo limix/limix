@@ -2,45 +2,45 @@ import scipy as sp
 
 
 def empirical_pvalues(xt, x0):
-    r"""Function to compute empirical P values.
+    r"""Function to compute empirical p-values.
 
-    Compute empirical P values from the test statistics
+    Compute empirical p-values from the test statistics
     observed on the data and the null test statistics
     (from permutations, parametric bootstraps, etc).
 
-    Args:
-        xt (array-like):
-            test statistcs observed on data.
-        x0 (array-like):
-            null test statistcs.
-            The minimum P value that can be
-            estimated is ``1./float(len(x0))``.
+    Parameters
+    ----------
+    xt : array_like
+        Test statistcs observed on data.
+    x0 : array_like
+        Null test statistcs. The minimum p-value that can be
+        estimated is ``1./float(len(x0))``.
 
-    Returns:
-        pv (ndarray):
-            estimated empirical P values.
-
-    Example
+    Returns
     -------
+    array_like
+        Estimated empirical P values.
 
-        .. doctest::
+    Examples
+    --------
+    .. doctest::
 
-            >>> from numpy.random import RandomState
-            >>> from limix.stats import empirical_pvalues
-            >>> from numpy import set_printoptions
-            >>> set_printoptions(4)
-            >>> random = RandomState(1)
-            >>>
-            >>> xt = random.chisquare(1, 1000)
-            >>> x0 = random.chisquare(1, 10000)
-            >>>
-            >>> pv = empirical_pvalues(xt, x0)
-            >>>
-            >>> print(pv.shape)
-            (1000,)
-            >>>
-            >>> print(pv[:4])
-            [ 0.5599  1.      0.8389  0.7975]
+        >>> from numpy.random import RandomState
+        >>> from limix.stats import empirical_pvalues
+        >>> from numpy import set_printoptions
+        >>> set_printoptions(4)
+        >>> random = RandomState(1)
+        >>>
+        >>> xt = random.chisquare(1, 1000)
+        >>> x0 = random.chisquare(1, 10000)
+        >>>
+        >>> pv = empirical_pvalues(xt, x0)
+        >>>
+        >>> print(pv.shape)
+        (1000,)
+        >>>
+        >>> print(pv[:4])
+        [ 0.5599  1.      0.8389  0.7975]
     """
     idxt = sp.argsort(xt)[::-1]
     idx0 = sp.argsort(x0)[::-1]
