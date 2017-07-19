@@ -3,45 +3,45 @@ r"""
 Statistics
 **********
 
-.. autofunction:: limix.stats.effsizes_se
-.. autofunction:: limix.stats.lrt_pvalues
-.. autofunction:: limix.stats.confusion_matrix
-
-PCA
-^^^
+Principal component analysis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autofunction:: limix.stats.pca
-
-
-P-values
-^^^^^^^^
-
-.. autofunction:: limix.stats.qvalues
 .. autofunction:: limix.stats.empirical_pvalues
+.. autofunction:: limix.stats.Chi2mixture
 
-Kinship processing
+P-value correction
 ^^^^^^^^^^^^^^^^^^
 
+.. autofunction:: limix.stats.multipletests
+
+Ground truth evaluation
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: limix.stats.confusion_matrix
+
+Kinship
+^^^^^^^
+
 .. autofunction:: limix.stats.linear_kinship
-.. autofunction:: limix.stats.gower_norm
 
-Chi2
-^^^^
+Likelihood-ratio test
+^^^^^^^^^^^^^^^^^^^^^
 
-.. autofunction:: limix.stats.Chi2mixture
+.. autofunction:: limix.stats.effsizes_se
+.. autofunction:: limix.stats.lrt_pvalues
 
 """
 
 from .chi2mixture import Chi2mixture
 from .confusion import confusion_matrix
-from .fdr import qvalues
-from .kinship import gower_norm, linear_kinship
+from .kinship import linear_kinship
 from .lrt import effsizes_se, lrt_pvalues
 from .pca import pca
+from .pvalue import multipletests
 from .teststats import empirical_pvalues
 
 __all__ = [
-    'pca', 'boxcox', 'gower_norm', 'qvalues', 'empirical_pvalues',
-    'Chi2mixture', 'linear_kinship', 'lrt_pvalues', 'effsizes_se',
-    'confusion_matrix'
+    'pca', 'multipletests', 'empirical_pvalues', 'Chi2mixture',
+    'linear_kinship', 'lrt_pvalues', 'effsizes_se', 'confusion_matrix'
 ]

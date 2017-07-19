@@ -11,6 +11,7 @@ according to your needs:
 
 - `Box-Cox transformation`_ (:func:`limix.qc.boxcox`)
 - Missing value imputation (:func:`limix.qc.mean_impute`)
+- Gower rescaling for covariance matrices (:func:`limix.qc.gower_norm`)
 - zero-mean Standardisation (:func:`limix.qc.mean_standardize`)
 - Normal quantile normalisation (:func:`limix.qc.quantile_gaussianize`)
 - Pairwise variant independence (:func:`limix.qc.indep_pairwise`)
@@ -27,6 +28,7 @@ Interface
 
 .. autofunction:: limix.qc.boxcox
 .. autofunction:: limix.qc.mean_impute
+.. autofunction:: limix.qc.gower_norm
 .. autofunction:: limix.qc.mean_standardize
 .. autofunction:: limix.qc.quantile_gaussianize
 .. autofunction:: limix.qc.indep_pairwise
@@ -38,6 +40,7 @@ Interface
 
 from .allele import compute_maf
 from .impute import mean_impute
+from .kinship import gower_norm
 from .ld import indep_pairwise
 from .linalg import remove_dependent_cols
 from .missing import count_missingness
@@ -47,5 +50,5 @@ from .trans import boxcox, mean_standardize, quantile_gaussianize
 __all__ = [
     'boxcox', 'mean_standardize', 'quantile_gaussianize', 'regress_out',
     'remove_dependent_cols', 'mean_impute', 'indep_pairwise',
-    'count_missingness', 'compute_maf'
+    'count_missingness', 'compute_maf', 'gower_norm'
 ]

@@ -5,8 +5,7 @@ import scipy as sp
 import scipy.linalg
 import scipy.stats
 
-from limix.qc import mean_standardize
-from limix.stats import gower_norm
+from limix.qc import gower_norm, mean_standardize
 
 
 class VarianceDecomposition(object):

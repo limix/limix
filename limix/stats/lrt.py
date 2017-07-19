@@ -1,9 +1,9 @@
 from __future__ import division
 
 from numpy import abs as npy_abs
-from numpy import asarray, sqrt, clip, inf
-from scipy.stats import chi2
+from numpy import asarray, clip, inf, sqrt
 from numpy_sugar import epsilon
+from scipy.stats import chi2
 
 
 def lrt_pvalues(null_lml, alt_lmls, dof=1):
@@ -26,8 +26,7 @@ def lrt_pvalues(null_lml, alt_lmls, dof=1):
         P-values.
     """
     from scipy.stats import chi2
-    lrs = clip(-2 * null_lml + 2 * asarray(alt_lmls),
-               epsilon.super_tiny, inf)
+    lrs = clip(-2 * null_lml + 2 * asarray(alt_lmls), epsilon.super_tiny, inf)
     pv = chi2(df=dof).sf(lrs)
     return clip(pv, epsilon.super_tiny, 1 - epsilon.tiny)
 

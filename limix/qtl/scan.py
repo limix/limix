@@ -8,7 +8,7 @@ from numpy_sugar.linalg import economic_qs
 
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
-from limix.stats.kinship import gower_norm
+from limix.qc import gower_norm
 from limix.util import Timer, asarray
 
 from .model import QTLModel

@@ -1,16 +1,16 @@
 from __future__ import division
 
-from glimix_core.glmm import GLMM
-from glimix_core.lmm import LMM
 from numpy import asarray as npy_asarray
 from numpy import ascontiguousarray, copy, ones, pi, var
 from numpy_sugar.linalg import economic_qs
+from optimix import OptimixError
 
-from limix.stats.kinship import gower_norm
+from glimix_core.glmm import GLMM
+from glimix_core.lmm import LMM
+from limix.qc import gower_norm
 from limix.util import Timer, asarray
 
 from ..covariates import assure_named_covariates, named_covariates_to_array
-from optimix import OptimixError
 
 
 def estimate(y, lik, K, M=None, verbose=True):
