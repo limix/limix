@@ -25,11 +25,28 @@ http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb
 ## Install
 
 The recommended way of installing it is via
-[pip](https://pypi.python.org/pypi/pip)
+[conda](http://conda.pydata.org/docs/index.html)
+```bash
+conda install -c conda-forge limix
+```
+It will handle all the necessary dependencies and should work for GNU/Linux
+distributions, macOS, and 64-bit Windows.
 
+An alternative way would be via [pip](https://pypi.python.org/pypi/pip).
+First, make sure you have at least the following Python packages:
+- [NumPy](http://www.numpy.org)
+- [SciPy](https://www.scipy.org)
+- [Matplotlib](https://matplotlib.org)
+- [setuptools](https://pypi.python.org/pypi/setuptools)
+- [scikit-learn](http://scikit-learn.org)
+
+You also need to install an C library called
+[liknorm](https://github.com/limix/liknorm), and have a C/C++ compiler.
+Finally, run
 ```bash
 pip install limix
 ```
+to perform the installation.
 
 ## Problems
 

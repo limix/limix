@@ -1,9 +1,7 @@
 from __future__ import division
 
-from collections import OrderedDict
-
 from numpy import asarray as npy_asarray
-from numpy import diag, eye
+from numpy import diag, eye, ones
 from numpy_sugar.linalg import economic_qs
 
 from glimix_core.glmm import GLMM
@@ -12,33 +10,40 @@ from limix.qc import gower_norm
 from limix.util import Timer, asarray
 
 from .model import QTLModel
-from .util import assure_named_covariates, named_covariates_to_array
+from .util import assure_named
 
 
 def scan(G, y, lik, K=None, M=None, verbose=True):
     r"""Single-variant association testing via generalised linear mixed models.
 
-    It supports Normal, Bernoulli, Binomial, and Poisson phenotypes.
-    Let :math:`N` be the sample size and :math:`S` the number of covariates.
+    It supports Normal (linear mixed model), Bernoulli, Binomial, and Poisson
+    residual errors, defined by ``lik``.
+    The columns of ``G`` define the candidates to be tested for association
+    with the phenotype ``y``.
+    The covariance matrix is set by ``K``.
+    If not provided, or set to ``None``, the generalised linear model
+    without random effects is assumed.
+    The covariates can be set via the parameter ``M``.
+    We recommend to always provide a column of ones in the case
 
     Parameters
     ----------
     G : array_like
-        `N` individuals by `S` candidate markers.
-    y : (tuple, array_like)
-        Either a tuple of two arrays of `N` individuals each (Binomial
-        phenotypes) or an array of `N` individuals (Normal, Poisson, or
+        `n` individuals by `s` candidate markers.
+    y : tuple, array_like
+        Either a tuple of two arrays of `n` individuals each (Binomial
+        phenotypes) or an array of `n` individuals (Normal, Poisson, or
         Bernoulli phenotypes). It does not support missing values yet.
     lik : {'normal', 'bernoulli', 'binomial', 'poisson'}
         Sample likelihood describing the residual distribution.
     K : array_like
-        `N` by `N` covariance matrix (e.g., kinship coefficients).
-        Set to ``None`` for a (generalised) linear model without random effect.
+        `n` by `n` covariance matrix (e.g., kinship coefficients).
+        Set to ``None`` for a generalised linear model without random effects.
         Defaults to ``None``.
-    M : (array_like, optional)
-        `N` individuals by `D` covariates.
-        By default, ``M`` is a (`N`, `1`) array of ones.
-    verbose : (bool, optional)
+    M : array_like, optional
+        `n` individuals by `d` covariates.
+        By default, ``M`` is an `n` by `1` matrix of ones.
+    verbose : bool, optional
         if ``True``, details such as runtime are displayed.
 
     Returns
@@ -50,50 +55,57 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     --------
     .. doctest::
 
+        >>> from numpy import dot, exp, sqrt, ones
         >>> from numpy.random import RandomState
-        >>> from numpy import dot
+        >>> from pandas import DataFrame
         >>> from limix.qtl import scan
+        >>>
         >>> random = RandomState(1)
         >>>
-        >>> N = 100
-        >>> S = 1000
+        >>> n = 30
+        >>> p = 3
         >>>
-        >>> snps = (random.rand(N, S) < 0.2).astype(float)
-        >>> pheno = random.randn(N)
-        >>> W = random.randn(N, 10)
-        >>> kinship = dot(W, W.T) / float(10)
+        >>> M = DataFrame(dict(offset=ones(n), age=random.randint(10, 60, n)))
         >>>
-        >>> model = scan(snps, pheno, 'normal', kinship, verbose=False)
-        >>> print(model.variant_pvalues[:4])
-        [ 1.      1.      0.6377  1.    ]
-
-    .. doctest::
-
-        >>> from numpy import dot, exp, sqrt
-        >>> from numpy.random import RandomState
-        >>> from limix.qtl import scan
+        >>> X = random.randn(n, 100)
+        >>> K = dot(X, X.T)
         >>>
-        >>> random = RandomState(0)
+        >>> candidates = random.randn(n, p)
+        >>> candidates = DataFrame(candidates, columns=['rs0', 'rs1', 'rs2'])
         >>>
-        >>> G = random.randn(250, 500) / sqrt(500)
-        >>> beta = 0.01 * random.randn(500)
+        >>> y = random.poisson(exp(random.randn(n)))
         >>>
-        >>> z = dot(G, beta) + 0.1 * random.randn(250)
-        >>> z += dot(G[:, 0], 1) # causal SNP
+        >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
-        >>> y = random.poisson(exp(z))
-        >>>
-        >>> candidates = G[:, :5]
-        >>> K = dot(G[:, 5:], G[:, 5:].T)
-        >>> model = scan(candidates, y, 'poisson', K, verbose=False)
-        >>>
-        >>> print(model.variant_pvalues)
-        [ 0.0694  0.3336  0.5899  0.7387  0.7796]
-        >>> print(model.variant_effsizes)
-        [ 2.4732 -1.2588 -0.7068 -0.4772  0.3752]
-        >>> print(model.variant_effsizes_se)
-        [ 1.362   1.3018  1.3112  1.4309  1.3405]
+        >>> print(model.variant_pvalues.to_string())
+        rs0    0.683328
+        rs1    0.288121
+        rs2    0.514937
+        >>> print(model.variant_effsizes.to_string())
+        rs0   -0.084547
+        rs1   -0.267286
+        rs2   -0.153484
+        >>> print(model.variant_effsizes_se.to_string())
+        rs0    0.207260
+        rs1    0.251622
+        rs2    0.235705
+        >>> print(model)
+        Variants
+               effsizes  effsizes_se   pvalues
+        count  3.000000     3.000000  3.000000
+        mean  -0.168439     0.231529  0.495462
+        std    0.092283     0.022474  0.198322
+        min   -0.267286     0.207260  0.288121
+        25%   -0.210385     0.221482  0.401529
+        50%   -0.153484     0.235705  0.514937
+        75%   -0.119015     0.243663  0.599132
+        max   -0.084547     0.251622  0.683328
+        <BLANKLINE>
+        Covariate effect sizes for the null model
+                age    offset
+        -0.00556772    0.3953
     """
+    from pandas import DataFrame, Series
 
     if verbose:
         lik_name = lik.lower()
@@ -101,7 +113,8 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         analysis_name = "Quantitative trait locus analysis"
         print("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
 
-    G = asarray(G)
+    G = assure_named(G, G.shape[0])
+
     if K is None:
         K = eye(G.shape[0])
         fix_delta = True
@@ -110,7 +123,11 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
     K = asarray(K)
     K = gower_norm(K)
-    M = assure_named_covariates(M, K.shape[0])
+
+    if M is None:
+        M = DataFrame({'offset': ones(K.shape[0], float)})
+    else:
+        M = assure_named(M, K.shape[0])
 
     if isinstance(y, (tuple, list)):
         y = tuple([npy_asarray(p, float) for p in y])
@@ -124,7 +141,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     lik = lik.lower()
 
     if lik == 'normal':
-        lmm = LMM(y, named_covariates_to_array(M), QS)
+        lmm = LMM(y, M.values, QS)
         if fix_delta:
             lmm.delta = 1
             lmm.fix('delta')
@@ -135,19 +152,18 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
         beta = lmm.beta
 
-        null_covariate_effsizes = []
-
         keys = list(M.keys())
-        for i in range(len(M)):
-            null_covariate_effsizes.append((keys[i], beta[i]))
-        null_covariate_effsizes = OrderedDict(null_covariate_effsizes)
+        ncov_effsizes = Series(beta, keys)
 
         flmm = lmm.get_fast_scanner()
-        alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
+        alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
 
-        model = QTLModel(null_lml, alt_lmls, effsizes, null_covariate_effsizes)
+        alt_lmls = Series(alt_lmls, list(G.keys()))
+        effsizes = Series(effsizes, list(G.keys()))
+
+        model = QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
     else:
-        glmm = GLMM(y, lik, named_covariates_to_array(M), QS)
+        glmm = GLMM(y, lik, M.values, QS)
         if fix_delta:
             glmm.delta = 1
             glmm.fix('delta')
@@ -161,12 +177,8 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
         beta = glmm.beta
 
-        null_covariate_effsizes = []
-
         keys = list(M.keys())
-        for i in range(len(M)):
-            null_covariate_effsizes.append((keys[i], beta[i]))
-        null_covariate_effsizes = OrderedDict(null_covariate_effsizes)
+        ncov_effsizes = Series(beta, keys)
 
         # define useful quantities
         mu = eta / tau
@@ -176,12 +188,17 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         if K is not None:
             tR += s2_g * K
 
-        lmm = LMM(mu, X=named_covariates_to_array(M), QS=economic_qs(tR))
+        lmm = LMM(mu, X=M.values, QS=economic_qs(tR))
         lmm.learn(verbose=verbose)
         null_lml = lmm.lml()
         flmm = lmm.get_fast_scanner()
-        alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
-        model = QTLModel(null_lml, alt_lmls, effsizes, null_covariate_effsizes)
+
+        alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+
+        alt_lmls = Series(alt_lmls, list(G.keys()))
+        effsizes = Series(effsizes, list(G.keys()))
+
+        model = QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
     if verbose:
         print(model)

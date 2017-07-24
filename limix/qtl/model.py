@@ -4,6 +4,7 @@ from numpy import abs as npy_abs
 from numpy import sqrt
 from scipy.stats import chi2
 from tabulate import tabulate
+from pandas import Series
 
 from limix.stats import effsizes_se, lrt_pvalues
 
@@ -62,7 +63,8 @@ class QTLModel(object):
         array_like
             Association significance between variant and phenotype.
         """
-        return lrt_pvalues(self.null_lml, self.alt_lmls)
+        pv = lrt_pvalues(self.null_lml, self.alt_lmls.values)
+        return Series(pv, list(self.alt_lmls.keys()))
 
     @property
     def variant_effsizes_se(self):
@@ -73,7 +75,9 @@ class QTLModel(object):
         array_like
             Estimated standard errors of the variant effect sizes.
         """
-        return effsizes_se(self.variant_effsizes, self.variant_pvalues)
+        ese = effsizes_se(self.variant_effsizes.values,
+                          self.variant_pvalues.values)
+        return Series(ese, list(self.alt_lmls.keys()))
 
     @property
     def null_covariate_effsizes(self):
@@ -99,7 +103,7 @@ class QTLModel(object):
         data = self.null_covariate_effsizes
 
         covariate_msg = tabulate(
-            [list(data.values())], headers=list(data.keys()), tablefmt="plain")
+            [data.values], headers=list(data.keys()), tablefmt="plain")
 
         msg = 'Variants\n' + variant_msg
         msg += '\n\nCovariate effect sizes for the'
