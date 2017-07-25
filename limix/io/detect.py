@@ -1,6 +1,10 @@
 from os.path import exists
 
 
+def possible_file_types():
+    return ['hdf5', 'csv', 'grm.raw', 'bed', 'image']
+
+
 def file_type(filepath):
     imexts = ['.png', '.bmp', '.jpg', 'jpeg']
     if filepath.endswith('.hdf5') or filepath.endswith('.h5'):
@@ -9,8 +13,6 @@ def file_type(filepath):
         return 'csv'
     if filepath.endswith('.grm.raw'):
         return 'grm.raw'
-    if filepath.endswith('.npy'):
-        return 'npy'
     if _is_bed(filepath):
         return 'bed'
     if any([filepath.endswith(ext) for ext in imexts]):
@@ -19,4 +21,12 @@ def file_type(filepath):
 
 
 def _is_bed(filepath):
-    return all([exists(filepath + ext) for ext in ['.bed', '.bim', '.fam']])
+    files = [filepath + ext for ext in ['.bed', '.bim', '.fam']]
+    ok = [exists(f) for f in files]
+
+    if sum(ok) > 0 and sum(ok) < 3:
+        mfiles = ', '.join([files[i] for i in range(3) if not ok[i]])
+        print("The following file(s) are missing:", mfiles)
+        return False
+
+    return all(ok)

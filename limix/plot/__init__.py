@@ -50,8 +50,15 @@ from .normal import plot_normal
 from .power import plot_power, plot_power_known
 from .qqplot import plot_qqplot
 
+
+def show(*args, **kwargs):
+    r"""Show a plot."""
+    from matplotlib.pyplot import show
+    show(*args, **kwargs)
+
+
 __all__ = [
     'plot_manhattan', 'plot_qqplot', 'plot_normal', 'plot_kinship',
     'see_image', 'plot_power', 'plot_power_known', 'plot_curve',
-    'ConsensusCurve'
+    'ConsensusCurve', 'show'
 ]

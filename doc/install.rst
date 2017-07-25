@@ -29,6 +29,9 @@ Finally, run
     pip install limix
 
 to perform the installation.
+If it does not work, we recommend to consider the first option again.
+It only requires the installation of the excelent Python and R platform
+`Anaconda`_ designed for reseachers, and then perform a single command.
 
 .. _liknorm: https://github.com/limix/liknorm
 .. _conda: http://conda.pydata.org/docs/index.html
@@ -38,3 +41,4 @@ to perform the installation.
 .. _Matplotlib: https://matplotlib.org
 .. _Setuptools: https://pypi.python.org/pypi/setuptools
 .. _Scikit-Learn: http://scikit-learn.org
+.. _Anaconda: https://www.continuum.io/downloads

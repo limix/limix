@@ -81,6 +81,21 @@ def see(f_or_filepath, root_name='/', ret=False, show_chunks=False):
         return _tree(f_or_filepath, root_name, ret, show_chunks)
 
 
+def see_hdf5(filepath, show_chunks=False):
+    """Shows a human-friendly tree representation of the contents of
+    a hdf5 file.
+    :param filepath: hdf5 file path or a reference to an open one.
+    :param bool show_chunks: show the chunks.
+    :returns str: String representation if is `ret=True`.
+    """
+    from limix.util import Timer
+
+    with Timer(desc="Reading %s..." % filepath):
+        with h5py.File(filepath, 'r') as f:
+            msg = _tree(f, '/', True, show_chunks)
+    print(msg)
+
+
 def _findnth(haystack, needle, n):
     parts = haystack.split(needle, n + 1)
     if len(parts) <= n + 1:

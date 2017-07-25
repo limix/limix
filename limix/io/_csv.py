@@ -1,3 +1,5 @@
+
+
 def read_csv(filename, sep=None, header=True):
     r"""Read a CSV file.
 
@@ -49,8 +51,13 @@ def see(filepath):
         CSV representation.
     """
     from pandas import read_csv
-    sep = _infer_separator(filepath)
-    print(read_csv(filepath, sep=sep).describe())
+    from limix.util import Timer
+
+    with Timer(desc="Reading %s..." % filepath):
+        sep = _infer_separator(filepath)
+        msg = read_csv(filepath, sep=sep).head()
+
+    print(msg)
 
 
 def _count(candidates, line):

@@ -85,9 +85,14 @@ def see_kinship(filepath):
     import limix
 
     if filepath.endswith('.grm.raw'):
-        K = read_grm_raw(filepath)
+        with limix.util.Timer(desc="Reading %s..." % filepath):
+            K = read_grm_raw(filepath)
+    else:
+        print("File %s not found." % filepath)
+        return
 
     limix.plot.plot_kinship(K)
+    limix.plot.show()
 
 
 def _print_title(title, msg):

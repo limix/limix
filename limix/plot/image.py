@@ -1,3 +1,6 @@
+from limix.util import Timer
+
+
 def see_image(filepath):
     r"""Plot a image represented in a file.
 
@@ -11,10 +14,11 @@ def see_image(filepath):
     """
     import matplotlib.pyplot as plt
 
-    plt.imshow(plt.imread(filepath))
-    axes = plt.gca()
-    plt.tight_layout()
-    axes.set_position([0, 0, 1, 1])
-    axes.xaxis.set_visible(False)
-    axes.yaxis.set_visible(False)
+    with Timer(desc="Reading %s..." % filepath):
+        plt.imshow(plt.imread(filepath))
+        axes = plt.gca()
+        plt.tight_layout()
+        axes.set_position([0, 0, 1, 1])
+        axes.xaxis.set_visible(False)
+        axes.yaxis.set_visible(False)
     plt.show()

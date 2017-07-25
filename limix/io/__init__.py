@@ -31,7 +31,7 @@ from .gen import read_gen
 from . import hdf5
 from .hdf5 import h5data_fetcher
 from .plink import read_plink
-from .util import file_type
+from .detect import file_type, possible_file_types
 from . import _csv as csv
 from . import plink
 from . import npy
@@ -55,5 +55,5 @@ def data(*args, **kwargs):
 __all__ = [
     'read_plink', 'h5data_fetcher', 'read_csv', 'read_gen', 'examples',
     'genotype_reader', 'phenotype_reader', 'data', 'file_type', 'hdf5',
-    'csv', 'plink', 'npy'
+    'csv', 'plink', 'npy', 'possible_file_types'
 ]
