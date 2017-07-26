@@ -69,8 +69,8 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
             label=label,
             markeredgewidth=0.5,
             markersize=2.2,
-            **style.get(label),
-            linewidth=0.65)
+            linewidth=0.65,
+            **style.get(label))
 
     ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
     _plot_confidence_band(ok, qnull, alpha, ax)
