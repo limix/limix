@@ -19,13 +19,15 @@ def _get_imputer(m):
     return impute
 
 
-def mean_impute(G):
+def mean_impute(X):
     r"""Column-wise impute ``NaN`` values by column mean.
+
+    It works well with `Dask`_ array.
 
     Parameters
     ----------
-    G : array_like
-        Bidimensional array to be imputed.
+    X : array_like
+        Matrix to have its missing values imputed.
 
     Returns
     -------
@@ -50,23 +52,25 @@ def mean_impute(G):
          [ 1.8676 -0.9773]
          [ 0.9501 -0.1514]
          [-0.1032  0.4106]]
+
+    .. _Dask: https://dask.pydata.org/
     """
     import dask.array as da
 
-    if isinstance(G, da.Array):
-        m = da.nanmean(G, axis=0).compute()
+    if isinstance(X, da.Array):
+        m = da.nanmean(X, axis=0).compute()
         start = 0
 
         arrs = []
-        for i in range(len(G.chunks[1])):
-            end = start + G.chunks[1][i]
+        for i in range(len(X.chunks[1])):
+            end = start + X.chunks[1][i]
             impute = _get_imputer(m[start:end])
-            arrs.append(G[:, start:end].map_blocks(impute, dtype=float))
+            arrs.append(X[:, start:end].map_blocks(impute, dtype=float))
             start = end
-        G = da.concatenate(arrs, axis=1)
+        X = da.concatenate(arrs, axis=1)
     else:
-        m = nanmean(G, axis=0)
+        m = nanmean(X, axis=0)
         for i in range(len(m)):
-            G[isnan(G[:, i]), i] = m[i]
+            X[isnan(X[:, i]), i] = m[i]
 
-    return G
+    return X

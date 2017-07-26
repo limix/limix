@@ -1,41 +1,73 @@
 from __future__ import division
 
-from numpy import asarray, isnan, zeros_like, abs
+from limix.util.npy_dask import (
+    asarray, isnan, zeros_like, abs, nanmean, nanstd, clip)
+from numpy import inf
 from numpy_sugar import epsilon
 from brent_search import brent
 
 
-def mean_standardize(X, inplace=False):
-    r"""Zero-mean and one-deviation normalization.
+def mean_standardize(X, axis=None, out=None):
+    r"""Zero-mean and one-deviation normalisation.
 
-    Standardize Y in a way that is robust to missing values.
+    Normalise in such a way that the mean and variance are equal to zero and
+    one.
+    This transformation is taken over the flattened array by default, otherwise
+    over the specified axis.
+    Missing values represented by ``NaN`` are ignored.
+
+    It works well with `Dask`_ array.
 
     Parameters
     ----------
-    Y : array_like
-        Array to be normalized.
-    inplace : bool
-        Whether to operate in-place.
+    X : array_like
+        Array to be normalised.
+    axis : None or int, optional
+        Axis along which the normalisation will take place. The default is to
+        normalise the flattened array.
 
     Returns
     -------
     array_like
         Normalized array.
-    """
-    import dask.array as da
 
-    if isinstance(X, da.Array):
-        X = X.astype(float)
-        X = X - da.nanmean(X, axis=0)
-        X = X / da.nanstd(X, axis=0)
-    else:
-        X = asarray(X, float)
-        if inplace:
-            X -= X.nanmean(0)
-        else:
-            X = X - X.nanmean(0)
-        dev = X.nanstd(0)
-        X[:, dev > 0] /= dev[dev > 0]
+    Examples
+    --------
+
+    .. doctest::
+
+        >>> import limix
+        >>> from numpy import arange
+        >>>
+        >>> X = arange(15).reshape((5, 3))
+        >>> print(X)
+        [[ 0  1  2]
+         [ 3  4  5]
+         [ 6  7  8]
+         [ 9 10 11]
+         [12 13 14]]
+        >>> X = limix.qc.mean_standardize(X, axis=0)
+        >>> print(X)
+        [[-1.4142 -1.4142 -1.4142]
+         [-0.7071 -0.7071 -0.7071]
+         [ 0.      0.      0.    ]
+         [ 0.7071  0.7071  0.7071]
+         [ 1.4142  1.4142  1.4142]]
+    """
+
+    X = asarray(X, dtype=float)
+
+    if axis is None:
+        X = X.ravel()
+        axis = 0
+
+    shape = X.shape
+    nshape = shape[:axis] + (1,) + shape[axis + 1:]
+
+    X = X - nanmean(X, axis=axis).reshape(nshape)
+    d = nanstd(X, axis=axis).reshape(nshape)
+    d = clip(d, epsilon.tiny, inf)
+    X /= d
 
     return X
 
@@ -75,8 +107,8 @@ def boxcox(x):
     .. math::
 
         f(x) = \begin{cases}
-            \frac{x^{\lambda} - 1}{\lambda}, & \text{if} \lambda > 0; \\
-            \log(x), & \text{if} \lambda = 0.
+            \frac{x^{\lambda} - 1}{\lambda}, & \text{if } \lambda > 0; \\
+            \log(x), & \text{if } \lambda = 0.
         \end{cases}
 
     to the provided data, hopefully making it more normal distribution-like.
@@ -127,3 +159,41 @@ def boxcox(x):
 
     lmb = brent(lambda lmb: -boxcox_llf(lmb, x), -5, +5)[0]
     return bc(x, lmb)
+
+
+if __name__ == '__main__':
+    import limix
+    import numpy as np
+    import dask.array as da
+
+    np.random.seed(0)
+    X = np.random.randn(5, 3)
+
+    Y = limix.qc.mean_standardize(X)
+    print(Y.mean())
+    print(Y.std())
+
+    axis = 0
+    Y = limix.qc.mean_standardize(X, axis=axis)
+    print(Y.mean(axis))
+    print(Y.std(axis))
+
+    axis = 1
+    Y = limix.qc.mean_standardize(X, axis=axis)
+    print(Y.mean(axis))
+    print(Y.std(axis))
+
+    X = da.from_array(X, chunks=(2, 1))
+    Y = limix.qc.mean_standardize(X)
+    print(Y.mean().compute())
+    print(Y.std().compute())
+
+    axis = 0
+    Y = limix.qc.mean_standardize(X, axis=axis)
+    print(Y.mean(axis).compute())
+    print(Y.std(axis).compute())
+
+    axis = 1
+    Y = limix.qc.mean_standardize(X, axis=axis)
+    print(Y.mean(axis).compute())
+    print(Y.std(axis).compute())

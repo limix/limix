@@ -20,8 +20,9 @@ from .set_utils import annotate_sets, sets_from_bim
 from .temp import TemporaryDirectory
 from .url import urlretrieve
 from .timer import Timer
+from . import npy_dask
 
 __all__ = [
     'sets_from_bim', 'annotate_sets', 'estCumPos', 'unique_variants',
-    'TemporaryDirectory', 'urlretrieve', 'asarray', 'Timer'
+    'TemporaryDirectory', 'urlretrieve', 'asarray', 'Timer', 'npy_dask'
 ]
