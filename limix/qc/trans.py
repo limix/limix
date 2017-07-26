@@ -1,6 +1,8 @@
 from __future__ import division
 
-from numpy import asarray, isnan, zeros_like
+from numpy import asarray, isnan, zeros_like, abs
+from numpy_sugar import epsilon
+from brent_search import brent
 
 
 def mean_standardize(X, inplace=False):
@@ -65,46 +67,63 @@ def quantile_gaussianize(x):
     return qg(x)
 
 
-def boxcox(X):
-    r"""Gaussianize X using the Box-Cox transformation.
+def boxcox(x):
+    r"""Box Cox transformation for normality conformance.
 
-    Each phentoype is brought to a positive schale by first subtracting the
-    minimum value and adding 1.
-    Then each phenotype is transformed by the Box-Cox transformation.
+    It applies the power transformation
+
+    .. math::
+
+        f(x) = \begin{cases}
+            \frac{x^{\lambda} - 1}{\lambda}, & \text{if} \lambda > 0; \\
+            \log(x), & \text{if} \lambda = 0.
+        \end{cases}
+
+    to the provided data, hopefully making it more normal distribution-like.
+    The :math:`\lambda` parameter is fit by maximum likelihood estimation.
 
     Parameters
     ----------
     X : array_like
-        Samples by phenotypes.
+        Data to be transformed.
 
     Returns
     -------
     array_like
-        Box-Cox power transformed array.
+        Box Cox transformed data.
 
     Examples
     --------
-    .. doctest::
+    .. plot::
 
-        >>> from numpy.random import RandomState
-        >>> from limix.qc import boxcox
-        >>>
-        >>> random = RandomState(0)
-        >>> X = random.randn(5, 2)
-        >>>
-        >>> print(boxcox(X))
-        [[ 2.7136  0.9544]
-         [ 1.3844  1.6946]
-         [ 2.9066  0.    ]
-         [ 1.3407  0.644 ]
-         [ 0.      0.9597]]
+        import limix
+        import numpy as np
+        import scipy.stats as stats
+
+        np.random.seed(0)
+
+        x = stats.loggamma.rvs(0.1, size=100)
+        y = limix.qc.boxcox(x)
+
+        fig = limix.plot.figure()
+
+        ax1 = fig.add_subplot(211)
+        limix.plot.plot_qqnormal(x, ax=ax1)
+
+        ax2 = fig.add_subplot(212)
+        limix.plot.plot_qqnormal(y, ax=ax2)
+
+        limix.plot.show()
     """
-    from scipy.stats import boxcox as sp_boxcox
+    from scipy.stats import boxcox_llf
+    from scipy.special import boxcox as bc
 
-    X_transformed = zeros_like(X)
-    for i in range(X.shape[1]):
-        i_nan = isnan(X[:, i])
-        values = X[~i_nan, i]
-        X_transformed[i_nan, i] = X[i_nan, i]
-        X_transformed[~i_nan, i], _ = sp_boxcox(values - values.min() + 1.0)
-    return X_transformed
+    x = asarray(x, float)
+
+    m = x.min()
+    if m <= 0:
+        m = max(abs(m), epsilon.small)
+        x = x + m + m / 2
+
+    lmb = brent(lambda lmb: -boxcox_llf(lmb, x), -5, +5)[0]
+    return bc(x, lmb)

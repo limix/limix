@@ -62,12 +62,23 @@ def plot_normal(x, bins=20, nstd=2, style=None, ax=None):
 
     ax.plot(xvals, yvals, **style)
 
-    draw_normal(ax, mean_x, std_x, nstd, 'red')
+    _draw_normal(ax, mean_x, std_x, nstd, 'red')
 
     return ax
 
 
-def draw_normal(axis, mean, scale, nstd, color):
+def plot_qqnormal(x, ax=None):
+    import matplotlib.pyplot as plt
+    from scipy import stats
+
+    ax = plt.gca() if ax is None else ax
+
+    stats.probplot(x, dist=stats.norm, plot=ax)
+
+    return ax
+
+
+def _draw_normal(axis, mean, scale, nstd, color):
     max_pdf = st.norm.pdf(mean, mean, scale)
 
     axis.plot([mean, mean], [0, max_pdf], color=color, linestyle="--")

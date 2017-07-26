@@ -33,6 +33,7 @@ Normal distribution
 ^^^^^^^^^^^^^^^^^^^
 
 .. autofunction:: limix.plot.plot_normal
+.. autofunction:: limix.plot.plot_qqnormal
 
 File plot
 ^^^^^^^^^
@@ -46,19 +47,26 @@ from .curve import plot_curve
 from .image import see_image
 from .kinship import plot_kinship
 from .manhattan import plot_manhattan
-from .normal import plot_normal
+from .normal import plot_normal, plot_qqnormal
 from .power import plot_power, plot_power_known
 from .qqplot import plot_qqplot
 
 
 def show(*args, **kwargs):
     r"""Show a plot."""
-    from matplotlib.pyplot import show
-    show(*args, **kwargs)
+    from matplotlib import pyplot as plt
+    plt.tight_layout()
+    plt.show(*args, **kwargs)
+
+
+def figure(*args, **kwargs):
+    r"""Create a figure."""
+    from matplotlib import pyplot as plt
+    return plt.figure(*args, **kwargs)
 
 
 __all__ = [
     'plot_manhattan', 'plot_qqplot', 'plot_normal', 'plot_kinship',
     'see_image', 'plot_power', 'plot_power_known', 'plot_curve',
-    'ConsensusCurve', 'show'
+    'ConsensusCurve', 'show', 'figure', 'plot_qqnormal'
 ]
