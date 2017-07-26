@@ -58,7 +58,7 @@ def plot_power(df, style=None, ax=None):
 
     for label in labels:
         ax.plot(
-            alphas, asarray(nhits[label], int), label=label, **style[label])
+            alphas, asarray(nhits[label], int), label=label, **style.get(label))
 
     _set_labels(ax)
 
@@ -117,7 +117,7 @@ def plot_power_known(df, alpha=0.05, style=None, ax=None):
         x = x[ok]
         y = y[ok]
 
-        ax.plot(x, y * 100, label=label, **style[label])
+        ax.plot(x, y * 100, label=label, **style.get(label))
 
     ax.set_xlabel('significance level')
     ax.set_ylabel('percentage of hits')

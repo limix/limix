@@ -58,7 +58,7 @@ def plot_curve(data, style=None, ax=None):
         x = d['x']
         y = d['y']
 
-        lines = ax.plot(x, y, label=label, **style[label])
+        lines = ax.plot(x, y, label=label, **style.get(label))
 
         if 'ybottom' in d:
             if 'color' in style[label]:
