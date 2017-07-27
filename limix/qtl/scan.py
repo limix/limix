@@ -129,7 +129,8 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
     desc = "Eigen decomposition of the covariance matrix..."
 
-    nvalid = _cache['K']['K'] is None or (_cache['K']['hash'] != array_hash(K))
+    ah = array_hash(K)
+    nvalid = _cache['K']['K'] is None or (_cache['K']['hash'] != ah)
 
     if nvalid:
 
@@ -142,7 +143,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
         with Timer(desc=desc, disable=not verbose):
             QS = economic_qs(K)
-            _cache['K']['hash'] = array_hash(K)
+            _cache['K']['hash'] = ah
             _cache['K']['QS'] = QS
             _cache['K']['K'] = K
     else:
