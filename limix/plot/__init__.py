@@ -64,9 +64,14 @@ def figure(*args, **kwargs):
     from matplotlib import pyplot as plt
     return plt.figure(*args, **kwargs)
 
+def savefig(*args, **kwargs):
+    r"""Save a figure."""
+    from matplotlib import pyplot as plt
+    return plt.savefig(*args, **kwargs)
+
 
 __all__ = [
     'plot_manhattan', 'plot_qqplot', 'plot_normal', 'plot_kinship',
     'see_image', 'plot_power', 'plot_power_known', 'plot_curve',
-    'ConsensusCurve', 'show', 'figure', 'plot_qqnormal'
+    'ConsensusCurve', 'show', 'figure', 'plot_qqnormal', 'savefig'
 ]
