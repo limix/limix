@@ -6,7 +6,7 @@ import dask.array as da
 from numpy import stack as npy_stack
 from numpy import ones
 
-from limix.util import asarray
+from limix.util.npy_dask import asarray
 
 
 def assure_named_covariates(M, nsamples):

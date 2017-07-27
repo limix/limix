@@ -6,11 +6,10 @@ import dask.array as da
 from numpy import stack as npy_stack
 from numpy import ones
 
-from limix.util import asarray
-
 
 def assure_named(M, nsamples):
     from pandas import DataFrame
+    from limix.util.npy_dask import asarray
 
     if isinstance(M, DataFrame):
         return M

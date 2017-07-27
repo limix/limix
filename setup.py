@@ -25,7 +25,7 @@ def setup_package():
     install_requires = [
         'scikit-learn>=0.18.1', 'limix-core>=1.0.1', 'tabulate>=0.7.7',
         'dask[array,bag,dataframe,delayed]>=0.14', 'h5py',
-        'pandas-plink>=1.1.7', 'limix-legacy', 'glimix-core>=1.2.15',
+        'pandas-plink>=1.1.7', 'limix-legacy', 'glimix-core>=1.2.20',
         'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.18', 'distributed',
         'numpy-sugar>=1.0.47', 'ncephes>=1.0.38', 'asciitree>=0.3.3',
         'humanfriendly>=3.6.1', 'statsmodels>=0.8', 'brent-search>=1.0.18'

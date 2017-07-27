@@ -8,7 +8,8 @@ from optimix import OptimixError
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
 from limix.qc import gower_norm
-from limix.util import Timer, asarray
+from limix.util import Timer
+from limix.util.npy_dask import asarray
 
 from ..covariates import assure_named_covariates, named_covariates_to_array
 

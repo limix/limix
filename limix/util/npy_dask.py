@@ -16,8 +16,8 @@ def unary_choice(unary_func_name):
 
 
 funcs = ['log', 'isnan', 'zeros_like', 'abs', 'nanmean', 'nanstd',
-         'clip', 'isnan', 'nanmean', 'copyto', 'zeros', 'asarray', 'sum',
-         'cumsum', 'flipud', 'log10']
+         'clip', 'nanmean', 'copyto', 'zeros', 'sum',
+         'cumsum', 'flipud', 'log10', 'all', 'isfinite', 'any']
 
 g = globals()
 for f in funcs:
@@ -33,13 +33,14 @@ def asarray(a, *args, **kwargs):
 
     return np.asarray(a, *args, **kwargs)
 
-# if __name__ == '__main__':
-#     import numpy as np
-#     import dask.array as da
-#
-#     a = np.random.randn(5)
-#     b = da.from_array(a, chunks=(1, ))
-#
-#     print(mean(a))
-#     print(mean(b))
-#     print(mean(b).compute())
+
+if __name__ == '__main__':
+    import numpy as np
+    import dask.array as da
+
+    a = np.random.randn(5)
+    a[1] = np.nan
+    b = da.from_array(a, chunks=(1, ))
+
+    print(all(isfinite(a)))
+    print(all(isfinite(b)).compute())

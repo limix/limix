@@ -1,16 +1,20 @@
 from __future__ import division
 
-from numpy import asarray as npy_asarray
 from numpy import diag, eye, ones
+from limix.util.npy_dask import all, isfinite, asarray
+from limix.util import array_hash
 from numpy_sugar.linalg import economic_qs
 
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
 from limix.qc import gower_norm
-from limix.util import Timer, asarray
+from limix.util import Timer
 
 from .model import QTLModel
 from .util import assure_named
+import pandas as pd
+
+_cache = dict(K=dict(K=None, QS=None, hash=None))
 
 
 def scan(G, y, lik, K=None, M=None, verbose=True):
@@ -122,21 +126,48 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         fix_delta = False
 
     K = asarray(K)
-    K = gower_norm(K)
+
+    desc = "Eigen decomposition of the covariance matrix..."
+
+    nvalid = _cache['K']['K'] is None or (_cache['K']['hash'] != array_hash(K))
+
+    if nvalid:
+
+        if not all(isfinite(K)):
+            msg = "One or more values of the provided covariance matrix "
+            msg += "is not finite."
+            raise ValueError(msg)
+
+        K = gower_norm(K)
+
+        with Timer(desc=desc, disable=not verbose):
+            QS = economic_qs(K)
+            _cache['K']['hash'] = array_hash(K)
+            _cache['K']['QS'] = QS
+            _cache['K']['K'] = K
+    else:
+        QS = _cache['K']['QS']
+        K = _cache['K']['K']
 
     if M is None:
         M = DataFrame({'offset': ones(K.shape[0], float)})
     else:
         M = assure_named(M, K.shape[0])
 
-    if isinstance(y, (tuple, list)):
-        y = tuple([npy_asarray(p, float) for p in y])
-    else:
-        y = npy_asarray(y, float)
+    if not all(isfinite(M.values)):
+        msg = "One or more values of the provided covariates "
+        msg += "is not finite."
+        raise ValueError(msg)
 
-    desc = "Eigen decomposition of the covariance matrix..."
-    with Timer(desc=desc, disable=not verbose):
-        QS = economic_qs(K)
+    if isinstance(y, (tuple, list)):
+        y = tuple([asarray(p, float) for p in y])
+    else:
+        y = asarray(y, float)
+
+    if not all(isfinite(y)):
+        msg = "One or more values of the provided phenotype "
+        msg += "is not finite."
+        raise ValueError(msg)
 
     lik = lik.lower()
 
@@ -185,8 +216,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         var = 1. / tau
         s2_g = scale * (1 - delta)
         tR = diag(var - var.min() + 1e-4)
-        if K is not None:
-            tR += s2_g * K
+        tR += s2_g * K
 
         lmm = LMM(mu, X=M.values, QS=economic_qs(tR))
         lmm.learn(verbose=verbose)
