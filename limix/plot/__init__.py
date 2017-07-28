@@ -24,6 +24,11 @@ Power plots
 
 .. autofunction:: limix.plot.plot_power
 
+Principal components plot
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: limix.plot.plot_pca
+
 Kinship plot
 ^^^^^^^^^^^^
 
@@ -48,6 +53,7 @@ from .image import see_image
 from .kinship import plot_kinship
 from .manhattan import plot_manhattan
 from .normal import plot_normal, plot_qqnormal
+from .pca import plot_pca
 from .power import plot_power, plot_power_known
 from .qqplot import plot_qqplot
 
@@ -68,11 +74,19 @@ def figure(*args, **kwargs):
 def savefig(*args, **kwargs):
     r"""Save a figure."""
     from matplotlib import pyplot as plt
+    plt.tight_layout()
     return plt.savefig(*args, **kwargs)
+
+
+def clf(*args, **kwargs):
+    r"""Clear current figure."""
+    from matplotlib import pyplot as plt
+    return plt.clf(*args, **kwargs)
 
 
 __all__ = [
     'plot_manhattan', 'plot_qqplot', 'plot_normal', 'plot_kinship',
     'see_image', 'plot_power', 'plot_power_known', 'plot_curve',
-    'ConsensusCurve', 'show', 'figure', 'plot_qqnormal', 'savefig'
+    'ConsensusCurve', 'show', 'figure', 'plot_qqnormal', 'savefig', 'plot_pca',
+    'clf'
 ]
