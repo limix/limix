@@ -64,6 +64,7 @@ def figure(*args, **kwargs):
     from matplotlib import pyplot as plt
     return plt.figure(*args, **kwargs)
 
+
 def savefig(*args, **kwargs):
     r"""Save a figure."""
     from matplotlib import pyplot as plt

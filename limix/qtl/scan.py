@@ -1,18 +1,17 @@
 from __future__ import division
 
+import pandas as pd
 from numpy import diag, eye, ones
-from limix.util.npy_dask import all, isfinite, asarray
-from limix.util import array_hash
 from numpy_sugar.linalg import economic_qs
 
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
 from limix.qc import gower_norm
-from limix.util import Timer
+from limix.util import Timer, array_hash
+from limix.util.npy_dask import all, asarray, isfinite
 
 from .model import QTLModel
 from .util import assure_named
-import pandas as pd
 
 _cache = dict(K=dict(K=None, QS=None, hash=None))
 
@@ -109,25 +108,106 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
                 age    offset
         -0.00556772    0.3953
     """
-    from pandas import DataFrame, Series
-
     if verbose:
         lik_name = lik.lower()
         lik_name = lik_name[0].upper() + lik_name[1:]
         analysis_name = "Quantitative trait locus analysis"
         print("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
 
-    G = assure_named(G, G.shape[0])
+    lik = lik.lower()
+
+    nsamples = G.shape[0]
+    G = assure_named(G, nsamples)
+
+    mixed = K is not None
+    K, QS = _kinship_process(K, nsamples, verbose)
+
+    M = _covariates_process(M, nsamples)
+
+    y = _phenotype_process(y)
+
+    if lik == 'normal':
+        model = _perform_lmm(y, M, QS, G, mixed, verbose)
+    else:
+        model = _perform_glmm(y, lik, M, K, QS, G, mixed, verbose)
+
+    if verbose:
+        print(model)
+
+    return model
+
+
+def _perform_lmm(y, M, QS, G, mixed, verbose):
+    from pandas import Series
+
+    lmm = LMM(y, M.values, QS)
+    if not mixed:
+        lmm.delta = 1
+        lmm.fix('delta')
+
+    lmm.learn(verbose=verbose)
+
+    null_lml = lmm.lml()
+
+    beta = lmm.beta
+
+    keys = list(M.keys())
+    ncov_effsizes = Series(beta, keys)
+
+    flmm = lmm.get_fast_scanner()
+    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+
+    alt_lmls = Series(alt_lmls, list(G.keys()))
+    effsizes = Series(effsizes, list(G.keys()))
+
+    return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
+
+
+def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
+    from pandas import Series
+    glmm = GLMM(y, lik, M.values, QS)
+    if not mixed:
+        glmm.delta = 1
+        glmm.fix('delta')
+    glmm.feed().maximize(verbose=verbose)
+
+    # extract stuff from glmm
+    eta = glmm._site.eta
+    tau = glmm._site.tau
+    scale = float(glmm.scale)
+    delta = float(glmm.delta)
+
+    beta = glmm.beta
+
+    keys = list(M.keys())
+    ncov_effsizes = Series(beta, keys)
+
+    # define useful quantities
+    mu = eta / tau
+    var = 1. / tau
+    s2_g = scale * (1 - delta)
+    tR = diag(var - var.min() + 1e-4)
+    tR += s2_g * K
+
+    lmm = LMM(mu, X=M.values, QS=economic_qs(tR))
+    lmm.learn(verbose=verbose)
+    null_lml = lmm.lml()
+    flmm = lmm.get_fast_scanner()
+
+    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+
+    alt_lmls = Series(alt_lmls, list(G.keys()))
+    effsizes = Series(effsizes, list(G.keys()))
+
+    return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
+
+
+def _kinship_process(K, nsamples, verbose):
 
     if K is None:
-        K = eye(G.shape[0])
-        fix_delta = True
-    else:
-        fix_delta = False
+        K = eye(nsamples)
 
     K = asarray(K)
-
-    desc = "Eigen decomposition of the covariance matrix..."
 
     ah = array_hash(K)
     nvalid = _cache['K']['K'] is None or (_cache['K']['hash'] != ah)
@@ -141,6 +221,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
         K = gower_norm(K)
 
+        desc = "Eigen decomposition of the covariance matrix..."
         with Timer(desc=desc, disable=not verbose):
             QS = economic_qs(K)
             _cache['K']['hash'] = ah
@@ -150,16 +231,10 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         QS = _cache['K']['QS']
         K = _cache['K']['K']
 
-    if M is None:
-        M = DataFrame({'offset': ones(K.shape[0], float)})
-    else:
-        M = assure_named(M, K.shape[0])
+    return K, QS
 
-    if not all(isfinite(M.values)):
-        msg = "One or more values of the provided covariates "
-        msg += "is not finite."
-        raise ValueError(msg)
 
+def _phenotype_process(y):
     if isinstance(y, (tuple, list)):
         y = tuple([asarray(p, float) for p in y])
     else:
@@ -169,69 +244,20 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         msg = "One or more values of the provided phenotype "
         msg += "is not finite."
         raise ValueError(msg)
+    return y
 
-    lik = lik.lower()
 
-    if lik == 'normal':
-        lmm = LMM(y, M.values, QS)
-        if fix_delta:
-            lmm.delta = 1
-            lmm.fix('delta')
+def _covariates_process(M, nsamples):
+    from pandas import DataFrame
 
-        lmm.learn(verbose=verbose)
-
-        null_lml = lmm.lml()
-
-        beta = lmm.beta
-
-        keys = list(M.keys())
-        ncov_effsizes = Series(beta, keys)
-
-        flmm = lmm.get_fast_scanner()
-        alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
-
-        alt_lmls = Series(alt_lmls, list(G.keys()))
-        effsizes = Series(effsizes, list(G.keys()))
-
-        model = QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
+    if M is None:
+        M = DataFrame({'offset': ones(nsamples, float)})
     else:
-        glmm = GLMM(y, lik, M.values, QS)
-        if fix_delta:
-            glmm.delta = 1
-            glmm.fix('delta')
-        glmm.feed().maximize(verbose=verbose)
+        M = assure_named(M, nsamples)
 
-        # extract stuff from glmm
-        eta = glmm._site.eta
-        tau = glmm._site.tau
-        scale = float(glmm.scale)
-        delta = float(glmm.delta)
+    if not all(isfinite(M.values)):
+        msg = "One or more values of the provided covariates "
+        msg += "is not finite."
+        raise ValueError(msg)
 
-        beta = glmm.beta
-
-        keys = list(M.keys())
-        ncov_effsizes = Series(beta, keys)
-
-        # define useful quantities
-        mu = eta / tau
-        var = 1. / tau
-        s2_g = scale * (1 - delta)
-        tR = diag(var - var.min() + 1e-4)
-        tR += s2_g * K
-
-        lmm = LMM(mu, X=M.values, QS=economic_qs(tR))
-        lmm.learn(verbose=verbose)
-        null_lml = lmm.lml()
-        flmm = lmm.get_fast_scanner()
-
-        alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
-
-        alt_lmls = Series(alt_lmls, list(G.keys()))
-        effsizes = Series(effsizes, list(G.keys()))
-
-        model = QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
-
-    if verbose:
-        print(model)
-
-    return model
+    return M

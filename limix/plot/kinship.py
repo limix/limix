@@ -1,6 +1,8 @@
 from __future__ import division
-from numpy import asarray, argsort, inf
+
 import warnings
+
+from numpy import argsort, asarray, inf
 
 
 def plot_kinship(K, nclusters=1, style=None, ax=None):
@@ -55,10 +57,19 @@ def plot_kinship(K, nclusters=1, style=None, ax=None):
     elif nclusters > 1:
         K = _clustering(K, nclusters)
 
-    cax = heatmap(K, ax=ax, linewidths=0, xticklabels=False, cmap='RdBu_r',
-                  yticklabels=False, square=True, robust=True, **style)
+    cax = heatmap(
+        K,
+        ax=ax,
+        linewidths=0,
+        xticklabels=False,
+        cmap='RdBu_r',
+        yticklabels=False,
+        square=True,
+        robust=True,
+        **style)
 
     return ax
+
 
 def _infer_clustering(K):
     from sklearn.cluster import SpectralClustering
@@ -67,7 +78,7 @@ def _infer_clustering(K):
     scores = []
     nclusterss = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
-    for nclusters in nclusterss :
+    for nclusters in nclusterss:
         labels = _cluster(K, nclusters)
         idx = argsort(labels)
 
@@ -84,6 +95,7 @@ def _infer_clustering(K):
 
     return _clustering(K, nclusters)
 
+
 def _cluster(K, n):
     from sklearn.cluster import SpectralClustering
 
@@ -94,7 +106,7 @@ def _cluster(K, n):
 
     return m.labels_
 
+
 def _clustering(K, n):
     idx = argsort(_cluster(K, n))
     return K[idx, :][:, idx]
-
