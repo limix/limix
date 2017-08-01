@@ -1,7 +1,7 @@
 from __future__ import division
 
 import pandas as pd
-from numpy import diag, eye, ones
+from numpy import diag, eye, ones, clip
 from numpy_sugar.linalg import economic_qs
 
 from glimix_core.glmm import GLMM
@@ -115,6 +115,8 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         print("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
 
     lik = lik.lower()
+    if lik == 'poisson':
+        y = clip(y, 0., 25000.)
 
     nsamples = G.shape[0]
     G = assure_named(G, nsamples)
