@@ -118,7 +118,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     if lik == 'poisson':
         y = clip(y, 0., 25000.)
 
-    nsamples = G.shape[0]
+    nsamples = len(G)
     G = assure_named(G, nsamples)
 
     mixed = K is not None
@@ -159,8 +159,8 @@ def _perform_lmm(y, M, QS, G, mixed, verbose):
     flmm = lmm.get_fast_scanner()
     alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
 
-    alt_lmls = Series(alt_lmls, list(G.keys()))
-    effsizes = Series(effsizes, list(G.keys()))
+    alt_lmls = Series(alt_lmls, list(G.columns))
+    effsizes = Series(effsizes, list(G.columns))
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 

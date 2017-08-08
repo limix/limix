@@ -3,13 +3,14 @@ from __future__ import division
 from numpy import asarray as npy_asarray
 from numpy import ascontiguousarray, copy, ones, pi, var
 from numpy_sugar.linalg import economic_qs
-from optimix import OptimixError
 
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
+from limix.fprint import eprint, oprint
 from limix.qc import gower_norm
 from limix.util import Timer
 from limix.util.npy_dask import asarray
+from optimix import OptimixError
 
 from ..covariates import assure_named_covariates, named_covariates_to_array
 
@@ -64,7 +65,7 @@ def estimate(y, lik, K, M=None, verbose=True):
         lik_name = lik.lower()
         lik_name = lik_name[0].upper() + lik_name[1:]
         analysis_name = "Heritability estimation"
-        print("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
+        oprint("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
 
     K = asarray(K)
     M = assure_named_covariates(M, K.shape[0])
@@ -89,7 +90,7 @@ def estimate(y, lik, K, M=None, verbose=True):
             method = GLMM(y, lik, named_covariates_to_array(M), QS)
             method.feed().maximize(verbose=verbose)
     except OptimixError as e:
-        print(e)
+        eprint(e)
         return 0.0
 
     g = method.scale * (1 - method.delta)

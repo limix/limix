@@ -289,5 +289,3 @@ def _confusion_matrix_tp_fp(n, ins_pos, true_set, idx_rank, TP, FP):
         else:
             TP[i + 1] += 1
         i += 1
-
-
