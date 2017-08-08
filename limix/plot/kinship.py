@@ -57,7 +57,7 @@ def plot_kinship(K, nclusters=1, style=None, ax=None):
     elif nclusters > 1:
         K = _clustering(K, nclusters)
 
-    cax = heatmap(
+    heatmap(
         K,
         ax=ax,
         linewidths=0,

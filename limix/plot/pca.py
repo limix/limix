@@ -37,6 +37,7 @@ def plot_pca(X, style=None, ax=None):
     """
 
     import matplotlib.pyplot as plt
+    from seaborn import regplot, despine
     from sklearn import decomposition
 
     ax = plt.gca() if ax is None else ax
@@ -50,15 +51,10 @@ def plot_pca(X, style=None, ax=None):
     pca.fit(X)
     X = pca.transform(X)
 
-    ax.scatter(X[:, 0], X[:, 1])
-    # ax.scatter(X[:, 0], X[:, 1], cmap=plt.cm.spectral)
+    regplot(X[:, 0], X[:, 1], fit_reg=False, ax=ax)
+    despine(right=False, top=False, ax=ax)
 
-    ax.spines["right"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-    ax.xaxis.set_ticks_position('bottom')
-    ax.yaxis.set_ticks_position('left')
-
-    ax.set_xlabel('first principal component')
-    ax.set_ylabel('second principal component')
+    ax.set_xlabel('first component')
+    ax.set_ylabel('second component')
 
     return ax

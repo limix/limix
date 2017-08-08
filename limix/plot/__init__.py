@@ -56,6 +56,7 @@ from .normal import plot_normal, plot_qqnormal
 from .pca import plot_pca
 from .power import plot_power, plot_power_known
 from .qqplot import plot_qqplot
+from .style import set_paper_style
 
 
 def show(*args, **kwargs):
@@ -83,10 +84,22 @@ def clf(*args, **kwargs):
     from matplotlib import pyplot as plt
     return plt.clf(*args, **kwargs)
 
+def set_xlabel(name):
+    from matplotlib import pyplot as plt
+    plt.gca().set_xlabel(name)
+
+def set_ylabel(name):
+    from matplotlib import pyplot as plt
+    plt.gca().set_ylabel(name)
+
+def legend(*args, **kwargs):
+    from matplotlib import pyplot as plt
+    plt.gca().legend(*args, **kwargs)
+
 
 __all__ = [
     'plot_manhattan', 'plot_qqplot', 'plot_normal', 'plot_kinship',
     'see_image', 'plot_power', 'plot_power_known', 'plot_curve',
     'ConsensusCurve', 'show', 'figure', 'plot_qqnormal', 'savefig', 'plot_pca',
-    'clf'
+    'clf', 'set_paper_style', 'set_xlabel', 'set_ylabel', 'legend'
 ]
