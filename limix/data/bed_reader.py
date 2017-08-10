@@ -1,4 +1,5 @@
 import scipy as sp
+from numpy import nan
 import pandas as pd
 import copy
 from limix.io import read_plink
@@ -126,7 +127,7 @@ class BedReader():
         self._geno = bed
 
     def _init_imputer(self):
-        self._imputer = Imputer(missing_values=3.,
+        self._imputer = Imputer(missing_values=nan,
                                 strategy='mean',
                                 axis=0,
                                 copy=False)

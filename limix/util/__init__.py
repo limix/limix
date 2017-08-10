@@ -14,17 +14,15 @@ Public interface
 ^^^^^^^^^^^^^^^^
 """
 
-from .set_utils import sets_from_bim
-from .set_utils import annotate_sets
-from .geno_utils import estCumPos
-from .geno_utils import unique_variants
+from .geno_utils import estCumPos, unique_variants
+from .set_utils import annotate_sets, sets_from_bim
 from .temp import TemporaryDirectory
 from .url import urlretrieve
-from . import preprocess
+from .timer import Timer
+from ._hash import array_hash
+from . import npy_dask
 
-__all__ = ['sets_from_bim',
-           'annotate_sets',
-           'estCumPos',
-           'unique_variants',
-           'TemporaryDirectory',
-           'urlretrieve']
+__all__ = [
+    'sets_from_bim', 'annotate_sets', 'estCumPos', 'unique_variants',
+    'TemporaryDirectory', 'urlretrieve', 'Timer', 'npy_dask', 'array_hash'
+]

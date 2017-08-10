@@ -1,27 +1,3 @@
-# TODO for 1.1.0
-
-- [ ] limix.qtl.qtl_test_lmm: 10k by 500k datasets, low memory footprint
-      (i.e., <=60 GB).
-- [ ] limix.qtl.qtl_test_glmm: 10k by 500k datasets, low memory footprint
-      (i.e., <=60 GB).
-- [ ] Both limix.qtl.qtl_test_glmm and limix.qtl.qtl_test_lmm should accept
-      and take advantage of dask array.
-- [ ] limix.qtl.qtl_test_lmm: show progress bar like limix.qtl.qtl_test_glmm.
-- [ ] limix.qtl.qtl_test_lmm, limix.qtl.qtl_test_glmm: raise exception for
-      wrong parameters (NaN, Inf) and coerce sequences to numpy arrays.
-- [ ] Standardize arguments, set labels, set title, set colors, for plotting
-      functions: limix.plot.plot_manhattan, limix.plot.qqplot,
-      limix.plot.plot_kinship.
-- [ ] Define ConvergenceError exception to be raised whenever our methods
-      doesn't converge.
-- [ ] Convert documentation style to numpy style, of every function.
-
-# TODO for 1.2.0
-
-- [ ] Nicely print a summary of a QTL and heritability result.
-- [ ] I/O for BGEN file format.
-- [ ] Add full-world QTL and heritability analysis into readthedocs.
-
 # Limix
 
 [![PyPI-License](https://img.shields.io/pypi/l/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/)
@@ -46,26 +22,31 @@ https://github.com/limix/limix-tutorials.
 These tutorials can also be viewed using the ipython notebook viewer:
 http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb.
 
-#### Highlights
-
-- **iSet**: an interaction set test with external context
-  ([paper](http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006693))
-  ([public interface](http://limix.readthedocs.io/iSet.html))
-  ([tutorial](https://github.com/limix/limix-tutorials/tree/master/iSet))
-
-- **mtSet**: an efficient multi-trait set test
-  ([paper](http://www.nature.com/nmeth/journal/v12/n8/abs/nmeth.3439.html))
-  ([public interface](http://limix.readthedocs.io/mtSet.html))
-  ([tutorial](https://github.com/limix/limix-tutorials/tree/master/mtSet))
-
 ## Install
 
 The recommended way of installing it is via
-[pip](https://pypi.python.org/pypi/pip)
+[conda](http://conda.pydata.org/docs/index.html)
+```bash
+conda install -c conda-forge limix
+```
+It will handle all the necessary dependencies and should work for GNU/Linux
+distributions, macOS, and 64-bit Windows.
 
+An alternative way would be via [pip](https://pypi.python.org/pypi/pip).
+First, make sure you have at least the following Python packages:
+- [NumPy](http://www.numpy.org)
+- [SciPy](https://www.scipy.org)
+- [Matplotlib](https://matplotlib.org)
+- [setuptools](https://pypi.python.org/pypi/setuptools)
+- [scikit-learn](http://scikit-learn.org)
+
+You also need to install an C library called
+[liknorm](https://github.com/limix/liknorm), and have a C/C++ compiler.
+Finally, run
 ```bash
 pip install limix
 ```
+to perform the installation.
 
 ## Problems
 
@@ -74,7 +55,7 @@ If you encounter any issue, please, [submit it](https://github.com/limix/limix/i
 ## Authors
 
 * **Christoph Lippert** - [https://github.com/clippert](https://github.com/clippert)
-* **Danilo Horta** - [https://github.com/Horta](https://github.com/Horta)
+* **Danilo Horta** - [https://github.com/Horta](https://github.com/horta)
 * **Francesco Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
 * **Oliver Stegle** - [https://github.com/ostegle](https://github.com/ostegle)
 

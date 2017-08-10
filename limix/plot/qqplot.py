@@ -1,115 +1,159 @@
-import scipy as sp
-import scipy.stats as st
+from __future__ import division
+
+from numpy import (append, arange, asarray, ascontiguousarray, flipud,
+                   linspace, log10, ones, percentile, searchsorted, sort, sum,
+                   where)
+from numpy.random import RandomState
+from scipy.special import betaincinv
 
 
-def _qqplot_bar(M=1000000, alphaLevel=0.05, distr='log10'):
-    """calculate theoretical expectations for qqplot"""
-    mRange = 10**(sp.arange(sp.log10(0.5), sp.log10(M - 0.5) +
-                            0.1, 0.1))  # should be exp or 10**?
-    numPts = len(mRange)
-    betaalphaLevel = sp.zeros(numPts)  # down in the plot
-    betaOneMinusalphaLevel = sp.zeros(numPts)  # up in the plot
-    betaInvHalf = sp.zeros(numPts)
-    for n in range(numPts):
-        m = mRange[n]  # numPLessThanThresh=m
-        betaInvHalf[n] = st.beta.ppf(0.5, m, M - m)
-        betaalphaLevel[n] = st.beta.ppf(alphaLevel, m, M - m)
-        betaOneMinusalphaLevel[n] = st.beta.ppf(1 - alphaLevel, m, M - m)
-    betaDown = betaInvHalf - betaalphaLevel
-    betaUp = betaOneMinusalphaLevel - betaInvHalf
-
-    theoreticalPvals = mRange / M
-    return betaUp, betaDown, theoreticalPvals
-
-
-def qqplot(pv, label='unknown', distr='log10', alphaLevel=0.05, ax=None,
-           color=None):
-    r"""Produces a Quantile-Quantile plot of the observed P value
-        distribution against the theoretical one under the null.
+def plot_qqplot(df, alpha=0.05, style=None, ax=None):
+    r"""Quantile-Quantile plot of observed p-values versus theoretical ones.
 
     Parameters
     ----------
-
-    pv : array_like
-        P-values.
-    distr : {'log10', 'chi2'}
-        Scale of the distribution. If 'log10' is specified, the distribution
-        of the -log10 P values is considered.
-        If the distribution of the corresponding chi2-distributed test
-        statistics is considered. Defaults to 'log10'.
-    alphaLevel : float
-        Significance bound.
-    ax : :class:`matplotlib.axes.AxesSubplot`
-        The target handle for this figure. If None, the current axes is set.
+    df : :class:`pandas.DataFrame`
+        Data frame.
+    alpha : float
+        Significance level defining the band boundary. Defaults to ``0.05``.
+    style : dict
+        Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
+        function.
+    ax : :class:`matplotlib.axes.Axes`
+        The target handle for this figure. If ``None``, the current axes is
+        set.
 
     Returns
     -------
-    :class:`matplotlib.axes.AxesSubplot`
+    :class:`matplotlib.axes.Axes`
         Axes.
 
     Examples
     --------
-
     .. plot::
 
-        from limix.plot import qqplot
+        import pandas as pd
+        from limix.plot import plot_qqplot
         from numpy.random import RandomState
         from matplotlib import pyplot as plt
         random = RandomState(1)
 
-        pv = random.rand(10000)
+        pv0 = random.rand(10000)
+        pv1 = random.rand(10000)
 
-        fig = plt.figure(1, figsize=(5,5))
-        plt.subplot(111)
-        qqplot(pv)
-        plt.tight_layout()
+        data = dict(pv=list(pv0) + list(pv1),
+                    label=['label0'] * len(pv0) + ['label1'] * len(pv1))
+        plot_qqplot(pd.DataFrame(data=data))
         plt.show()
     """
-    import matplotlib.pylab as plt
-    if ax is None:
-        ax = plt.gca()
 
-    shape_ok = (len(pv.shape) == 1) or (
-        (len(pv.shape) == 2) and pv.shape[1] == 1)
-    assert shape_ok, 'qqplot requires a 1D array of p-values'
+    import matplotlib.pyplot as plt
 
-    tests = pv.shape[0]
-    pnull = (0.5 + sp.arange(tests)) / tests
-    # pnull = np.sort(np.random.uniform(size = tests))
-    Ipv = sp.argsort(pv)
+    ax = plt.gca() if ax is None else ax
 
-    if distr == 'chi2':
-        qnull = sp.stats.chi2.isf(pnull, 1)
-        qemp = (sp.stats.chi2.isf(pv[Ipv], 1))
-        xl = 'LOD scores'
-        yl = '$\chi^2$ quantiles'
+    labels = list(df['label'].unique())
+    if style is None:
+        style = {label: dict() for label in labels}
 
-    if distr == 'log10':
-        qnull = -sp.log10(pnull)
-        qemp = -sp.log10(pv[Ipv])
+    for label in labels:
+        pv = sort(asarray(df.loc[df['label'] == label, 'pv'], float))
+        ok = _subsample(pv)
 
-        xl = '-log10(P) observed'
-        yl = '-log10(P) expected'
+        qnull = -log10((0.5 + arange(len(pv))) / len(pv))
+        qemp = -log10(pv)
 
-    plt.plot(qnull, qemp, '.', color=color, label=label)
-    # plt.plot([0,qemp.m0x()], [0,qemp.max()],'r')
-    plt.plot([0, qnull.max()], [0, qnull.max()], 'r')
-    plt.ylabel(xl)
-    plt.xlabel(yl)
-    if alphaLevel is not None:
-        if distr == 'log10':
-            betaUp, betaDown, theoreticalPvals = _qqplot_bar(
-                M=tests, alphaLevel=alphaLevel, distr=distr)
-            lower = -sp.log10(theoreticalPvals - betaDown)
-            upper = -sp.log10(theoreticalPvals + betaUp)
-            plt.fill_between(-sp.log10(theoreticalPvals),
-                             lower, upper, color='grey', alpha=0.5)
-            # plt.plot(-sp.log10(theoreticalPvals),lower,'g-.')
-            # plt.plot(-sp.log10(theoreticalPvals),upper,'g-.')
+        ax.plot(
+            qnull[ok],
+            qemp[ok],
+            '-o',
+            label=label,
+            markeredgewidth=0.5,
+            markersize=2.2,
+            linewidth=0.65,
+            **style.get(label))
 
+    ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
+    _plot_confidence_band(ok, qnull, alpha, ax)
+    _set_axis_labels(ax)
+
+    _set_frame(ax)
+
+    return ax
+
+
+def _set_frame(ax):
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
 
-    return ax
+
+def _set_axis_labels(ax):
+    ax.set_ylabel('-log$_{10}$pv observed')
+    ax.set_xlabel('-log$_{10}$pv expected')
+    ax.legend(loc=2)
+
+
+def _expected(n):
+    lnpv = linspace(1 / (n + 1), n / (n + 1), n, endpoint=True)
+    return flipud(-log10(lnpv))
+
+
+def _rank_confidence_band(nranks, significance_level, ok):
+    alpha = significance_level
+
+    k0 = arange(1, nranks + 1)
+    k1 = flipud(k0).copy()
+
+    k0 = ascontiguousarray(k0[ok])
+    k1 = ascontiguousarray(k1[ok])
+
+    top = betaincinv(k0, k1, 1 - alpha)
+    bottom = betaincinv(k0, k1, alpha)
+
+    return (bottom, top)
+
+
+def _plot_confidence_band(ok, null_qvals, significance_level, ax):
+
+    (bo, to) = _rank_confidence_band(len(null_qvals), significance_level, ok)
+
+    bo = -log10(bo)
+    to = -log10(to)
+
+    ax.fill_between(
+        null_qvals[ok],
+        bo,
+        to,
+        facecolor='black',
+        edgecolor='black',
+        alpha=0.15)
+
+
+def _subsample(pvalues):
+    resolution = 500
+
+    if len(pvalues) <= resolution:
+        return ones(len(pvalues), dtype=bool)
+
+    ok = pvalues <= percentile(pvalues, 0.1)
+    nok = ~ok
+
+    qv = -log10(pvalues[nok])
+    qv_min = qv[-1]
+    qv_max = qv[0]
+
+    snok = sum(nok)
+
+    resolution = min(snok, resolution)
+
+    qv_chosen = linspace(qv_min, qv_max, resolution)
+    pv_chosen = 10**(-qv_chosen)
+
+    idx = searchsorted(pvalues[nok], pv_chosen)
+    ok[where(nok)[0][idx]] = True
+
+    ok[0] = True
+    ok[-1] = True
+
+    return ok

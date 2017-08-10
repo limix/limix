@@ -1,9 +1,10 @@
+from __future__ import division
+
 from numpy import dot, sqrt, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
-from numpy_sugar.linalg import economic_qs
 
-from limix.qtl import qtl_test_glmm
+from limix.qtl import scan
 
 
 def test_qtl_glmm_binomial():
@@ -23,6 +24,6 @@ def test_qtl_glmm_binomial():
 
     y = (successes, ntrials)
 
-    lmm = qtl_test_glmm(X, y, 'binomial', K, verbose=False)
-    pv = lmm.getPv()
-    assert_allclose(pv, [[0.44244291380638878, 0.67987701835252734]])
+    lmm = scan(X, y, 'binomial', K, verbose=False)
+    pv = lmm.variant_pvalues
+    assert_allclose(pv, [0.44255951309982378, 0.67960798630622032], rtol=1e-3)

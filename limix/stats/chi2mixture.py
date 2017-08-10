@@ -1,12 +1,8 @@
-import pdb
-
 import scipy as sp
-import scipy.stats as st
 
 
-class Chi2mixture(object):
-    """
-    A class for continuous random variable following a chi2 mixture
+class Chi2Mixture(object):
+    r"""A class for continuous random variable following a chi2 mixture.
 
     Class for evaluation of P values for a test statistic that follows a
     two-component mixture of chi2
@@ -19,49 +15,56 @@ class Chi2mixture(object):
     :math:`a` and :math:`d` are the scale parameter and the number of
     degrees of freedom of the second component.
 
-    Args:
-        scale_min (float): minimum value used for fitting the scale parameter
-        scale_max (float): maximum value used for fitting the scale parameter
-        dofmin (float): minimum value used for fitting the dof parameter
-        dofmax (float): maximum value used for fitting the dof parameter
-        qmax (float): only the top qmax quantile is used for the fit
-        n_interval (int): number of intervals when performing gridsearch
-        tol (float): tolerance of being zero
+    Parameters
+    ----------
+    scale_min : float
+        Minimum value used for fitting the scale parameter.
+    scale_max : float
+        Maximum value used for fitting the scale parameter.
+    dofmin : float
+        Minimum value used for fitting the dof parameter.
+    dofmax : float
+        Maximum value used for fitting the dof parameter.
+    qmax : float
+        Only the top qmax quantile is used for the fit.
+    n_interval : int
+        Number of intervals when performing gridsearch.
+    tol : float
+        Tolerance of being zero.
 
     Examples
     --------
+    .. doctest::
 
-        .. doctest::
-
-            >>> from numpy.random import RandomState
-            >>> import scipy as sp
-            >>> from limix.stats import Chi2mixture
-            >>>
-            >>> scale = 0.3
-            >>> dof = 2
-            >>> mixture = 0.2
-            >>> n = 100
-            >>>
-            >>> random = RandomState(1)
-            >>> x =  random.chisquare(dof, n)
-            >>> n0 = int( (1-mixture) * n)
-            >>> idxs = random.choice(n, n0, replace=False)
-            >>> x[idxs] = 0
-            >>>
-            >>> chi2mix = Chi2mixture(scale_min=0.1, scale_max=5.0,
-            ...                       dof_min=0.1, dof_max=5.0,
-            ...                       qmax=0.1, tol=4e-3)
-            >>> chi2mix.estimate_chi2mixture(x)
-            >>> pv = chi2mix.sf(x)
-            >>> print(pv[:4])
-            [ 0.2  0.2  0.2  0.2]
-            >>>
-            >>> print('%.2f' % chi2mix.scale)
-            1.98
-            >>> print('%.2f' % chi2mix.dof)
-            0.89
-            >>> print('%.2f' % chi2mix.mixture)
-            0.20
+        >>> from numpy.random import RandomState
+        >>> import scipy as sp
+        >>> from limix.stats import Chi2Mixture
+        >>>
+        >>> scale = 0.3
+        >>> dof = 2
+        >>> mixture = 0.2
+        >>> n = 100
+        >>>
+        >>> random = RandomState(1)
+        >>> x =  random.chisquare(dof, n)
+        >>> n0 = int( (1-mixture) * n)
+        >>> idxs = random.choice(n, n0, replace=False)
+        >>> x[idxs] = 0
+        >>>
+        >>> chi2mix = Chi2Mixture(scale_min=0.1, scale_max=5.0,
+        ...                       dof_min=0.1, dof_max=5.0,
+        ...                       qmax=0.1, tol=4e-3)
+        >>> chi2mix.estimate_chi2mixture(x)
+        >>> pv = chi2mix.sf(x)
+        >>> print(pv[:4])
+        [ 0.2  0.2  0.2  0.2]
+        >>>
+        >>> print('%.2f' % chi2mix.scale)
+        1.98
+        >>> print('%.2f' % chi2mix.dof)
+        0.89
+        >>> print('%.2f' % chi2mix.mixture)
+        0.20
     """
 
     def __init__(self,
@@ -82,13 +85,17 @@ class Chi2mixture(object):
         self.tol = tol
 
     def estimate_chi2mixture(self, lrt):
-        """
-        Estimates the parameters of the mixture of chi2 by fitting the
-        empirical distribution of null test statistic.
+        r"""Estimates the parameters of a chi2 mixture.
 
-        Args:
-            lrt (array_like): null test statistcs.
+        Estimates the parameters of a chi2 mixture by fitting the empirical
+        distribution of null test statistic.
+
+        Parameters
+        ----------
+        lrt : array_like
+            Null test statistcs.
         """
+        import scipy.stats as st
 
         # step 1: estimate the probability of being in component one
         self.mixture = 1 - (lrt <= self.tol).mean()
@@ -119,15 +126,20 @@ class Chi2mixture(object):
                     self.dof = dof
 
     def sf(self, lrt):
-        """
-        Computes the P values from test statistics lrt
+        r"""Computes the p-values from test statistics lrt.
 
-        Args:
-            lrt (array_like): test statistics.
+        Parameters
+        ----------
+        lrt : array_like
+            Test statistics.
 
-        Returns:
-            array_like: pvalues
+        Returns
+        -------
+        array_like
+            P-values.
         """
+        import scipy.stats as st
+
         _lrt = sp.copy(lrt)
         _lrt[lrt < self.tol] = 0
         pv = self.mixture * st.chi2.sf(_lrt / self.scale, self.dof)

@@ -9,11 +9,12 @@ Limix's documentation
 
    install
    cmd
+   qc
    qtl
    heritability
-   varDecomp
-   mtSet
-   iSet
+   vardec
+   mtset
+   iset
    io
    stats
    plot

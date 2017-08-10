@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import os
 import sys
 
-
 from setuptools import find_packages, setup
 
 try:
@@ -24,24 +23,26 @@ def setup_package():
 
     setup_requires = ["cython", "numpy"] + pytest_runner
     install_requires = [
-        'scikit-learn', 'limix-core>=1.0.1',
+        'scikit-learn>=0.18.1', 'limix-core>=1.0.1', 'tabulate>=0.7.7',
         'dask[array,bag,dataframe,delayed]>=0.14', 'h5py',
-        'pandas-plink>=1.1.7', 'limix-legacy', 'glimix-core>=1.2.13',
+        'pandas-plink>=1.1.7', 'limix-legacy', 'glimix-core>=1.2.20',
         'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.18', 'distributed',
-        'numpy-sugar>=1.0.41', 'ncephes>=1.0.38', 'asciitree>=0.3.3'
+        'numpy-sugar>=1.0.47', 'ncephes>=1.0.38', 'asciitree>=0.3.3',
+        'humanfriendly>=3.6.1', 'statsmodels>=0.8', 'brent-search>=1.0.18',
+        'pandas>=0.20', 'feather-format>=0.4'
     ]
     tests_require = ['pytest', 'pytest-console-scripts', 'pytest-pep8']
 
     console_scripts = [
         'limix_runner=limix.scripts.limix_runner:entry_point',
-        'mtSet_postprocess=limix.scripts.mtSet_postprocess:entry_point',
-        'mtSet_preprocess=limix.scripts.mtSet_preprocess:entry_point',
-        'mtSet_definesets=limix.scripts.mtSet_definesets:entry_point',
-        'mtSet_simPheno=limix.scripts.mtSet_simPheno:entry_point',
-        'mtSet_analyze=limix.scripts.mtSet_analyze:entry_point',
+        'mtset_postprocess=limix.scripts.mtset_postprocess:entry_point',
+        'mtset_preprocess=limix.scripts.mtset_preprocess:entry_point',
+        'mtset_definesets=limix.scripts.mtset_definesets:entry_point',
+        'mtset_simpheno=limix.scripts.mtset_simpheno:entry_point',
+        'mtset_analyze=limix.scripts.mtset_analyze:entry_point',
         'limix_converter=limix.scripts.limix_converter:entry_point',
-        'iSet_analyze=limix.scripts.iSet_analyze:entry_point',
-        'iSet_postprocess=limix.scripts.iSet_postprocess:entry_point',
+        'iset_analyze=limix.scripts.iset_analyze:entry_point',
+        'iset_postprocess=limix.scripts.iset_postprocess:entry_point',
         'limix=limix.scripts.limix:entry_point',
         'ilimix=limix.scripts.ilimix:entry_point'
     ]

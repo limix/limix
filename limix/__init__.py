@@ -13,9 +13,8 @@ import limix_core as core
 from pkg_resources import DistributionNotFound as _DistributionNotFound
 from pkg_resources import get_distribution as _get_distribution
 
-from . import (heritability, io, iSet, mtSet, plot, qtl, scripts, stats, util,
-               varDecomp)
-from .mtSet import MTSet
+from . import (heritability, io, iset, mtset, plot, qc, qtl, scripts, stats,
+               util, vardec)
 
 try:
     __version__ = _get_distribution('limix').version
@@ -24,6 +23,13 @@ except _DistributionNotFound:
 
 
 def test():
+
+    try:
+        import pytest_pep8
+    except ImportError:
+        print("Please, install pytest-pep8 in order to proceed.")
+        return 1
+
     import os
     p = __import__('limix').__path__[0]
     src_path = os.path.abspath(p)
@@ -42,6 +48,6 @@ def test():
 
 
 __all__ = [
-    'test', 'core', 'io', 'plot', 'qtl', 'stats', 'util', 'varDecomp', 'mtSet',
-    'iSet', 'scripts', 'MTSet', 'heritability'
+    'test', 'core', 'io', 'plot', 'qc', 'qtl', 'stats', 'util', 'vardec',
+    'mtset', 'iset', 'scripts', 'heritability'
 ]

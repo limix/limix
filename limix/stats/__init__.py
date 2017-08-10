@@ -3,46 +3,45 @@ r"""
 Statistics
 **********
 
-PCA
-^^^
+Principal component analysis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autofunction:: limix.stats.pca
 
-Normalization
-^^^^^^^^^^^^^
-
-.. autofunction:: limix.stats.boxcox
-
-P-values
-^^^^^^^^
-
-.. autofunction:: limix.stats.qvalues
-.. autofunction:: limix.stats.empirical_pvalues
-
-Kinship processing
+P-value correction
 ^^^^^^^^^^^^^^^^^^
 
+.. autofunction:: limix.stats.multipletests
+.. autofunction:: limix.stats.empirical_pvalues
+.. autofunction:: limix.stats.Chi2Mixture
+
+Ground truth evaluation
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: limix.stats.confusion_matrix
+
+Kinship
+^^^^^^^
+
 .. autofunction:: limix.stats.linear_kinship
-.. autofunction:: limix.stats.gower_norm
-.. autofunction:: limix.stats.indep_pairwise
-.. autofunction:: limix.stats.maf
 
-Chi2
-^^^^
+Likelihood-ratio test
+^^^^^^^^^^^^^^^^^^^^^
 
-.. autofunction:: limix.stats.Chi2mixture
+.. autofunction:: limix.stats.effsizes_se
+.. autofunction:: limix.stats.lrt_pvalues
 
 """
 
-from .chi2mixture import Chi2mixture
-from .fdr import qvalues
-from .kinship import gower_norm, linear_kinship
+from .chi2mixture import Chi2Mixture
+from .confusion import confusion_matrix
+from .kinship import linear_kinship
+from .lrt import effsizes_se, lrt_pvalues
 from .pca import pca
-from .preprocess import indep_pairwise, maf
+from .pvalue import multipletests
 from .teststats import empirical_pvalues
-from .trans import boxcox
 
 __all__ = [
-    'pca', 'boxcox', 'gower_norm', 'qvalues', 'empirical_pvalues',
-    'Chi2mixture', 'indep_pairwise', 'maf', 'linear_kinship'
+    'pca', 'multipletests', 'empirical_pvalues', 'Chi2Mixture',
+    'linear_kinship', 'lrt_pvalues', 'effsizes_se', 'confusion_matrix'
 ]

@@ -53,7 +53,7 @@ def read_gen(prefix):
 
     col_level0_names = ['snp_id', 'rs_id', 'pos', 'alleleA', 'alleleB']
     col_level1_names = [''] * 5
-    for s in df_sample['sample_id']:
+    for s in df_sample.iloc[:, 0]:
         col_level0_names += [s] * 3
         col_level1_names += ['AA', 'AB', 'BB']
 

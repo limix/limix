@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from limix.io import possible_file_types
 
 
 def do_see(args):
@@ -10,13 +11,11 @@ def do_see(args):
         ft = args.type
 
     if ft == 'hdf5':
-        limix.io.hdf5.see(args.file, show_chunks=args.show_chunks)
+        limix.io.hdf5.see_hdf5(args.file, show_chunks=args.show_chunks)
     elif ft == 'csv':
         limix.io.csv.see(args.file)
     elif ft == 'grm.raw':
         limix.io.plink.see_kinship(args.file)
-    elif ft == 'npy':
-        limix.io.npy.see_kinship(args.file)
     elif ft == 'bed':
         limix.io.plink.see_bed(args.file)
     elif ft == 'image':
@@ -32,7 +31,9 @@ def see_parser(parser):
         dest='show_chunks',
         action='store_true',
         help='show chunk information for hdf5 files')
-    parser.add_argument('--type', dest='type', help='specify file type')
+
+    msg = 'specify file type: %s' % ', '.join(possible_file_types())
+    parser.add_argument('--type', dest='type', help=msg)
     parser.set_defaults(show_chunks=False)
     parser.set_defaults(func=do_see)
     return parser

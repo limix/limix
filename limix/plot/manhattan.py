@@ -14,16 +14,23 @@ def plot_manhattan(df,
     ----------
     df : :class:`pandas.DataFrame`
         A Pandas DataFrame containing columns pv for p-values, pos for
-        base-pair positions, and chrom for chromossome names..
+        base-pair positions, and chrom for chromossome names.
     alpha : float
-        Threshold for significance. Defaults to 0.01 significance level
+        Threshold for significance. Defaults to ``0.01`` significance level
         (bonferroni-adjusted).
-    ax : :class:`matplotlib.axes.AxesSubplot`:
-        The target handle for this figure. If None, the current axes is set.
+    null_style : dict
+        Keyword arguments forwarded to the :func:`matplotlib.axes.Axes.plot`
+        function when plotting the non-significant results.
+    alt_style : dict
+        Keyword arguments forwarded to the :func:`matplotlib.axes.Axes.plot`
+        function when plotting the significant results.
+    ax : :class:`matplotlib.axes.Axes`:
+        The target handle for this figure. If ``None``, the current axes is
+        set.
 
     Returns
     -------
-    :class:`matplotlib.axes.AxesSubplot`
+    :class:`matplotlib.axes.Axes`
         Axes object.
 
     Examples
@@ -56,8 +63,7 @@ def plot_manhattan(df,
     if 'label' not in df:
         chrom = df['chrom'].astype(int).astype(str)
         pos = df['pos'].astype(int).astype(str)
-        df['label'] = (
-            'chrom' + chrom + '_pos' + pos)
+        df['label'] = ('chrom' + chrom + '_pos' + pos)
 
     df = _abs_pos(df)
 
