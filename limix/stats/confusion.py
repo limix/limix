@@ -9,8 +9,9 @@ from numpy_sugar import is_crescent
 try:
     from numba import jit
 except ImportError:
-    jit = lambda x: x
 
+    def jit(x):
+        return x
 
 
 @jit
