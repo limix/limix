@@ -3,9 +3,14 @@ from __future__ import division
 import logging
 
 import numpy as np
-from numba import jit
 from numpy import argsort, asarray, concatenate, log10, nan, where
 from numpy_sugar import is_crescent
+
+try:
+    from numba import jit
+except ImportError:
+    jit = lambda x: x
+
 
 
 @jit

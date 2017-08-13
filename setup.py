@@ -32,6 +32,7 @@ def setup_package():
         'pandas>=0.20', 'feather-format>=0.4'
     ]
     tests_require = ['pytest', 'pytest-console-scripts', 'pytest-pep8']
+    recommended = {"numba": ["numba>=0.32"]}
 
     console_scripts = [
         'limix_runner=limix.scripts.limix_runner:entry_point',
@@ -64,6 +65,7 @@ def setup_package():
         install_requires=install_requires,
         setup_requires=setup_requires,
         tests_require=tests_require,
+        extras_require=recommended,
         include_package_data=True,
         classifiers=[
             "Development Status :: 5 - Production/Stable",

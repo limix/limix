@@ -186,6 +186,15 @@ The matrix ``G`` defines both five alternative hypotheses
         offset
     0.00746817
 
+Out-of-core
+^^^^^^^^^^^
+
+Limix is also able to handle large datasets that do not fit in memory.
+This is internally accomplished by mapping chunks of an array to the
+corresponding parts of the files that define the dataset.
+Those chunks of memory are then instantiated (and then released) on demand
+by the underlying algorithm.
+
 Interface
 ^^^^^^^^^
 
