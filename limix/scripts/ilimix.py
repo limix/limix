@@ -2,7 +2,7 @@ import cmd
 import shlex
 from argparse import ArgumentParser
 
-from . import limix as limix_cmd
+from . import _limix as limix_cmd
 
 
 class ILimix(cmd.Cmd):

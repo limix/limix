@@ -44,7 +44,7 @@ def setup_package():
         'limix_converter=limix.scripts.limix_converter:entry_point',
         'iset_analyze=limix.scripts.iset_analyze:entry_point',
         'iset_postprocess=limix.scripts.iset_postprocess:entry_point',
-        'limix=limix.scripts.limix:entry_point',
+        'limix=limix.scripts._limix:entry_point',
         'ilimix=limix.scripts.ilimix:entry_point'
     ]
 
