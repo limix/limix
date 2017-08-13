@@ -23,7 +23,7 @@ def setup_package():
 
     setup_requires = ["cython", "numpy"] + pytest_runner
     install_requires = [
-        'scikit-learn>=0.18.1', 'limix-core>=1.0.1', 'tabulate>=0.7.7',
+        'scikit-learn>=0.19.0', 'limix-core>=1.0.1', 'tabulate>=0.7.7',
         'dask[array,bag,dataframe,delayed]>=0.14', 'h5py',
         'pandas-plink>=1.1.7', 'limix-legacy', 'glimix-core>=1.2.20',
         'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.18', 'distributed',
