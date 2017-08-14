@@ -34,7 +34,11 @@ script:
 after_success:
 - travis_retry travis/after-success.sh
 notifications:
-  email: false
+  email:
+    recipients:
+      - danilo.horta@gmail.com
+    on_success: change
+    on_failure: always
 env:
   global:
   - PKG_NAME=limix
