@@ -1,8 +1,9 @@
 from __future__ import division
 
-from numpy import (append, arange, asarray, ascontiguousarray, flipud,
-                   linspace, log10, ones, percentile, searchsorted, sort, sum,
-                   where)
+from numpy import (
+    append, arange, asarray, ascontiguousarray, concatenate, flipud, linspace,
+    log10, ones, percentile, searchsorted, sort, sum, where
+)
 from numpy.random import RandomState
 from scipy.special import betaincinv
 
@@ -56,7 +57,9 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
         style = {label: dict() for label in labels}
 
     for label in labels:
-        pv = sort(asarray(df.loc[df['label'] == label, 'pv'], float))
+        df0 = df.loc[df['label'] == label, ['pv']]['pv']
+        pv = concatenate(df0.reset_index(drop=True))
+        pv = sort(pv)
         ok = _subsample(pv)
 
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
