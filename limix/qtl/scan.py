@@ -16,7 +16,7 @@ from .util import assure_named
 _cache = dict(K=dict(K=None, QS=None, hash=None))
 
 
-def scan(G, y, lik, K=None, M=None, verbose=True):
+def scan(G, y, lik, K=None, K0=None, K1=None, M=None, verbose=True):
     r"""Single-variant association testing via generalised linear mixed models.
 
     It supports Normal (linear mixed model), Bernoulli, Binomial, and Poisson
@@ -121,17 +121,19 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     nsamples = len(G)
     G = assure_named(G, nsamples)
 
-    mixed = K is not None
-    K, QS = _kinship_process(K, nsamples, verbose)
+    mixed = K is not None or K0 is not None or K1 is not None
 
     M = _covariates_process(M, nsamples)
 
     y = _phenotype_process(y)
 
     if lik == 'normal':
+        K, QS = _kinship_process(K, nsamples, verbose)
         model = _perform_lmm(y, M, QS, G, mixed, verbose)
     else:
-        model = _perform_glmm(y, lik, M, K, QS, G, mixed, verbose)
+        K0, QS0 = _kinship_process(K0, nsamples, verbose)
+        K1, QS1 = _kinship_process(K1, nsamples, verbose)
+        model = _perform_glmm(y, lik, M, K0, K1, QS0, QS1, G, mixed, verbose)
 
     if verbose:
         print(model)
@@ -165,9 +167,9 @@ def _perform_lmm(y, M, QS, G, mixed, verbose):
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
 
-def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
+def _perform_glmm(y, lik, M, K0, K1, QS0, QS1, G, mixed, verbose):
     from pandas import Series
-    glmm = GLMM(y, lik, M.values, QS)
+    glmm = GLMM(y, lik, M.values, QS0)
     if not mixed:
         glmm.delta = 1
         glmm.fix('delta')
@@ -189,7 +191,7 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     var = 1. / tau
     s2_g = scale * (1 - delta)
     tR = diag(var - var.min() + 1e-4)
-    tR += s2_g * K
+    tR += s2_g * K1
 
     lmm = LMM(mu, X=M.values, QS=economic_qs(tR))
     lmm.learn(verbose=verbose)
