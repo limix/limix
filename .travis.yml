@@ -1,18 +1,11 @@
 language: python
 sudo: required
 dist: trusty
-services: docker
 git:
   depth: 5
-cache:
-  pip: true
-  directories:
-  - "$HOME/bin"
-  - "$HOME/.download"
 matrix:
   include:
   - python: 2.7
-  - python: 3.5
   - python: 3.6
   - env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
   - os: osx
@@ -27,9 +20,9 @@ matrix:
 before_install:
 - travis_retry bash <(curl -s https://raw.githubusercontent.com/limix/travis-tools/master/get-travis-tools.sh)
 - travis_retry travis/before-install.sh
+install:
+- travis_retry travis/install.sh
 script:
-- pip install pep8 --upgrade -q
-- find limix -name \*.py -exec pep8 --ignore=E402 --ignore=E501 {} +
 - travis_retry travis/script.sh
 after_success:
 - travis_retry travis/after-success.sh
@@ -41,11 +34,7 @@ notifications:
     on_failure: always
 env:
   global:
-  - PKG_NAME=limix
   - LIKNORM=true
-  - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib numpy-sugar pandas-plink
-             limix-legacy limix-core sphinx_rtd_theme ncephes ndarray-listener liknorm-py pyarrow
-             brent-search git+https://github.com/dask/partd git+https://github.com/dask/zict git+https://github.com/dask/distributed git+https://github.com/mrocklin/sparse"
   - secure: TGjO9nGH88bYMoRG3nBKYZn1Xj43/DzBK6lqWAL+2D7rd6jryPTSMy9R0luuqOUubhPCI7BpQVLKYXsRi0T0EGeRm4WbjQa2AD9TZlrvgRSWftMZ0U5UEvAoONMAsXV3CpND6Ey5yynRALjvt/4kH4a1IjIOwvSepxIwN7bGEFIXGyFq/scl65DT/7TFsv7UKzIKaOO6U9dq0vFekciCX+uuNF5pX7A8SMFrO6ydRfUtO47o9M+ieoGHgkQw0KyjD8wjbMa/2TXvpY6tAf8BnyYH8XhqJ7Tztzzc9Hbpxqr8b4LjnGr3UEfz6c0benzLufYwoQyi6T6T4ur1H19i0OS9LO/v9HrWkhuzx/15HH5b2GEZJK8DcnoWc/1csX5W9M3TbWhOIiCW8fyujVwcOznah7GW9cwPFuWP7+JZiw5E2B+u8ukkio9QsG7BV4+YJZCBevOGe70QNiEwUhF9E9TRyCXuQvORYv8nKIMoQ8GnujSEoHLmYMbdYEM/bLcOVfsfDOEWJPUvtBJ+Mmhz1DyMcS4qpUtStSu5Io38l1ZD7AdZ8iGGPkeYfF7ke4ZWQgx9CGrXVgYmyj016p0Z0mXr7GSDkhyIo4nhHb2EoH1rdW29T+GbSyz4Q9AtZNghkvZbYeFyvqsoWqXLn27dG91t7CZ7hT25gSag49VTbnA=
 deploy:
   provider: pypi

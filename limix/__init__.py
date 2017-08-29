@@ -15,8 +15,8 @@ from . import (
 
 __name__ = "limix"
 __version__ = "1.1.0"
-__author__ = ("Christoph Lippert, Danilo Horta," +
-              " Francesco Paolo Casale, and Oliver Stegle")
+__author__ = (
+    "Christoph Lippert, Danilo Horta, Francesco P. Casale, and Oliver Stegle")
 __author_email__ = "stegle@ebi.ac.uk"
 
 __all__ = [

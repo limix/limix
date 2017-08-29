@@ -43,15 +43,19 @@ class setup_folder(object):
 
 
 def get_init_metadata(metadata, name):
-    expr = re.compile(r"__%s__ *= *\"(.*)\"" % name)
+    expr = re.compile(r"__%s__ *=[^\"]*\"([^\"]*)\"" % name)
     prjname = metadata['packages'][0]
     data = open(join(prjname, "__init__.py")).read()
     return re.search(expr, data).group(1)
 
 
-def make_list(metadata, name):
+def make_list(metadata):
+    return metadata.strip().split('\n')
+
+
+def if_set_list(metadata, name):
     if name in metadata:
-        metadata[name] = metadata[name].strip().split('\n')
+        metadata[name] = make_list(metadata[name])
 
 
 def set_long_description(metadata):
@@ -82,14 +86,20 @@ def setup_package():
         metadata['author'] = get_init_metadata(metadata, 'author')
         metadata['author_email'] = get_init_metadata(metadata, 'author_email')
         metadata['name'] = get_init_metadata(metadata, 'name')
-        make_list(metadata, 'classifiers')
-        make_list(metadata, 'keywords')
-        if 'cffi_modules' in metadata:
-            make_list(metadata, 'cffi_modules')
+
+        if_set_list(metadata, 'classifiers')
+        if_set_list(metadata, 'keywords')
+        if_set_list(metadata, 'cffi_modules')
+
+        if 'extras_require' in metadata:
+            metadata['extras_require'] = eval(metadata['extras_require'])
+
         if 'console_scripts' in metadata:
-            make_list(metadata, 'console_scripts')
-        if 'recommended' in metadata:
-            metadata['recommended'] = eval(metadata['recommended'])
+            metadata['entry_points'] = {
+                'console_scripts': make_list(metadata['console_scripts'])
+            }
+            del metadata['console_scripts']
+
         set_long_description(metadata)
         convert_types(metadata)
 
