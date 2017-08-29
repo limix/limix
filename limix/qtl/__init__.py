@@ -62,8 +62,11 @@ alternative hypotheses to be tested:
 
     >>> from numpy.random import RandomState
     >>> from numpy import dot
+    >>> from pandas import set_option
     >>> from limix.qtl import scan
+    >>>
     >>> random = RandomState(1)
+    >>> set_option('precision', 5)
     >>>
     >>> n = 100
     >>>
@@ -74,31 +77,31 @@ alternative hypotheses to be tested:
     >>>
     >>> model = scan(candidates, y, 'normal', kinship, verbose=False)
     >>> print(model.variant_pvalues.to_string())
-    0    0.348678
-    1    1.000000
-    2    0.425446
-    3    0.059153
+    0    0.34868
+    1    1.00000
+    2    0.42545
+    3    0.05915
     >>> print(model.variant_effsizes.to_string())
-    0    0.114755
-    1    0.004894
-    2   -0.200519
-    3    0.515868
+    0    0.11475
+    1    0.00489
+    2   -0.20052
+    3    0.51587
     >>> print(model.variant_effsizes_se.to_string())
-    0    1.224501e-01
-    1    3.024236e+13
-    2    2.515891e-01
-    3    2.733718e-01
+    0    1.22450e-01
+    1    3.02424e+13
+    2    2.51589e-01
+    3    2.73372e-01
     >>> print(model)
     Variants
-           effsizes   effsizes_se   pvalues
-    count  4.000000  4.000000e+00  4.000000
-    mean   0.108750  7.560590e+12  0.458319
-    std    0.301228  1.512118e+13  0.394062
-    min   -0.200519  1.224501e-01  0.059153
-    25%   -0.046459  2.193043e-01  0.276297
-    50%    0.059825  2.624805e-01  0.387062
-    75%    0.215033  7.560590e+12  0.569085
-    max    0.515868  3.024236e+13  1.000000
+           effsizes  effsizes_se  pvalues
+    count   4.00000  4.00000e+00  4.00000
+    mean    0.10875  7.56059e+12  0.45832
+    std     0.30123  1.51212e+13  0.39406
+    min    -0.20052  1.22450e-01  0.05915
+    25%    -0.04646  2.19304e-01  0.27630
+    50%     0.05982  2.62480e-01  0.38706
+    75%     0.21503  7.56059e+12  0.56908
+    max     0.51587  3.02424e+13  1.00000
     <BLANKLINE>
     Covariate effect sizes for the null model
       offset
@@ -153,38 +156,38 @@ The matrix ``G`` defines both five alternative hypotheses
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
     >>> print(model.variant_pvalues.to_string())
-    0    0.069380
-    1    0.333557
-    2    0.589878
-    3    0.738747
-    4    0.779557
+    0    0.06938
+    1    0.33356
+    2    0.58988
+    3    0.73875
+    4    0.77956
     >>> print(model.variant_effsizes.to_string())
-    0    2.473225
-    1   -1.258785
-    2   -0.706753
-    3   -0.477232
-    4    0.375201
+    0    2.47322
+    1   -1.25879
+    2   -0.70675
+    3   -0.47723
+    4    0.37520
     >>> print(model.variant_effsizes_se.to_string())
-    0    1.361954
-    1    1.301777
-    2    1.311199
-    3    1.430925
-    4    1.340503
+    0    1.36195
+    1    1.30178
+    2    1.31120
+    3    1.43093
+    4    1.34050
     >>> print(model)
     Variants
-           effsizes  effsizes_se   pvalues
-    count  5.000000     5.000000  5.000000
-    mean   0.081131     1.349272  0.502224
-    std    1.460864     0.051503  0.298472
-    min   -1.258785     1.301777  0.069380
-    25%   -0.706753     1.311199  0.333557
-    50%   -0.477232     1.340503  0.589878
-    75%    0.375201     1.361954  0.738747
-    max    2.473225     1.430925  0.779557
+           effsizes  effsizes_se  pvalues
+    count   5.00000      5.00000  5.00000
+    mean    0.08113      1.34927  0.50222
+    std     1.46086      0.05150  0.29847
+    min    -1.25879      1.30178  0.06938
+    25%    -0.70675      1.31120  0.33356
+    50%    -0.47723      1.34050  0.58988
+    75%     0.37520      1.36195  0.73875
+    max     2.47322      1.43093  0.77956
     <BLANKLINE>
     Covariate effect sizes for the null model
-       offset
-     0.007468
+      offset
+     0.00747
 
 Out-of-core
 ^^^^^^^^^^^
