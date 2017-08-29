@@ -47,14 +47,12 @@ def unique_variants(X):
         .. doctest::
 
             >>> from numpy.random import RandomState
-            >>> from numpy import kron, ones
-            >>> from limix.util import unique_variants
-            >>> from numpy import set_printoptions
-            >>> set_printoptions(4)
+            >>> from numpy import kron, ones, sort
+            >>> from limix.qc import unique_variants
             >>> random = RandomState(1)
             >>>
             >>> N = 4
-            >>> X = kron(random.randn(N,3)<0., ones((1,2)))
+            >>> X = kron(random.randn(N, 3) < 0, ones((1, 2)))
             >>>
             >>> print(X)
             [[ 0.  0.  1.  1.  1.  1.]
@@ -64,7 +62,7 @@ def unique_variants(X):
             >>>
             >>> idx = unique_variants(X)
             >>>
-            >>> print(X[:, idx])
+            >>> print(X[:, sort(idx)])
             [[ 0.  1.  1.]
              [ 1.  0.  1.]
              [ 0.  1.  0.]

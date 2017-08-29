@@ -1,9 +1,9 @@
 from __future__ import division
 
-import pandas as pd
-from numpy import diag, eye, ones, clip
+from numpy import clip, diag, eye, ones
 from numpy_sugar.linalg import economic_qs
 
+import pandas as pd
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
 from limix.qc import gower_norm
@@ -16,7 +16,7 @@ from .util import assure_named
 _cache = dict(K=dict(K=None, QS=None, hash=None))
 
 
-def scan(G, y, lik, K=None, K0=None, K1=None, M=None, verbose=True):
+def scan(G, y, lik, K=None, M=None, verbose=True):
     r"""Single-variant association testing via generalised linear mixed models.
 
     It supports Normal (linear mixed model), Bernoulli, Binomial, and Poisson
@@ -81,32 +81,32 @@ def scan(G, y, lik, K=None, K0=None, K1=None, M=None, verbose=True):
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
         >>> print(model.variant_pvalues.to_string())
-        rs0    0.683328
-        rs1    0.288121
-        rs2    0.514937
+        rs0    0.683329
+        rs1    0.288123
+        rs2    0.514936
         >>> print(model.variant_effsizes.to_string())
         rs0   -0.084547
-        rs1   -0.267286
-        rs2   -0.153484
+        rs1   -0.267287
+        rs2   -0.153485
         >>> print(model.variant_effsizes_se.to_string())
-        rs0    0.207260
-        rs1    0.251622
-        rs2    0.235705
+        rs0    0.207261
+        rs1    0.251624
+        rs2    0.235706
         >>> print(model)
         Variants
                effsizes  effsizes_se   pvalues
         count  3.000000     3.000000  3.000000
-        mean  -0.168439     0.231529  0.495462
-        std    0.092283     0.022474  0.198322
-        min   -0.267286     0.207260  0.288121
-        25%   -0.210385     0.221482  0.401529
-        50%   -0.153484     0.235705  0.514937
-        75%   -0.119015     0.243663  0.599132
-        max   -0.084547     0.251622  0.683328
+        mean  -0.168440     0.231530  0.495463
+        std    0.092283     0.022474  0.198321
+        min   -0.267287     0.207261  0.288123
+        25%   -0.210386     0.221484  0.401530
+        50%   -0.153485     0.235706  0.514936
+        75%   -0.119016     0.243665  0.599133
+        max   -0.084547     0.251624  0.683329
         <BLANKLINE>
         Covariate effect sizes for the null model
                 age    offset
-        -0.00556772    0.3953
+        -0.00556787  0.395288
     """
     if verbose:
         lik_name = lik.lower()
@@ -121,7 +121,7 @@ def scan(G, y, lik, K=None, K0=None, K1=None, M=None, verbose=True):
     nsamples = len(G)
     G = assure_named(G, nsamples)
 
-    mixed = K is not None or K0 is not None or K1 is not None
+    mixed = K is not None
 
     M = _covariates_process(M, nsamples)
 
@@ -131,9 +131,8 @@ def scan(G, y, lik, K=None, K0=None, K1=None, M=None, verbose=True):
         K, QS = _kinship_process(K, nsamples, verbose)
         model = _perform_lmm(y, M, QS, G, mixed, verbose)
     else:
-        K0, QS0 = _kinship_process(K0, nsamples, verbose)
-        K1, QS1 = _kinship_process(K1, nsamples, verbose)
-        model = _perform_glmm(y, lik, M, K0, K1, QS0, QS1, G, mixed, verbose)
+        K, QS = _kinship_process(K, nsamples, verbose)
+        model = _perform_glmm(y, lik, M, K, QS, G, mixed, verbose)
 
     if verbose:
         print(model)
@@ -167,9 +166,9 @@ def _perform_lmm(y, M, QS, G, mixed, verbose):
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
 
-def _perform_glmm(y, lik, M, K0, K1, QS0, QS1, G, mixed, verbose):
+def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     from pandas import Series
-    glmm = GLMM(y, lik, M.values, QS0)
+    glmm = GLMM(y, lik, M.values, QS)
     if not mixed:
         glmm.delta = 1
         glmm.fix('delta')
@@ -191,7 +190,7 @@ def _perform_glmm(y, lik, M, K0, K1, QS0, QS1, G, mixed, verbose):
     var = 1. / tau
     s2_g = scale * (1 - delta)
     tR = diag(var - var.min() + 1e-4)
-    tR += s2_g * K1
+    tR += s2_g * K
 
     lmm = LMM(mu, X=M.values, QS=economic_qs(tR))
     lmm.learn(verbose=verbose)
