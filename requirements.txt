@@ -18,4 +18,3 @@ statsmodels>=0.8
 brent-search>=1.0.18
 pandas>=0.20
 feather-format>=0.4
-ndarray-listener>=1.0.25
