@@ -7,47 +7,20 @@ A flexible and fast mixed model toolbox.
 
 """
 
-from __future__ import absolute_import as _absolute_import
+from __future__ import absolute_import as _
 
-import limix_core as core
-from pkg_resources import DistributionNotFound as _DistributionNotFound
-from pkg_resources import get_distribution as _get_distribution
+from . import (
+    heritability, io, iset, mtset, plot, qc, qtl, scripts, stats, util, vardec
+)
 
-from . import (heritability, io, iset, mtset, plot, qc, qtl, scripts, stats,
-               util, vardec)
-
-try:
-    __version__ = _get_distribution('limix').version
-except _DistributionNotFound:
-    __version__ = 'unknown'
-
-
-def test():
-
-    try:
-        import pytest_pep8
-    except ImportError:
-        print("Please, install pytest-pep8 in order to proceed.")
-        return 1
-
-    import os
-    p = __import__('limix').__path__[0]
-    src_path = os.path.abspath(p)
-    old_path = os.getcwd()
-    os.chdir(src_path)
-
-    try:
-        return_code = __import__('pytest').main(['-q', '--doctest-modules'])
-    finally:
-        os.chdir(old_path)
-
-    if return_code == 0:
-        print("Congratulations. All tests have passed!")
-
-    return return_code
-
+__name__ = "limix"
+__version__ = "1.1.0"
+__author__ = ("Christoph Lippert, Danilo Horta," +
+              " Francesco Paolo Casale, and Oliver Stegle")
+__author_email__ = "stegle@ebi.ac.uk"
 
 __all__ = [
-    'test', 'core', 'io', 'plot', 'qc', 'qtl', 'stats', 'util', 'vardec',
-    'mtset', 'iset', 'scripts', 'heritability'
+    "__name__", "__version__", "__author__", "__author_email__", "test", 'io',
+    'plot', 'qc', 'qtl', 'stats', 'util', 'vardec', 'mtset', 'iset', 'scripts',
+    'heritability'
 ]

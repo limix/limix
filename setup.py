@@ -1,84 +1,99 @@
 from __future__ import unicode_literals
 
-import os
+import re
 import sys
+from os import chdir, getcwd
+from os.path import abspath, dirname, join
 
 from setuptools import find_packages, setup
 
 try:
-    import pypandoc
-    long_description = pypandoc.convert_file('README.md', 'rst')
-except (OSError, IOError, ImportError):
-    long_description = open('README.md').read()
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser
+
+PY2 = sys.version_info[0] == 2
+
+
+def _unicode_airlock(v):
+    if isinstance(v, bytes):
+        v = v.decode()
+    return v
+
+
+if PY2:
+    string_types = unicode, str
+else:
+    string_types = bytes, str
+
+
+class setup_folder(object):
+    def __init__(self):
+        self._old_path = None
+
+    def __enter__(self):
+        src_path = dirname(abspath(sys.argv[0]))
+        self._old_path = getcwd()
+        chdir(src_path)
+        sys.path.insert(0, src_path)
+
+    def __exit__(self, *_):
+        del sys.path[0]
+        chdir(self._old_path)
+
+
+def get_init_metadata(metadata, name):
+    expr = re.compile(r"__%s__ *= *\"(.*)\"" % name)
+    prjname = metadata['packages'][0]
+    data = open(join(prjname, "__init__.py")).read()
+    return re.search(expr, data).group(1)
+
+
+def make_list(metadata, name):
+    if name in metadata:
+        metadata[name] = metadata[name].strip().split('\n')
+
+
+def set_long_description(metadata):
+    df = metadata['description_file']
+    metadata['long_description'] = open(df).read()
+    del metadata['description_file']
+
+
+def convert_types(metadata):
+    bools = ['True', 'False']
+    for k in metadata.keys():
+        v = _unicode_airlock(metadata[k])
+        if isinstance(metadata[k], string_types) and v in bools:
+            metadata[k] = v == 'True'
 
 
 def setup_package():
-    src_path = os.path.dirname(os.path.abspath(sys.argv[0]))
-    old_path = os.getcwd()
-    os.chdir(src_path)
-    sys.path.insert(0, src_path)
+    with setup_folder():
 
-    needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
-    pytest_runner = ['pytest-runner>=2.9'] if needs_pytest else []
+        config = ConfigParser()
+        config.read('setup.cfg')
 
-    setup_requires = ["cython", "numpy"] + pytest_runner
-    install_requires = [
-        'scikit-learn>=0.19.0', 'limix-core>=1.0.1', 'tabulate>=0.7.7',
-        'dask[array,bag,dataframe,delayed]>=0.14', 'h5py',
-        'pandas-plink>=1.1.7', 'limix-legacy', 'glimix-core>=1.2.20',
-        'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.18', 'distributed',
-        'numpy-sugar>=1.0.47', 'ncephes>=1.0.38', 'asciitree>=0.3.3',
-        'humanfriendly>=3.6.1', 'statsmodels>=0.8', 'brent-search>=1.0.18',
-        'pandas>=0.20', 'feather-format>=0.4'
-    ]
-    tests_require = ['pytest', 'pytest-console-scripts', 'pytest-pep8']
-    recommended = {"numba": ["numba>=0.32"]}
+        metadata = dict(config.items('metadata'))
+        metadata['packages'] = find_packages()
+        metadata['platforms'] = eval(metadata['platforms'])
 
-    console_scripts = [
-        'limix_runner=limix.scripts.limix_runner:entry_point',
-        'mtset_postprocess=limix.scripts.mtset_postprocess:entry_point',
-        'mtset_preprocess=limix.scripts.mtset_preprocess:entry_point',
-        'mtset_definesets=limix.scripts.mtset_definesets:entry_point',
-        'mtset_simpheno=limix.scripts.mtset_simpheno:entry_point',
-        'mtset_analyze=limix.scripts.mtset_analyze:entry_point',
-        'limix_converter=limix.scripts.limix_converter:entry_point',
-        'iset_analyze=limix.scripts.iset_analyze:entry_point',
-        'iset_postprocess=limix.scripts.iset_postprocess:entry_point',
-        'limix=limix.scripts._limix:entry_point',
-        'ilimix=limix.scripts.ilimix:entry_point'
-    ]
+        metadata['version'] = get_init_metadata(metadata, 'version')
+        metadata['author'] = get_init_metadata(metadata, 'author')
+        metadata['author_email'] = get_init_metadata(metadata, 'author_email')
+        metadata['name'] = get_init_metadata(metadata, 'name')
+        make_list(metadata, 'classifiers')
+        make_list(metadata, 'keywords')
+        if 'cffi_modules' in metadata:
+            make_list(metadata, 'cffi_modules')
+        if 'console_scripts' in metadata:
+            make_list(metadata, 'console_scripts')
+        if 'recommended' in metadata:
+            metadata['recommended'] = eval(metadata['recommended'])
+        set_long_description(metadata)
+        convert_types(metadata)
 
-    metadata = dict(
-        name='limix',
-        version='1.0.9',
-        maintainer="Limix Developers",
-        maintainer_email="horta@ebi.ac.uk",
-        author=("Christoph Lippert, Danilo Horta, " +
-                "Francesco Paolo Casale, Oliver Stegle"),
-        author_email="stegle@ebi.ac.uk",
-        license="Apache License 2.0'",
-        description="A flexible and fast mixed model toolbox.",
-        long_description=long_description,
-        url='https://github.com/limix/limix',
-        packages=find_packages(),
-        zip_safe=False,
-        install_requires=install_requires,
-        setup_requires=setup_requires,
-        tests_require=tests_require,
-        extras_require=recommended,
-        include_package_data=True,
-        classifiers=[
-            "Development Status :: 5 - Production/Stable",
-            "License :: OSI Approved :: MIT License",
-            "Operating System :: OS Independent",
-        ],
-        entry_points={'console_scripts': console_scripts})
-
-    try:
         setup(**metadata)
-    finally:
-        del sys.path[0]
-        os.chdir(old_path)
 
 
 if __name__ == '__main__':
