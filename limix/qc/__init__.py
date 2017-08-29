@@ -46,9 +46,10 @@ from .linalg import remove_dependent_cols
 from .missing import count_missingness
 from .regress import regress_out
 from .trans import boxcox, mean_standardize, quantile_gaussianize
+from .unique_variants import unique_variants
 
 __all__ = [
     'boxcox', 'mean_standardize', 'quantile_gaussianize', 'regress_out',
     'remove_dependent_cols', 'mean_impute', 'indep_pairwise',
-    'count_missingness', 'compute_maf', 'gower_norm'
+    'count_missingness', 'compute_maf', 'gower_norm', 'unique_variants'
 ]
