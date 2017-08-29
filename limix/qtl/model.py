@@ -101,9 +101,11 @@ class QTLModel(object):
         variant_msg = str(DataFrame(data=data).describe())
 
         data = self.null_covariate_effsizes
+        k = data.index.values
+        v = [[vi] for vi in data.values]
 
-        covariate_msg = tabulate(
-            [data.values], headers=list(data.keys()), tablefmt="plain")
+        covariate_msg = str(DataFrame(data=dict(zip(list(k), list(v)))))
+        covariate_msg = '\n'.join([x[2:] for x in covariate_msg.split('\n')])
 
         msg = 'Variants\n' + variant_msg
         msg += '\n\nCovariate effect sizes for the'

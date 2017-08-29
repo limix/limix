@@ -60,10 +60,11 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
         >>> from numpy import dot, exp, sqrt, ones
         >>> from numpy.random import RandomState
-        >>> from pandas import DataFrame
+        >>> from pandas import DataFrame, set_option
         >>> from limix.qtl import scan
         >>>
         >>> random = RandomState(1)
+        >>> set_option('precision', 5)
         >>>
         >>> n = 30
         >>> p = 3
@@ -81,32 +82,32 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
         >>> print(model.variant_pvalues.to_string())
-        rs0    0.683329
-        rs1    0.288123
-        rs2    0.514936
+        rs0    0.68333
+        rs1    0.28812
+        rs2    0.51494
         >>> print(model.variant_effsizes.to_string())
-        rs0   -0.084547
-        rs1   -0.267287
-        rs2   -0.153485
+        rs0   -0.08455
+        rs1   -0.26729
+        rs2   -0.15348
         >>> print(model.variant_effsizes_se.to_string())
-        rs0    0.207261
-        rs1    0.251624
-        rs2    0.235706
+        rs0    0.20726
+        rs1    0.25162
+        rs2    0.23570
         >>> print(model)
         Variants
-               effsizes  effsizes_se   pvalues
-        count  3.000000     3.000000  3.000000
-        mean  -0.168440     0.231530  0.495463
-        std    0.092283     0.022474  0.198321
-        min   -0.267287     0.207261  0.288123
-        25%   -0.210386     0.221484  0.401530
-        50%   -0.153485     0.235706  0.514936
-        75%   -0.119016     0.243665  0.599133
-        max   -0.084547     0.251624  0.683329
+               effsizes  effsizes_se  pvalues
+        count   3.00000      3.00000  3.00000
+        mean   -0.16844      0.23153  0.49546
+        std     0.09228      0.02247  0.19832
+        min    -0.26729      0.20726  0.28812
+        25%    -0.21038      0.22148  0.40153
+        50%    -0.15348      0.23570  0.51494
+        75%    -0.11902      0.24366  0.59913
+        max    -0.08455      0.25162  0.68333
         <BLANKLINE>
         Covariate effect sizes for the null model
-                age    offset
-        -0.00556787  0.395288
+             age  offset
+        -0.00557  0.3953
     """
     if verbose:
         lik_name = lik.lower()

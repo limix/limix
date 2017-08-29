@@ -101,8 +101,8 @@ alternative hypotheses to be tested:
     max    0.515868  3.024236e+13  1.000000
     <BLANKLINE>
     Covariate effect sizes for the null model
-        offset
-    0.00139039
+      offset
+     0.00139
 
 The above example prints the estimated p-value, effect size, and standard
 error of the effect size of each variant.
@@ -183,8 +183,8 @@ The matrix ``G`` defines both five alternative hypotheses
     max    2.473225     1.430925  0.779557
     <BLANKLINE>
     Covariate effect sizes for the null model
-        offset
-    0.00746817
+       offset
+     0.007468
 
 Out-of-core
 ^^^^^^^^^^^
