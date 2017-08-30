@@ -1,7 +1,7 @@
 scikit-learn>=0.19.0
 limix-core>=1.0.1
 tabulate>=0.7.7
-dask[array,bag,dataframe,delayed]>=0.14
+dask>=0.15
 h5py
 pandas-plink>=1.1.7
 limix-legacy
