@@ -3,11 +3,26 @@ channels:
 - conda-forge
 - defaults
 dependencies:
+- brent-search=1.0.27=py35_1
+- cachetools=2.0.0=py35_0
+- dask=0.15.2=py35_0
+- dask-core=0.15.2=py35_0
+- glimix-core=1.2.19=py35_0
 - liknorm=1.2.6=2
+- liknorm-py=1.0.6=py35_3
+- limix-core=1.0.1=py35_1
+- limix-legacy=0.8.12=np112py35_2
+- ncephes=1.0.40=py35_0
+- ndarray-listener=1.0.25=py35_0
+- numpy-sugar=1.0.47=py35_0
+- optimix=1.2.17=py35_0
+- pandas-plink=1.2.10=py35_0
+- scipy-sugar=1.0.2=py35_0
+- tqdm=4.15.0=py35_0
 - _license=1.1=py35_1
 - alabaster=0.7.10=py35_0
-- anaconda=4.4.0=np112py35_0
 - anaconda-client=1.6.3=py35_0
+- anaconda=custom=py35_0
 - anaconda-navigator=1.6.2=py35_0
 - anaconda-project=0.6.0=py35_0
 - asn1crypto=0.22.0=py35_0
@@ -35,7 +50,6 @@ dependencies:
 - cycler=0.10.0=py35_0
 - cython=0.25.2=py35_0
 - cytoolz=0.8.2=py35_0
-- dask=0.14.3=py35_1
 - datashape=0.5.4=py35_0
 - dbus=1.10.10=0
 - decorator=4.0.11=py35_0
@@ -215,4 +229,3 @@ dependencies:
   - rope-py3k==0.9.4.post1
   - sphinx-rtd-theme==0.2.4
   - tables==3.3.0
-
