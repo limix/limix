@@ -19,7 +19,6 @@ Limix's documentation
    stats
    plot
    util
-   data
 
 *****************
 Comments and bugs

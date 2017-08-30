@@ -1,38 +1,38 @@
+import csv
 import os
 import sys
-import csv
-import numpy as np
-from optparse import OptionParser
 import time
-import limix
-from .read_utils import readNullModelFile
-from .read_utils import readWindowsFile
-from .read_utils import readCovarianceMatrixFile
-from .read_utils import readCovariatesFile
-from .read_utils import readPhenoFile
-from limix.data import BedReader
-from limix.util import unique_variants as f_uni_variants
-import scipy as sp
 import warnings
+from optparse import OptionParser
+
+import numpy as np
+import scipy as sp
+
+import limix
 import pandas as pd
+from limix.util import unique_variants as f_uni_variants
+
+from .read_utils import (
+    readCovarianceMatrixFile, readCovariatesFile, readNullModelFile,
+    readPhenoFile, readWindowsFile
+)
 
 
-def scan(
-        bfile,
-        Y,
-        cov,
-        null,
-        sets,
-        i0,
-        i1,
-        perm_i,
-        resfile,
-        F,
-        colCovarType_r='lowrank',
-        rank_r=1,
-        factr=1e7,
-        unique_variants=False,
-        standardize=False):
+def scan(bfile,
+         Y,
+         cov,
+         null,
+         sets,
+         i0,
+         i1,
+         perm_i,
+         resfile,
+         F,
+         colCovarType_r='lowrank',
+         rank_r=1,
+         factr=1e7,
+         unique_variants=False,
+         standardize=False):
 
     if perm_i is not None:
         print(('Generating permutation (permutation %d)' % perm_i))
@@ -40,11 +40,7 @@ def scan(
         perm = np.random.permutation(Y.shape[0])
 
     mtSet = limix.MTSet(
-        Y=Y,
-        S_R=cov['eval'],
-        U_R=cov['evec'],
-        F=F,
-        rank=rank_r)
+        Y=Y, S_R=cov['eval'], U_R=cov['evec'], F=F, rank=rank_r)
     mtSet.setNull(null)
 
     reader = BedReader(bfile)
@@ -56,10 +52,11 @@ def scan(
         _set = sets.ix[wnd_i]
         print('.. set %d: %s' % (wnd_i, _set['setid']))
 
-        Xr = reader.getGenotypes(pos_start=_set['start'],
-                                 pos_end=_set['end'],
-                                 chrom=_set['chrom'],
-                                 impute=True)
+        Xr = reader.getGenotypes(
+            pos_start=_set['start'],
+            pos_end=_set['end'],
+            chrom=_set['chrom'],
+            impute=True)
 
         if unique_variants:
             Xr = f_uni_variants(Xr)
@@ -91,15 +88,15 @@ def analyze(options):
     if options.cfile is None:
         cov = {'eval': None, 'evec': None}
         warnings.warn(
-            'warning: cfile not specifed, a one variance compoenent model will be considered')
+            'warning: cfile not specifed, a one variance compoenent model will be considered'
+        )
     else:
         cov = readCovarianceMatrixFile(options.cfile, readCov=False)
     Y = readPhenoFile(options.pfile, idx=options.trait_idx)
     null = readNullModelFile(options.nfile)
 
-    sets = pd.DataFrame.from_csv(options.wfile + '.wnd',
-                                 sep='\t',
-                                 index_col=None)
+    sets = pd.DataFrame.from_csv(
+        options.wfile + '.wnd', sep='\t', index_col=None)
 
     F = None
     if options.ffile:
@@ -128,21 +125,8 @@ def analyze(options):
 
     # analysis
     t0 = time.time()
-    scan(
-        options.bfile,
-        Y,
-        cov,
-        null,
-        sets,
-        options.i0,
-        options.i1,
-        options.perm_i,
-        resfile,
-        F,
-        options.colCovarType_r,
-        options.rank_r,
-        options.factr,
-        options.unique_variants,
-        options.standardize)
+    scan(options.bfile, Y, cov, null, sets, options.i0, options.i1,
+         options.perm_i, resfile, F, options.colCovarType_r, options.rank_r,
+         options.factr, options.unique_variants, options.standardize)
     t1 = time.time()
     print(('... finished in %s seconds' % (t1 - t0)))
