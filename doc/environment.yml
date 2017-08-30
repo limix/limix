@@ -215,5 +215,4 @@ dependencies:
   - rope-py3k==0.9.4.post1
   - sphinx-rtd-theme==0.2.4
   - tables==3.3.0
-prefix: /home/horta/anaconda/envs/py35
 
