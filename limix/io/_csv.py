@@ -1,5 +1,3 @@
-
-
 def read_csv(filename, sep=None, header=True):
     r"""Read a CSV file.
 
@@ -21,8 +19,8 @@ def read_csv(filename, sep=None, header=True):
         >>> from limix.io import read_csv
         >>> from limix.io.examples import csv_file_example
         >>>
-        >>> df = read_csv(csv_file_example())
-        >>> print(df.compute()) #doctest: +NORMALIZE_WHITESPACE
+        >>> df = read_csv(csv_file_example()) # doctest: +SKIP
+        >>> print(df.compute()) #doctest: +NORMALIZE_WHITESPACE +SKIP
            pheno   attr1 attr2 attr3
         0    sex  string    10     a
         1   size   float    -3     b
