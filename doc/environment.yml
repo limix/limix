@@ -220,6 +220,7 @@ dependencies:
 - zict=0.1.2=py35_0
 - zlib=1.2.8=3
 - pip:
+  - asciitree==0.3.3
   - backports.shutil-get-terminal-size==1.0.0
   - et-xmlfile==1.0.1
   - humanfriendly==4.4.1
@@ -231,3 +232,4 @@ dependencies:
   - rope-py3k==0.9.4.post1
   - sphinx-rtd-theme==0.2.4
   - tables==3.3.0
+  - tabulate==0.7.7
