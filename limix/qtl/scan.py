@@ -36,7 +36,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         Bernoulli phenotypes). It does not support missing values yet.
     lik : {'normal', 'bernoulli', 'binomial', 'poisson'}
         Sample likelihood describing the residual distribution.
-    K : array_like
+    K : array_like, optional
         `n` by `n` covariance matrix (e.g., kinship coefficients).
         Set to ``None`` for a generalised linear model without random effects.
         Defaults to ``None``.

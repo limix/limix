@@ -204,6 +204,9 @@ Interface
 .. autofunction:: limix.qtl.scan
 .. autoclass:: limix.qtl.model.QTLModel
     :members:
+.. autofunction:: limix.qtl.iscan
+.. autoclass:: limix.qtl.model.IQTLModel
+    :members:
 
 """
 

@@ -54,7 +54,7 @@ def covariates_process(M, nsamples):
     if M is None:
         M = DataFrame({'offset': ones(nsamples, float)})
     else:
-        M = assure_named(M, nsamples)
+        M = assure_named(M)
 
     if not all(isfinite(M.values)):
         msg = "One or more values of the provided covariates "

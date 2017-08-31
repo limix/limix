@@ -11,7 +11,7 @@ from setuptools import find_packages
 
 
 def get_init_metadata(name):
-    expr = re.compile(r"__%s__ *= *\"(.*)\"" % name)
+    expr = re.compile(r"__%s__ *=[^\"]*\"([^\"]*)\"" % name)
 
     dir_path = dirname(realpath(__file__))
     pkgname = find_packages(where=join(dir_path, '..'))[0]
@@ -38,7 +38,7 @@ else:
 extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx',
     'sphinx.ext.coverage', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon',
-    'sphinx.ext.mathjax'
+    'sphinx.ext.mathjax', 'matplotlib.sphinxext.plot_directive'
 ]
 napoleon_google_docstring = True
 master_doc = 'index'

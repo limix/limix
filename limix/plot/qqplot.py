@@ -58,7 +58,8 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
 
     for label in labels:
         df0 = df.loc[df['label'] == label, ['pv']]['pv']
-        pv = concatenate(df0.reset_index(drop=True))
+        # pv = concatenate(df0.reset_index(drop=True))
+        pv = df0.reset_index(drop=True).values
         pv = sort(pv)
         ok = _subsample(pv)
 
