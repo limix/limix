@@ -61,9 +61,7 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
         >>> from numpy.testing import assert_allclose
         >>>
         >>> from limix.qtl import iscan
-        >>> from pandas import DataFrame, set_option
-        >>>
-        >>> set_option('precision', 5)
+        >>> from pandas import DataFrame, option_context
         >>>
         >>> random = RandomState(0)
         >>> nsamples = 50
@@ -92,7 +90,8 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
         >>>
         >>> model = iscan(X, y, 'normal', inter, K, verbose=False)
         >>>
-        >>> print(model.variant_pvalues)
+        >>> with option_context('precision', 5):
+        ...     print(model.variant_pvalues)
                inter00  inter01  inter02
         SNP00  0.81180  0.63035  0.61240
         SNP01  0.02847  0.64437  0.82671

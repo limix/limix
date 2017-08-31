@@ -62,11 +62,10 @@ alternative hypotheses to be tested:
 
     >>> from numpy.random import RandomState
     >>> from numpy import dot
-    >>> from pandas import set_option
+    >>> from pandas import option_context
     >>> from limix.qtl import scan
     >>>
     >>> random = RandomState(1)
-    >>> set_option('precision', 5)
     >>>
     >>> n = 100
     >>>
@@ -76,22 +75,26 @@ alternative hypotheses to be tested:
     >>> kinship = dot(X, X.T) / float(10)
     >>>
     >>> model = scan(candidates, y, 'normal', kinship, verbose=False)
-    >>> print(model.variant_pvalues.to_string())
+    >>> with option_context('precision', 5):
+    ...     print(model.variant_pvalues.to_string())
     0    0.34868
     1    1.00000
     2    0.42545
     3    0.05915
-    >>> print(model.variant_effsizes.to_string())
+    >>> with option_context('precision', 5):
+    ...     print(model.variant_effsizes.to_string())
     0    0.11475
     1    0.00489
     2   -0.20052
     3    0.51587
-    >>> print(model.variant_effsizes_se.to_string())
+    >>> with option_context('precision', 5):
+    ...     print(model.variant_effsizes_se.to_string())
     0    1.22450e-01
     1    3.02424e+13
     2    2.51589e-01
     3    2.73372e-01
-    >>> print(model)
+    >>> with option_context('precision', 5):
+    ...     print(model)
     Variants
            effsizes  effsizes_se  pvalues
     count   4.00000  4.00000e+00  4.00000
@@ -155,25 +158,29 @@ The matrix ``G`` defines both five alternative hypotheses
     >>> K = dot(G[:, 5:], G[:, 5:].T)
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
-    >>> print(model.variant_pvalues.to_string())
+    >>> with option_context('precision', 5):
+    ...     print(model.variant_pvalues.to_string())
     0    0.06938
     1    0.33356
     2    0.58988
     3    0.73875
     4    0.77956
-    >>> print(model.variant_effsizes.to_string())
+    >>> with option_context('precision', 5):
+    ...     print(model.variant_effsizes.to_string())
     0    2.47322
     1   -1.25879
     2   -0.70675
     3   -0.47723
     4    0.37520
-    >>> print(model.variant_effsizes_se.to_string())
+    >>> with option_context('precision', 5):
+    ...     print(model.variant_effsizes_se.to_string())
     0    1.36195
     1    1.30178
     2    1.31120
     3    1.43093
     4    1.34050
-    >>> print(model)
+    >>> with option_context('precision', 5):
+    ...     print(model)
     Variants
            effsizes  effsizes_se  pvalues
     count   5.00000      5.00000  5.00000

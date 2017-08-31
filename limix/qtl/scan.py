@@ -58,11 +58,10 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
         >>> from numpy import dot, exp, sqrt, ones
         >>> from numpy.random import RandomState
-        >>> from pandas import DataFrame, set_option
+        >>> from pandas import DataFrame, option_context
         >>> from limix.qtl import scan
         >>>
         >>> random = RandomState(1)
-        >>> set_option('precision', 5)
         >>>
         >>> n = 30
         >>> p = 3
@@ -79,19 +78,23 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>>
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
-        >>> print(model.variant_pvalues.to_string())
+        >>> with option_context('precision', 5):
+        ...     print(model.variant_pvalues.to_string())
         rs0    0.68333
         rs1    0.28812
         rs2    0.51494
-        >>> print(model.variant_effsizes.to_string())
+        >>> with option_context('precision', 5):
+        ...     print(model.variant_effsizes.to_string())
         rs0   -0.08455
         rs1   -0.26729
         rs2   -0.15348
-        >>> print(model.variant_effsizes_se.to_string())
+        >>> with option_context('precision', 5):
+        ...     print(model.variant_effsizes_se.to_string())
         rs0    0.20726
         rs1    0.25162
         rs2    0.23570
-        >>> print(model)
+        >>> with option_context('precision', 5):
+        ...     print(model)
         Variants
                effsizes  effsizes_se  pvalues
         count   3.00000      3.00000  3.00000

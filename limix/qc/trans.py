@@ -1,10 +1,12 @@
 from __future__ import division
 
-from limix.util.npy_dask import (
-    asarray, isnan, zeros_like, abs, nanmean, nanstd, clip)
+from brent_search import brent
 from numpy import inf
 from numpy_sugar import epsilon
-from brent_search import brent
+
+from limix.util.npy_dask import (
+    abs, asarray, clip, isnan, nanmean, nanstd, zeros_like
+)
 
 
 def mean_standardize(X, axis=None, out=None):
@@ -37,7 +39,7 @@ def mean_standardize(X, axis=None, out=None):
     .. doctest::
 
         >>> import limix
-        >>> from numpy import arange
+        >>> from numpy import arange, array_str
         >>>
         >>> X = arange(15).reshape((5, 3))
         >>> print(X)
@@ -47,7 +49,7 @@ def mean_standardize(X, axis=None, out=None):
          [ 9 10 11]
          [12 13 14]]
         >>> X = limix.qc.mean_standardize(X, axis=0)
-        >>> print(X)
+        >>> print(array_str(X, precision=4))
         [[-1.4142 -1.4142 -1.4142]
          [-0.7071 -0.7071 -0.7071]
          [ 0.      0.      0.    ]
@@ -62,7 +64,7 @@ def mean_standardize(X, axis=None, out=None):
         axis = 0
 
     shape = X.shape
-    nshape = shape[:axis] + (1,) + shape[axis + 1:]
+    nshape = shape[:axis] + (1, ) + shape[axis + 1:]
 
     X = X - nanmean(X, axis=axis).reshape(nshape)
     d = nanstd(X, axis=axis).reshape(nshape)
@@ -90,7 +92,10 @@ def quantile_gaussianize(x):
     .. doctest::
 
         >>> from limix.qc import quantile_gaussianize
-        >>> print(quantile_gaussianize([-1, 0, 2]))
+        >>> from numpy import array_str
+        >>>
+        >>> qg = quantile_gaussianize([-1, 0, 2])
+        >>> print(array_str(qg, precision=4))
         [-0.6745  0.      0.6745]
     """
 

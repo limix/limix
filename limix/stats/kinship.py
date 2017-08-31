@@ -12,12 +12,13 @@ def linear_kinship(G, out=None, progress=True):
     .. doctest::
 
         >>> from numpy.random import RandomState
+        >>> from numpy import array_str
         >>> from limix.stats import linear_kinship
         >>>
         >>> random = RandomState(1)
         >>> X = random.randn(4, 100)
         >>> K = linear_kinship(X, progress=False)
-        >>> print(K)
+        >>> print(array_str(K, precision=4))
         [[ 27.3944  -5.785  -10.2402 -11.3693]
          [ -5.785   26.9655  -7.068  -14.1125]
          [-10.2402  -7.068   28.7332 -11.425 ]
