@@ -56,7 +56,7 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
     --------
     .. doctest::
 
-        >>> from numpy import dot, zeros
+        >>> from numpy import dot, zeros, asarray
         >>> from numpy.random import RandomState
         >>> from numpy.testing import assert_allclose
         >>>
@@ -77,7 +77,7 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
         ...     for j in range(ntrials[i]):
         ...         successes[i] += int(z[i] + 0.5 * random.randn() > 0)
         >>>
-        >>> y = successes / ntrials
+        >>> y = successes / asarray(ntrials, float)
         >>>
         >>> inter = random.randn(nsamples, 3)
         >>>
@@ -93,16 +93,16 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
         >>> with option_context('precision', 5):
         ...     print(model.variant_pvalues)
                inter00  inter01  inter02
-        SNP00  0.45192  0.09682  0.37245
-        SNP01  0.79191  0.14146  0.50168
-        SNP02  0.94885  0.25480  0.92529
-        SNP03  0.79104  0.80428  0.52833
-        SNP04  0.26863  0.25093  0.54690
-        SNP05  0.13216  0.44755  0.17241
-        SNP06  0.39748  0.38725  0.61342
-        SNP07  0.33060  0.97340  0.92156
-        SNP08  0.95863  0.53483  0.40684
-        SNP09  0.88437  0.47077  0.53960
+        SNP00  0.81180  0.63035  0.61240
+        SNP01  0.02847  0.64437  0.82671
+        SNP02  0.56817  0.72882  0.23928
+        SNP03  0.53793  0.64628  0.86144
+        SNP04  0.13858  0.39475  0.28650
+        SNP05  0.06722  0.56295  0.39859
+        SNP06  0.12739  0.62219  0.68084
+        SNP07  0.32834  0.96894  0.67628
+        SNP08  0.28341  0.29361  0.56248
+        SNP09  0.64945  0.67185  0.76600
     """
     lik = lik.lower()
 
