@@ -1,19 +1,16 @@
 from __future__ import division
 
-from numpy import clip, diag, eye, ones
+from numpy import diag
 from numpy_sugar.linalg import economic_qs
 
-import pandas as pd
 from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
-from limix.qc import gower_norm
-from limix.util import Timer, array_hash
-from limix.util.npy_dask import all, asarray, isfinite
 
 from .model import QTLModel
-from .util import assure_named
-
-_cache = dict(K=dict(K=None, QS=None, hash=None))
+from .util import (
+    assure_named, covariates_process, kinship_process, phenotype_process,
+    print_analysis
+)
 
 
 def scan(G, y, lik, K=None, M=None, verbose=True):
@@ -109,30 +106,25 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
              age  offset
         -0.00557  0.3953
     """
-    if verbose:
-        lik_name = lik.lower()
-        lik_name = lik_name[0].upper() + lik_name[1:]
-        analysis_name = "Quantitative trait locus analysis"
-        print("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
-
     lik = lik.lower()
-    if lik == 'poisson':
-        y = clip(y, 0., 25000.)
+
+    if verbose:
+        print_analysis(lik, "Quantitative trait locus analysis")
+
+    y = phenotype_process(lik, y)
 
     nsamples = len(G)
-    G = assure_named(G, nsamples)
+    G = assure_named(G)
 
     mixed = K is not None
 
-    M = _covariates_process(M, nsamples)
+    M = covariates_process(M, nsamples)
 
-    y = _phenotype_process(y)
+    K, QS = kinship_process(K, nsamples, verbose)
 
     if lik == 'normal':
-        K, QS = _kinship_process(K, nsamples, verbose)
         model = _perform_lmm(y, M, QS, G, mixed, verbose)
     else:
-        K, QS = _kinship_process(K, nsamples, verbose)
         model = _perform_glmm(y, lik, M, K, QS, G, mixed, verbose)
 
     if verbose:
@@ -204,64 +196,3 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     effsizes = Series(effsizes, list(G.keys()))
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
-
-
-def _kinship_process(K, nsamples, verbose):
-
-    if K is None:
-        K = eye(nsamples)
-
-    K = asarray(K)
-
-    ah = array_hash(K)
-    nvalid = _cache['K']['K'] is None or (_cache['K']['hash'] != ah)
-
-    if nvalid:
-
-        if not all(isfinite(K)):
-            msg = "One or more values of the provided covariance matrix "
-            msg += "is not finite."
-            raise ValueError(msg)
-
-        K = gower_norm(K)
-
-        desc = "Eigen decomposition of the covariance matrix..."
-        with Timer(desc=desc, disable=not verbose):
-            QS = economic_qs(K)
-            _cache['K']['hash'] = ah
-            _cache['K']['QS'] = QS
-            _cache['K']['K'] = K
-    else:
-        QS = _cache['K']['QS']
-        K = _cache['K']['K']
-
-    return K, QS
-
-
-def _phenotype_process(y):
-    if isinstance(y, (tuple, list)):
-        y = tuple([asarray(p, float) for p in y])
-    else:
-        y = asarray(y, float)
-
-    if not all(isfinite(y)):
-        msg = "One or more values of the provided phenotype "
-        msg += "is not finite."
-        raise ValueError(msg)
-    return y
-
-
-def _covariates_process(M, nsamples):
-    from pandas import DataFrame
-
-    if M is None:
-        M = DataFrame({'offset': ones(nsamples, float)})
-    else:
-        M = assure_named(M, nsamples)
-
-    if not all(isfinite(M.values)):
-        msg = "One or more values of the provided covariates "
-        msg += "is not finite."
-        raise ValueError(msg)
-
-    return M

@@ -207,6 +207,7 @@ Interface
 
 """
 
+from .interact import iscan
 from .scan import scan
 
-__all__ = ['scan']
+__all__ = ['scan', 'iscan']
