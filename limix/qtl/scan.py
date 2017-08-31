@@ -1,6 +1,7 @@
 from __future__ import division
 
-from numpy import diag
+from numpy import all as npall
+from numpy import diag, isfinite
 from numpy_sugar.linalg import economic_qs
 
 from glimix_core.glmm import GLMM
@@ -115,6 +116,8 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
     nsamples = len(G)
     G = assure_named(G)
+    if not npall(isfinite(G)):
+        raise ValueError("Variant values must be finite.")
 
     mixed = K is not None
 

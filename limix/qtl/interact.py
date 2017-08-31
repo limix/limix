@@ -1,4 +1,5 @@
-from numpy import concatenate, newaxis
+from numpy import all as npall
+from numpy import concatenate, isfinite, newaxis
 from tqdm import tqdm
 
 from glimix_core.glmm import GLMM
@@ -67,8 +68,8 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
         >>> random = RandomState(0)
         >>> nsamples = 50
         >>>
-        >>> X = random.randn(50, 10)
-        >>> G = random.randn(50, 100)
+        >>> X = random.randn(nsamples, 10)
+        >>> G = random.randn(nsamples, 100)
         >>> K = dot(G, G.T)
         >>> ntrials = random.randint(1, 100, nsamples)
         >>> z = dot(G, random.randn(100)) / 10
@@ -80,7 +81,7 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
         >>>
         >>> y = successes / ntrials
         >>>
-        >>> inter = random.randn(50, 3)
+        >>> inter = random.randn(nsamples, 3)
         >>>
         >>> index = ['sample%02d' % i for i in range(X.shape[0])]
         >>> cols = ['SNP%02d' % i for i in range(X.shape[1])]
@@ -113,7 +114,12 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
 
     nsamples = len(G)
     G = assure_named(G)
+    if not npall(isfinite(G)):
+        raise ValueError("Variant values must be finite.")
+
     inter = assure_named(inter)
+    if not npall(isfinite(inter)):
+        raise ValueError("Interaction values must be finite.")
 
     mixed = K is not None
 

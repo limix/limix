@@ -15,5 +15,5 @@ ncephes>=1.0.40
 asciitree>=0.3.3
 humanfriendly>=3.6.1
 statsmodels>=0.8
-brent-search>=1.0.18
+brent-search>=1.0.28
 pandas>=0.20
