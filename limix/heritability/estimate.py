@@ -3,14 +3,14 @@ from __future__ import division
 from numpy import asarray as npy_asarray
 from numpy import ascontiguousarray, copy, ones, pi, var
 from numpy_sugar.linalg import economic_qs
+from optimix import OptimixError
 
-from glimix_core.glmm import GLMM
+from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
 from limix.fprint import eprint, oprint
 from limix.qc import gower_norm
 from limix.util import Timer
 from limix.util.npy_dask import asarray
-from optimix import OptimixError
 
 from ..covariates import assure_named_covariates, named_covariates_to_array
 
@@ -85,10 +85,10 @@ def estimate(y, lik, K, M=None, verbose=True):
     try:
         if lik == 'normal':
             method = LMM(y, named_covariates_to_array(M), QS)
-            method.learn(verbose=verbose)
+            method.fit(verbose=verbose)
         else:
-            method = GLMM(y, lik, named_covariates_to_array(M), QS)
-            method.feed().maximize(verbose=verbose)
+            method = GLMMExpFam(y, lik, named_covariates_to_array(M), QS)
+            method.fit(verbose=verbose)
     except OptimixError as e:
         eprint(e)
         return 0.0

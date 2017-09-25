@@ -1,10 +1,10 @@
 from __future__ import division
 
+import pandas as pd
 from numpy import clip, diag, eye, ones
 from numpy_sugar.linalg import economic_qs
 
-import pandas as pd
-from glimix_core.glmm import GLMM
+from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
 from limix.qc import gower_norm
 from limix.util import Timer, array_hash
@@ -81,32 +81,32 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
         >>> print(model.variant_pvalues.to_string())
-        rs0    0.683329
-        rs1    0.288123
-        rs2    0.514936
+        rs0    0.683330
+        rs1    0.288122
+        rs2    0.514938
         >>> print(model.variant_effsizes.to_string())
-        rs0   -0.084547
+        rs0   -0.084546
         rs1   -0.267287
-        rs2   -0.153485
+        rs2   -0.153484
         >>> print(model.variant_effsizes_se.to_string())
         rs0    0.207261
-        rs1    0.251624
-        rs2    0.235706
+        rs1    0.251623
+        rs2    0.235705
         >>> print(model)
         Variants
                effsizes  effsizes_se   pvalues
         count  3.000000     3.000000  3.000000
-        mean  -0.168440     0.231530  0.495463
-        std    0.092283     0.022474  0.198321
-        min   -0.267287     0.207261  0.288123
-        25%   -0.210386     0.221484  0.401530
-        50%   -0.153485     0.235706  0.514936
-        75%   -0.119016     0.243665  0.599133
-        max   -0.084547     0.251624  0.683329
+        mean  -0.168439     0.231530  0.495463
+        std    0.092284     0.022474  0.198323
+        min   -0.267287     0.207261  0.288122
+        25%   -0.210385     0.221483  0.401530
+        50%   -0.153484     0.235705  0.514938
+        75%   -0.119015     0.243664  0.599134
+        max   -0.084546     0.251623  0.683330
         <BLANKLINE>
         Covariate effect sizes for the null model
                 age    offset
-        -0.00556787  0.395288
+        -0.00556721  0.395267
     """
     if verbose:
         lik_name = lik.lower()
@@ -132,7 +132,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         model = _perform_lmm(y, M, QS, G, mixed, verbose)
     else:
         K, QS = _kinship_process(K, nsamples, verbose)
-        model = _perform_glmm(y, lik, M, K, QS, G, mixed, verbose)
+        model = _perform_glmm_version1(y, lik, M, K, QS, G, mixed, verbose)
 
     if verbose:
         print(model)
@@ -148,7 +148,7 @@ def _perform_lmm(y, M, QS, G, mixed, verbose):
         lmm.delta = 1
         lmm.fix('delta')
 
-    lmm.learn(verbose=verbose)
+    lmm.fit(verbose=verbose)
 
     null_lml = lmm.lml()
 
@@ -166,17 +166,16 @@ def _perform_lmm(y, M, QS, G, mixed, verbose):
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
 
-def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
+def _perform_glmm_version1(y, lik, M, K, QS, G, mixed, verbose):
     from pandas import Series
-    glmm = GLMM(y, lik, M.values, QS)
+    glmm = GLMMExpFam(y, lik, M.values, QS)
     if not mixed:
         glmm.delta = 1
         glmm.fix('delta')
-    glmm.feed().maximize(verbose=verbose)
+    glmm.fit(verbose=verbose)
 
-    # extract stuff from glmm
-    eta = glmm._site.eta
-    tau = glmm._site.tau
+    eta = glmm.site.eta
+    tau = glmm.site.tau
     scale = float(glmm.scale)
     delta = float(glmm.delta)
 
@@ -185,7 +184,6 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     keys = list(M.keys())
     ncov_effsizes = Series(beta, keys)
 
-    # define useful quantities
     mu = eta / tau
     var = 1. / tau
     s2_g = scale * (1 - delta)
@@ -193,7 +191,7 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     tR += s2_g * K
 
     lmm = LMM(mu, X=M.values, QS=economic_qs(tR))
-    lmm.learn(verbose=verbose)
+    lmm.fit(verbose=verbose)
     null_lml = lmm.lml()
     flmm = lmm.get_fast_scanner()
 
@@ -203,6 +201,18 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     effsizes = Series(effsizes, list(G.keys()))
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
+
+
+def _perform_glmm_version2(y, lik, M, K, QS, G, mixed, verbose):
+    pass
+
+
+def _perform_glmm_version3(y, lik, M, K, QS, G, mixed, verbose):
+    pass
+
+
+def _perform_glmm_version4(y, lik, M, K, QS, G, mixed, verbose):
+    pass
 
 
 def _kinship_process(K, nsamples, verbose):
