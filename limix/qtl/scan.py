@@ -1,19 +1,17 @@
 from __future__ import division
 
-import pandas as pd
-from numpy import clip, diag, eye, ones
+from numpy import all as npall
+from numpy import diag, eye, isfinite, ones
 from numpy_sugar.linalg import economic_qs
 
-from glimix_core.glmm import GLMMExpFam
+from glimix_core.glmm import GLMM, GLMMExpFam
 from glimix_core.lmm import LMM
-from limix.qc import gower_norm
-from limix.util import Timer, array_hash
-from limix.util.npy_dask import all, asarray, isfinite
 
 from .model import QTLModel
-from .util import assure_named
-
-_cache = dict(K=dict(K=None, QS=None, hash=None))
+from .util import (
+    assure_named, covariates_process, kinship_process, phenotype_process,
+    print_analysis
+)
 
 
 def scan(G, y, lik, K=None, M=None, verbose=True):
@@ -39,7 +37,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         Bernoulli phenotypes). It does not support missing values yet.
     lik : {'normal', 'bernoulli', 'binomial', 'poisson'}
         Sample likelihood describing the residual distribution.
-    K : array_like
+    K : array_like, optional
         `n` by `n` covariance matrix (e.g., kinship coefficients).
         Set to ``None`` for a generalised linear model without random effects.
         Defaults to ``None``.
@@ -60,7 +58,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
         >>> from numpy import dot, exp, sqrt, ones
         >>> from numpy.random import RandomState
-        >>> from pandas import DataFrame
+        >>> from pandas import DataFrame, option_context
         >>> from limix.qtl import scan
         >>>
         >>> random = RandomState(1)
@@ -108,30 +106,27 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
                 age    offset
         -0.00556721  0.395267
     """
-    if verbose:
-        lik_name = lik.lower()
-        lik_name = lik_name[0].upper() + lik_name[1:]
-        analysis_name = "Quantitative trait locus analysis"
-        print("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
-
     lik = lik.lower()
-    if lik == 'poisson':
-        y = clip(y, 0., 25000.)
+
+    if verbose:
+        print_analysis(lik, "Quantitative trait locus analysis")
+
+    y = phenotype_process(lik, y)
 
     nsamples = len(G)
-    G = assure_named(G, nsamples)
+    G = assure_named(G)
+    if not npall(isfinite(G)):
+        raise ValueError("Variant values must be finite.")
 
     mixed = K is not None
 
-    M = _covariates_process(M, nsamples)
+    M = covariates_process(M, nsamples)
 
-    y = _phenotype_process(y)
+    K, QS = kinship_process(K, nsamples, verbose)
 
     if lik == 'normal':
-        K, QS = _kinship_process(K, nsamples, verbose)
         model = _perform_lmm(y, M, QS, G, mixed, verbose)
     else:
-        K, QS = _kinship_process(K, nsamples, verbose)
         model = _perform_glmm_version1(y, lik, M, K, QS, G, mixed, verbose)
 
     if verbose:

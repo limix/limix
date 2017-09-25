@@ -39,14 +39,14 @@ def mean_impute(X):
     .. doctest::
 
         >>> from numpy.random import RandomState
-        >>> from numpy import nan
+        >>> from numpy import nan, array_str
         >>> from limix.qc import mean_impute
         >>>
         >>> random = RandomState(0)
         >>> X = random.randn(5, 2)
         >>> X[0, 0] = nan
         >>>
-        >>> print(mean_impute(X))
+        >>> print(array_str(mean_impute(X), precision=4))
         [[ 0.9233  0.4002]
          [ 0.9787  2.2409]
          [ 1.8676 -0.9773]

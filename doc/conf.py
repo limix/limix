@@ -1,49 +1,56 @@
 from __future__ import unicode_literals
 
-import os
-import sphinx_rtd_theme
+import re
+from importlib import import_module
+from os import getenv
+from os.path import dirname, join, realpath
+from time import strftime
 
-try:
-    import limix
-    version = limix.__version__
-except ImportError:
-    version = 'unknown'
+import sphinx_rtd_theme
+from setuptools import find_packages
+
+
+def get_init_metadata(name):
+    expr = re.compile(r"__%s__ *= *\"(.*)\"" % name)
+
+    dir_path = dirname(realpath(__file__))
+    pkgname = find_packages(where=join(dir_path, '..'))[0]
+
+    data = open(join("..", pkgname, "__init__.py")).read()
+
+    return re.search(expr, data).group(1).strip()
+
+
+if getenv("READTHEDOCS", "False") == "True":
+
+    prjname = getenv("READTHEDOCS_PROJECT", "unknown")
+    pkgname = prjname.replace("-", "_")
+    pkg = import_module(pkgname)
+
+    project = pkg.__name__
+    version = pkg.__version__
+    author = pkg.__author__
+else:
+    project = get_init_metadata('name')
+    version = get_init_metadata('version')
+    author = get_init_metadata('author')
 
 extensions = [
-    'matplotlib.sphinxext.only_directives',
-    'matplotlib.sphinxext.plot_directive',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
+    'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx',
+    'sphinx.ext.coverage', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon',
+    'sphinx.ext.mathjax'
 ]
-templates_path = ['_templates']
-source_suffix = '.rst'
+napoleon_google_docstring = True
 master_doc = 'index'
-project = 'limix'
-copyright = '2017, Christoph Lippert, Danilo Horta, Francesco Paolo Casale, Oliver Stegle'
-author = 'Christoph Lippert, Danilo Horta, Francesco Paolo Casale, Oliver Stegle'
+copyright = '%s, %s' % (strftime("%Y"), author)
 release = version
-language = None
+language = "en"
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'conf.py']
 pygments_style = 'sphinx'
-todo_include_todos = False
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-htmlhelp_basename = 'limixdoc'
-latex_elements = {}
-latex_documents = [
-    (master_doc, 'limix.tex', 'limix Documentation',
-     'Christoph Lippert, Danilo Horta, Francesco Paolo Casale, Oliver Stegle',
-     'manual'),
-]
-man_pages = [(master_doc, 'limix', 'limix Documentation', [author], 1)]
-texinfo_documents = [
-    (master_doc, 'limix', 'limix Documentation', author, 'limix',
-     'A flexible and fast mixed model toolbox.', 'Miscellaneous'),
-]
-intersphinx_mapping = {'https://docs.python.org/': None,
-                       'http://matplotlib.org': None}
+intersphinx_mapping = {
+    'python': ('http://docs.python.org/', None),
+    'numpy': ('http://docs.scipy.org/doc/numpy/', None),
+    'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None)
+}

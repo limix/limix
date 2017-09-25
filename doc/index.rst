@@ -2,6 +2,9 @@
 Limix's documentation
 =====================
 
+:Date: |today|
+:Version: |version|
+
 .. toctree::
    :caption: Table of contents
    :name: mastertoc
@@ -19,7 +22,6 @@ Limix's documentation
    stats
    plot
    util
-   data
 
 *****************
 Comments and bugs

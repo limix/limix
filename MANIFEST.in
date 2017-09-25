@@ -1,6 +1,8 @@
-include LICENSE
-include README.md
-include setup.cfg
+include LICENSE.txt
+include README.rst
+include requirements.txt
+include test-requirements.txt
+include rtd-requirements.txt
 include limix/io/test/data/csv/pheno.csv
 include limix/io/test/data/gen/example.gen
 include limix/io/test/data/gen/example.sample
@@ -11,4 +13,3 @@ include limix/io/examples/data/gen/example.gen
 include limix/io/examples/data/gen/example.sample
 include limix/io/examples/data/numpy/1000G_kinship.npy
 include limix/test/mtset/data/*.txt
-recursive-include limix *.py
