@@ -193,8 +193,8 @@ The matrix ``G`` defines both five alternative hypotheses
     max     2.47322      1.43093  0.77956
     <BLANKLINE>
     Covariate effect sizes for the null model
-        offset
-    0.00746818
+      offset
+     0.00747
 
 Out-of-core
 ^^^^^^^^^^^

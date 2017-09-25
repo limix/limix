@@ -156,7 +156,7 @@ def _perform_lmm(y, M, QS, G, inter, mixed, verbose):
             lmm.delta = 1
             lmm.fix('delta')
 
-        lmm.learn(verbose=False)
+        lmm.fit(verbose=False)
 
         null_lmls.append(lmm.lml())
 
