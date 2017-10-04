@@ -33,40 +33,42 @@ def unique_variants(X):
     r"""
     Filters out variants with the same genetic profile.
 
-    Args:
-        X (ndarray):
-            (`N`, `S`) ndarray of genotype values for `N` individuals and
-            `S` variants.
+    Parameters
+    ----------
+    X : ndarray
+        (`N`, `S`) ndarray of genotype values for `N` individuals and `S`
+        variants.
 
-    Returns:
-        ndarray: genotype array with unique variants.
+    Returns
+    -------
+    ndarray
+        Genotype array with unique variants.
 
     Examples
     --------
+    .. doctest::
 
-        .. doctest::
-
-            >>> from numpy.random import RandomState
-            >>> from numpy import kron, ones, sort
-            >>> from limix.qc import unique_variants
-            >>> random = RandomState(1)
-            >>>
-            >>> N = 4
-            >>> X = kron(random.randn(N, 3) < 0, ones((1, 2)))
-            >>>
-            >>> print(X)
-            [[ 0.  0.  1.  1.  1.  1.]
-             [ 1.  1.  0.  0.  1.  1.]
-             [ 0.  0.  1.  1.  0.  0.]
-             [ 1.  1.  0.  0.  1.  1.]]
-            >>>
-            >>> idx = unique_variants(X)
-            >>>
-            >>> print(X[:, sort(idx)])
-            [[ 0.  1.  1.]
-             [ 1.  0.  1.]
-             [ 0.  1.  0.]
-             [ 1.  0.  1.]]
+        >>> from numpy.random import RandomState
+        >>> from numpy import kron, ones, sort
+        >>> from limix.qc import unique_variants
+        >>> random = RandomState(1)
+        >>>
+        >>> N = 4
+        >>> X = kron(random.randn(N, 3) < 0, ones((1, 2)))
+        >>>
+        >>> print(X)
+        [[ 0.  0.  1.  1.  1.  1.]
+         [ 1.  1.  0.  0.  1.  1.]
+         [ 0.  0.  1.  1.  0.  0.]
+         [ 1.  1.  0.  0.  1.  1.]]
+        >>>
+        >>> idx = unique_variants(X)
+        >>>
+        >>> print(X[:, sort(idx)])
+        [[ 0.  1.  1.]
+         [ 1.  0.  1.]
+         [ 0.  1.  0.]
+         [ 1.  0.  1.]]
     """
     import dask.array as da
 

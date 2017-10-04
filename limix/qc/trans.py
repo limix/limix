@@ -1,12 +1,12 @@
 from __future__ import division
 
-from brent_search import brent
 from numpy import inf
-from numpy_sugar import epsilon
 
+from brent_search import brent
 from limix.util.npy_dask import (
     abs, asarray, clip, isnan, nanmean, nanstd, zeros_like
 )
+from numpy_sugar import epsilon
 
 
 def mean_standardize(X, axis=None, out=None):

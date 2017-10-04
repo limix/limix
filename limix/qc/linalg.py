@@ -16,7 +16,6 @@ def remove_dependent_cols(X, tol=1e-6, verbose=False):
     -------
     array_like
         Full column rank matrix.
-
     """
     R = qr(X, mode='r')[0][:X.shape[1], :]
     I = (abs(R.diagonal()) > tol)
