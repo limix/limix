@@ -149,8 +149,6 @@ def boxcox(x):
 
         ax2 = fig.add_subplot(212)
         limix.plot.plot_qqnormal(y, ax=ax2)
-
-        limix.plot.show()
     """
     from scipy.stats import boxcox_llf
     from scipy.special import boxcox as bc

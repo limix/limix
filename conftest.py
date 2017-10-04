@@ -4,6 +4,10 @@ def get_pkg_name():
     return find_packages()[0]
 
 
+import matplotlib
+
+matplotlib.use('Agg')
+
 collect_ignore = [
     "doc/conf.py", "setup.py", "{}/testit.py".format(get_pkg_name())
 ]

@@ -40,13 +40,12 @@ A preview of Plink files in BED format can be done via
 .. doctest::
     :hide:
 
-    >>> from  limix.util import run_commandline as run
+    >>> import  limix
     >>>
-    >>> c = "limix download "
-    >>> c += "http://rest.s3for.me/limix/some_plink_files.tar.bz2 -q"
-    >>> _ = run(c)
-    >>> _ = run("limix extract some_plink_files.tar.bz2 -q")
-    >>> print(run("limix see some_plink_files -q"))
+    >>> url = "http://rest.s3for.me/limix/some_plink_files.tar.bz2"
+    >>> limix.util.download(url, verbose=False)
+    >>> limix.util.extract("some_plink_files.tar.bz2", verbose=False)
+    >>> limix.io.plink.see_bed("some_plink_files", quiet=True)
     ---------------------------- Samples ----------------------------
            chrom                   snp   cm       pos  a0  a1       i
     0         22       snp_22_16050408  0.0  16050408   C   T       0
@@ -177,8 +176,6 @@ A preview of Plink files in BED format can be done via
     464   0  NA20828      0      0      0    -9  464
     <BLANKLINE>
     [465 rows x 7 columns]
-    <BLANKLINE>
-
 
 HDF5
 ----
@@ -194,14 +191,12 @@ The following command shows the hierarchy of a HDF5 file:
 .. doctest::
     :hide:
 
-    >>> from  limix.util import run_commandline as run
+    >>> import limix
     >>>
-    >>> c = "limix download "
-    >>> c += "http://rest.s3for.me/limix/example.hdf5.bz2 -q"
-    >>> _ = run(c)
-    >>> _ = run("limix extract example.hdf5.bz2 -q")
-    >>> print(run("limix see example.hdf5 -q"))
-    Reading example.hdf5... done (0 seconds).
+    >>> url = "http://rest.s3for.me/limix/example.hdf5.bz2"
+    >>> limix.util.download(url, verbose=False)
+    >>> limix.util.extract("example.hdf5.bz2", verbose=False)
+    >>> limix.io.hdf5.see_hdf5("example.hdf5", quiet=True)
     /
       +--genotype
          +--col_header
@@ -210,7 +205,6 @@ The following command shows the hierarchy of a HDF5 file:
          +--matrix [uint8, (183, 1097199)]
          +--row_header
             +--sample_ID [|S7, (183,)]
-    <BLANKLINE>
 
 CSV
 ---
@@ -227,13 +221,12 @@ shown as
 .. doctest::
     :hide:
 
-    >>> from  limix.util import run_commandline as run
+    >>> import limix
     >>>
-    >>> c = "limix download "
-    >>> c += "http://rest.s3for.me/limix/example.csv.bz2 -q"
-    >>> _ = run(c)
-    >>> _ = run("limix extract example.csv.bz2 -q")
-    >>> print(run("limix see example.csv -q")) # doctest: +NORMALIZE_WHITESPACE
+    >>> url = "http://rest.s3for.me/limix/example.csv.bz2"
+    >>> limix.util.download(url, verbose=False)
+    >>> limix.util.extract("example.csv.bz2", verbose=False)
+    >>> limix.io.csv.see("example.csv", quiet=True)
        snp_22_16050408  A A.1 A.2 A.3 A.4 A.5 A.6 A.7 A.8  ...  B.366 B.367 B.368  \
     0  snp_22_16050612  A   A   A   A   A   A   A   A   A  ...      B     B     B
     1  snp_22_16050678  A   A   A   A   A   A   A   A   A  ...      B     B     B
@@ -249,7 +242,6 @@ shown as
     4     C     B     B     C     C     C     C
     <BLANKLINE>
     [5 rows x 466 columns]
-    <BLANKLINE>
 
 Image
 -----

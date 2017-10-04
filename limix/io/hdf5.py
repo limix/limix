@@ -91,7 +91,7 @@ def see_hdf5(filepath, show_chunks=False, quiet=False):
     """
     from limix.util import Timer
 
-    with Timer(desc="Reading %s..." % filepath):
+    with Timer(desc="Reading %s..." % filepath, disable=quiet):
         with h5py.File(filepath, 'r') as f:
             msg = _tree(f, '/', True, show_chunks)
     print(msg)
