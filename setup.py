@@ -88,6 +88,9 @@ def setup_package():
         metadata['author_email'] = get_init_metadata(metadata, 'author_email')
         metadata['name'] = get_init_metadata(metadata, 'name')
 
+        with open('setup-requirements.txt') as f:
+            metadata['setup_requires'] = f.read().splitlines()
+
         with open('requirements.txt') as f:
             metadata['install_requires'] = f.read().splitlines()
 

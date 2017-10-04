@@ -10,8 +10,6 @@ dependencies:
 - glimix-core=1.2.19=py35_0
 - liknorm=1.2.6=2
 - liknorm-py=1.0.6=py35_3
-- limix-core=1.0.1=py35_1
-- limix-legacy=0.8.12=np112py35_2
 - ncephes=1.0.40=py35_0
 - ndarray-listener=1.0.25=py35_0
 - numpy-sugar=1.0.47=py35_0
