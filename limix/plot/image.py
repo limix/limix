@@ -1,7 +1,7 @@
 from limix.util import Timer
 
 
-def see_image(filepath):
+def see_image(filepath, quiet):
     r"""Plot a image represented in a file.
 
     It uses :func:`matplotlib.pyplot.imread` in order to read the provided
@@ -14,7 +14,7 @@ def see_image(filepath):
     """
     import matplotlib.pyplot as plt
 
-    with Timer(desc="Reading %s..." % filepath):
+    with Timer(desc="Reading %s..." % filepath, disable=quiet):
         plt.imshow(plt.imread(filepath))
         axes = plt.gca()
         plt.tight_layout()

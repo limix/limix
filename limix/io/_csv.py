@@ -51,7 +51,7 @@ def see(filepath, quiet):
     from pandas import read_csv
     from limix.util import Timer
 
-    with Timer(desc="Reading %s..." % filepath):
+    with Timer(desc="Reading %s..." % filepath, disable=quiet):
         sep = _infer_separator(filepath)
         msg = read_csv(filepath, sep=sep).head()
 

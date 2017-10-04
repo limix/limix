@@ -179,7 +179,20 @@ The following command shows the hierarchy of a HDF5 file (`example.hdf5.bz2`_):
 
 .. code-block:: bash
 
-    $ limix see example.hdf5
+    $ limix download http://rest.s3for.me/limix/example.hdf5.bz2 -q
+    $ limix extract example.hdf5.bz2 -q
+    $ limix see example.hdf5 -q
+
+.. doctest::
+    :hide:
+
+    >>> from  limix.util import run_commandline as run
+    >>>
+    >>> c = "limix download "
+    >>> c += "http://rest.s3for.me/limix/example.hdf5.bz2 -q"
+    >>> _ = run(c)
+    >>> _ = run("limix extract example.hdf5.bz2 -q")
+    >>> print(run("limix see example.hdf5 -q"))
     Reading example.hdf5... done (0 seconds).
     /
       +--genotype
@@ -189,35 +202,51 @@ The following command shows the hierarchy of a HDF5 file (`example.hdf5.bz2`_):
          +--matrix [uint8, (183, 1097199)]
          +--row_header
             +--sample_ID [|S7, (183,)]
+    <BLANKLINE>
 
 CSV files have their delimiter automatically detected and a preview can be
 shown as (`example.csv.bz2`_):
 
 .. code-block:: bash
 
-    $ limix see example.csv
-    Reading example.csv... done (11.31 seconds).
+    $ limix download http://rest.s3for.me/limix/example.csv.bz2 -q
+    $ limix extract example.csv.bz2 -q
+    $ limix see example.csv -q
+
+.. doctest::
+    :hide:
+
+    >>> from  limix.util import run_commandline as run
+    >>>
+    >>> c = "limix download "
+    >>> c += "http://rest.s3for.me/limix/example.csv.bz2 -q"
+    >>> _ = run(c)
+    >>> _ = run("limix extract example.csv.bz2 -q")
+    >>> print(run("limix see example.csv -q")) # doctest: +NORMALIZE_WHITESPACE
        snp_22_16050408  A A.1 A.2 A.3 A.4 A.5 A.6 A.7 A.8  ...  B.366 B.367 B.368  \
     0  snp_22_16050612  A   A   A   A   A   A   A   A   A  ...      B     B     B
     1  snp_22_16050678  A   A   A   A   A   A   A   A   A  ...      B     B     B
     2  snp_22_16051107  A   A   A   A   A   A   A   A   A  ...      B     B     B
     3  snp_22_16051249  A   A   A   A   A   A   A   A   A  ...      B     B     B
     4  snp_22_16051347  A   A   A   A   A   A   A   A   A  ...      B     C     B
-
+    <BLANKLINE>
       B.369 B.370 B.371 B.372 B.373 B.374 B.375
     0     B     B     B     B     B     B     B
     1     B     B     B     B     B     B     B
     2     B     B     B     B     B     B     B
     3     B     B     B     C     C     B     B
     4     C     B     B     C     C     C     C
-
+    <BLANKLINE>
     [5 rows x 466 columns]
+    <BLANKLINE>
 
 Finally, an image can be seen via (`dali.jpg.bz2`_):
 
 .. code-block:: bash
 
-    $ limix see dali.jpg
+    $ limix download http://rest.s3for.me/limix/dali.jpg.bz2 -q
+    $ limix extract dali.jpg.bz2 -q
+    $ limix see dali.jpg -q
 
 .. image:: imgs/dali.jpg
    :width: 400px
