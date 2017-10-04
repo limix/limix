@@ -15,9 +15,6 @@ Limix's documentation
    qc
    qtl
    heritability
-   vardec
-   mtset
-   iset
    io
    stats
    plot

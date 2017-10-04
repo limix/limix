@@ -1,2 +1,0 @@
-.. automodule:: limix.vardec
-  :members:
