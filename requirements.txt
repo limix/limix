@@ -14,3 +14,4 @@ humanfriendly>=3.6.1
 statsmodels>=0.8
 pandas>=0.20
 limix-core>=1.0.2
+matplotlib==2.1.0rc1

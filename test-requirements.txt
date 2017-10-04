@@ -2,4 +2,4 @@ pytest
 pytest-pep8
 pytest-sugar
 ndarray-listener>=1.0.26
-matplotlib
+matplotlib==2.1.0rc1
