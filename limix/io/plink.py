@@ -60,7 +60,7 @@ def read_plink(prefix, verbose=True):
         >>>
         >>> (bim, fam, bed) = read_plink(example_file_prefix(), verbose=False)
         >>> chrom1 = bim.query("chrom=='1'")
-        >>> X = bed[chrom1.i,:].compute()
+        >>> X = bed[chrom1.i.values, :].compute()
         >>> print(X) #doctest: +NORMALIZE_WHITESPACE
         [[  2.   2.   1.]
          [  2.   1.   2.]
