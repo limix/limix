@@ -60,7 +60,8 @@ def fetch(fp, path):
     """Fetches an array from hdf5 file.
     :param str fp: hdf5 file path.
     :param str path: path inside the hdf5 file.
-    :returns: An :class:`numpy.ndarray` representation of the corresponding hdf5 dataset.
+    :returns: An :class:`numpy.ndarray` representation of the corresponding
+    hdf5 dataset.
     """
     with h5py.File(fp, 'r') as f:
         return f[path][:]

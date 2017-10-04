@@ -101,15 +101,16 @@ class Chi2Mixture(object):
         self.mixture = 1 - (lrt <= self.tol).mean()
         n_false = sp.sum(lrt > self.tol)
 
-        # step 2: only use the largest qmax fraction of test statistics to estimate the
-        #           remaining parameters
+        # step 2: only use the largest qmax fraction of test statistics to
+        #         estimate the remaining parameters
         n_fitting = int(sp.ceil(self.qmax * n_false))
         lrt_sorted = -sp.sort(-lrt)[:n_fitting]
         q = sp.linspace(0, 1, n_false)[1:n_fitting + 1]
         log_q = sp.log10(q)
 
-        # step 3: fitting scale and dof by minimizing the squared error of the log10 p-values
-        #        with their theorietical values [uniform distribution]
+        # step 3: fitting scale and dof by minimizing the squared error
+        #          of the log10 p-values with their theorietical values
+        #          [uniform distribution]
         MSE_opt = sp.inf
         MSE = sp.zeros((self.n_intervals, self.n_intervals))
 

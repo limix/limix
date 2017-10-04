@@ -4,6 +4,7 @@ import logging
 
 import numpy as np
 from numpy import argsort, asarray, concatenate, log10, nan, where
+
 from numpy_sugar import is_crescent
 
 try:
@@ -255,9 +256,11 @@ class ConfusionMatrix(object):
     def f1score(self):
         """ F1 score (harmonic mean of precision and sensitivity).
         """
-        return getter(
-            lambda i: 2 * self.TP[i] / (2 * self.TP[i] + self.FP[i] + self.FN[i])
-        )
+
+        def denominator(i):
+            return 2 * self.TP[i] + self.FP[i] + self.FN[i]
+
+        return getter(lambda i: 2 * self.TP[i] / denominator(i))
 
     def roc(self):
         tpr = self.tpr[1:]

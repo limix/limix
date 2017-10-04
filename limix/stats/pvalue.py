@@ -27,8 +27,8 @@ def multipletests(pvals, alpha=0.05, method='hs', is_sorted=False):
 
     is_sorted : bool
         If ``False`` (default), the p_values will be sorted, but the corrected
-        pvalues are in the original order. If ``True``, then it assumed that the
-        pvalues are already sorted in ascending order.
+        pvalues are in the original order. If ``True``, then it assumed that
+        the pvalues are already sorted in ascending order.
 
     Returns
     -------
