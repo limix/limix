@@ -29,17 +29,20 @@ A preview of Plink files in BED format can be done via
 
 .. code-block:: bash
 
+    $ limix download http://rest.s3for.me/limix/some_plink_files.tar.bz2 -q
+    $ limix extract some_plink_files.tar.bz2 -q
     $ limix see some_plink_files -q
 
-.. testcode::
+.. doctest::
     :hide:
 
-    >>> import subprocess
-    >>> run_commandline = lambda cmd: subprocess.check_output(cmd, shell=True).decode()
-    >>> run_commandline("limix see some_plink_files -q")
-
-.. testoutput::
-
+    >>> from  limix.util import run_commandline as run
+    >>>
+    >>> c = "limix download "
+    >>> c += "http://rest.s3for.me/limix/some_plink_files.tar.bz2 -q"
+    >>> _ = run(c)
+    >>> _ = run("limix extract some_plink_files.tar.bz2 -q")
+    >>> print(run("limix see some_plink_files -q"))
     ---------------------------- Samples ----------------------------
            chrom                   snp   cm       pos  a0  a1       i
     0         22       snp_22_16050408  0.0  16050408   C   T       0
@@ -103,7 +106,7 @@ A preview of Plink files in BED format can be done via
     171578    22       snp_22_51237063  0.0  51237063   C   T  171578
     171579    22       snp_22_51238249  0.0  51238249   C   A  171579
     171580    22       snp_22_51243297  0.0  51243297   T   A  171580
-
+    <BLANKLINE>
     [171581 rows x 7 columns]
     ------------------- Genotype -------------------
         fid      iid father mother gender trait    i
@@ -168,8 +171,9 @@ A preview of Plink files in BED format can be done via
     462   0  NA20819      0      0      0    -9  462
     463   0  NA20826      0      0      0    -9  463
     464   0  NA20828      0      0      0    -9  464
-
+    <BLANKLINE>
     [465 rows x 7 columns]
+    <BLANKLINE>
 
 The following command shows the hierarchy of a HDF5 file (`example.hdf5.bz2`_):
 

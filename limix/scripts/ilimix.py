@@ -12,6 +12,12 @@ class ILimix(cmd.Cmd):
 
         limix_cmd.do_see(args)
 
+    def do_download(self, cmdline):
+        p = limix_cmd.download_parser(ArgumentParser())
+        args = p.parse_args(shlex.split(cmdline))
+
+        limix_cmd.do_download(args)
+
     def do_EOF(self, _):
         return True
 

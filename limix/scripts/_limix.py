@@ -42,11 +42,43 @@ def see_parser(parser):
     return parser
 
 
+def do_download(args):
+    import limix
+
+    limix.util.download(args.url, verbose=not args.quiet)
+
+
+def download_parser(parser):
+    parser.add_argument('url', help='url path')
+    parser.add_argument('--quiet', '-q', help='quiet', action='store_true')
+
+    parser.set_defaults(quiet=False)
+    parser.set_defaults(func=do_download)
+    return parser
+
+
+def do_extract(args):
+    import limix
+
+    limix.util.extract(args.filepath, verbose=not args.quiet)
+
+
+def extract_parser(parser):
+    parser.add_argument('filepath', help='file path')
+    parser.add_argument('--quiet', '-q', help='quiet', action='store_true')
+
+    parser.set_defaults(quiet=False)
+    parser.set_defaults(func=do_extract)
+    return parser
+
+
 def entry_point():
     p = ArgumentParser()
 
     subparsers = p.add_subparsers(title='subcommands')
     see_parser(subparsers.add_parser('see'))
+    download_parser(subparsers.add_parser('download'))
+    extract_parser(subparsers.add_parser('extract'))
 
     args = p.parse_args()
     if hasattr(args, 'func'):
