@@ -3,4 +3,7 @@ def get_pkg_name():
 
     return find_packages()[0]
 
-collect_ignore = ["setup.py", "%s/_test.py" % get_pkg_name()]
+
+collect_ignore = [
+    "doc/conf.py", "setup.py", "{}/testit.py".format(get_pkg_name())
+]

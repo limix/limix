@@ -12,7 +12,7 @@ from __future__ import absolute_import as _
 from . import (
     heritability, io, iset, mtset, plot, qc, qtl, scripts, stats, util, vardec
 )
-from ._test import test
+from .testit import test
 
 __name__ = "limix"
 __version__ = "1.1.0"
