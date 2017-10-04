@@ -15,23 +15,27 @@ Some examples are given bellow.
 Kinship
 -------
 
-Heatmap representing a plink_ kinship matrix (`example.grm.raw.bz2`_):
+Heatmap representing a plink_ kinship matrix:
 
 .. code-block:: bash
 
-    $ limix see example.grm.raw
+    limix download http://rest.s3for.me/limix/example.grm.raw.bz2 -q
+    limix extract example.grm.raw.bz2
+    limix see example.grm.raw
 
 .. image:: imgs/example.grm.raw.png
    :width: 400px
 
+Plink BED format
+----------------
+
 A preview of Plink files in BED format can be done via
-(`some_plink_files.tar.bz2`_):
 
 .. code-block:: bash
 
-    $ limix download http://rest.s3for.me/limix/some_plink_files.tar.bz2 -q
-    $ limix extract some_plink_files.tar.bz2 -q
-    $ limix see some_plink_files -q
+    limix download http://rest.s3for.me/limix/some_plink_files.tar.bz2 -q
+    limix extract some_plink_files.tar.bz2 -q
+    limix see some_plink_files -q
 
 .. doctest::
     :hide:
@@ -175,13 +179,17 @@ A preview of Plink files in BED format can be done via
     [465 rows x 7 columns]
     <BLANKLINE>
 
-The following command shows the hierarchy of a HDF5 file (`example.hdf5.bz2`_):
+
+HDF5
+----
+
+The following command shows the hierarchy of a HDF5 file:
 
 .. code-block:: bash
 
-    $ limix download http://rest.s3for.me/limix/example.hdf5.bz2 -q
-    $ limix extract example.hdf5.bz2 -q
-    $ limix see example.hdf5 -q
+    limix download http://rest.s3for.me/limix/example.hdf5.bz2 -q
+    limix extract example.hdf5.bz2 -q
+    limix see example.hdf5 -q
 
 .. doctest::
     :hide:
@@ -204,14 +212,17 @@ The following command shows the hierarchy of a HDF5 file (`example.hdf5.bz2`_):
             +--sample_ID [|S7, (183,)]
     <BLANKLINE>
 
+CSV
+---
+
 CSV files have their delimiter automatically detected and a preview can be
-shown as (`example.csv.bz2`_):
+shown as
 
 .. code-block:: bash
 
-    $ limix download http://rest.s3for.me/limix/example.csv.bz2 -q
-    $ limix extract example.csv.bz2 -q
-    $ limix see example.csv -q
+    limix download http://rest.s3for.me/limix/example.csv.bz2 -q
+    limix extract example.csv.bz2 -q
+    limix see example.csv -q
 
 .. doctest::
     :hide:
@@ -240,21 +251,19 @@ shown as (`example.csv.bz2`_):
     [5 rows x 466 columns]
     <BLANKLINE>
 
-Finally, an image can be seen via (`dali.jpg.bz2`_):
+Image
+-----
+
+Finally, an image can be seen via
 
 .. code-block:: bash
 
-    $ limix download http://rest.s3for.me/limix/dali.jpg.bz2 -q
-    $ limix extract dali.jpg.bz2 -q
-    $ limix see dali.jpg -q
+    limix download http://rest.s3for.me/limix/dali.jpg.bz2 -q
+    limix extract dali.jpg.bz2 -q
+    limix see dali.jpg -q
 
 .. image:: imgs/dali.jpg
    :width: 400px
 
-.. _example.grm.raw.bz2: http://rest.s3for.me/limix/example.grm.raw.bz2
-.. _some_plink_files.tar.bz2: http://rest.s3for.me/limix/some_plink_files.tar.bz2
-.. _example.hdf5.bz2: http://rest.s3for.me/limix/example.hdf5.bz2
-.. _example.csv.bz2: http://rest.s3for.me/limix/example.csv.bz2
-.. _dali.jpg.bz2: http://rest.s3for.me/limix/dali.jpg.bz2
 .. _plink: https://www.cog-genomics.org/plink2
 .. _hdf5: https://support.hdfgroup.org/HDF5/
