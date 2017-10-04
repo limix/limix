@@ -45,7 +45,6 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
         data = dict(pv=list(pv0) + list(pv1),
                     label=['label0'] * len(pv0) + ['label1'] * len(pv1))
         plot_qqplot(pd.DataFrame(data=data))
-        plt.show()
     """
 
     import matplotlib.pyplot as plt

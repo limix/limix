@@ -43,7 +43,6 @@ def plot_power(df, style=None, ax=None):
                     label=['label0'] * nsnps + ['label1'] * nsnps)
         df = DataFrame(data=data)
         plot_power(df)
-        plt.show()
     """
 
     import matplotlib.pyplot as plt
@@ -58,7 +57,10 @@ def plot_power(df, style=None, ax=None):
 
     for label in labels:
         ax.plot(
-            alphas, asarray(nhits[label], int), label=label, **style.get(label))
+            alphas,
+            asarray(nhits[label], int),
+            label=label,
+            **style.get(label))
 
     _set_labels(ax)
 

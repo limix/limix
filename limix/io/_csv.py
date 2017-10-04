@@ -35,7 +35,7 @@ def read_csv(filename, sep=None, header=True):
     return _read_csv(filename, sep=sep, header=header)
 
 
-def see(filepath):
+def see(filepath, quiet):
     """Shows a human-friendly representation of a CSV file.
 
     Parameters

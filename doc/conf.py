@@ -38,7 +38,8 @@ else:
 extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx',
     'sphinx.ext.coverage', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon',
-    'sphinx.ext.mathjax'
+    'sphinx.ext.mathjax', 'matplotlib.sphinxext.only_directives',
+    'matplotlib.sphinxext.plot_directive'
 ]
 napoleon_google_docstring = True
 master_doc = 'index'

@@ -1,5 +1,6 @@
-import asciitree
 import h5py
+
+import asciitree
 
 
 class h5data_fetcher(object):
@@ -81,7 +82,7 @@ def see(f_or_filepath, root_name='/', ret=False, show_chunks=False):
         return _tree(f_or_filepath, root_name, ret, show_chunks)
 
 
-def see_hdf5(filepath, show_chunks=False):
+def see_hdf5(filepath, show_chunks=False, quiet=False):
     """Shows a human-friendly tree representation of the contents of
     a hdf5 file.
     :param filepath: hdf5 file path or a reference to an open one.

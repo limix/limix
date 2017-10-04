@@ -40,7 +40,6 @@ def plot_kinship(K, nclusters=1, style=None, ax=None):
         K = np.load(numpy_kinship_file_example())
         plot_kinship(K)
         plt.tight_layout()
-        plt.show()
     """
 
     import matplotlib.pyplot as plt

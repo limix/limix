@@ -50,7 +50,6 @@ def plot_manhattan(df,
         data = dict(pv=pv, chrom=chrom, pos=pos)
         plot_manhattan(pd.DataFrame(data=data))
         plt.tight_layout()
-        plt.show()
     """
 
     import matplotlib.pyplot as plt

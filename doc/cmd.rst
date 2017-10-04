@@ -8,11 +8,14 @@ Quickly explore files
 ^^^^^^^^^^^^^^^^^^^^^
 
 Limix provides a handy-way to quickly explore the following type of
-files: **Plink kinship matrix**, Plink files in **BED format**, **HDF5** file,
-**CSV** file, and **image** files.
+files: plink_ kinship matrix, plink_ files in bed format, hdf5_ file,
+csv file, and image files.
 Some examples are given bellow.
 
-Plot a heatmap representing a Plink kinship matrix (`example.grm.raw.bz2`_):
+Kinship
+-------
+
+Heatmap representing a plink_ kinship matrix (`example.grm.raw.bz2`_):
 
 .. code-block:: bash
 
@@ -26,10 +29,17 @@ A preview of Plink files in BED format can be done via
 
 .. code-block:: bash
 
-    $ limix see limix see some_plink_files
-    Reading some_plink_files.bim... done (0.27 s)
-    Reading some_plink_files.fam... done (0.00 s)
-    Reading some_plink_files.bed... done (0.01 s)
+    $ limix see some_plink_files -q
+
+.. testcode::
+    :hide:
+
+    >>> import subprocess
+    >>> run_commandline = lambda cmd: subprocess.check_output(cmd, shell=True).decode()
+    >>> run_commandline("limix see some_plink_files -q")
+
+.. testoutput::
+
     ---------------------------- Samples ----------------------------
            chrom                   snp   cm       pos  a0  a1       i
     0         22       snp_22_16050408  0.0  16050408   C   T       0
@@ -181,7 +191,7 @@ shown as (`example.csv.bz2`_):
 
 .. code-block:: bash
 
-    $ limix see exampl.csv
+    $ limix see example.csv
     Reading example.csv... done (11.31 seconds).
        snp_22_16050408  A A.1 A.2 A.3 A.4 A.5 A.6 A.7 A.8  ...  B.366 B.367 B.368  \
     0  snp_22_16050612  A   A   A   A   A   A   A   A   A  ...      B     B     B
@@ -199,7 +209,7 @@ shown as (`example.csv.bz2`_):
 
     [5 rows x 466 columns]
 
-Finally, an image can be see via (`dali.jpg.bz2`_):
+Finally, an image can be seen via (`dali.jpg.bz2`_):
 
 .. code-block:: bash
 
@@ -213,3 +223,5 @@ Finally, an image can be see via (`dali.jpg.bz2`_):
 .. _example.hdf5.bz2: http://rest.s3for.me/limix/example.hdf5.bz2
 .. _example.csv.bz2: http://rest.s3for.me/limix/example.csv.bz2
 .. _dali.jpg.bz2: http://rest.s3for.me/limix/dali.jpg.bz2
+.. _plink: https://www.cog-genomics.org/plink2
+.. _hdf5: https://support.hdfgroup.org/HDF5/

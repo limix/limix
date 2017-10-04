@@ -33,7 +33,6 @@ def plot_pca(X, style=None, ax=None):
         X = random.randn(30, 10)
 
         limix.plot.plot_pca(X)
-        limix.plot.show()
     """
 
     import matplotlib.pyplot as plt

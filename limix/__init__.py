@@ -14,8 +14,7 @@ from .testit import test
 
 __name__ = "limix"
 __version__ = "1.1.0"
-__author__ = (
-    "Christoph Lippert, Danilo Horta, Francesco P. Casale, and Oliver Stegle")
+__author__ = "C. Lippert, D. Horta, F. P. Casale, and O. Stegle"
 __author_email__ = "stegle@ebi.ac.uk"
 
 __all__ = [

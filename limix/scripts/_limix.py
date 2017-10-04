@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+
 from limix.io import possible_file_types
 
 
@@ -11,21 +12,23 @@ def do_see(args):
         ft = args.type
 
     if ft == 'hdf5':
-        limix.io.hdf5.see_hdf5(args.file, show_chunks=args.show_chunks)
+        limix.io.hdf5.see_hdf5(
+            args.file, show_chunks=args.show_chunks, quiet=args.quiet)
     elif ft == 'csv':
-        limix.io.csv.see(args.file)
+        limix.io.csv.see(args.file, quiet=args.quiet)
     elif ft == 'grm.raw':
-        limix.io.plink.see_kinship(args.file)
+        limix.io.plink.see_kinship(args.file, quiet=args.quiet)
     elif ft == 'bed':
-        limix.io.plink.see_bed(args.file)
+        limix.io.plink.see_bed(args.file, quiet=args.quiet)
     elif ft == 'image':
-        limix.plot.see_image(args.file)
+        limix.plot.see_image(args.file, quiet=args.quiet)
     else:
         print("Unknown file type: %s" % args.file)
 
 
 def see_parser(parser):
     parser.add_argument('file', help='file path')
+    parser.add_argument('--quiet', '-q', help='quiet', action='store_true')
     parser.add_argument(
         '--show-chunks',
         dest='show_chunks',
@@ -34,7 +37,7 @@ def see_parser(parser):
 
     msg = 'specify file type: %s' % ', '.join(possible_file_types())
     parser.add_argument('--type', dest='type', help=msg)
-    parser.set_defaults(show_chunks=False)
+    parser.set_defaults(show_chunks=False, quiet=False)
     parser.set_defaults(func=do_see)
     return parser
 
