@@ -1138,25 +1138,3 @@ class VarianceDecomposition(object):
                                sp.dot(Ki, Ctot.Kgrad_param(n)))))
                 out[n, m] = out[m, n]
         return out
-
-    """ DEPRECATED """
-
-    def _getModelPosterior(self, min):
-        """
-        USES LAPLACE APPROXIMATION TO CALCULATE THE BAYESIAN MODEL POSTERIOR
-        """
-        Sigma = self._getLaplaceCovar(min)
-        n_params = self.vd.getNumberScales()
-        ModCompl = 0.5 * n_params * \
-            sp.log(2 * sp.pi) + 0.5 * sp.log(sp.linalg.det(Sigma))
-        RV = min['LML'] + ModCompl
-        return RV
-
-    def trainGP(self,
-                fast=None,
-                scales0=None,
-                fixed0=None,
-                lambd=None,
-                lambd_g=None,
-                lambd_n=None):
-        print('DEPRECATED')
