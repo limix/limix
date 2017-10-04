@@ -1,16 +1,17 @@
 from optparse import OptionParser
-from limix.io import read_plink
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+
+from limix.io import read_plink
 
 
-def sets_from_bim(
-        bim,
-        size=50000,
-        step=None,
-        chrom=None,
-        minSnps=1,
-        maxSnps=None):
+def sets_from_bim(bim,
+                  size=50000,
+                  step=None,
+                  chrom=None,
+                  minSnps=1,
+                  maxSnps=None):
     r"""
     Builds a dataframe of variant-sets from a bim considering
     a sliding window approach.
@@ -76,8 +77,10 @@ def sets_from_bim(
 
         # build array and append
         chrom = np.repeat(_c, start.shape[0])
-        setid = np.array(['%s:%d-%d' % (_c, _s, _e)
-                         for (_c, _s, _e) in zip(chrom, start, end)])
+        setid = np.array([
+            '%s:%d-%d' % (_c, _s, _e)
+            for (_c, _s, _e) in zip(chrom, start, end)
+        ])
         _out = np.array([setid, chrom, start, end, nsnps], dtype=object).T
         out.append(_out)
 
@@ -85,7 +88,8 @@ def sets_from_bim(
     out = np.concatenate(out)
 
     # convert to pandas dataframe and export
-    out = pd.DataFrame(out, columns=['setid', 'chrom', 'start', 'end', 'nsnps'])
+    out = pd.DataFrame(
+        out, columns=['setid', 'chrom', 'start', 'end', 'nsnps'])
     return out
 
 
@@ -153,15 +157,15 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
 
         # build array and append
         chrom = np.repeat(_c, start.shape[0])
-        _out = np.array([setid, chrom, start, end, nsnps],
-                        dtype=object).T
+        _out = np.array([setid, chrom, start, end, nsnps], dtype=object).T
         out.append(_out)
 
     # concatenate and export
     out = np.concatenate(out)
 
     # convert to pandas dataframe and export
-    out = pd.DataFrame(out, columns=['setid', 'chrom', 'start', 'end', 'nsnps'])
+    out = pd.DataFrame(
+        out, columns=['setid', 'chrom', 'start', 'end', 'nsnps'])
     return out
 
 

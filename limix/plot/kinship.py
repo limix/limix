@@ -13,9 +13,10 @@ def plot_kinship(K, nclusters=1, style=None, ax=None):
     K : array_like
         Kinship matrix.
     nclusters : int or str
-        Number of blocks to be seen from the heatmap. It defaults to ``1``, which
-        means that no ordering is performed. Pass 'auto' to automatically determine
-        the number of clusters. Pass an integer to select the number of clusters.
+        Number of blocks to be seen from the heatmap. It defaults to ``1``,
+        which means that no ordering is performed. Pass 'auto' to automatically
+        determine the number of clusters. Pass an integer to select the number
+        of clusters.
     style : dict
         Keyword arguments forwarded to the :func:`matplotlib.axes.Axes.imshow`
         function.
@@ -71,7 +72,6 @@ def plot_kinship(K, nclusters=1, style=None, ax=None):
 
 
 def _infer_clustering(K):
-    from sklearn.cluster import SpectralClustering
     from sklearn.metrics import silhouette_score
 
     scores = []
@@ -79,7 +79,7 @@ def _infer_clustering(K):
 
     for nclusters in nclusterss:
         labels = _cluster(K, nclusters)
-        idx = argsort(labels)
+        # idx = argsort(labels)
 
         s = silhouette_score(K, labels, metric='correlation')
         scores.append(s)
