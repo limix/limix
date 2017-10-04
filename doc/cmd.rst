@@ -177,6 +177,14 @@ A preview of Plink files in BED format can be done via
     <BLANKLINE>
     [465 rows x 7 columns]
 
+.. testcleanup::
+
+    >>> import os
+    >>> from glob import glob
+    >>>
+    >>> for f in glob("some_plink_files*"):
+    ...     os.unlink(f)
+
 HDF5
 ----
 
@@ -205,6 +213,14 @@ The following command shows the hierarchy of a HDF5 file:
          +--matrix [uint8, (183, 1097199)]
          +--row_header
             +--sample_ID [|S7, (183,)]
+
+.. testcleanup::
+
+    >>> import os
+    >>> from glob import glob
+    >>>
+    >>> for f in glob("example*"):
+    ...     os.unlink(f)
 
 CSV
 ---
@@ -242,6 +258,14 @@ shown as
     4     C     B     B     C     C     C     C
     <BLANKLINE>
     [5 rows x 466 columns]
+
+.. testcleanup::
+
+    >>> import os
+    >>> from glob import glob
+    >>>
+    >>> for f in glob("example*"):
+    ...     os.unlink(f)
 
 Image
 -----
