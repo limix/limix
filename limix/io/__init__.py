@@ -25,16 +25,13 @@ GEN reader
 
 """
 
-from . import examples
-from ._csv import read_csv
-from .gen import read_gen
-from . import hdf5
-from .hdf5 import h5data_fetcher
-from .plink import read_plink
-from .detect import file_type, possible_file_types
 from . import _csv as csv
-from . import plink
-from . import npy
+from . import examples, hdf5, npy, plink
+from ._csv import read_csv
+from .detect import file_type, possible_file_types
+from .gen import read_gen
+from .hdf5 import h5data_fetcher, read_hdf5_limix
+from .plink import read_plink
 
 
 def genotype_reader(*args, **kwargs):
@@ -54,6 +51,6 @@ def data(*args, **kwargs):
 
 __all__ = [
     'read_plink', 'h5data_fetcher', 'read_csv', 'read_gen', 'examples',
-    'genotype_reader', 'phenotype_reader', 'data', 'file_type', 'hdf5',
-    'csv', 'plink', 'npy', 'possible_file_types'
+    'genotype_reader', 'phenotype_reader', 'data', 'file_type', 'hdf5', 'csv',
+    'plink', 'npy', 'possible_file_types', 'read_hdf5_limix'
 ]

@@ -30,8 +30,7 @@ def _dask_unique(x, return_index=True):
 
 
 def unique_variants(X):
-    r"""
-    Filters out variants with the same genetic profile.
+    r"""Filters out variants with the same genetic profile.
 
     Parameters
     ----------

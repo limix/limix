@@ -1,4 +1,5 @@
 import h5py
+from pandas import DataFrame
 
 import asciitree
 
@@ -174,3 +175,50 @@ def _tree(f, root_name='/', ret=False, show_chunks=False):
     if ret:
         return msg
     print(msg)
+
+
+def _read_attrs(filepath, path):
+    with h5py.File(filepath, 'r') as f:
+
+        h = dict()
+        for attr in f[path].keys():
+            h[attr] = f[path + '/' + attr].value
+
+            if h[attr].dtype.kind == 'S':
+                h[attr] = h[attr].astype('U')
+
+        return DataFrame.from_dict(h)
+
+
+def read_hdf5_limix(filepath):
+    r"""Read the HDF5 limix file format.
+
+    Parameters
+    ----------
+    filepath : str
+        File path.
+
+    Returns
+    -------
+    dict
+        Phenotype and genotype.
+    """
+    p = dict()
+    p['matrix'] = fetch(filepath, "phenotype/matrix")
+
+    p['row_header'] = _read_attrs(filepath, "phenotype/row_header")
+    p['row_header']['i'] = range(p['matrix'].shape[0])
+
+    p['col_header'] = _read_attrs(filepath, "phenotype/col_header")
+    p['col_header']['i'] = range(p['matrix'].shape[1])
+
+    g = dict()
+    g['matrix'] = fetch(filepath, "genotype/matrix")
+
+    g['row_header'] = _read_attrs(filepath, "genotype/row_header")
+    g['row_header']['i'] = range(g['matrix'].shape[0])
+
+    g['col_header'] = _read_attrs(filepath, "genotype/col_header")
+    g['col_header']['i'] = range(g['matrix'].shape[1])
+
+    return {'phenotype': p, 'genotype': g}

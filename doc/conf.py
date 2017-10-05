@@ -39,7 +39,9 @@ extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.intersphinx',
     'sphinx.ext.coverage', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon',
     'sphinx.ext.mathjax', 'matplotlib.sphinxext.only_directives',
-    'matplotlib.sphinxext.plot_directive'
+    'matplotlib.sphinxext.plot_directive', 'texext.math_dollar',
+    'IPython.sphinxext.ipython_directive',
+    'IPython.sphinxext.ipython_console_highlighting'
 ]
 napoleon_google_docstring = True
 master_doc = 'index'
