@@ -2,9 +2,9 @@
 Limix
 =====
 
-|PyPI-Status| |Conda-Forge-Status| |Conda-Downloads|
+|PyPI-Status| |Conda-Forge-Status| |Conda-Downloads| |Doc-Status|
 
-|Build-Status| |Codacy-Grade| |License-Badge| |Doc-Status|
+|Build-Status| |Codacy-Grade| |License-Badge| |Coverage|
 
 
 Genomic analyses require flexible models that can be adapted to the needs of the user.
