@@ -13,15 +13,15 @@ def do_see(args):
 
     if ft == 'hdf5':
         limix.io.hdf5.see_hdf5(
-            args.file, show_chunks=args.show_chunks, quiet=args.quiet)
+            args.file, show_chunks=args.show_chunks, verbose=not args.quiet)
     elif ft == 'csv':
-        limix.io.csv.see(args.file, quiet=args.quiet)
+        limix.io.csv.see(args.file, verbose=not args.quiet)
     elif ft == 'grm.raw':
-        limix.io.plink.see_kinship(args.file, quiet=args.quiet)
+        limix.io.plink.see_kinship(args.file, verbose=not args.quiet)
     elif ft == 'bed':
-        limix.io.plink.see_bed(args.file, quiet=args.quiet)
+        limix.io.plink.see_bed(args.file, verbose=not args.quiet)
     elif ft == 'image':
-        limix.plot.see_image(args.file, quiet=args.quiet)
+        limix.plot.see_image(args.file, verbose=not args.quiet)
     else:
         print("Unknown file type: %s" % args.file)
 
@@ -37,7 +37,7 @@ def see_parser(parser):
 
     msg = 'specify file type: %s' % ', '.join(possible_file_types())
     parser.add_argument('--type', dest='type', help=msg)
-    parser.set_defaults(show_chunks=False, quiet=False)
+    parser.set_defaults(show_chunks=False, verbose=True)
     parser.set_defaults(func=do_see)
     return parser
 
@@ -52,7 +52,7 @@ def download_parser(parser):
     parser.add_argument('url', help='url path')
     parser.add_argument('--quiet', '-q', help='quiet', action='store_true')
 
-    parser.set_defaults(quiet=False)
+    parser.set_defaults(verbose=True)
     parser.set_defaults(func=do_download)
     return parser
 
@@ -67,7 +67,7 @@ def extract_parser(parser):
     parser.add_argument('filepath', help='file path')
     parser.add_argument('--quiet', '-q', help='quiet', action='store_true')
 
-    parser.set_defaults(quiet=False)
+    parser.set_defaults(verbose=True)
     parser.set_defaults(func=do_extract)
     return parser
 

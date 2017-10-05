@@ -81,11 +81,11 @@ def read_grm_raw(filepath):
     return loadtxt(filepath)
 
 
-def see_kinship(filepath, quiet):
+def see_kinship(filepath, verbose):
     import limix
 
     if filepath.endswith('.grm.raw'):
-        with limix.util.Timer(desc="Reading %s..." % filepath, disable=quiet):
+        with limix.util.Timer(desc="Reading %s..." % filepath, disable=not verbose):
             K = read_grm_raw(filepath)
     else:
         print("File %s not found." % filepath)
@@ -103,8 +103,8 @@ def _print_title(title, msg):
     print(msg)
 
 
-def see_bed(filepath, quiet):
-    (bim, fam, bed) = read_plink(filepath, verbose=not quiet)
+def see_bed(filepath, verbose):
+    (bim, fam, bed) = read_plink(filepath, verbose=verbose)
 
     _print_title("Samples", repr(bim))
     _print_title("Genotype", repr(fam))

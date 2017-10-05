@@ -83,7 +83,7 @@ def see(f_or_filepath, root_name='/', ret=False, show_chunks=False):
         return _tree(f_or_filepath, root_name, ret, show_chunks)
 
 
-def see_hdf5(filepath, show_chunks=False, quiet=False):
+def see_hdf5(filepath, show_chunks=False, verbose=True):
     """Shows a human-friendly tree representation of the contents of
     a hdf5 file.
     :param filepath: hdf5 file path or a reference to an open one.
@@ -92,7 +92,7 @@ def see_hdf5(filepath, show_chunks=False, quiet=False):
     """
     from limix.util import Timer
 
-    with Timer(desc="Reading %s..." % filepath, disable=quiet):
+    with Timer(desc="Reading %s..." % filepath, disable=not verbose):
         with h5py.File(filepath, 'r') as f:
             msg = _tree(f, '/', True, show_chunks)
     print(msg)

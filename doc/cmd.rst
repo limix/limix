@@ -45,7 +45,7 @@ A preview of Plink files in BED format can be done via
     >>> url = "http://rest.s3for.me/limix/some_plink_files.tar.bz2"
     >>> limix.util.download(url, verbose=False)
     >>> limix.util.extract("some_plink_files.tar.bz2", verbose=False)
-    >>> limix.io.plink.see_bed("some_plink_files", quiet=True)
+    >>> limix.io.plink.see_bed("some_plink_files", verbose=False)
     ---------------------------- Samples ----------------------------
            chrom                   snp   cm       pos  a0  a1       i
     0         22       snp_22_16050408  0.0  16050408   C   T       0
@@ -204,7 +204,7 @@ The following command shows the hierarchy of a HDF5 file:
     >>> url = "http://rest.s3for.me/limix/example.hdf5.bz2"
     >>> limix.util.download(url, verbose=False)
     >>> limix.util.extract("example.hdf5.bz2", verbose=False)
-    >>> limix.io.hdf5.see_hdf5("example.hdf5", quiet=True)
+    >>> limix.io.hdf5.see_hdf5("example.hdf5", verbose=False)
     /
       +--genotype
          +--col_header
@@ -242,7 +242,7 @@ shown as
     >>> url = "http://rest.s3for.me/limix/example.csv.bz2"
     >>> limix.util.download(url, verbose=False)
     >>> limix.util.extract("example.csv.bz2", verbose=False)
-    >>> limix.io.csv.see("example.csv", quiet=True)
+    >>> limix.io.csv.see("example.csv", verbose=False)
        snp_22_16050408  A A.1 A.2 A.3 A.4 A.5 A.6 A.7 A.8  ...  B.366 B.367 B.368  \
     0  snp_22_16050612  A   A   A   A   A   A   A   A   A  ...      B     B     B
     1  snp_22_16050678  A   A   A   A   A   A   A   A   A  ...      B     B     B

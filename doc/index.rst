@@ -11,6 +11,7 @@ Limix's documentation
    :maxdepth: 2
 
    install
+   tutorials/index
    cmd
    qc
    qtl

@@ -35,7 +35,7 @@ def read_csv(filename, sep=None, header=True):
     return _read_csv(filename, sep=sep, header=header)
 
 
-def see(filepath, quiet):
+def see(filepath, verbose):
     """Shows a human-friendly representation of a CSV file.
 
     Parameters
@@ -51,7 +51,7 @@ def see(filepath, quiet):
     from pandas import read_csv
     from limix.util import Timer
 
-    with Timer(desc="Reading %s..." % filepath, disable=quiet):
+    with Timer(desc="Reading %s..." % filepath, disable=not verbose):
         sep = _infer_separator(filepath)
         msg = read_csv(filepath, sep=sep).head()
 
