@@ -71,7 +71,7 @@ This project is licensed under the Apache License License - see the
 `License file`_ for details.
 
 
-.. |Build-Status| image:: https://travis-ci.org/limix/limix.svg?branch=master
+.. |Build-Status| image:: https://travis-ci.org/limix/limix.svg?branch=refactoring
     :target: https://travis-ci.org/limix/limix
 
 .. |Codacy-Grade| image:: https://api.codacy.com/project/badge/Grade/e0227434c8f040888ff92d1a4d67bcc8
@@ -90,12 +90,15 @@ This project is licensed under the Apache License License - see the
     :target: https://anaconda.org/conda-forge/limix
 
 .. |License-Badge| image:: https://img.shields.io/pypi/l/limix.svg
-    :target: https://raw.githubusercontent.com/limix/limix/master/LICENSE.txt
+    :target: https://raw.githubusercontent.com/limix/limix/refactoring/LICENSE.txt
 
-.. |Doc-Status| image:: https://readthedocs.org/projects/limix/badge/?style=flat-square&version=stable
+.. |Doc-Status| image:: https://readthedocs.org/projects/limix/badge/?style=flat-square&version=refactoring
     :target: https://limix.readthedocs.io/
 
-.. _License file: https://raw.githubusercontent.com/limix/limix/master/LICENSE.txt
+.. |Coverage| image:: https://coveralls.io/repos/github/limix/limix/badge.svg?branch=refactoring
+    :target: https://coveralls.io/github/limix/limix?branch=refactoring
+
+.. _License file: https://raw.githubusercontent.com/limix/limix/refactoring/LICENSE.txt
 
 .. _Christoph Lippert: https://github.com/clippert
 
