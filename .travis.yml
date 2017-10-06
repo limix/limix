@@ -20,7 +20,7 @@ install:
 - travis_retry travis/install.sh
 script:
 - travis_retry travis/script.sh
-- py.test --cov=limix
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then py.test --cov=limix; fi
 after_success:
 - travis_retry travis/after-success.sh
 - codecov
