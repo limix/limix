@@ -20,6 +20,7 @@ dependencies:
 - tk
 - wheel
 - xz
+- matplotlib=2.0.2
 - zlib=1.2.11
 - pip:
   - apipkg==1.4
