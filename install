@@ -40,8 +40,18 @@ GIT_FOLDER=$(pwd)/limix-dev
 
 echo -n "[1/5] Cloning repository... "
 silent_run git clone -b develop $GIT_URL $GIT_FOLDER
+cd $GIT_FOLDER
 [ $? == 0 ] && echo "done." || failed
 
+function install_deps
+{
+    bash <(curl -fsSL https://raw.githubusercontent.com/limix/hcephes/master/install)
+    bash <(curl -fsSL https://raw.githubusercontent.com/limix/liknorm/master/install)
+}
+
+echo -n "[2/5] Installing C dependencies... "
+install_deps
+[ $? == 0 ] && echo "done." || failed
 
 
 # silent_trun rm $FILE
