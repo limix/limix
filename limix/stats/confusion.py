@@ -3,9 +3,7 @@ from __future__ import division
 import logging
 
 import numpy as np
-from numpy import argsort, asarray, concatenate, log10, nan, where
-
-from numpy_sugar import is_crescent
+from numpy import argsort, asarray, concatenate, nan, where
 
 try:
     from numba import jit
@@ -111,12 +109,12 @@ def confusion_matrix(df, wsize=50000):
     total_size = pos[-1] - pos[0]
     if wsize > 0.1 * total_size:
         perc = wsize // total_size * 100
-        self._logger.warn(
+        logger.warn(
             'The window size is %d%% of the total candidate' + ' region.',
             int(perc))
 
     ld_causal_markers = set()
-    for (j, c) in enumerate(causal):
+    for _, c in enumerate(causal):
         if wsize == 1:
             right = left = pos[c]
         else:

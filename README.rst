@@ -93,7 +93,7 @@ This project is licensed under the Apache License License - see the
     :target: https://raw.githubusercontent.com/limix/limix/develop/LICENSE.txt
 
 .. |Doc-Status| image:: https://readthedocs.org/projects/limix/badge/?style=flat-square&version=develop
-    :target: https://limix.readthedocs.io/
+    :target: https://limix.readthedocs.io/en/develop
 
 .. |Coverage| image:: https://codecov.io/gh/limix/limix/branch/develop/graph/badge.svg
     :target: https://codecov.io/gh/limix/limix

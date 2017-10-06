@@ -2,7 +2,6 @@ from numpy import all as npall
 from numpy import concatenate, isfinite, newaxis
 from tqdm import tqdm
 
-from glimix_core.glmm import GLMM
 from glimix_core.lmm import LMM
 
 from .model import IQTLModel

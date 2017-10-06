@@ -3,9 +3,7 @@ from __future__ import division
 from numpy import inf
 
 from brent_search import brent
-from limix.util.npy_dask import (
-    abs, asarray, clip, isnan, nanmean, nanstd, zeros_like
-)
+from limix.util.npy_dask import abs, asarray, clip, nanmean, nanstd
 from numpy_sugar import epsilon
 
 

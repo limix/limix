@@ -1,7 +1,6 @@
 from numpy import dot, exp, sqrt, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
-from numpy_sugar.linalg import economic_qs
 
 from limix.heritability import estimate
 
@@ -10,8 +9,7 @@ def test_heritability_estimate_binomial():
     random = RandomState(0)
     nsamples = 50
 
-    X = random.randn(50, 2)
-    G = random.randn(50, 100)
+    G = random.randn(nsamples, 100)
     K = dot(G, G.T)
     ntrials = random.randint(1, 100, nsamples)
     z = dot(G, random.randn(100)) / sqrt(100)
@@ -25,13 +23,12 @@ def test_heritability_estimate_binomial():
 
     assert_allclose(
         estimate(y, 'binomial', K, verbose=False),
-        0.9623561005685898,
+        0.9999992083233082,
         rtol=1e-3)
 
 
 def test_heritability_estimate_poisson():
     random = RandomState(0)
-    nsamples = 50
 
     G = random.randn(50, 100)
     K = dot(G, G.T)
@@ -39,14 +36,11 @@ def test_heritability_estimate_poisson():
     y = random.poisson(exp(z))
 
     assert_allclose(
-        estimate(y, 'poisson', K, verbose=False),
-        0.991766763337491,
-        rtol=1e-3)
+        estimate(y, 'poisson', K, verbose=False), 0.991766763337491, rtol=1e-3)
 
 
 def test_heritability_estimate_normal():
     random = RandomState(0)
-    nsamples = 50
 
     G = random.randn(50, 100)
     K = dot(G, G.T)

@@ -77,7 +77,6 @@ def _collect_nhits(df):
         for label in labels:
             ix = df['label'] == label
             df_ = df.loc[ix, :]
-            ntests = df_.shape[0]
             n = (df_['pv'] < alpha).sum()
             nhits[label] += [n]
 

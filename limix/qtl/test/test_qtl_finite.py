@@ -3,7 +3,6 @@ from __future__ import division
 import pytest
 from numpy import dot, nan, sqrt, zeros
 from numpy.random import RandomState
-from numpy.testing import assert_allclose
 
 from limix.qtl import scan
 
@@ -20,7 +19,7 @@ def test_qtl_finite():
 
     successes = zeros(len(ntrials), int)
     for i in range(len(ntrials)):
-        for j in range(ntrials[i]):
+        for _ in range(ntrials[i]):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
     y = (successes.astype(float), ntrials.astype(float))

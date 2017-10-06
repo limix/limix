@@ -17,7 +17,7 @@ def test_qtl_gmm_binomial():
 
     successes = zeros(len(ntrials), int)
     for i in range(len(ntrials)):
-        for j in range(ntrials[i]):
+        for _ in range(ntrials[i]):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
     y = (successes, ntrials)

@@ -1,6 +1,6 @@
 from __future__ import division
 
-from numpy import copyto, zeros
+from numpy import copyto
 
 
 def gower_norm(K, out=None):

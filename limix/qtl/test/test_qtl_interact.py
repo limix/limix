@@ -3,9 +3,9 @@ from __future__ import division
 from numpy import dot, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
+from pandas import DataFrame
 
 from limix.qtl import iscan
-from pandas import DataFrame
 
 
 def test_qtl_interact():
@@ -20,7 +20,7 @@ def test_qtl_interact():
 
     successes = zeros(len(ntrials), int)
     for i in range(len(ntrials)):
-        for j in range(ntrials[i]):
+        for _ in range(ntrials[i]):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
     y = successes / ntrials

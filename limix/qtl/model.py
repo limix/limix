@@ -1,12 +1,8 @@
 from __future__ import division
 
-from numpy import abs as npy_abs
-from numpy import sqrt
-from scipy.stats import chi2
+from pandas import DataFrame, Series
 
 from limix.stats import effsizes_se, lrt_pvalues
-from pandas import DataFrame, Series
-from tabulate import tabulate
 
 
 class QTLModel(object):

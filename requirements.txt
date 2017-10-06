@@ -1,5 +1,4 @@
 scikit-learn>=0.19
-tabulate>=0.7.7
 dask>=0.15
 h5py
 pandas-plink>=1.2.15

@@ -1,4 +1,4 @@
-from os.path import dirname, realpath, join
+from os.path import dirname, join, realpath
 
 from numpy.testing import assert_allclose, assert_equal
 
