@@ -37,7 +37,7 @@ However, feel free to use whatever method you prefer.
 
     @doctest
     In [4]: print(limix.filehash("smith08.hdf5.bz2"))
-    cbad3ba229a117495453379000e4115cc70c2dac5776953bc15382e5ee9a71a6
+    aecd5ebabd13ed2e38419c11d116e8d582077212efb37871a50c3a08fadb2ee1
 
     In [5]: limix.extract("smith08.hdf5.bz2", verbose=False)
 
