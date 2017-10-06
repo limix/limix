@@ -20,8 +20,10 @@ install:
 - travis_retry travis/install.sh
 script:
 - travis_retry travis/script.sh
+- py.test --cov=limix
 after_success:
 - travis_retry travis/after-success.sh
+- codecov
 notifications:
   email:
     recipients:
