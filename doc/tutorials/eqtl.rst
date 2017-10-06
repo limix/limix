@@ -41,8 +41,11 @@ However, feel free to use whatever method you prefer.
 
     In [5]: limix.extract("smith08.hdf5.bz2", verbose=False)
 
+    In [6]: print(limix.filehash("smith08.hdf5"))
+    4648f596249ee2e3e60b9cd024d6f1af257079d39b2bff5192407a30de989266
+
     @doctest
-    In [6]: limix.io.hdf5.see_hdf5("smith08.hdf5", verbose=False)
+    In [7]: limix.io.hdf5.see_hdf5("smith08.hdf5", verbose=False)
     /
       +--genotype
       |  +--col_header
@@ -65,10 +68,10 @@ However, feel free to use whatever method you prefer.
          +--row_header
             +--sample_ID [int64, (109,)]
 
-    In [7]: data = limix.io.read_hdf5_limix("smith08.hdf5")
+    In [8]: data = limix.io.read_hdf5_limix("smith08.hdf5")
 
     @doctest
-    In [8]: print(data['phenotype']['row_header'].head())
+    In [9]: print(data['phenotype']['row_header'].head())
        sample_ID  i
     0          0  0
     1          1  1
@@ -77,7 +80,7 @@ However, feel free to use whatever method you prefer.
     4          4  4
 
     @doctest
-    In [9]: print(data['phenotype']['col_header'].head())
+    In [10]: print(data['phenotype']['col_header'].head())
        environment  gene_ID gene_chrom  gene_end  gene_start gene_strand  \
     0          0.0  YOL161C         15     11548       11910           C
     1          0.0  YJR107W         10    628319      627333           W
@@ -100,23 +103,23 @@ The glucose condition is given by the environment ``0``.
 
 .. ipython::
 
-    In [10]: header = data['phenotype']['col_header']
+    In [11]: header = data['phenotype']['col_header']
 
-    In [11]: query = "gene_ID=='YBR115C' and environment==0"
+    In [12]: query = "gene_ID=='YBR115C' and environment==0"
 
-    In [12]: idx = header.query(query).i.values
+    In [13]: idx = header.query(query).i.values
 
-    In [13]: y = data['phenotype']['matrix'][:, idx].ravel()
+    In [14]: y = data['phenotype']['matrix'][:, idx].ravel()
 
     @savefig yeast_pheno01.png width=5in
-    In [14]: limix.plot.plot_normal(y);
+    In [15]: limix.plot.plot_normal(y);
 
 
 This will clean up the figure for the next plot.
 
 .. ipython::
 
-    In [15]: limix.plot.clf()
+    In [16]: limix.plot.clf()
 
 Genetic relatedness matrix
 --------------------------
@@ -126,14 +129,14 @@ readings between individuals, and the result will be visualised via heatmap.
 
 .. ipython::
 
-    In [16]: G = data['genotype']['matrix']
+    In [17]: G = data['genotype']['matrix']
 
-    In [17]: K = limix.stats.linear_kinship(G, verbose=False)
+    In [18]: K = limix.stats.linear_kinship(G, verbose=False)
 
     @savefig yeast_K01.png width=5in
-    In [18]: limix.plot.plot_kinship(K);
+    In [19]: limix.plot.plot_kinship(K);
 
-    In [19]: limix.plot.clf()
+    In [20]: limix.plot.clf()
 
 Univariate association test with linear mixed model
 ---------------------------------------------------
@@ -150,7 +153,7 @@ data, which can naturally be used for naming those candidates.
 
 .. ipython::
 
-    In [20]: print(data['genotype']['col_header'].head())
+    In [21]: print(data['genotype']['col_header'].head())
     chrom   pos  pos_cum  i
     0      1   483      483  0
     1      1   484      484  1
@@ -158,17 +161,17 @@ data, which can naturally be used for naming those candidates.
     3      1  3223     3223  3
     4      1  3232     3232  4
 
-    In [21]: from pandas import DataFrame
+    In [22]: from pandas import DataFrame
 
-    In [22]: chrom = data['genotype']['col_header']['chrom']
+    In [23]: chrom = data['genotype']['col_header']['chrom']
 
-    In [23]: pos = data['genotype']['col_header']['pos']
+    In [24]: pos = data['genotype']['col_header']['pos']
 
-    In [24]: candidate_ids = ["c{}_p{}".format(c, p) for c, p in zip(chrom, pos)]
+    In [25]: candidate_ids = ["c{}_p{}".format(c, p) for c, p in zip(chrom, pos)]
 
-    In [25]: G = DataFrame(G, columns=candidate_ids)
+    In [26]: G = DataFrame(G, columns=candidate_ids)
 
-    In [26]: print(G.head())
+    In [27]: print(G.head())
     c1_p483  c1_p484  c1_p3220  c1_p3223  c1_p3232  c1_p3235  c1_p3244  \
     0      1.0      1.0       1.0       1.0       1.0       1.0       1.0
     1      1.0      0.0       1.0       1.0       1.0       1.0       1.0
@@ -205,9 +208,9 @@ This data frame can be readily used to perform association scan.
 
 .. ipython::
 
-    In [27]: qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
+    In [28]: qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
 
-    In [28]: print(qtl)
+    In [29]: print(qtl)
     Variants
           effsizes  effsizes_se       pvalues
     count  2956.000000  2956.000000  2.956000e+03
@@ -230,9 +233,9 @@ names are kept together with their corresponding statistics.
 
 .. ipython::
 
-    In [29]: sorted_pvs = qtl.variant_pvalues.sort_values()
+    In [30]: sorted_pvs = qtl.variant_pvalues.sort_values()
 
-    In [30]: print(sorted_pvs.head())
+    In [31]: print(sorted_pvs.head())
     c2_p477206    2.583307e-20
     c2_p479161    1.250239e-13
     c2_p479164    1.250239e-13
@@ -240,7 +243,7 @@ names are kept together with their corresponding statistics.
     c2_p480009    9.086078e-13
     dtype: float64
 
-    In [31]: print(qtl.variant_effsizes.loc[sorted_pvs.index].head())
+    In [32]: print(qtl.variant_effsizes.loc[sorted_pvs.index].head())
     c2_p477206    4.198421
     c2_p479161    3.839388
     c2_p479164    3.839388
@@ -253,22 +256,22 @@ their names.
 
 .. ipython::
 
-    In [32]: pvs = qtl.variant_pvalues
+    In [33]: pvs = qtl.variant_pvalues
 
-    In [33]: pv = pvs.values
+    In [34]: pv = pvs.values
 
-    In [34]: chrom = [i.split('_')[0][1:] for i, _ in pvs.iteritems()]
+    In [35]: chrom = [i.split('_')[0][1:] for i, _ in pvs.iteritems()]
 
-    In [35]: pos = [int(i.split('_')[1][1:]) for i, _ in pvs.iteritems()]
+    In [36]: pos = [int(i.split('_')[1][1:]) for i, _ in pvs.iteritems()]
 
-    In [36]: label = pvs.index.values
+    In [37]: label = pvs.index.values
 
-    In [37]: df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos, label=label))
+    In [38]: df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos, label=label))
 
     @savefig yeast_manhattan01.png width=7in
-    In [38]: limix.plot.plot_manhattan(df);
+    In [39]: limix.plot.plot_manhattan(df);
 
-    In [39]: limix.plot.clf()
+    In [40]: limix.plot.clf()
 
 Cleaning up
 -----------
