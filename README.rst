@@ -95,8 +95,8 @@ This project is licensed under the Apache License License - see the
 .. |Doc-Status| image:: https://readthedocs.org/projects/limix/badge/?style=flat-square&version=develop
     :target: https://limix.readthedocs.io/
 
-.. |Coverage| image:: https://coveralls.io/repos/github/limix/limix/badge.svg?branch=develop
-    :target: https://coveralls.io/github/limix/limix?branch=develop
+.. |Coverage| image:: https://codecov.io/gh/limix/limix/branch/develop/graph/badge.svg
+    :target: https://codecov.io/gh/limix/limix
 
 .. _License file: https://raw.githubusercontent.com/limix/limix/develop/LICENSE.txt
 

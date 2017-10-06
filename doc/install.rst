@@ -2,7 +2,13 @@
 Install
 *******
 
-The recommended way of installing it is via conda_
+The development version of limix can be installed on MacOS and Linux via
+
+.. code:: bash
+
+    bash <(curl -fsSL https://raw.githubusercontent.com/limix/limix/develop/install)
+
+Stable versions of limix are installed via conda_ though
 
 .. code:: bash
 
