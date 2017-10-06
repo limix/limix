@@ -25,6 +25,7 @@ dependencies:
 - statsmodels=0.8.0
 - h5py=2.7.0
 - hdf5=1.10.1
+- hdf5=1.8.17
 - pip:
   - apipkg==1.4
   - brent-search==1.0.29
