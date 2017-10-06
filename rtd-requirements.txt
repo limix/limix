@@ -7,4 +7,3 @@ brent-search
 tqdm
 sphinx_rtd_theme
 glimix-core
-texext
