@@ -11,24 +11,24 @@ Genomic analyses require flexible models that can be adapted to the needs of the
 Limix is a flexible and efficient linear mixed model library with interfaces to Python.
 
 Limix includes methods for
-- single-variant association and interaction testing,
-- variance decompostion analysis with linear mixed models,
-- association and interaction set tests,
-- as well as different utils for statistical analysis, basic i/o and plotting.
+- Single-variant association and interaction testing
+- Variance decompostion analysis with linear mixed models
+- Association and interaction set tests
+- Different utils for statistical analysis, basic i/o, and plotting.
 
-A description of the public interface is found at
-https://limix.readthedocs.io/.
-
-iPython notebook tutorials are available from github repository:
-https://github.com/limix/limix-tutorials.
-
-These tutorials can also be viewed using the ipython notebook viewer:
-http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb.
+The documentation can be found at  https://limix.readthedocs.io/en/develop.
 
 Install
 -------
 
-The recommended way of installing it is via conda_
+This is the development limix version, and it can be installed on MacOS and
+Linux via
+
+.. code:: bash
+
+    bash <(curl -fsSL https://raw.githubusercontent.com/limix/limix/develop/install)
+
+Stable limix versions are installed via conda_
 
 .. code:: bash
 
@@ -71,7 +71,7 @@ This project is licensed under the Apache License License - see the
 `License file`_ for details.
 
 
-.. |Build-Status| image:: https://travis-ci.org/limix/limix.svg?branch=refactoring
+.. |Build-Status| image:: https://travis-ci.org/limix/limix.svg?branch=develop
     :target: https://travis-ci.org/limix/limix
 
 .. |Codacy-Grade| image:: https://api.codacy.com/project/badge/Grade/e0227434c8f040888ff92d1a4d67bcc8
@@ -90,15 +90,15 @@ This project is licensed under the Apache License License - see the
     :target: https://anaconda.org/conda-forge/limix
 
 .. |License-Badge| image:: https://img.shields.io/pypi/l/limix.svg
-    :target: https://raw.githubusercontent.com/limix/limix/refactoring/LICENSE.txt
+    :target: https://raw.githubusercontent.com/limix/limix/develop/LICENSE.txt
 
-.. |Doc-Status| image:: https://readthedocs.org/projects/limix/badge/?style=flat-square&version=refactoring
+.. |Doc-Status| image:: https://readthedocs.org/projects/limix/badge/?style=flat-square&version=develop
     :target: https://limix.readthedocs.io/
 
-.. |Coverage| image:: https://coveralls.io/repos/github/limix/limix/badge.svg?branch=refactoring
-    :target: https://coveralls.io/github/limix/limix?branch=refactoring
+.. |Coverage| image:: https://coveralls.io/repos/github/limix/limix/badge.svg?branch=develop
+    :target: https://coveralls.io/github/limix/limix?branch=develop
 
-.. _License file: https://raw.githubusercontent.com/limix/limix/refactoring/LICENSE.txt
+.. _License file: https://raw.githubusercontent.com/limix/limix/develop/LICENSE.txt
 
 .. _Christoph Lippert: https://github.com/clippert
 

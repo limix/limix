@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# bash <(curl -fsSL https://raw.githubusercontent.com/limix/limix/develop/install)
-
 echo "[0/4] Installing development limix version"
 
 rm /tmp/limix.XXXX.log >/dev/null 2>&1 || true
