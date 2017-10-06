@@ -179,11 +179,10 @@ A preview of Plink files in BED format can be done via
 
 .. testcleanup::
 
-    >>> import os
-    >>> from glob import glob
-    >>>
-    >>> for f in glob("some_plink_files*"):
-    ...     os.unlink(f)
+    import os
+    from glob import glob
+    for f in glob("some_plink_files*"):
+        os.unlink(f)
 
 HDF5
 ----
@@ -216,11 +215,10 @@ The following command shows the hierarchy of a HDF5 file:
 
 .. testcleanup::
 
-    >>> import os
-    >>> from glob import glob
-    >>>
-    >>> for f in glob("example*"):
-    ...     os.unlink(f)
+    import os
+    from glob import glob
+    for f in glob("example*"):
+        os.unlink(f)
 
 CSV
 ---
@@ -261,11 +259,10 @@ shown as
 
 .. testcleanup::
 
-    >>> import os
-    >>> from glob import glob
-    >>>
-    >>> for f in glob("example*"):
-    ...     os.unlink(f)
+    import os
+    from glob import glob
+    for f in glob("example*"):
+        os.unlink(f)
 
 Image
 -----

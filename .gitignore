@@ -1,3 +1,5 @@
+*.npy
+.sync/
 *.hdf5
 *.bz2
 *.tags1

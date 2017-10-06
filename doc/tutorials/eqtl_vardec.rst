@@ -91,43 +91,44 @@ We are going to use a HDF5 file containg phenotype and genotypedd.
 Selecting gene YBR115C under the glucose condition
 --------------------------------------------------
 
+Query for a specific phenotype, select the phenotype itself and plot it.
+
 .. ipython::
 
-    In [10]: # Query for a specific phenotype
+    In [10]: header = data['phenotype']['col_header']
 
-    In [11]: header = data['phenotype']['col_header']
+    In [11]: query = "gene_ID=='YBR115C' and environment==0"
 
-    In [12]: query = "gene_ID=='YBR115C' and environment==0"
+    In [12]: idx = header.query(query).i.values
 
-    In [13]: idx = header.query(query).i.values
-
-    In [14]: # Select the phenotype itself
-
-    In [15]: y = data['phenotype']['matrix'][:, idx].ravel()
+    In [13]: y = data['phenotype']['matrix'][:, idx].ravel()
 
     @savefig yeast_pheno01.png width=5in
-    In [16]: limix.plot.plot_normal(y);
+    In [14]: limix.plot.plot_normal(y);
 
-    In [17]: limix.plot.clf()
+    In [15]: limix.plot.clf()
 
 Genetic relatedness matrix
 --------------------------
 
-.. ipython:: python
+.. ipython::
 
-    G = data['genotype']['matrix']
-    K = limix.stats.linear_kinship(G, verbose=False)
+    In [16]: G = data['genotype']['matrix']
+
+    In [17]: K = limix.stats.linear_kinship(G, verbose=False)
+
     @savefig yeast_K01.png width=5in
-    limix.plot.plot_kinship(K);
+    In [18]: limix.plot.plot_kinship(K);
 
 Univariate association test with linear mixed model
 ---------------------------------------------------
 
-.. ipython:: python
+.. ipython::
 
-    >>> result = limix.qtl.scan(G, y, 'normal', K, verbose=False)
+    In [19]: result = limix.qtl.scan(G, y, 'normal', K, verbose=False)
+
     @doctest
-    >>> print(result)
+    In [20]:  print(result)
         Variants
               effsizes  effsizes_se       pvalues
     count  2956.000000  2956.000000  2.956000e+03
