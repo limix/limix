@@ -11,6 +11,7 @@ Genomic analyses require flexible models that can be adapted to the needs of the
 Limix is a flexible and efficient linear mixed model library with interfaces to Python.
 
 Limix includes methods for
+
 - Single-variant association and interaction testing
 - Variance decompostion analysis with linear mixed models
 - Association and interaction set tests
@@ -21,14 +22,13 @@ The documentation can be found at  https://limix.readthedocs.io/en/develop.
 Install
 -------
 
-This is the development limix version, and it can be installed on MacOS and
-Linux via
+The development version of limix can be installed on MacOS and Linux via
 
 .. code:: bash
 
     bash <(curl -fsSL https://raw.githubusercontent.com/limix/limix/develop/install)
 
-Stable limix versions are installed via conda_
+Stable versions of limix are installed via conda_ though
 
 .. code:: bash
 
@@ -74,8 +74,8 @@ This project is licensed under the Apache License License - see the
 .. |Build-Status| image:: https://travis-ci.org/limix/limix.svg?branch=develop
     :target: https://travis-ci.org/limix/limix
 
-.. |Codacy-Grade| image:: https://api.codacy.com/project/badge/Grade/e0227434c8f040888ff92d1a4d67bcc8
-    :target: https://www.codacy.com/app/danilo.horta/limix?utm_source=github.com&utm_medium=referral&utm_content=limix/limix&utm_campaign=badger
+.. |Codacy-Grade| image:: https://api.codacy.com/project/badge/Grade/cd0ff739fa004091a1459f1a13d55ad0
+    :target: https://www.codacy.com/app/danilo.horta/limix?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=limix/limix&amp;utm_campaign=Badge_Grade
 
 .. |PyPI-Status| image:: https://img.shields.io/pypi/v/limix.svg
     :target: https://pypi.python.org/pypi/limix
