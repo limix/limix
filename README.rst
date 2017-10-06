@@ -96,7 +96,7 @@ This project is licensed under the Apache License License - see the
     :target: https://limix.readthedocs.io/en/develop
 
 .. |Coverage| image:: https://codecov.io/gh/limix/limix/branch/develop/graph/badge.svg
-    :target: https://codecov.io/gh/limix/limix
+    :target: https://codecov.io/gh/limix/limix/branch/develop
 
 .. _License file: https://raw.githubusercontent.com/limix/limix/develop/LICENSE.txt
 
