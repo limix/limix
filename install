@@ -2,7 +2,7 @@
 
 # bash <(curl -fsSL https://raw.githubusercontent.com/limix/limix/develop/install)
 
-echo "[0/5] Installing development limix version"
+echo "[0/4] Installing development limix version"
 
 rm /tmp/limix.XXXX.log >/dev/null 2>&1 || true
 
@@ -49,43 +49,16 @@ function install_deps
     bash <(curl -fsSL https://raw.githubusercontent.com/limix/liknorm/master/install)
 }
 
-echo -n "[2/5] Installing C dependencies... "
-install_deps
+echo -n "[2/4] Installing C dependencies... "
+silent_run install_deps
 [ $? == 0 ] && echo "done." || failed
 
+echo -n "[3/4] Installing Python dependencies... "
+silent_run pip install -r requirements.txt
+[ $? == 0 ] && echo "done." || failed
 
-# silent_trun rm $FILE
-# silent_trun rm -rf $DIR
-
-# echo -n "[1/5] Downloading... "
-# silent_run curl -o $FILE -L $URL
-# [ $? == 0 ] && echo "done." || failed
-#
-# tar xzf $FILE && cd $DIR
-# mkdir build && cd build
-#
-# echo -n "[2/5] Configuring... "
-# silent_run cmake ..
-# [ $? == 0 ] && echo "done." || failed
-#
-# echo -n "[3/5] Compiling... "
-# silent_run make
-# [ $? == 0 ] && echo "done." || failed
-#
-# echo -n "[4/5] Testing... "
-# silent_run make test
-# [ $? == 0 ] && echo "done." || failed
-#
-# echo -n "[5/5] Installing... "
-# silent_run do_then_sudo make install
-# [ $? == 0 ] && echo "done." || failed
-#
-# cd .. && cd ..
-# silent_trun rm hcephes-$VERSION.tar.gz
-# silent_trun rm -rf hcephes-$VERSION
-#
-# if type "ldconfig" >&3 2>&1; then
-#     silent_run do_then_sudo ldconfig
-# fi
+echo -n "[4/4] Installing limix itself... "
+silent_run python setup.py develop
+[ $? == 0 ] && echo "done." || failed
 
 rm "$logfile" || true
