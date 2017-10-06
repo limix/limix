@@ -1,6 +1,8 @@
 from __future__ import division
 
-from numpy import arange, asarray, cumsum, flipud, log10
+from numpy import arange, asarray, cumsum, flipud, issubdtype, log10, number
+
+from limix.fprint import oprint
 
 
 def plot_manhattan(df,
@@ -56,7 +58,12 @@ def plot_manhattan(df,
 
     ax = plt.gca() if ax is None else ax
 
-    if 'pos' not in df:
+    if 'pos' in df:
+        if not issubdtype(df['pos'].dtype, number):
+            oprint("Position is not a numeric type." +
+                   " Converting it to numbers...")
+            df['pos'] = df['pos'].astype(int)
+    else:
         df['pos'] = arange(df.shape[0])
 
     if 'label' not in df:
