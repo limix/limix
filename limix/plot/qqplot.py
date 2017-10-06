@@ -2,8 +2,8 @@ from __future__ import division
 
 from numpy import sum as npsum
 from numpy import (
-    append, arange, asarray, ascontiguousarray, concatenate, flipud, linspace,
-    log10, ones, percentile, searchsorted, sort, where
+    arange, ascontiguousarray, flipud, linspace, log10, ones, percentile,
+    searchsorted, sort, where
 )
 from scipy.special import betaincinv
 

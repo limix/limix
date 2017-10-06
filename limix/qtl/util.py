@@ -1,15 +1,12 @@
 from __future__ import division
 
-from collections import OrderedDict
-
 import dask.dataframe as dd
-from numpy import stack as npy_stack
 from numpy import clip, eye, ones
-from numpy_sugar.linalg import economic_qs
 
 from limix.qc import gower_norm
 from limix.util import Timer, array_hash
 from limix.util.npy_dask import all, asarray, isfinite
+from numpy_sugar.linalg import economic_qs
 
 
 def assure_named(M):

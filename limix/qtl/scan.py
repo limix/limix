@@ -2,10 +2,10 @@ from __future__ import division
 
 from numpy import all as npall
 from numpy import diag, eye, isfinite, ones
-from numpy_sugar.linalg import economic_qs
 
-from glimix_core.glmm import GLMM, GLMMExpFam
+from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
+from numpy_sugar.linalg import economic_qs
 
 from .model import QTLModel
 from .util import (

@@ -87,8 +87,6 @@ class QTLModel(object):
         return self._null_covariate_effsizes
 
     def __str__(self):
-        from pandas import DataFrame
-
         data = dict(
             effsizes=self.variant_effsizes,
             effsizes_se=self.variant_effsizes_se,

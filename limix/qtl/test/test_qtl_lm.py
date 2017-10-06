@@ -1,4 +1,4 @@
-from numpy import dot, sqrt, zeros
+from numpy import dot, sqrt
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 

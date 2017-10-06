@@ -79,7 +79,7 @@ def _infer_separator(fn):
         line = f.readline().strip()
         counter = _count(set(line), line)
 
-        for i in range(nmax - 1):
+        for _ in range(nmax - 1):
             line = f.readline().strip()
             if len(line) == 0:
                 break

@@ -1,6 +1,6 @@
 from __future__ import division
 
-from numpy import dot, sqrt, zeros
+from numpy import dot, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 

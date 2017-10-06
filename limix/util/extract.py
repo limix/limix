@@ -18,7 +18,7 @@ def extract(filepath, verbose=True):
     with open(filepath, 'rb') as f:
         o = bz2.decompress(f.read())
 
-    filename, file_extension = os.path.splitext(filepath)
+    filename = os.path.splitext(filepath)[0]
 
     with open(filename, 'wb') as f:
         f.write(o)

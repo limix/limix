@@ -16,7 +16,7 @@ def test_heritability_estimate_binomial():
 
     successes = zeros(len(ntrials), int)
     for i, nt in enumerate(ntrials):
-        for j in range(nt):
+        for _ in range(nt):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
     y = (successes, ntrials)
