@@ -133,7 +133,7 @@ readings between individuals, and the result will be visualised via heatmap.
 
     In [18]: K = limix.stats.linear_kinship(G, verbose=False)
 
-    @savefig yeast_K01.png width=5in
+    @savefig yeast_kinship01.png width=5in
     In [19]: limix.plot.plot_kinship(K);
 
     In [20]: limix.plot.clf()
