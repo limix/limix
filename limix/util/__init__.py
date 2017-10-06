@@ -14,7 +14,6 @@ Public interface
 
 from . import npy_dask
 from ._hash import array_hash, filehash
-from .cmdline import run_commandline
 from .extract import extract
 from .set_utils import annotate_sets, sets_from_bim
 from .temp import TemporaryDirectory
@@ -26,5 +25,5 @@ log2pi = 1.837877066409345339081937709124758839607238769531250
 __all__ = [
     'sets_from_bim', 'annotate_sets', 'TemporaryDirectory', 'urlretrieve',
     'Timer', 'npy_dask', 'array_hash', 'log2pi', 'download', 'extract',
-    'run_commandline', 'filehash'
+    'filehash'
 ]

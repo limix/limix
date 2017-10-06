@@ -143,9 +143,9 @@ def _abs_pos(df):
     df['abs_pos'] = df['pos'].copy()
 
     uchroms = list(reversed(uchroms))
-    for i in range(len(offset)):
+    for i, oi in enumerate(offset):
         ix = df['chrom'] == uchroms[i]
-        df.loc[ix, 'abs_pos'] = df.loc[ix, 'abs_pos'] + offset[i]
+        df.loc[ix, 'abs_pos'] = df.loc[ix, 'abs_pos'] + oi
 
     return df
 

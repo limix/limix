@@ -1,10 +1,10 @@
 from __future__ import division
 
+from numpy import sum as npsum
 from numpy import (
     append, arange, asarray, ascontiguousarray, concatenate, flipud, linspace,
-    log10, ones, percentile, searchsorted, sort, sum, where
+    log10, ones, percentile, searchsorted, sort, where
 )
-from numpy.random import RandomState
 from scipy.special import betaincinv
 
 
@@ -57,7 +57,6 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
 
     for label in labels:
         df0 = df.loc[df['label'] == label, ['pv']]['pv']
-        # pv = concatenate(df0.reset_index(drop=True))
         pv = df0.reset_index(drop=True).values
         pv = sort(pv)
         ok = _subsample(pv)
@@ -146,7 +145,7 @@ def _subsample(pvalues):
     qv_min = qv[-1]
     qv_max = qv[0]
 
-    snok = sum(nok)
+    snok = npsum(nok)
 
     resolution = min(snok, resolution)
 

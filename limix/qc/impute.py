@@ -70,7 +70,7 @@ def mean_impute(X):
         X = da.concatenate(arrs, axis=1)
     else:
         m = nanmean(X, axis=0)
-        for i in range(len(m)):
-            X[isnan(X[:, i]), i] = m[i]
+        for i, mi in enumerate(m):
+            X[isnan(X[:, i]), i] = mi
 
     return X

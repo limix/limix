@@ -72,8 +72,7 @@ def _collect_nhits(df):
     alphas = linspace(0.01, 0.5, 500)
     nhits = {l: [] for l in labels}
 
-    for i in range(len(alphas)):
-        alpha = alphas[i]
+    for alpha in alphas:
         for label in labels:
             ix = df['label'] == label
             df_ = df.loc[ix, :]

@@ -43,9 +43,11 @@ def _consensus_curve(x, y, std_dev=3.0):
     nx = ones((len(x), n))
     ny = ones((len(y), n))
 
-    for i in range(len(x)):
-        nx[i, :len(x[i])] = x[i]
-        ny[i, :len(y[i])] = y[i]
+    for i, xi in enumerate(x):
+        nx[i, :len(xi)] = xi
+
+    for i, yi in enumerate(y):
+        ny[i, :len(yi)] = yi
 
     x = nx
     y = ny

@@ -1,9 +1,5 @@
-from optparse import OptionParser
-
 import numpy as np
 import pandas as pd
-
-from limix.io import read_plink
 
 
 def sets_from_bim(bim,
@@ -174,22 +170,3 @@ def calc_nsnps(pos, start, end):
     for i, r in enumerate(zip(start, end)):
         nsnps[i] = ((pos >= r[0]) & (pos < r[1])).sum()
     return nsnps
-
-
-if __name__ == '__main__':
-
-    import os
-
-    bedpath = 'data/chrom22_subsample20_maf0.10'
-
-    if not os.path.exists(bedpath + '.bim'):
-        os.system('wget http://www.ebi.ac.uk/~casale/data.zip')
-        os.system('unzip data.zip')
-
-    (bim, fam, G) = read_plink(bedpath)
-
-    # sets_from_bim
-    sets = sets_from_bim(bim)
-
-    # annotate_sets
-    sets1 = annotate_sets(sets, bim, minSnps=100, maxSnps=200)

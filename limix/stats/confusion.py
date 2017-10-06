@@ -23,34 +23,28 @@ def first_occurrence(arr, v):
 
 @jit
 def _walk_left(pos, c, dist):
-    assert dist > 0
     step = 0
     middle = pos[c]
     i = c
     while i > 0 and step < dist:
         i -= 1
-        assert pos[i] <= middle
         step = (middle - pos[i])
     if step > dist:
         i += 1
-    assert i <= c
     return i
 
 
 @jit
 def _walk_right(pos, c, dist):
-    assert dist > 0
     step = 0
     middle = pos[c]
     i = c
     n = len(pos)
     while i < n - 1 and step < dist:
         i += 1
-        assert pos[i] >= middle
         step = (pos[i] - middle)
     if step > dist:
         i -= 1
-    assert i >= c
     return i
 
 
@@ -62,7 +56,6 @@ def roc_curve(multi_score, method, max_fpr=0.05):
     for (i, fpr) in enumerate(fprs):
         tprs_ = multi_score.get_tprs(method, fpr=fpr, approach='rank')
         tprs[i] = np.mean(tprs_)
-        assert tprs[i] >= tprs[max(i - 1, 0)]
         tprs_stde[i] = np.std(tprs_) / np.sqrt(len(tprs_))
     return (fprs, tprs, tprs_stde)
 
@@ -160,7 +153,9 @@ class ConfusionMatrix(object):
     def __init__(self, P, N, true_set, idx_rank):
         self._TP = np.empty(P + N + 1, dtype=int)
         self._FP = np.empty(P + N + 1, dtype=int)
-        assert len(idx_rank) == P + N
+        if len(idx_rank) != P + N:
+            raise ValueError("Rank indices array has to have length equal" +
+                             " to ``P + N``.")
 
         true_set = np.asarray(true_set, int)
         true_set.sort()
