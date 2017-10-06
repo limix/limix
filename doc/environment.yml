@@ -23,6 +23,7 @@ dependencies:
 - matplotlib=2.0.2
 - zlib=1.2.11
 - statsmodels=0.8.0
+- h5py=2.7.0
 - pip:
   - apipkg==1.4
   - brent-search==1.0.29
