@@ -1,12 +1,11 @@
 from __future__ import division
 
 import scipy.spatial
+from joblib import Parallel, cpu_count, delayed
 from numpy import (
     ascontiguousarray, double, einsum, logical_not, newaxis, sqrt, zeros
 )
 from scipy.spatial import _distance_wrap
-
-from joblib import Parallel, cpu_count, delayed
 from tqdm import tqdm
 
 
@@ -89,9 +88,9 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     """
     left = 0
     excls = zeros(X.shape[1], dtype=bool)
-    excl = zeros(window_size, dtype=bool)
 
-    assert step_size <= window_size
+    if step_size > window_size:
+        raise ValueError("Window size has to be smaller than step size.")
 
     n = (X.shape[1] + step_size) // step_size
 

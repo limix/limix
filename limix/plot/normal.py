@@ -1,4 +1,3 @@
-import numpy as np
 import scipy.stats as st
 from numpy import mean as _mean
 from numpy import std as _std
@@ -69,11 +68,10 @@ def plot_normal(x, bins=20, nstd=2, style=None, ax=None):
 
 def plot_qqnormal(x, ax=None):
     import matplotlib.pyplot as plt
-    from scipy import stats
 
     ax = plt.gca() if ax is None else ax
 
-    stats.probplot(x, dist=stats.norm, plot=ax)
+    st.probplot(x, dist=st.norm, plot=ax)
 
     return ax
 
