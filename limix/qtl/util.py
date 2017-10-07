@@ -20,6 +20,8 @@ def assure_named(M):
         return M
 
     M = asarray(M)
+    if M.ndim != 2:
+        raise ValueError("Wrong number of dimensions. It should be two.")
     M = DataFrame(M, columns=list(range(M.shape[1])))
 
     return M
