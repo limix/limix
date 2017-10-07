@@ -1,10 +1,8 @@
 from __future__ import division
 
-import scipy.spatial
 from joblib import Parallel, cpu_count, delayed
-from numpy import (
-    ascontiguousarray, double, einsum, logical_not, newaxis, sqrt, zeros
-)
+from numpy import (ascontiguousarray, double, einsum, logical_not, newaxis,
+                   sqrt, zeros)
 from scipy.spatial import _distance_wrap
 from tqdm import tqdm
 

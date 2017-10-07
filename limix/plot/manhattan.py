@@ -5,11 +5,7 @@ from numpy import arange, asarray, cumsum, flipud, issubdtype, log10, number
 from limix.fprint import oprint
 
 
-def plot_manhattan(df,
-                   alpha=None,
-                   null_style=dict(alpha=0.1, color='DarkBlue'),
-                   alt_style=dict(alpha=0.5, color='Orange'),
-                   ax=None):
+def plot_manhattan(df, alpha=None, null_style=None, alt_style=None, ax=None):
     r"""Produce a manhattan plot.
 
     Parameters
@@ -55,6 +51,12 @@ def plot_manhattan(df,
     """
 
     import matplotlib.pyplot as plt
+
+    if null_style is None:
+        null_style = dict(alpha=0.1, color='DarkBlue')
+
+    if alt_style is None:
+        alt_style = dict(alpha=0.5, color='Orange')
 
     ax = plt.gca() if ax is None else ax
 

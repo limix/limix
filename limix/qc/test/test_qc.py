@@ -1,7 +1,6 @@
 from __future__ import division
 
 from dask.array import from_array
-from numpy import logical_not
 from numpy.random import RandomState
 from numpy.testing import assert_allclose, assert_equal
 

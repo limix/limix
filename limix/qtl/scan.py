@@ -8,10 +8,8 @@ from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
 from .model import QTLModel
-from .util import (
-    assure_named, covariates_process, kinship_process, phenotype_process,
-    print_analysis
-)
+from .util import (assure_named, covariates_process, kinship_process,
+                   phenotype_process, print_analysis)
 
 
 def scan(G, y, lik, K=None, M=None, verbose=True):
@@ -261,7 +259,7 @@ def _covariates_process(M, nsamples):
     if M is None:
         M = DataFrame({'offset': ones(nsamples, float)})
     else:
-        M = assure_named(M, nsamples)
+        M = assure_named(M)
 
     if not all(isfinite(M.values)):
         msg = "One or more values of the provided covariates "

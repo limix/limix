@@ -31,8 +31,6 @@ def linear_kinship(G, out=None, verbose=True):
     nsteps = min(30, p)
 
     for i in tqdm(range(nsteps), disable=not verbose):
-        start = i * (p // nsteps)
-
         G = G - G.mean(0)
         G /= G.std(0)
         G /= sqrt(p)
