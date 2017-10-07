@@ -1,4 +1,6 @@
-from numpy import abs, any, where
+from numpy import abs as npabs
+from numpy import any as npany
+from numpy import where
 from scipy.linalg import qr
 
 
@@ -18,8 +20,8 @@ def remove_dependent_cols(X, tol=1e-6, verbose=False):
         Full column rank matrix.
     """
     R = qr(X, mode='r')[0][:X.shape[1], :]
-    I = (abs(R.diagonal()) > tol)
-    if any(~I) and verbose:
+    I = (npabs(R.diagonal()) > tol)
+    if npany(~I) and verbose:
         msg = 'Columns ' + str(where(~I)[0])
         print(msg + ' have been removed because linear dependence')
         R = X[:, I]

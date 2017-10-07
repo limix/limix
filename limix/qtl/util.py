@@ -5,7 +5,8 @@ from numpy import clip, eye, ones
 
 from limix.qc import gower_norm
 from limix.util import Timer, array_hash
-from limix.util.npy_dask import all, asarray, isfinite
+from limix.util.npy_dask import all as ddall
+from limix.util.npy_dask import asarray, isfinite
 from numpy_sugar.linalg import economic_qs
 
 
@@ -38,7 +39,7 @@ def phenotype_process(lik, y):
     else:
         y = asarray(y, float)
 
-    if not all(isfinite(y)):
+    if not ddall(isfinite(y)):
         msg = "One or more values of the provided phenotype "
         msg += "is not finite."
         raise ValueError(msg)
@@ -53,7 +54,7 @@ def covariates_process(M, nsamples):
     else:
         M = assure_named(M)
 
-    if not all(isfinite(M.values)):
+    if not ddall(isfinite(M.values)):
         msg = "One or more values of the provided covariates "
         msg += "is not finite."
         raise ValueError(msg)
@@ -76,7 +77,7 @@ def kinship_process(K, nsamples, verbose):
 
     if nvalid:
 
-        if not all(isfinite(K)):
+        if not ddall(isfinite(K)):
             msg = "One or more values of the provided covariance matrix "
             msg += "is not finite."
             raise ValueError(msg)

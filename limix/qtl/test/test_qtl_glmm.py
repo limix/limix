@@ -18,8 +18,8 @@ def test_qtl_glmm_binomial():
     z = dot(G, random.randn(100)) / sqrt(100)
 
     successes = zeros(len(ntrials), int)
-    for i in range(len(ntrials)):
-        for _ in range(ntrials[i]):
+    for i, nt in enumerate(ntrials):
+        for _ in range(nt):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
     y = (successes, ntrials)

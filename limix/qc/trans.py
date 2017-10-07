@@ -3,7 +3,8 @@ from __future__ import division
 from numpy import inf
 
 from brent_search import brent
-from limix.util.npy_dask import abs, asarray, clip, nanmean, nanstd
+from limix.util.npy_dask import abs as ddabs
+from limix.util.npy_dask import asarray, clip, nanmean, nanstd
 from numpy_sugar import epsilon
 
 
@@ -155,7 +156,7 @@ def boxcox(x):
 
     m = x.min()
     if m <= 0:
-        m = max(abs(m), epsilon.small)
+        m = max(ddabs(m), epsilon.small)
         x = x + m + m / 2
 
     lmb = brent(lambda lmb: -boxcox_llf(lmb, x), -5, +5)[0]
