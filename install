@@ -1,6 +1,25 @@
 #!/bin/bash
 
+function yes_or_no {
+    while true; do
+        read -p "$* [y/n]: " yn
+        case $yn in
+            [Yy]*) return 0  ;;
+            [Nn]*) echo "Aborted" ; return  1 ;;
+        esac
+    done
+}
+
 echo "[0/4] Installing development limix version"
+
+which conda &>/dev/null
+
+if [ $? == 0 ]
+then
+    echo "Looks like you have conda package manager."
+    msg="Shall we use it to install the C libraries? (Recommended.)"
+    yes_or_no $msg && USE_CONDA="yes" || USE_CONDA="no"
+fi
 
 rm /tmp/limix.XXXX.log >/dev/null 2>&1 || true
 
@@ -43,8 +62,13 @@ cd $GIT_FOLDER
 
 function install_deps
 {
-    bash <(curl -fsSL https://raw.githubusercontent.com/limix/hcephes/master/install)
-    bash <(curl -fsSL https://raw.githubusercontent.com/limix/liknorm/master/install)
+    if [[ $USE_CONDA == "yes" ]]
+    then
+        conda install --yes -c conda-forge hcephes liknorm
+    else
+        bash <(curl -fsSL https://raw.githubusercontent.com/limix/hcephes/master/install)
+        bash <(curl -fsSL https://raw.githubusercontent.com/limix/liknorm/master/install)
+    fi
 }
 
 echo -n "[2/4] Installing C dependencies... "
