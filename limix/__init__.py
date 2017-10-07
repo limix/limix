@@ -11,6 +11,7 @@ from __future__ import absolute_import as _
 
 from . import cmdlimix, heritability, io, plot, qc, qtl, stats, util
 from .testit import test
+from .threads import get_max_nthreads, set_max_nthreads
 from .util import download, extract, filehash
 
 __name__ = "limix"
@@ -21,5 +22,5 @@ __author_email__ = "stegle@ebi.ac.uk"
 __all__ = [
     "__name__", "__version__", "__author__", "__author_email__", "test", 'io',
     'plot', 'qc', 'qtl', 'stats', 'util', 'heritability', 'download',
-    'extract', 'filehash', 'cmdlimix'
+    'extract', 'filehash', 'cmdlimix', 'set_max_nthreads', 'get_max_nthreads'
 ]

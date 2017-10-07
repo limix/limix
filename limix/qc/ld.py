@@ -1,6 +1,6 @@
 from __future__ import division
 
-from joblib import Parallel, cpu_count, delayed
+from joblib import Parallel, delayed
 from numpy import (ascontiguousarray, double, einsum, logical_not, newaxis,
                    sqrt, zeros)
 from scipy.spatial import _distance_wrap
@@ -84,6 +84,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
                 True,  True,  True,  True,  True,  True,  True,  True,  True,
                 True,  True], dtype=bool)
     """
+    from .. import get_max_nthreads
     left = 0
     excls = zeros(X.shape[1], dtype=bool)
 
@@ -93,7 +94,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     n = (X.shape[1] + step_size) // step_size
 
     steps = list(range(n))
-    cc = max(1, cpu_count())
+    cc = get_max_nthreads()
 
     with tqdm(total=n, desc='Indep. pairwise', disable=not verbose) as pbar:
 
