@@ -272,15 +272,3 @@ their names.
     In [39]: limix.plot.plot_manhattan(df);
 
     In [40]: limix.plot.clf()
-
-Cleaning up
------------
-
-Optinal step to remove the generated data files.
-
-.. ipython:: python
-
-    import os
-    from glob import glob
-    for f in glob("smith08.hdf5*"):
-        os.unlink(f)

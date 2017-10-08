@@ -257,13 +257,6 @@ shown as
     <BLANKLINE>
     [5 rows x 466 columns]
 
-.. testcleanup::
-
-    import os
-    from glob import glob
-    for f in glob("example*"):
-        os.unlink(f)
-
 Image
 -----
 

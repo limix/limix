@@ -13,9 +13,15 @@ else:
 
 # TODO: document it
 def download(url, verbose=True):
+    filename = _filename(url)
+    if os.path.exists(filename):
+        if verbose:
+            print("File {} already exists.".format(filename))
+        return
+
     if verbose:
         print("Downloading {}...".format(url))
-    urlretrieve(url, _filename(url))
+    urlretrieve(url, filename)
 
 
 def _filename(url):

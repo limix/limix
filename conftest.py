@@ -12,4 +12,3 @@ collect_ignore = [
     "conftest.py", "doc/conf.py", "setup.py",
     "{}/testit.py".format(get_pkg_name())
 ]
-pytest_plugins = 'sphinx.testing.fixtures'
