@@ -1,6 +1,7 @@
 from __future__ import division
 
 
+# TODO: add test
 def multipletests(pvals, alpha=0.05, method='hs', is_sorted=False):
     r'''Test results and p-value correction for multiple tests.
 

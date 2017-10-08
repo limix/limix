@@ -9,6 +9,7 @@ from numpy import ones
 from limix.util.npy_dask import asarray
 
 
+# TODO: document and use this function everywhere
 def assure_named_covariates(M, nsamples):
 
     if isinstance(M, dict):

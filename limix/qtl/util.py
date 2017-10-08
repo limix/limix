@@ -10,6 +10,8 @@ from limix.util.npy_dask import asarray, isfinite
 from numpy_sugar.linalg import economic_qs
 
 
+# TODO: simple documentation, but do not expose this interface
+
 def assure_named(M):
     from pandas import DataFrame
 

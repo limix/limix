@@ -1,6 +1,7 @@
 import scipy as sp
 
 
+# TODO: add test
 def empirical_pvalues(xt, x0):
     r"""Function to compute empirical p-values.
 

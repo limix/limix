@@ -1,3 +1,4 @@
+# TODO: document it
 def set_paper_style():
     from seaborn import set_context, despine, set_style
 

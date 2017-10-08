@@ -47,6 +47,9 @@ File plot
 
 """
 
+# TODO: we need a documentation telling that the user
+# does not need to call matplotlib directly
+
 from .consensus import ConsensusCurve
 from .curve import plot_curve
 from .image import see_image

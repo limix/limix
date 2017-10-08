@@ -1,4 +1,4 @@
-
+# TODO: document this module
 def unary_choice(unary_func_name):
 
     def func(a, *args, **kwargs):
@@ -32,15 +32,3 @@ def asarray(a, *args, **kwargs):
         return da.asarray(a)
 
     return np.asarray(a, *args, **kwargs)
-
-
-if __name__ == '__main__':
-    import numpy as np
-    import dask.array as da
-
-    a = np.random.randn(5)
-    a[1] = np.nan
-    b = da.from_array(a, chunks=(1, ))
-
-    print(all(isfinite(a)))
-    print(all(isfinite(b)).compute())

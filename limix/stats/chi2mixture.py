@@ -1,6 +1,7 @@
 import scipy as sp
 
 
+# TODO: implement test for this class
 class Chi2Mixture(object):
     r"""A class for continuous random variable following a chi2 mixture.
 

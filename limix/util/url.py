@@ -11,6 +11,7 @@ else:
     from urllib.parse import urlparse
 
 
+# TODO: document it
 def download(url, verbose=True):
     if verbose:
         print("Downloading {}...".format(url))

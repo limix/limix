@@ -33,24 +33,8 @@ from .gen import read_gen
 from .hdf5 import h5data_fetcher, read_hdf5_limix
 from .plink import read_plink
 
-
-def genotype_reader(*args, **kwargs):
-    from limix_legacy.io import genotype_reader
-    return genotype_reader(*args, **kwargs)
-
-
-def phenotype_reader(*args, **kwargs):
-    from limix_legacy.io import phenotype_reader
-    return phenotype_reader(*args, **kwargs)
-
-
-def data(*args, **kwargs):
-    from limix_legacy.io import data
-    return data(*args, **kwargs)
-
-
 __all__ = [
     'read_plink', 'h5data_fetcher', 'read_csv', 'read_gen', 'examples',
-    'genotype_reader', 'phenotype_reader', 'data', 'file_type', 'hdf5', 'csv',
-    'plink', 'npy', 'possible_file_types', 'read_hdf5_limix'
+    'file_type', 'hdf5', 'csv', 'plink', 'npy', 'possible_file_types',
+    'read_hdf5_limix'
 ]

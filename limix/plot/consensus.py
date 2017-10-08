@@ -3,6 +3,7 @@ from __future__ import absolute_import, division
 from numpy import asarray, logical_and, ones, sqrt
 
 
+# TODO: finish the documentation
 class ConsensusCurve(object):
     r"""Consolidate multiple curves in a single one."""
 

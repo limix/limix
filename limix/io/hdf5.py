@@ -3,6 +3,8 @@ from pandas import DataFrame
 
 import asciitree
 
+# TODO: refactor this entire file. There are too many things here
+
 
 class h5data_fetcher(object):
     r"""

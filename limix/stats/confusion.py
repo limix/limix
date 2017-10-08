@@ -60,6 +60,7 @@ def roc_curve(multi_score, method, max_fpr=0.05):
     return (fprs, tprs, tprs_stde)
 
 
+# TODO: convert to numpy style
 def confusion_matrix(df, wsize=50000):
     """Provide a couple of scores based on the idea of windows around
        genetic markers.
@@ -149,6 +150,7 @@ def getter(func):
     return ItemGetter()
 
 
+# TODO: document it
 class ConfusionMatrix(object):
     def __init__(self, P, N, true_set, idx_rank):
         self._TP = np.empty(P + N + 1, dtype=int)

@@ -1,3 +1,4 @@
+# TODO: finish this or get rid of it
 def regress_out(Y, X, return_b=False):
     r"""Regresses out X from Y"""
     from scipy.linalg import pinv

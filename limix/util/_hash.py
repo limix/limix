@@ -3,6 +3,7 @@ from __future__ import division
 import hashlib
 
 
+# TODO: document those functions
 def array_hash(X):
     writeable = X.flags.writeable
     X.flags.writeable = False

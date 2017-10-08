@@ -1,3 +1,4 @@
+# TODO: normalise this documentation
 def pca(X, ncomp):
     r"""Principal component analysis.
 

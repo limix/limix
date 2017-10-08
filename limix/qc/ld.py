@@ -27,19 +27,19 @@ def _pdist_threshold(mark, dist, thr):
     mark[:] = False
     size = len(mark)
 
-    l = 0
+    m = 0
     for i in range(0, size - 1):
         if mark[i]:
-            l += size - (i + 1)
+            m += size - (i + 1)
             continue
 
         for j in range(i + 1, size):
-            if dist[l] > thr:
+            if dist[m] > thr:
                 mark[j] = True
-            l += 1
+            m += 1
 
 
-def func(x, excls, threshold):
+def _func(x, excls, threshold):
     dist = _sq_pearson(x)
     e = zeros(x.shape[0], dtype=bool)
     _pdist_threshold(e, dist, threshold)
@@ -114,7 +114,8 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
                 right = min(left + window_size, X.shape[1])
                 x = ascontiguousarray(X[:, left:right].T)
 
-                delayeds.append(delayed(func)(x, excls[left:right], threshold))
+                delayeds.append(
+                    delayed(_func)(x, excls[left:right], threshold))
                 if len(delayeds) == cc:
                     Parallel(
                         n_jobs=min(len(delayeds), cc),

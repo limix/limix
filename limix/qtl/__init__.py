@@ -217,6 +217,8 @@ Interface
 
 """
 
+# TODO: move this documentation to rst
+
 from .interact import iscan
 from .scan import scan
 

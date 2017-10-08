@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 
+# TODO: convert to numpy doc
 def sets_from_bim(bim,
                   size=50000,
                   step=None,

@@ -77,17 +77,18 @@ def read_plink(prefix, verbose=True):
     return read_plink(prefix, verbose=verbose)
 
 
-def read_grm_raw(filepath):
+def _read_grm_raw(filepath):
     return loadtxt(filepath)
 
 
 def see_kinship(filepath, verbose):
+    # TODO: document
     import limix
 
     if filepath.endswith('.grm.raw'):
         with limix.util.Timer(
                 desc="Reading %s..." % filepath, disable=not verbose):
-            K = read_grm_raw(filepath)
+            K = _read_grm_raw(filepath)
     else:
         print("File %s not found." % filepath)
         return
@@ -105,6 +106,7 @@ def _print_title(title, msg):
 
 
 def see_bed(filepath, verbose):
+    # TODO: document
     (bim, fam, _) = read_plink(filepath, verbose=verbose)
 
     _print_title("Samples", repr(bim))

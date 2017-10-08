@@ -4,6 +4,7 @@ from time import time
 from humanfriendly import format_timespan
 
 
+# TODO: document it better
 class Timer(object):
     r"""Print the elapsed time after the execution of a block of code.
     """
