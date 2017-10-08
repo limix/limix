@@ -6,7 +6,6 @@ import tarfile
 # TODO: document
 def extract(filepath, verbose=True):
 
-
     if verbose:
         print("Extracting {}...".format(filepath))
 

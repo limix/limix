@@ -5,14 +5,13 @@ from numpy import pi, var
 
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
-from limix.fprint import eprint, oprint
-from limix.qc import gower_norm
-from limix.util import Timer
-from limix.util.npy_dask import asarray
+from ..fprint import eprint, oprint
+from ..qc import gower_norm
+from ..util import Timer
+from ..util.npy_dask import asarray
+from ..nice_arrays import covariates_process, named_to_unamed_matrix
 from numpy_sugar.linalg import economic_qs
 from optimix import OptimixError
-
-from ..covariates import assure_named_covariates, named_covariates_to_array
 
 
 def estimate(y, lik, K, M=None, verbose=True):
@@ -68,7 +67,7 @@ def estimate(y, lik, K, M=None, verbose=True):
         oprint("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
 
     K = asarray(K)
-    M = assure_named_covariates(M, K.shape[0])
+    M = covariates_process(M, K.shape[0])
     K = gower_norm(K)
 
     if isinstance(y, (tuple, list)):
@@ -84,10 +83,10 @@ def estimate(y, lik, K, M=None, verbose=True):
 
     try:
         if lik == 'normal':
-            method = LMM(y, named_covariates_to_array(M), QS)
+            method = LMM(y, named_to_unamed_matrix(M), QS)
             method.fit(verbose=verbose)
         else:
-            method = GLMMExpFam(y, lik, named_covariates_to_array(M), QS)
+            method = GLMMExpFam(y, lik, named_to_unamed_matrix(M), QS)
             method.fit(verbose=verbose)
     except OptimixError as e:
         eprint(e)

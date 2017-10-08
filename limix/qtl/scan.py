@@ -1,16 +1,16 @@
 from __future__ import division
 
 from numpy import all as npall
-from numpy import diag, eye, isfinite, ones
-from numpy import asarray
+from numpy import diag, isfinite
 
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
 from .model import QTLModel
-from .util import (assure_named, covariates_process, kinship_process,
-                   phenotype_process, print_analysis)
+from ..nice_arrays import (assure_named_matrix, covariates_process,
+                           kinship_process, phenotype_process)
+from .util import print_analysis
 
 
 def scan(G, y, lik, K=None, M=None, verbose=True):
@@ -113,7 +113,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     y = phenotype_process(lik, y)
 
     nsamples = len(G)
-    G = assure_named(G)
+    G = assure_named_matrix(G)
     if not npall(isfinite(G)):
         raise ValueError("Variant values must be finite.")
 

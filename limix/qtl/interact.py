@@ -5,10 +5,9 @@ from tqdm import tqdm
 from glimix_core.lmm import LMM
 
 from .model import IQTLModel
-from .util import (
-    assure_named, covariates_process, kinship_process, phenotype_process,
-    print_analysis
-)
+from ..nice_arrays import (assure_named_matrix, covariates_process,
+                           kinship_process, phenotype_process)
+from .util import print_analysis
 
 
 def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
@@ -111,11 +110,11 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
     y = phenotype_process(lik, y)
 
     nsamples = len(G)
-    G = assure_named(G)
+    G = assure_named_matrix(G)
     if not npall(isfinite(G)):
         raise ValueError("Variant values must be finite.")
 
-    inter = assure_named(inter)
+    inter = assure_named_matrix(inter)
     if not npall(isfinite(inter)):
         raise ValueError("Interaction values must be finite.")
 
