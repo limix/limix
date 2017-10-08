@@ -5,6 +5,8 @@ import tarfile
 
 # TODO: document
 def extract(filepath, verbose=True):
+
+
     if verbose:
         print("Extracting {}...".format(filepath))
 
@@ -16,10 +18,15 @@ def extract(filepath, verbose=True):
     except tarfile.ReadError:
         pass
 
+    filename = os.path.splitext(filepath)[0]
+
+    if os.path.exists(filename):
+        if verbose:
+            print("File {} already exists.".format(filename))
+        return
+
     with open(filepath, 'rb') as f:
         o = bz2.decompress(f.read())
-
-    filename = os.path.splitext(filepath)[0]
 
     with open(filename, 'wb') as f:
         f.write(o)
