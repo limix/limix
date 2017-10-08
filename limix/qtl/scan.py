@@ -208,5 +208,6 @@ def _perform_glmm_version3(y, lik, M, K, QS, G, mixed, verbose):
 def _perform_glmm_version4(y, lik, M, K, QS, G, mixed, verbose):
     pass
 
+
 # TODO: transform this in a single glmm version because you should be
 # working on your own branch for experiments

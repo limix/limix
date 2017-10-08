@@ -9,7 +9,8 @@ from ..fprint import eprint, oprint
 from ..qc import gower_norm
 from ..util import Timer
 from ..util.npy_dask import asarray
-from ..nice_arrays import covariates_process, named_to_unamed_matrix
+from ..nice_arrays import (covariates_process, named_to_unamed_matrix,
+                           phenotype_process)
 from numpy_sugar.linalg import economic_qs
 from optimix import OptimixError
 
@@ -65,6 +66,8 @@ def estimate(y, lik, K, M=None, verbose=True):
         lik_name = lik_name[0].upper() + lik_name[1:]
         analysis_name = "Heritability estimation"
         oprint("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
+
+    y = phenotype_process(lik, y)
 
     K = asarray(K)
     M = covariates_process(M, K.shape[0])
