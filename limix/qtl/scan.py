@@ -3,7 +3,7 @@ from __future__ import division
 from numpy import all as npall
 from numpy import diag, isfinite
 
-from glimix_core.glmm import GLMMExpFam
+from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
@@ -126,7 +126,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     if lik == 'normal':
         model = _perform_lmm(y, M, QS, G, mixed, verbose)
     else:
-        model = _perform_glmm_version1(y, lik, M, K, QS, G, mixed, verbose)
+        model = _perform_glmm(y, lik, M, K, QS, G, mixed, verbose)
 
     if verbose:
         print(model)
@@ -160,8 +160,9 @@ def _perform_lmm(y, M, QS, G, mixed, verbose):
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
 
-def _perform_glmm_version1(y, lik, M, K, QS, G, mixed, verbose):
+def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     from pandas import Series
+
     glmm = GLMMExpFam(y, lik, M.values, QS)
     if not mixed:
         glmm.delta = 1
@@ -170,24 +171,20 @@ def _perform_glmm_version1(y, lik, M, K, QS, G, mixed, verbose):
 
     eta = glmm.site.eta
     tau = glmm.site.tau
-    scale = float(glmm.scale)
-    delta = float(glmm.delta)
 
-    beta = glmm.beta
+    gnormal = GLMMNormal(eta, tau, M.values, QS)
+    gnormal.fit(verbose=verbose)
+
+    scale = float(gnormal.scale)
+    delta = float(gnormal.delta)
+
+    beta = gnormal.beta
 
     keys = list(M.keys())
     ncov_effsizes = Series(beta, keys)
 
-    mu = eta / tau
-    var = 1. / tau
-    s2_g = scale * (1 - delta)
-    tR = diag(var - var.min() + 1e-4)
-    tR += s2_g * K
-
-    lmm = LMM(mu, X=M.values, QS=economic_qs(tR))
-    lmm.fit(verbose=verbose)
-    null_lml = lmm.lml()
-    flmm = lmm.get_fast_scanner()
+    null_lml = gnormal.lml()
+    flmm = gnormal.get_fast_scanner()
 
     alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
 
@@ -196,18 +193,3 @@ def _perform_glmm_version1(y, lik, M, K, QS, G, mixed, verbose):
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
-
-def _perform_glmm_version2(y, lik, M, K, QS, G, mixed, verbose):
-    pass
-
-
-def _perform_glmm_version3(y, lik, M, K, QS, G, mixed, verbose):
-    pass
-
-
-def _perform_glmm_version4(y, lik, M, K, QS, G, mixed, verbose):
-    pass
-
-
-# TODO: transform this in a single glmm version because you should be
-# working on your own branch for experiments
