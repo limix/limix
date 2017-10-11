@@ -3,6 +3,12 @@ r"""
 Plotting utilities
 ******************
 
+
+Box-Plot
+^^^^^^^^
+
+.. autofunction:: limix.plot.boxplot
+
 Curve
 ^^^^^
 
