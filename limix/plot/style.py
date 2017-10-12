@@ -30,8 +30,7 @@ def set_paper_style():
         'ytick.major.width': 0.6,
         'xtick.minor.width': 0.3,
         'ytick.minor.width': 0.3,
-        'xtick.major.pad': 5.6000000000000005,
-        'ytick.major.pad': 5.6000000000000005
+        'xtick.major.pad': 5.6,
+        'ytick.major.pad': 5.6
     }
     mpl.rcParams.update(rcParams)
-    print(rcParams)
