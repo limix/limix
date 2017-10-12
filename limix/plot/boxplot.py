@@ -21,25 +21,31 @@ def boxplot(df, style=None):
             columns=dict(time='category', kind='variable', pulse='value'),
             inplace=True)
 
-        limix.plot.boxplot(df)
         limix.plot.set_paper_style()
+        limix.plot.boxplot(df)
         limix.plot.show()
     """
-    from seaborn import factorplot
+    from seaborn import boxplot
 
     if style is None:
-        style = {label: dict() for label in labels}
+        style = dict()
 
-    g = factorplot(
-        kind='box',
-        y='value',
-        x='category',
-        hue='variable',
-        data=df,
-        legend=False,
-        **style)
+    if 'flierprops' not in style:
+        style['flierprops'] = dict()
 
-    g.axes[0, 0].grid(
-        True, which='major', axis='y', color="#AAAAAA", alpha=0.2)
+    style['flierprops'].update(dict(markersize=3.0))
+
+    g = boxplot(y='value', x='category', hue='variable', data=df, **style)
+
+    g.axes.grid(
+        True,
+        which='major',
+        axis='y',
+        linewidth=0.75,
+        linestyle='-',
+        color='#EEEEEE',
+        alpha=1.0)
+
+    g.axes.legend().remove()
 
     return g
