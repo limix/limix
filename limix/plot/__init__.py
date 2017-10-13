@@ -67,6 +67,7 @@ from .power import plot_power, plot_power_known
 from .qqplot import plot_qqplot
 from .style import set_paper_style
 from .boxplot import boxplot
+from .plotter import get_plot
 
 
 def show(*args, **kwargs):
@@ -127,11 +128,11 @@ def spine(left=True, right=True, top=True, bottom=True):
     from seaborn import despine
     despine(left=not left, right=not right, top=not top, bottom=not bottom)
 
-
-__all__ = [
-    'plot_manhattan', 'plot_qqplot', 'plot_normal', 'plot_kinship',
-    'see_image', 'plot_power', 'plot_power_known', 'plot_curve',
-    'ConsensusCurve', 'show', 'figure', 'plot_qqnormal', 'savefig', 'plot_pca',
-    'clf', 'set_paper_style', 'set_xlabel', 'set_ylabel', 'legend', 'set_xlim',
-    'set_ylim', 'tight_layout', 'spine', 'boxplot'
-]
+#
+# __all__ = [
+#     'plot_manhattan', 'plot_qqplot', 'plot_normal', 'plot_kinship',
+#     'see_image', 'plot_power', 'plot_power_known', 'plot_curve',
+#     'ConsensusCurve', 'show', 'figure', 'plot_qqnormal', 'savefig', 'plot_pca',
+#     'clf', 'set_paper_style', 'set_xlabel', 'set_ylabel', 'legend', 'set_xlim',
+#     'set_ylim', 'tight_layout', 'spine', 'boxplot'
+# ]

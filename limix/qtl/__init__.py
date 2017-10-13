@@ -160,37 +160,37 @@ The matrix ``G`` defines both five alternative hypotheses
     >>>
     >>> with option_context('precision', 5):
     ...     print(model.variant_pvalues.to_string())
-    0    0.06938
-    1    0.33356
-    2    0.58988
-    3    0.73875
-    4    0.77956
+    0    0.06563
+    1    0.31398
+    2    0.54154
+    3    0.65972
+    4    0.68753
     >>> with option_context('precision', 5):
     ...     print(model.variant_effsizes.to_string())
-    0    2.47322
-    1   -1.25879
-    2   -0.70675
-    3   -0.47723
-    4    0.37520
+    0    2.47711
+    1   -1.25636
+    2   -0.70597
+    3   -0.47655
+    4    0.37633
     >>> with option_context('precision', 5):
     ...     print(model.variant_effsizes_se.to_string())
-    0    1.36195
-    1    1.30178
-    2    1.31120
-    3    1.43093
-    4    1.34050
+    0    1.34557
+    1    1.24775
+    2    1.15640
+    3    1.08233
+    4    0.93565
     >>> with option_context('precision', 5):
     ...     print(model)
     Variants
            effsizes  effsizes_se  pvalues
     count   5.00000      5.00000  5.00000
-    mean    0.08113      1.34927  0.50222
-    std     1.46086      0.05150  0.29847
-    min    -1.25879      1.30178  0.06938
-    25%    -0.70675      1.31120  0.33356
-    50%    -0.47723      1.34050  0.58988
-    75%     0.37520      1.36195  0.73875
-    max     2.47322      1.43093  0.77956
+    mean    0.08291      1.15354  0.45368
+    std     1.46179      0.15677  0.26218
+    min    -1.25636      0.93565  0.06563
+    25%    -0.70597      1.08233  0.31398
+    50%    -0.47655      1.15640  0.54154
+    75%     0.37633      1.24775  0.65972
+    max     2.47711      1.34557  0.68753
     <BLANKLINE>
     Covariate effect sizes for the null model
       offset

@@ -1,6 +1,10 @@
 import matplotlib
-
 matplotlib.use('Agg')
+
+import doctest
+from limix import npy_doctest
+
+doctest.OutputChecker = npy_doctest.FlexNumOutputChecker
 
 
 def get_pkg_name():

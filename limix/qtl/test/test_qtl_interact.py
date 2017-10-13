@@ -36,7 +36,5 @@ def test_qtl_interact():
 
     model = iscan(X, y, 'normal', inter, K, verbose=False)
 
-    print(model.variant_pvalues)
-
     assert_allclose(model.variant_pvalues.loc['SNP02', 'inter01'],
                     [0.72881611358])

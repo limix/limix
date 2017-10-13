@@ -57,7 +57,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
         >>> from numpy import dot, exp, sqrt, ones
         >>> from numpy.random import RandomState
-        >>> from pandas import DataFrame, option_context
+        >>> from pandas import DataFrame
         >>> from limix.qtl import scan
         >>>
         >>> random = RandomState(1)
@@ -77,33 +77,36 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>>
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
-        >>> print(model.variant_pvalues.to_string())
-        rs0    0.683330
-        rs1    0.288122
-        rs2    0.514938
-        >>> print(model.variant_effsizes.to_string())
-        rs0   -0.084546
-        rs1   -0.267287
-        rs2   -0.153484
-        >>> print(model.variant_effsizes_se.to_string())
-        rs0    0.207261
-        rs1    0.251623
-        rs2    0.235705
-        >>> print(model)
+        >>> print(model.variant_pvalues)  # doctest: +NPY_FLEX_NUMS
+        rs0    0.527539
+        rs1    0.198125
+        rs2    0.525368
+        dtype: float64
+        >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
+        rs0   -0.130866
+        rs1   -0.315077
+        rs2   -0.143869
+        dtype: float64
+        >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
+        rs0    0.207143
+        rs1    0.244832
+        rs2    0.226532
+        dtype: float64
+        >>> print(model)  # doctest: +NPY_FLEX_NUMS
         Variants
                effsizes  effsizes_se   pvalues
         count  3.000000     3.000000  3.000000
-        mean  -0.168439     0.231530  0.495463
-        std    0.092284     0.022474  0.198323
-        min   -0.267287     0.207261  0.288122
-        25%   -0.210385     0.221483  0.401530
-        50%   -0.153484     0.235705  0.514938
-        75%   -0.119015     0.243664  0.599134
-        max   -0.084546     0.251623  0.683330
+        mean  -0.196604     0.226169  0.417010
+        std    0.102807     0.018847  0.189563
+        min   -0.315078     0.207143  0.198125
+        25%   -0.229473     0.216837  0.361747
+        50%   -0.143869     0.226532  0.525368
+        75%   -0.137368     0.235682  0.526453
+        max   -0.130866     0.244832  0.527538
         <BLANKLINE>
         Covariate effect sizes for the null model
-              age    offset
-        -0.005567  0.395267
+              age   offset
+        -0.005568  0.39529
     """
     lik = lik.lower()
 
@@ -192,4 +195,3 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     effsizes = Series(effsizes, list(G.keys()))
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
-
