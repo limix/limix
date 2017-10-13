@@ -62,7 +62,6 @@ alternative hypotheses to be tested:
 
     >>> from numpy.random import RandomState
     >>> from numpy import dot
-    >>> from pandas import option_context
     >>> from limix.qtl import scan
     >>>
     >>> random = RandomState(1)
@@ -75,26 +74,25 @@ alternative hypotheses to be tested:
     >>> kinship = dot(X, X.T) / float(10)
     >>>
     >>> model = scan(candidates, y, 'normal', kinship, verbose=False)
-    >>> with option_context('precision', 5):
-    ...     print(model.variant_pvalues.to_string())
-    0    0.34868
-    1    1.00000
-    2    0.42545
-    3    0.05915
-    >>> with option_context('precision', 5):
-    ...     print(model.variant_effsizes.to_string())
-    0    0.11475
-    1    0.00489
-    2   -0.20052
-    3    0.51587
-    >>> with option_context('precision', 5):
-    ...     print(model.variant_effsizes_se.to_string())
-    0    1.22450e-01
-    1    3.02424e+13
-    2    2.51589e-01
-    3    2.73372e-01
-    >>> with option_context('precision', 5):
-    ...     print(model)
+    >>> print(model.variant_pvalues)  # doctest: +NPY_FLEX_NUMS
+    0    0.348678
+    1    1.000000
+    2    0.425446
+    3    0.059153
+    dtype: float64
+    >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
+    0    0.114755
+    1    0.004894
+    2   -0.200519
+    3    0.515868
+    dtype: float64
+    >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
+    0    1.224501e-01
+    1    3.024236e+13
+    2    2.515891e-01
+    3    2.733718e-01
+    dtype: float64
+    >>> print(model)  # doctest: +NPY_FLEX_NUMS
     Variants
            effsizes  effsizes_se  pvalues
     count   4.00000  4.00000e+00  4.00000
@@ -158,43 +156,42 @@ The matrix ``G`` defines both five alternative hypotheses
     >>> K = dot(G[:, 5:], G[:, 5:].T)
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
-    >>> with option_context('precision', 5):
-    ...     print(model.variant_pvalues.to_string())
-    0    0.06563
-    1    0.31398
-    2    0.54154
-    3    0.65972
-    4    0.68753
-    >>> with option_context('precision', 5):
-    ...     print(model.variant_effsizes.to_string())
-    0    2.47711
-    1   -1.25636
-    2   -0.70597
-    3   -0.47655
-    4    0.37633
-    >>> with option_context('precision', 5):
-    ...     print(model.variant_effsizes_se.to_string())
-    0    1.34557
-    1    1.24775
-    2    1.15640
-    3    1.08233
-    4    0.93565
-    >>> with option_context('precision', 5):
-    ...     print(model)
+    >>> print(model.variant_pvalues)
+    0    0.065631
+    1    0.313981
+    2    0.541536
+    3    0.659718
+    4    0.687530
+    dtype: float64
+    >>> print(model.variant_effsizes)
+    0    2.477110
+    1   -1.256363
+    2   -0.705970
+    3   -0.476551
+    4    0.376326
+    dtype: float64
+    >>> print(model.variant_effsizes_se)
+    0    1.345570
+    1    1.247747
+    2    1.156397
+    3    1.082326
+    4    0.935647
+    dtype: float64
+    >>> print(model)
     Variants
-           effsizes  effsizes_se  pvalues
-    count   5.00000      5.00000  5.00000
-    mean    0.08291      1.15354  0.45368
-    std     1.46179      0.15677  0.26218
-    min    -1.25636      0.93565  0.06563
-    25%    -0.70597      1.08233  0.31398
-    50%    -0.47655      1.15640  0.54154
-    75%     0.37633      1.24775  0.65972
-    max     2.47711      1.34557  0.68753
+           effsizes  effsizes_se   pvalues
+    count  5.000000     5.000000  5.000000
+    mean   0.082910     1.153537  0.453679
+    std    1.461785     0.156770  0.262180
+    min   -1.256363     0.935647  0.065631
+    25%   -0.705970     1.082326  0.313981
+    50%   -0.476551     1.156397  0.541536
+    75%    0.376326     1.247747  0.659718
+    max    2.477110     1.345570  0.687530
     <BLANKLINE>
     Covariate effect sizes for the null model
-      offset
-     0.00747
+       offset
+     0.007468
 
 Out-of-core
 ^^^^^^^^^^^
