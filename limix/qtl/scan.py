@@ -78,9 +78,9 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
         >>> print(model.variant_pvalues)  # doctest: +NPY_FLEX_NUMS
-        rs0    0.527539
-        rs1    0.198125
-        rs2    0.525368
+        rs0    0.544063
+        rs1    0.202386
+        rs2    0.541768
         dtype: float64
         >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
         rs0   -0.130866
@@ -88,21 +88,21 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         rs2   -0.143869
         dtype: float64
         >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
-        rs0    0.207143
-        rs1    0.244832
-        rs2    0.226532
+        rs0    0.215709
+        rs1    0.247162
+        rs2    0.235795
         dtype: float64
         >>> print(model)  # doctest: +NPY_FLEX_NUMS
         Variants
                effsizes  effsizes_se   pvalues
         count  3.000000     3.000000  3.000000
-        mean  -0.196604     0.226169  0.417010
-        std    0.102807     0.018847  0.189563
-        min   -0.315078     0.207143  0.198125
-        25%   -0.229473     0.216837  0.361747
-        50%   -0.143869     0.226532  0.525368
-        75%   -0.137368     0.235682  0.526453
-        max   -0.130866     0.244832  0.527538
+        mean  -0.196604     0.232889  0.429405
+        std    0.102807     0.015927  0.196608
+        min   -0.315077     0.215709  0.202386
+        25%   -0.229473     0.225752  0.372077
+        50%   -0.143869     0.235795  0.541768
+        75%   -0.137368     0.241478  0.542915
+        max   -0.130866     0.247162  0.544063
         <BLANKLINE>
         Covariate effect sizes for the null model
               age   offset
@@ -167,7 +167,7 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     from pandas import Series
 
     glmm = GLMMExpFam(y, lik, M.values, QS)
-    if not mixed:
+    if not mixed or lik == 'bernoulli':
         glmm.delta = 1
         glmm.fix('delta')
     glmm.fit(verbose=verbose)
@@ -186,8 +186,8 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     keys = list(M.keys())
     ncov_effsizes = Series(beta, keys)
 
-    null_lml = gnormal.lml()
     flmm = gnormal.get_fast_scanner()
+    null_lml = flmm.null_lml()
 
     alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
 

@@ -83,6 +83,48 @@ class LimixPlot(object):
             color='#EEEEEE',
             alpha=1.0)
 
+    def qqplot(self, df, alpha=0.05, style=None):
+        r"""Quantile-Quantile of observed p-values versus theoretical ones.
+
+        Parameters
+        ----------
+        df : :class:`pandas.DataFrame`
+            Data frame.
+        alpha : float
+            Significance level defining the band boundary.
+            Defaults to ``0.05``.
+        style : dict
+            Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
+            function.
+
+        Returns
+        -------
+        :class:`matplotlib.axes.Axes`
+            Axes.
+
+        Examples
+        --------
+        .. plot::
+
+            import pandas as pd
+            from limix import get_plot
+            from numpy.random import RandomState
+
+            random = RandomState(1)
+
+            pv0 = random.rand(10000)
+            pv1 = random.rand(10000)
+
+            data = dict(pv=list(pv0) + list(pv1),
+                        label=['label0'] * len(pv0) + ['label1'] * len(pv1))
+
+            p = limix.get_plot()
+            p.qqplot(pd.DataFrame(data=data))
+            p.show()
+        """
+        from .qqplot import qqplot
+        qqplot(df, self.axes, alpha, style)
+
 
 def _set_rc_params():
 

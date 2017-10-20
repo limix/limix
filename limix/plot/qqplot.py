@@ -1,14 +1,12 @@
 from __future__ import division
 
 from numpy import sum as npsum
-from numpy import (
-    arange, ascontiguousarray, flipud, linspace, log10, ones, percentile,
-    searchsorted, sort, where
-)
+from numpy import (arange, ascontiguousarray, flipud, linspace, log10, ones,
+                   percentile, searchsorted, sort, where, atleast_2d)
 from scipy.special import betaincinv
 
 
-def plot_qqplot(df, alpha=0.05, style=None, ax=None):
+def qqplot(df, ax, alpha, style=None):
     r"""Quantile-Quantile plot of observed p-values versus theoretical ones.
 
     Parameters
@@ -46,10 +44,7 @@ def plot_qqplot(df, alpha=0.05, style=None, ax=None):
                     label=['label0'] * len(pv0) + ['label1'] * len(pv1))
         plot_qqplot(pd.DataFrame(data=data))
     """
-
-    import matplotlib.pyplot as plt
-
-    ax = plt.gca() if ax is None else ax
+    df = _normalise_data(df)
 
     labels = list(df['label'].unique())
     if style is None:
@@ -153,9 +148,34 @@ def _subsample(pvalues):
     pv_chosen = 10**(-qv_chosen)
 
     idx = searchsorted(pvalues[nok], pv_chosen)
+    n = sum(nok)
+    i = 0
+    while i < len(idx) and idx[i] == n:
+        i += 1
+    idx = idx[i:]
+
     ok[where(nok)[0][idx]] = True
 
     ok[0] = True
     ok[-1] = True
 
     return ok
+
+
+def _normalise_data(data):
+    from pandas import DataFrame, concat
+
+    if not isinstance(data, DataFrame):
+
+        pvs = atleast_2d(data)
+
+        dfs = []
+        for i, pv in enumerate(pvs):
+            df = DataFrame(columns=['pv', 'label'])
+            df['pv'] = pv
+            df['label'] = 'label{}'.format(i)
+            dfs.append(df)
+
+        return concat(dfs, ignore_index=True)
+
+    return data

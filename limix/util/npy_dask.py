@@ -1,6 +1,5 @@
 # TODO: document this module
-def unary_choice(unary_func_name):
-
+def _unary_choice(unary_func_name):
     def func(a, *args, **kwargs):
         import dask.array as da
         import numpy as np
@@ -15,13 +14,15 @@ def unary_choice(unary_func_name):
     return func
 
 
-funcs = ['log', 'isnan', 'zeros_like', 'abs', 'nanmean', 'nanstd',
-         'clip', 'nanmean', 'copyto', 'zeros', 'sum',
-         'cumsum', 'flipud', 'log10', 'all', 'isfinite', 'any']
+funcs = [
+    'log', 'isnan', 'zeros_like', 'abs', 'nanmean', 'nanstd', 'clip',
+    'nanmean', 'copyto', 'zeros', 'sum', 'cumsum', 'flipud', 'log10', 'all',
+    'isfinite', 'any'
+]
 
 g = globals()
 for f in funcs:
-    g[f] = unary_choice(f)
+    g[f] = _unary_choice(f)
 
 
 def asarray(a, *args, **kwargs):
@@ -32,3 +33,6 @@ def asarray(a, *args, **kwargs):
         return da.asarray(a)
 
     return np.asarray(a, *args, **kwargs)
+
+
+__all__ = funcs + ['asarray']
