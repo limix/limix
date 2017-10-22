@@ -18,26 +18,6 @@ def plot_curve(data, style=None, ax=None):
     -------
     :class:`matplotlib.axes.Axes`
         Axes object.
-
-    Examples
-    --------
-    .. plot::
-
-        import matplotlib.pyplot as plt
-        import numpy as np
-        import pandas as pd
-        from limix.plot import plot_curve
-
-        random = np.random.RandomState(0)
-
-        x = random.randn(100)
-        x = np.sort(x)
-        y = x + random.randn(100) * 0.1
-        ytop = y + 0.5
-        ybottom = y - 0.5
-
-        data = [dict(label='methodA', x=x, y=y, ybottom=ybottom, ytop=ytop)]
-        plot_curve(data)
     """
 
     import matplotlib.pyplot as plt
@@ -84,6 +64,9 @@ def plot_curve(data, style=None, ax=None):
                 facecolor='None',
                 interpolate=True)
 
-    ax.legend()
+    ax.legend(loc='best')
+
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
 
     return ax

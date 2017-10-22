@@ -63,15 +63,8 @@ def plot_normal(x, bins=20, nstd=2, style=None, ax=None):
 
     _draw_normal(ax, mean_x, std_x, nstd, 'red')
 
-    return ax
-
-
-def plot_qqnormal(x, ax=None):
-    import matplotlib.pyplot as plt
-
-    ax = plt.gca() if ax is None else ax
-
-    st.probplot(x, dist=st.norm, plot=ax)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
 
     return ax
 
@@ -86,7 +79,6 @@ def _draw_normal(axis, mean, scale, nstd, color):
         xy=(mean + 0.6 * scale, max_pdf),
         horizontalalignment='center',
         verticalalignment='bottom',
-        fontsize=15,
         color=color)
 
     top = st.norm.pdf(mean + nstd * scale, mean, scale)
@@ -107,5 +99,4 @@ def _draw_normal(axis, mean, scale, nstd, color):
         xy=(mean + (1.2 + nstd) * scale, top),
         horizontalalignment='center',
         verticalalignment='bottom',
-        fontsize=15,
         color=color)

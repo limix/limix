@@ -21,28 +21,6 @@ def plot_power(df, style=None, ax=None):
     -------
     :class:`matplotlib.axes.Axes`
         Axes.
-
-    Examples
-    --------
-    .. plot::
-
-        from limix.plot import plot_power
-        from pandas import DataFrame
-        from numpy.random import RandomState
-        from matplotlib import pyplot as plt
-        random = RandomState(1)
-        nsnps = 10000
-
-        pv0 = list(random.rand(nsnps))
-        pv1 = list(0.7 * random.rand(nsnps))
-
-        fig = plt.figure(1, figsize=(5,5))
-        plt.subplot(111)
-
-        data = dict(pv=pv0 + pv1,
-                    label=['label0'] * nsnps + ['label1'] * nsnps)
-        df = DataFrame(data=data)
-        plot_power(df)
     """
 
     import matplotlib.pyplot as plt
@@ -63,6 +41,9 @@ def plot_power(df, style=None, ax=None):
             **style.get(label))
 
     _set_labels(ax)
+
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
 
     return ax
 
@@ -88,7 +69,7 @@ def _collect_nhits(df):
 def _set_labels(ax):
     ax.set_xlabel('significance level')
     ax.set_ylabel('number of hits')
-    ax.legend()
+    ax.legend(loc='best')
 
 
 def plot_power_known(df, alpha=0.05, style=None, ax=None):
@@ -121,6 +102,6 @@ def plot_power_known(df, alpha=0.05, style=None, ax=None):
 
     ax.set_xlabel('significance level')
     ax.set_ylabel('percentage of hits')
-    ax.legend()
+    ax.legend(loc='best')
 
     return ax

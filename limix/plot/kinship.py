@@ -28,19 +28,6 @@ def plot_kinship(K, nclusters=1, style=None, ax=None):
     -------
     :class:`matplotlib.axes.Axes`
         Axes.
-
-    Examples
-    --------
-    .. plot::
-
-        import numpy as np
-        from matplotlib import pyplot as plt
-        from limix.io.examples import numpy_kinship_file_example
-        from limix.plot import plot_kinship
-
-        K = np.load(numpy_kinship_file_example())
-        plot_kinship(K)
-        plt.tight_layout()
     """
 
     import matplotlib.pyplot as plt

@@ -6,7 +6,7 @@ from numpy import (arange, ascontiguousarray, flipud, linspace, log10, ones,
 from scipy.special import betaincinv
 
 
-def qqplot(df, ax, alpha, style=None):
+def qqplot(df, alpha, style=None, ax=None):
     r"""Quantile-Quantile plot of observed p-values versus theoretical ones.
 
     Parameters
@@ -26,23 +26,6 @@ def qqplot(df, ax, alpha, style=None):
     -------
     :class:`matplotlib.axes.Axes`
         Axes.
-
-    Examples
-    --------
-    .. plot::
-
-        import pandas as pd
-        from limix.plot import plot_qqplot
-        from numpy.random import RandomState
-        from matplotlib import pyplot as plt
-        random = RandomState(1)
-
-        pv0 = random.rand(10000)
-        pv1 = random.rand(10000)
-
-        data = dict(pv=list(pv0) + list(pv1),
-                    label=['label0'] * len(pv0) + ['label1'] * len(pv1))
-        plot_qqplot(pd.DataFrame(data=data))
     """
     df = _normalise_data(df)
 
@@ -59,36 +42,22 @@ def qqplot(df, ax, alpha, style=None):
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
         qemp = -log10(pv)
 
-        ax.plot(
-            qnull[ok],
-            qemp[ok],
-            '-o',
-            label=label,
-            markeredgewidth=0.5,
-            markersize=2.2,
-            linewidth=0.65,
-            **style.get(label))
+        ax.plot(qnull[ok], qemp[ok], '-o', label=label, **style.get(label))
 
     ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
     _plot_confidence_band(ok, qnull, alpha, ax)
     _set_axis_labels(ax)
 
-    _set_frame(ax)
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
 
     return ax
-
-
-def _set_frame(ax):
-    ax.spines["right"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-    ax.xaxis.set_ticks_position('bottom')
-    ax.yaxis.set_ticks_position('left')
 
 
 def _set_axis_labels(ax):
     ax.set_ylabel('-log$_{10}$pv observed')
     ax.set_xlabel('-log$_{10}$pv expected')
-    ax.legend(loc=2)
+    ax.legend(loc='best')
 
 
 def _expected(n):

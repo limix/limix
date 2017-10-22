@@ -1,6 +1,7 @@
 from __future__ import division
 
 from numpy import arange, asarray, cumsum, flipud, issubdtype, log10, number
+from adjustText import adjust_text
 
 from limix.fprint import oprint
 
@@ -37,17 +38,18 @@ def plot_manhattan(df, alpha=None, null_style=None, alt_style=None, ax=None):
 
         from numpy.random import RandomState
         from numpy import arange, ones, kron
-        import pandas as pd
-        from limix.plot import plot_manhattan
-        from matplotlib import pyplot as plt
+        from pandas import DataFrame
+        import limix
+
         random = RandomState(1)
         pv = random.rand(5000)
         pv[1200:1250] = random.rand(50)**4
-        chrom  = kron(arange(1,6), ones(1000))
-        pos = kron(ones(5), arange(1,1001))
-        data = dict(pv=pv, chrom=chrom, pos=pos)
-        plot_manhattan(pd.DataFrame(data=data))
-        plt.tight_layout()
+        chrom  = kron(arange(1, 6), ones(1000))
+        pos = kron(ones(5), arange(1, 1001))
+        df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos))
+        p = limix.plot.get()
+        p.manhattan(df)
+        p.show()
     """
 
     import matplotlib.pyplot as plt
@@ -56,7 +58,7 @@ def plot_manhattan(df, alpha=None, null_style=None, alt_style=None, ax=None):
         null_style = dict(alpha=0.1, color='DarkBlue')
 
     if alt_style is None:
-        alt_style = dict(alpha=0.5, color='Orange')
+        alt_style = dict(alpha=0.7, color='Orange')
 
     ax = plt.gca() if ax is None else ax
 
@@ -96,21 +98,24 @@ def _set_frame(ax, df, ytop):
     ax.set_ylim(0, ytop)
     ax.set_xlim(0, df['abs_pos'].max())
 
-    ax.spines["right"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-
 
 def _plot_points(ax, df, alpha, null_style, alt_style):
+
     null_df = df.loc[df['pv'] >= alpha, :]
     alt_df = df.loc[df['pv'] < alpha, :]
 
-    ax.plot(null_df['abs_pos'], -log10(null_df['pv']), '.', ms=5, **null_style)
-    ax.plot(alt_df['abs_pos'], -log10(alt_df['pv']), '.', ms=5, **alt_style)
+    ax.plot(null_df['abs_pos'], -log10(null_df['pv']), '.', ms=7, **null_style)
+    ax.plot(alt_df['abs_pos'], -log10(alt_df['pv']), '.', ms=7, **alt_style)
+
+    texts = []
 
     for i in range(alt_df.shape[0]):
         x = alt_df['abs_pos'].values[i]
         y = -log10(alt_df['pv'].values[i])
-        _annotate(ax, x, y, alt_df['label'].values[i])
+        text = alt_df['label'].values[i]
+        texts.append(ax.text(x, y, text))
+
+    adjust_text(texts, arrowprops=dict(arrowstyle="-", color='r'))
 
 
 def _plot_chrom_strips(ax, df, ytop):
@@ -121,19 +126,20 @@ def _plot_chrom_strips(ax, df, ytop):
             0,
             ytop,
             where=df['chrom'] == uchroms[i],
-            facecolor='LightGray',
+            facecolor='black',
+            edgecolor='black',
             linewidth=0,
-            alpha=0.5)
+            alpha=0.15)
 
 
 def _set_ticks(ax, chrom_bounds):
     n = len(chrom_bounds) - 1
     xticks = asarray([chrom_bounds[i:i + 2].mean() for i in range(n)])
     ax.set_xticks(xticks)
-    ax.tick_params(axis='x', which='both', labelsize=6)
+    ax.tick_params(axis='x', which='both')
     ax.set_xticklabels(arange(1, n + 2))
-    ax.xaxis.set_ticks_position('bottom')
-    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
 
 
 def _abs_pos(df):
@@ -156,17 +162,3 @@ def _chrom_bounds(df):
     uchroms = df['chrom'].unique()
     v = [df['abs_pos'][df['chrom'] == c].min() for c in uchroms]
     return asarray(v + [df['abs_pos'].max()])
-
-
-def _annotate(ax, x, y, text):
-    ax.annotate(
-        text,
-        xy=(x, y),
-        xytext=(-18, 18),
-        textcoords='offset points',
-        fontsize=6,
-        ha='center',
-        va='bottom',
-        bbox=dict(boxstyle='round,pad=0.2', fc='yellow', alpha=0.3),
-        arrowprops=dict(
-            arrowstyle='->', connectionstyle='arc3,rad=0.5', color='red'))

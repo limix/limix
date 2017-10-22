@@ -133,6 +133,7 @@ def boxcox(x):
     .. plot::
 
         import limix
+        from matplotlib import pyplot as plt
         import numpy as np
         import scipy.stats as stats
 
@@ -141,13 +142,13 @@ def boxcox(x):
         x = stats.loggamma.rvs(0.1, size=100)
         y = limix.qc.boxcox(x)
 
-        fig = limix.plot.figure()
+        fig = plt.figure()
 
         ax1 = fig.add_subplot(211)
-        limix.plot.plot_qqnormal(x, ax=ax1)
+        stats.probplot(x, dist=stats.norm, plot=ax1)
 
         ax2 = fig.add_subplot(212)
-        limix.plot.plot_qqnormal(y, ax=ax2)
+        stats.probplot(y, dist=stats.norm, plot=ax2)
     """
     from scipy.stats import boxcox_llf
     from scipy.special import boxcox as bc

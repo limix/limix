@@ -14,7 +14,6 @@ from .testit import test
 from .threads import get_max_nthreads, set_max_nthreads
 from .util import download, extract, filehash
 from .cmd import call
-from .plot import get_plot
 
 __name__ = "limix"
 __version__ = "1.1.0"
@@ -25,5 +24,5 @@ __all__ = [
     "__name__", "__version__", "__author__", "__author_email__", "test", 'io',
     'plot', 'qc', 'qtl', 'stats', 'util', 'heritability', 'download',
     'extract', 'filehash', 'cmdlimix', 'set_max_nthreads', 'get_max_nthreads',
-    'call', 'get_plot'
+    'call'
 ]
