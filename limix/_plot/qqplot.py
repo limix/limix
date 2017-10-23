@@ -29,20 +29,20 @@ def qqplot(df, alpha, style=None, ax=None):
     """
     df = _normalise_data(df)
 
-    labels = list(df['label'].unique())
     if style is None:
-        style = {label: dict() for label in labels}
+        style = dict()
 
-    for label in labels:
-        df0 = df.loc[df['label'] == label, ['pv']]['pv']
-        pv = df0.reset_index(drop=True).values
-        pv = sort(pv)
+    for label, df0 in df.groupby('label'):
+        pv = sort(df0['pv'].values)
         ok = _subsample(pv)
 
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
         qemp = -log10(pv)
 
         ax.plot(qnull[ok], qemp[ok], '-o', label=label, **style.get(label))
+
+        if label not in style:
+            style[label] = dict()
 
     ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
     _plot_confidence_band(ok, qnull, alpha, ax)
