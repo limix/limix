@@ -2,16 +2,7 @@ from limix.util import Timer
 
 
 def see_image(filepath, verbose):
-    r"""Plot a image represented in a file.
-
-    It uses :func:`matplotlib.pyplot.imread` in order to read the provided
-    file and plot.
-
-    Parameters
-    ----------
-    filepath : str
-        File path to the image.
-    """
+    r"""Refer to :method:`limix.LimixPlot.see_image`."""
     import matplotlib.pyplot as plt
 
     with Timer(desc="Reading %s..." % filepath, disable=not verbose):

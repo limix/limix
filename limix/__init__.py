@@ -1,15 +1,31 @@
 r"""
-*************
 limix package
-*************
+=============
 
-A flexible and fast mixed model toolbox.
+A flexible and fast generalised mixed model toolbox.
 
+Modules
+-------
+her
+    Genetic heritability estimation.
+io
+    Functions for reading common files used in genetics.
+plot
+    Visualization of data and results for genetic analysis.
+qc
+    Quality control for genetic data sets.
+qtl
+    Quantitative trait locus analysis.
+stats
+    PCA, confusion matrix, p-value correction, and others.
+
+An extensive documentation together with examples and tutorials can be found
+at https://limix.readthedocs.io/.
 """
 
 from __future__ import absolute_import as _
 
-from . import cmdlimix, heritability, io, qc, qtl, stats, util
+from . import cmdlimix, her, io, qc, qtl, stats, util
 from .testit import test
 from .threads import get_max_nthreads, set_max_nthreads
 from .util import download, extract, filehash
@@ -24,7 +40,7 @@ __author_email__ = "stegle@ebi.ac.uk"
 
 __all__ = [
     "__name__", "__version__", "__author__", "__author_email__", "test", 'io',
-    'plot', 'qc', 'qtl', 'stats', 'util', 'heritability', 'download',
+    'plot', 'qc', 'qtl', 'stats', 'util', 'her', 'download',
     'extract', 'filehash', 'cmdlimix', 'set_max_nthreads', 'get_max_nthreads',
     'call', 'ConsensusCurve', 'LimixPlot', 'load_dataset'
 ]

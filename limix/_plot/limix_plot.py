@@ -145,8 +145,8 @@ class LimixPlot(object):
         Parameters
         ----------
         df : :class:`pandas.DataFrame`
-            A Pandas DataFrame containing columns pv for p-values, pos for
-            base-pair positions, and chrom for chromossome names.
+            A Pandas DataFrame containing columns `pv` for p-values, `pos` for
+            base-pair positions, and `chrom` for chromossome names.
         alpha : float
             Threshold for significance. Defaults to ``0.01`` significance level
             (bonferroni-adjusted).
@@ -223,7 +223,7 @@ class LimixPlot(object):
         X : array_like
             Design matrix.
         style : dict
-            Keyword arguments forwarded to the :func:`matplotlib.pyplt.scatter`
+            Keyword arguments forwarded to the :func:`matplotlib.pyplt.plot`
             function.
 
         Example
@@ -295,11 +295,6 @@ class LimixPlot(object):
             Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
             function.
 
-        Returns
-        -------
-        :class:`matplotlib.axes.Axes`
-            Axes.
-
         Example
         -------
         .. plot::
@@ -324,6 +319,20 @@ class LimixPlot(object):
         from .qqplot import qqplot
         self._initialise_figure()
         qqplot(df, alpha, style, self.axes)
+
+    def see_image(self, filepath, verbose=True):
+        r"""Plot a image represented in a file.
+
+        It uses :func:`matplotlib.pyplot.imread` in order to read the provided
+        file and plot.
+
+        Parameters
+        ----------
+        filepath : str
+            File path to the image.
+        """
+        from .image import see_image
+        see_image(filepath, verbose)
 
 
 def _matplotlib_setup():

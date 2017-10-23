@@ -15,7 +15,7 @@ Limix's documentation
    cmd
    qc
    qtl
-   heritability
+   her
    io
    stats
    plot

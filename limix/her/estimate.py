@@ -48,7 +48,7 @@ def estimate(y, lik, K, M=None, verbose=True):
 
         >>> from numpy import dot, exp, sqrt
         >>> from numpy.random import RandomState
-        >>> from limix.heritability import estimate
+        >>> from limix.her import estimate
         >>>
         >>> random = RandomState(0)
         >>>

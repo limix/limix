@@ -14,15 +14,25 @@ Curve
 .. automethod:: limix.LimixPlot.curve
 .. autoclass:: limix.ConsensusCurve
 
+File plot
+^^^^^^^^^
+
+.. automethod:: limix.plot.see_image
+
+Kinship plot
+^^^^^^^^^^^^
+
+.. automethod:: limix.LimixPlot.kinship
+
 Manhattan plot
 ^^^^^^^^^^^^^^
 
 .. automethod:: limix.LimixPlot.manhattan
 
-Quantile-Quantile plot
-^^^^^^^^^^^^^^^^^^^^^^
+Normal distribution
+^^^^^^^^^^^^^^^^^^^
 
-.. automethod:: limix.LimixPlot.qqplot
+.. automethod:: limix.LimixPlot.normal
 
 Power plot
 ^^^^^^^^^^
@@ -34,17 +44,7 @@ Principal components plot
 
 .. automethod:: limix.LimixPlot.pca
 
-Kinship plot
-^^^^^^^^^^^^
+Quantile-Quantile plot
+^^^^^^^^^^^^^^^^^^^^^^
 
-.. automethod:: limix.LimixPlot.kinship
-
-Normal distribution
-^^^^^^^^^^^^^^^^^^^
-
-.. automethod:: limix.LimixPlot.normal
-
-File plot
-^^^^^^^^^
-
-.. automethod:: limix.plot.see_image
+.. automethod:: limix.LimixPlot.qqplot

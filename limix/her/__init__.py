@@ -8,7 +8,7 @@ Heritability estimation
 Heritability
 ^^^^^^^^^^^^
 
-.. autofunction:: limix.heritability.estimate
+.. autofunction:: limix.her.estimate
 
 """
 

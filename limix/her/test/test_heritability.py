@@ -2,7 +2,7 @@ from numpy import dot, exp, sqrt, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
-from limix.heritability import estimate
+from limix.her import estimate
 
 
 def test_heritability_estimate_binomial():
