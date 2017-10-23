@@ -4,7 +4,7 @@ Plotting utilities
 ******************
 
 
-Box-Plot
+Box plot
 ^^^^^^^^
 
 .. automethod:: limix.plot.LimixPlot.boxplot

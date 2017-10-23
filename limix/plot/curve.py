@@ -6,8 +6,8 @@ def plot_curve(data, style=None, ax=None):
 
     Parameters
     ----------
-    data : dict
-        TODO.
+    data : list
+        List of curves.
     style : dict
         Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
         function.

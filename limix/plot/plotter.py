@@ -39,41 +39,6 @@ class LimixPlot(object):
     def show(self):
         plt.show()
 
-    def curve(self, data, style=None):
-        r"""Plot a curve with a band.
-
-        Parameters
-        ----------
-        data : dict
-            TODO.
-        style : dict
-            Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
-            function.
-
-        Examples
-        --------
-        .. plot::
-
-            from numpy.random import RandomState
-            from numpy import sort
-            import limix
-
-            random = RandomState(0)
-
-            x = random.randn(100)
-            x = sort(x)
-            y = x + random.randn(100) * 0.1
-            ytop = y + 0.5
-            ybottom = y - 0.5
-
-            data = [dict(label='methodA', x=x, y=y, ybottom=ybottom, ytop=ytop)]
-            p = limix.plot.get()
-            p.curve(data)
-            p.show()
-        """
-        from .curve import plot_curve
-        plot_curve(data, style, self.axes)
-
     def kinship(self, K, nclusters=1, style=None):
         r"""Plot Kinship matrix.
 
@@ -106,6 +71,93 @@ class LimixPlot(object):
         """
         from .kinship import plot_kinship
         plot_kinship(K, nclusters, style, self.axes)
+
+    def boxplot(self, df, style=None):
+        r"""Box plot of variable values from different categories.
+
+        Parameters
+        ----------
+        df : data_frame
+            A data frame containing `value`, `variable`, and `category`
+            columns.
+        style : dict
+            Keyword arguments forwarded to :func:`seaborn.boxplot`
+            function.
+
+        Examples
+        --------
+        .. plot::
+            :include-source:
+
+            import seaborn as sns
+            import limix
+
+            df = sns.load_dataset("exercise")
+            df.rename(
+                columns=dict(time='category', kind='variable', pulse='value'),
+                inplace=True)
+
+            p = limix.plot.get()
+            p.boxplot(df)
+            p.show()
+        """
+        from seaborn import boxplot
+
+        if style is None:
+            style = dict()
+
+        boxplot(
+            y='value',
+            x='category',
+            hue='variable',
+            data=df,
+            flierprops=dict(markersize=3.0),
+            **style)
+
+        self.axes.grid(
+            True,
+            which='major',
+            axis='y',
+            linewidth=0.75,
+            linestyle='-',
+            color='#EEEEEE',
+            alpha=1.0)
+
+    def curve(self, data, style=None):
+        r"""Plot a curve and a confidence band around it.
+
+        Parameters
+        ----------
+        data : list
+            List of curves.
+        style : dict
+            Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
+            function.
+
+        Examples
+        --------
+        .. plot::
+
+            from numpy.random import RandomState
+            from numpy import sort
+            import limix
+
+            random = RandomState(0)
+
+            x = random.randn(100)
+            x = sort(x)
+            y = x + random.randn(100) * 0.1
+            ytop = y + 0.5
+            ybottom = y - 0.5
+
+            data = [dict(label='A', x=x, y=y, ybottom=ybottom,
+                         ytop=ytop)]
+            p = limix.plot.get()
+            p.curve(data)
+            p.show()
+        """
+        from .curve import plot_curve
+        plot_curve(data, style, self.axes)
 
     def manhattan(self, df, alpha=None, null_style=None, alt_style=None):
         r"""Produce a manhattan plot.
@@ -180,6 +232,34 @@ class LimixPlot(object):
         from .normal import plot_normal
         plot_normal(x, bins, nstd, style, self.axes)
 
+    def pca(self, X, style=None):
+        r"""Plot the first two principal components of a design matrix.
+
+        Parameters
+        ----------
+        X : array_like
+            Design matrix.
+        style : dict
+            Keyword arguments forwarded to the :func:`matplotlib.pyplt.scatter`
+            function.
+
+        Examples
+        --------
+        .. plot::
+
+            from numpy.random import RandomState
+            import limix
+
+            random = RandomState(0)
+            X = random.randn(30, 10)
+
+            p = limix.plot.get()
+            p.pca(X)
+            p.show()
+        """
+        from .pca import plot_pca
+        plot_pca(X, style, self.axes)
+
     def power(self, df, style=None):
         r"""Plot number of hits across significance levels.
 
@@ -214,83 +294,6 @@ class LimixPlot(object):
         """
         from .power import plot_power
         plot_power(df, style, self.axes)
-
-    def boxplot(self, df, style=None):
-        r"""Box-plot a data frame.
-
-        Parameters
-        ----------
-        df : data_frame
-            A data frame containing `value`, `variable, and `category` columns.
-        style : dict
-            Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
-            function.
-
-        Examples
-        --------
-        .. plot::
-
-            import seaborn as sns
-            import limix
-
-            df = sns.load_dataset("exercise")
-            df.rename(
-                columns=dict(time='category', kind='variable', pulse='value'),
-                inplace=True)
-
-            p = limix.plot.get()
-            p.boxplot(df)
-            p.show()
-        """
-        from seaborn import boxplot
-
-        if style is None:
-            style = dict()
-
-        boxplot(
-            y='value',
-            x='category',
-            hue='variable',
-            data=df,
-            flierprops=dict(markersize=3.0),
-            **style)
-
-        self.axes.grid(
-            True,
-            which='major',
-            axis='y',
-            linewidth=0.75,
-            linestyle='-',
-            color='#EEEEEE',
-            alpha=1.0)
-
-    def pca(self, X, style=None):
-        r"""Plot the first two principal components of a design matrix.
-
-        Parameters
-        ----------
-        X : array_like
-            Design matrix.
-        style : dict
-            Keyword arguments forwarded to the :func:`matplotlib.pyplt.scatter`
-            function.
-
-        Examples
-        --------
-        .. plot::
-
-            from numpy.random import RandomState
-            import limix
-
-            random = RandomState(0)
-            X = random.randn(30, 10)
-
-            p = limix.plot.get()
-            p.pca(X)
-            p.show()
-        """
-        from .pca import plot_pca
-        plot_pca(X, style, self.axes)
 
     def qqplot(self, df, alpha=0.05, style=None):
         r"""Quantile-Quantile of observed p-values versus theoretical ones.

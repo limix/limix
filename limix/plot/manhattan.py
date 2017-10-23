@@ -58,7 +58,7 @@ def plot_manhattan(df, alpha=None, null_style=None, alt_style=None, ax=None):
         null_style = dict(alpha=0.1, color='DarkBlue')
 
     if alt_style is None:
-        alt_style = dict(alpha=0.7, color='Orange')
+        alt_style = dict(alpha=0.9, color='Orange')
 
     ax = plt.gca() if ax is None else ax
 
@@ -115,7 +115,7 @@ def _plot_points(ax, df, alpha, null_style, alt_style):
         text = alt_df['label'].values[i]
         texts.append(ax.text(x, y, text))
 
-    adjust_text(texts, arrowprops=dict(arrowstyle="-", color='r'))
+    adjust_text(texts)
 
 
 def _plot_chrom_strips(ax, df, ytop):
@@ -129,7 +129,7 @@ def _plot_chrom_strips(ax, df, ytop):
             facecolor='black',
             edgecolor='black',
             linewidth=0,
-            alpha=0.15)
+            alpha=0.1)
 
 
 def _set_ticks(ax, chrom_bounds):
