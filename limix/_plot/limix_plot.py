@@ -86,8 +86,8 @@ class LimixPlot(object):
             Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
             function.
 
-        Examples
-        --------
+        Example
+        -------
         .. plot::
 
             from numpy.random import RandomState
@@ -104,9 +104,8 @@ class LimixPlot(object):
 
             data = [dict(label='A', x=x, y=y, ybottom=ybottom,
                          ytop=ytop)]
-            p = limix.plot.get()
-            p.curve(data)
-            p.show()
+            limix.plot.curve(data)
+            limix.plot.show()
         """
         from .curve import plot_curve
         self._initialise_figure()
@@ -128,19 +127,17 @@ class LimixPlot(object):
             Keyword arguments forwarded to the
             :func:`matplotlib.axes.Axes.imshow` function.
 
-        Examples
-        --------
+        Example
+        -------
         .. plot::
 
-            import numpy as np
-            from matplotlib import pyplot as plt
-            from limix.io.examples import numpy_kinship_file_example
             import limix
+            from numpy import load
+            from limix.io.examples import numpy_kinship_file_example
 
-            K = np.load(numpy_kinship_file_example())
-            p = limix.plot.get()
-            p.kinship(K)
-            p.show()
+            K = load(numpy_kinship_file_example())
+            limix.plot.kinship(K)
+            limix.plot.show()
         """
         from .kinship import plot_kinship
         self._initialise_figure()
@@ -166,14 +163,14 @@ class LimixPlot(object):
             :func:`matplotlib.axes.Axes.plot` function when plotting the
             significant results.
 
-        Examples
-        --------
+        Example
+        -------
         .. plot::
 
+            import limix
             from numpy.random import RandomState
             from numpy import arange, ones, kron
             from pandas import DataFrame
-            import limix
 
             random = RandomState(1)
             pv = random.rand(5000)
@@ -181,9 +178,9 @@ class LimixPlot(object):
             chrom  = kron(arange(1, 6), ones(1000))
             pos = kron(ones(5), arange(1, 1001))
             df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos))
-            p = limix.plot.get()
-            p.manhattan(df)
-            p.show()
+
+            limix.plot.manhattan(df)
+            limix.plot.show()
         """
         from .manhattan import plot_manhattan
         self._initialise_figure()
@@ -204,8 +201,8 @@ class LimixPlot(object):
             Keyword arguments forwarded to the :func:`matplotlib.axes.Axes.plot`
             function.
 
-        Examples
-        --------
+        Example
+        -------
         .. plot::
 
             import limix
@@ -213,9 +210,8 @@ class LimixPlot(object):
 
             random = RandomState(10)
             x = random.randn(100)
-            p = limix.plot.get()
-            p.normal(x, nstd=2)
-            p.show()
+            limix.plot.normal(x, nstd=2)
+            limix.plot.show()
         """
         from .normal import plot_normal
         self._initialise_figure()
@@ -232,21 +228,21 @@ class LimixPlot(object):
             Keyword arguments forwarded to the :func:`matplotlib.pyplt.scatter`
             function.
 
-        Examples
-        --------
+        Example
+        -------
         .. plot::
 
-            from numpy.random import RandomState
             import limix
+            from numpy.random import RandomState
 
             random = RandomState(0)
             X = random.randn(30, 10)
 
-            p = limix.plot.get()
-            p.pca(X)
-            p.show()
+            limix.plot.pca(X)
+            limix.plot.show()
         """
         from .pca import plot_pca
+        self._initialise_figure()
         plot_pca(X, style, self.axes)
 
     def power(self, df, style=None):
@@ -260,8 +256,8 @@ class LimixPlot(object):
             Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
             function.
 
-        Examples
-        --------
+        Example
+        -------
         .. plot::
 
             import limix
@@ -277,9 +273,8 @@ class LimixPlot(object):
             data = dict(pv=pv0 + pv1,
                         label=['label0'] * nsnps + ['label1'] * nsnps)
             df = DataFrame(data=data)
-            p = limix.plot.get()
-            p.power(df)
-            p.show()
+            limix.plot.power(df)
+            limix.plot.show()
         """
         from .power import plot_power
         self._initialise_figure()
@@ -308,8 +303,8 @@ class LimixPlot(object):
         --------
         .. plot::
 
-            from pandas import DataFrame
             import limix
+            from pandas import DataFrame
             from numpy.random import RandomState
 
             random = RandomState(1)
@@ -320,8 +315,9 @@ class LimixPlot(object):
             pv = list(pv0) + list(pv1)
             label = ['label0'] * len(pv0) + ['label1'] * len(pv1)
             df = DataFrame(data=dict(pv=pv, label=label))
-            p = limix.plot.get()
-            p.qqplot(df)
+
+            limix.plot.qqplot(df)
+            limix.plot.show()
         """
         from .qqplot import qqplot
         self._initialise_figure()

@@ -1,4 +1,4 @@
-def boxplot(self, df, style=None, ax=None):
+def plot_boxplot(df, style=None, ax=None):
     from seaborn import boxplot
 
     if style is None:
