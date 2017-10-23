@@ -6,6 +6,8 @@ A flexible and fast generalised mixed model toolbox.
 
 Modules
 -------
+cmd
+    Command line interface.
 her
     Genetic heritability estimation.
 io
@@ -19,7 +21,7 @@ qtl
 stats
     PCA, confusion matrix, p-value correction, and others.
 
-An extensive documentation together with examples and tutorials can be found
+The official documentation together with examples and tutorials can be found
 at https://limix.readthedocs.io/.
 """
 
@@ -34,7 +36,7 @@ from ._examples import load_dataset
 from ._plot import plot, ConsensusCurve, LimixPlot
 
 __name__ = "limix"
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 __author__ = "C. Lippert, D. Horta, F. P. Casale, and O. Stegle"
 __author_email__ = "stegle@ebi.ac.uk"
 
