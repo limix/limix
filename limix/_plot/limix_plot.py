@@ -4,20 +4,23 @@ from matplotlib import pyplot as plt
 _figure_id = 98748
 
 
-def get_plot():
-    plt.close(_figure_id)
-
-    _set_rc_params()
-    figure = plt.figure(_figure_id)
-    axes = figure.add_subplot(111)
-
-    return LimixPlot(figure, axes)
-
-
 class LimixPlot(object):
-    def __init__(self, figure, axes):
+    def __init__(self):
+        self._figure = None
+        self._axes = None
+        self._figure_initialised = False
+
+    def _initialise_figure(self):
+        plt.close(_figure_id)
+
+        _matplotlib_setup()
+        figure = plt.figure(_figure_id)
+        axes = figure.add_subplot(111)
+
         self._figure = figure
         self._axes = axes
+        self._figure_initialised = True
+
         axes.set_axisbelow(True)
         axes.spines['right'].set_visible(True)
         axes.spines['top'].set_visible(True)
@@ -39,41 +42,9 @@ class LimixPlot(object):
     def show(self):
         plt.show()
 
-    def kinship(self, K, nclusters=1, style=None):
-        r"""Plot Kinship matrix.
-
-        Parameters
-        ----------
-        K : array_like
-            Kinship matrix.
-        nclusters : int or str
-            Number of blocks to be seen from the heatmap. It defaults to ``1``,
-            which means that no ordering is performed. Pass 'auto' to
-            automatically determine the number of clusters. Pass an integer to
-            select the number of clusters.
-        style : dict
-            Keyword arguments forwarded to the
-            :func:`matplotlib.axes.Axes.imshow` function.
-
-        Examples
-        --------
-        .. plot::
-
-            import numpy as np
-            from matplotlib import pyplot as plt
-            from limix.io.examples import numpy_kinship_file_example
-            import limix
-
-            K = np.load(numpy_kinship_file_example())
-            p = limix.plot.get()
-            p.kinship(K)
-            p.show()
-        """
-        from .kinship import plot_kinship
-        plot_kinship(K, nclusters, style, self.axes)
-
     def boxplot(self, df, style=None):
         r"""Box plot of variable values from different categories.
+
 
         Parameters
         ----------
@@ -84,8 +55,8 @@ class LimixPlot(object):
             Keyword arguments forwarded to :func:`seaborn.boxplot`
             function.
 
-        Examples
-        --------
+        Example
+        -------
         .. plot::
             :include-source:
 
@@ -97,31 +68,12 @@ class LimixPlot(object):
                 columns=dict(time='category', kind='variable', pulse='value'),
                 inplace=True)
 
-            p = limix.plot.get()
-            p.boxplot(df)
-            p.show()
+            limix.plot.boxplot(df)
+            limix.plot.show()
         """
-        from seaborn import boxplot
-
-        if style is None:
-            style = dict()
-
-        boxplot(
-            y='value',
-            x='category',
-            hue='variable',
-            data=df,
-            flierprops=dict(markersize=3.0),
-            **style)
-
-        self.axes.grid(
-            True,
-            which='major',
-            axis='y',
-            linewidth=0.75,
-            linestyle='-',
-            color='#EEEEEE',
-            alpha=1.0)
+        from .boxplot import plot_boxplot
+        self._initialise_figure()
+        plot_boxplot(df, style, self.axes)
 
     def curve(self, data, style=None):
         r"""Plot a curve and a confidence band around it.
@@ -157,7 +109,42 @@ class LimixPlot(object):
             p.show()
         """
         from .curve import plot_curve
+        self._initialise_figure()
         plot_curve(data, style, self.axes)
+
+    def kinship(self, K, nclusters=1, style=None):
+        r"""Plot Kinship matrix.
+
+        Parameters
+        ----------
+        K : array_like
+            Kinship matrix.
+        nclusters : int or str
+            Number of blocks to be seen from the heatmap. It defaults to ``1``,
+            which means that no ordering is performed. Pass 'auto' to
+            automatically determine the number of clusters. Pass an integer to
+            select the number of clusters.
+        style : dict
+            Keyword arguments forwarded to the
+            :func:`matplotlib.axes.Axes.imshow` function.
+
+        Examples
+        --------
+        .. plot::
+
+            import numpy as np
+            from matplotlib import pyplot as plt
+            from limix.io.examples import numpy_kinship_file_example
+            import limix
+
+            K = np.load(numpy_kinship_file_example())
+            p = limix.plot.get()
+            p.kinship(K)
+            p.show()
+        """
+        from .kinship import plot_kinship
+        self._initialise_figure()
+        plot_kinship(K, nclusters, style, self.axes)
 
     def manhattan(self, df, alpha=None, null_style=None, alt_style=None):
         r"""Produce a manhattan plot.
@@ -199,6 +186,7 @@ class LimixPlot(object):
             p.show()
         """
         from .manhattan import plot_manhattan
+        self._initialise_figure()
         plot_manhattan(df, alpha, null_style, alt_style, self.axes)
 
     def normal(self, x, bins=20, nstd=2, style=None):
@@ -230,6 +218,7 @@ class LimixPlot(object):
             p.show()
         """
         from .normal import plot_normal
+        self._initialise_figure()
         plot_normal(x, bins, nstd, style, self.axes)
 
     def pca(self, X, style=None):
@@ -293,6 +282,7 @@ class LimixPlot(object):
             p.show()
         """
         from .power import plot_power
+        self._initialise_figure()
         plot_power(df, style, self.axes)
 
     def qqplot(self, df, alpha=0.05, style=None):
@@ -334,10 +324,11 @@ class LimixPlot(object):
             p.qqplot(df)
         """
         from .qqplot import qqplot
+        self._initialise_figure()
         qqplot(df, alpha, style, self.axes)
 
 
-def _set_rc_params():
+def _matplotlib_setup():
 
     font = {
         'font.size': 10,
