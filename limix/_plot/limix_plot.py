@@ -60,13 +60,9 @@ class LimixPlot(object):
         .. plot::
             :include-source:
 
-            import seaborn as sns
             import limix
 
-            df = sns.load_dataset("exercise")
-            df.rename(
-                columns=dict(time='category', kind='variable', pulse='value'),
-                inplace=True)
+            df = limix.load_dataset("boxplot")
 
             limix.plot.boxplot(df)
             limix.plot.show()
@@ -89,21 +85,21 @@ class LimixPlot(object):
         Example
         -------
         .. plot::
+            :include-source:
 
+            import limix
             from numpy.random import RandomState
             from numpy import sort
-            import limix
 
             random = RandomState(0)
-
             x = random.randn(100)
             x = sort(x)
             y = x + random.randn(100) * 0.1
             ytop = y + 0.5
             ybottom = y - 0.5
-
             data = [dict(label='A', x=x, y=y, ybottom=ybottom,
                          ytop=ytop)]
+
             limix.plot.curve(data)
             limix.plot.show()
         """
@@ -130,12 +126,12 @@ class LimixPlot(object):
         Example
         -------
         .. plot::
+            :include-source:
 
             import limix
-            from numpy import load
-            from limix.io.examples import numpy_kinship_file_example
 
-            K = load(numpy_kinship_file_example())
+            K = limix.load_dataset("kinship", verbose=False)
+
             limix.plot.kinship(K)
             limix.plot.show()
         """
@@ -166,6 +162,7 @@ class LimixPlot(object):
         Example
         -------
         .. plot::
+            :include-source:
 
             import limix
             from numpy.random import RandomState
@@ -204,6 +201,7 @@ class LimixPlot(object):
         Example
         -------
         .. plot::
+            :include-source:
 
             import limix
             from numpy.random import RandomState
@@ -231,6 +229,7 @@ class LimixPlot(object):
         Example
         -------
         .. plot::
+            :include-source:
 
             import limix
             from numpy.random import RandomState
@@ -259,6 +258,7 @@ class LimixPlot(object):
         Example
         -------
         .. plot::
+            :include-source:
 
             import limix
             from pandas import DataFrame
@@ -273,6 +273,7 @@ class LimixPlot(object):
             data = dict(pv=pv0 + pv1,
                         label=['label0'] * nsnps + ['label1'] * nsnps)
             df = DataFrame(data=data)
+
             limix.plot.power(df)
             limix.plot.show()
         """
@@ -299,9 +300,10 @@ class LimixPlot(object):
         :class:`matplotlib.axes.Axes`
             Axes.
 
-        Examples
-        --------
+        Example
+        -------
         .. plot::
+            :include-source:
 
             import limix
             from pandas import DataFrame

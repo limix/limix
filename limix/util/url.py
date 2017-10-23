@@ -12,16 +12,19 @@ else:
 
 
 # TODO: document it
-def download(url, verbose=True):
-    filename = _filename(url)
-    if os.path.exists(filename):
+def download(url, dest=None, verbose=True):
+    if dest is None:
+        dest = os.getcwd()
+
+    filepath = os.path.join(dest, _filename(url))
+    if os.path.exists(filepath):
         if verbose:
-            print("File {} already exists.".format(filename))
+            print("File {} already exists.".format(filepath))
         return
 
     if verbose:
         print("Downloading {}...".format(url))
-    urlretrieve(url, filename)
+    urlretrieve(url, filepath)
 
 
 def _filename(url):

@@ -14,6 +14,7 @@ from .testit import test
 from .threads import get_max_nthreads, set_max_nthreads
 from .util import download, extract, filehash
 from .cmd import call
+from ._examples import load_dataset
 from ._plot import plot, ConsensusCurve, LimixPlot
 
 __name__ = "limix"
@@ -25,5 +26,5 @@ __all__ = [
     "__name__", "__version__", "__author__", "__author_email__", "test", 'io',
     'plot', 'qc', 'qtl', 'stats', 'util', 'heritability', 'download',
     'extract', 'filehash', 'cmdlimix', 'set_max_nthreads', 'get_max_nthreads',
-    'call', 'ConsensusCurve', 'LimixPlot'
+    'call', 'ConsensusCurve', 'LimixPlot', 'load_dataset'
 ]
