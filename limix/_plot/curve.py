@@ -52,16 +52,7 @@ def plot_curve(data, style=None, ax=None):
                 lw=0,
                 edgecolor='None',
                 facecolor=color,
-                alpha=0.1,
-                interpolate=True)
-
-            ax.fill_between(
-                x,
-                ybottom,
-                ytop,
-                lw=0.05,
-                edgecolor=color,
-                facecolor='None',
+                alpha=0.25,
                 interpolate=True)
 
     ax.legend(loc='best')
