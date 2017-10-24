@@ -26,4 +26,4 @@ def test_qtl_glmm_binomial():
 
     lmm = scan(X, y, 'binomial', K, verbose=False)
     pv = lmm.variant_pvalues
-    assert_allclose(pv, [0.424769, 0.70794], atol=1e-6, rtol=1e-6)
+    assert_allclose(pv, [0.409114, 0.697728], atol=1e-6, rtol=1e-6)

@@ -78,9 +78,9 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
         >>> print(model.variant_pvalues)  # doctest: +NPY_FLEX_NUMS
-        rs0    0.544063
-        rs1    0.202386
-        rs2    0.541768
+        rs0    0.554444
+        rs1    0.218996
+        rs2    0.552201
         dtype: float64
         >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
         rs0   -0.130866
@@ -88,21 +88,21 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         rs2   -0.143869
         dtype: float64
         >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
-        rs0    0.215709
-        rs1    0.247162
-        rs2    0.235795
+        rs0    0.221389
+        rs1    0.256327
+        rs2    0.242013
         dtype: float64
         >>> print(model)  # doctest: +NPY_FLEX_NUMS
         Variants
                effsizes  effsizes_se   pvalues
         count  3.000000     3.000000  3.000000
-        mean  -0.196604     0.232889  0.429405
-        std    0.102807     0.015927  0.196608
-        min   -0.315077     0.215709  0.202386
-        25%   -0.229473     0.225752  0.372077
-        50%   -0.143869     0.235795  0.541768
-        75%   -0.137368     0.241478  0.542915
-        max   -0.130866     0.247162  0.544063
+        mean  -0.196604     0.239910  0.441880
+        std    0.102807     0.017563  0.193027
+        min   -0.315077     0.221390  0.218996
+        25%   -0.229473     0.231701  0.385598
+        50%   -0.143869     0.242013  0.552201
+        75%   -0.137368     0.249170  0.553322
+        max   -0.130866     0.256327  0.554444
         <BLANKLINE>
         Covariate effect sizes for the null model
               age   offset
@@ -187,6 +187,7 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     ncov_effsizes = Series(beta, keys)
 
     flmm = gnormal.get_fast_scanner()
+    flmm.set_scale(1.0)
     null_lml = flmm.null_lml()
 
     alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)

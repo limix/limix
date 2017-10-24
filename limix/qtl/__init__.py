@@ -157,11 +157,11 @@ The matrix ``G`` defines both five alternative hypotheses
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
     >>> print(model.variant_pvalues)
-    0    0.069026
-    1    0.334647
-    2    0.590429
-    3    0.739188
-    4    0.779003
+    0    0.073623
+    1    0.341348
+    2    0.595322
+    3    0.742450
+    4    0.781789
     dtype: float64
     >>> print(model.variant_effsizes)
     0    2.477110
@@ -171,23 +171,23 @@ The matrix ``G`` defines both five alternative hypotheses
     4    0.376326
     dtype: float64
     >>> print(model.variant_effsizes_se)
-    0    1.362361
-    1    1.302205
-    2    1.311691
-    3    1.431392
-    4    1.341055
+    0    1.384672
+    1    1.320395
+    2    1.329161
+    3    1.450197
+    4    1.358630
     dtype: float64
     >>> print(model)
     Variants
            effsizes  effsizes_se   pvalues
     count  5.000000     5.000000  5.000000
-    mean   0.082910     1.349741  0.502459
-    std    1.461785     0.051500  0.298446
-    min   -1.256363     1.302205  0.069026
-    25%   -0.705970     1.311691  0.334647
-    50%   -0.476551     1.341055  0.590429
-    75%    0.376326     1.362361  0.739188
-    max    2.477110     1.431392  0.779003
+    mean   0.082910     1.368611  0.506906
+    std    1.461785     0.052189  0.297491
+    min   -1.256363     1.320395  0.073623
+    25%   -0.705970     1.329161  0.341348
+    50%   -0.476551     1.358630  0.595322
+    75%    0.376326     1.384672  0.742450
+    max    2.477110     1.450197  0.781789
     <BLANKLINE>
     Covariate effect sizes for the null model
        offset
