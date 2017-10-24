@@ -36,7 +36,7 @@ def multipletests(pvals, alpha=0.05, method='hs', is_sorted=False):
     reject : array_like, boolean
         ``true`` for hypothesis that can be rejected for given alpha.
     pvals_corrected : array_like
-        p-values corrected for multiple tests.
+        P-values corrected for multiple tests.
     alphacSidak: float
         corrected alpha for Sidak method.
     alphacBonf: float
@@ -44,7 +44,7 @@ def multipletests(pvals, alpha=0.05, method='hs', is_sorted=False):
 
     Notes
     -----
-    This is a wrapper to a function from the `statsmodels`_ package.
+    This is a wrapper around a function from the `statsmodels`_ package.
 
     .. _statsmodels: http://www.statsmodels.org
     '''

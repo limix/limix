@@ -1,7 +1,6 @@
 import scipy as sp
 
 
-# TODO: add test
 def empirical_pvalues(xt, x0):
     r"""Function to compute empirical p-values.
 
@@ -20,7 +19,7 @@ def empirical_pvalues(xt, x0):
     Returns
     -------
     array_like
-        Estimated empirical P values.
+        Estimated empirical p-values.
 
     Examples
     --------
@@ -28,20 +27,13 @@ def empirical_pvalues(xt, x0):
 
         >>> from numpy.random import RandomState
         >>> from limix.stats import empirical_pvalues
-        >>> from numpy import set_printoptions
-        >>> set_printoptions(4)
+        >>>
         >>> random = RandomState(1)
+        >>> x0 = random.chisquare(1, 5)
+        >>> x1 = random.chisquare(1, 10000)
         >>>
-        >>> xt = random.chisquare(1, 1000)
-        >>> x0 = random.chisquare(1, 10000)
-        >>>
-        >>> pv = empirical_pvalues(xt, x0)
-        >>>
-        >>> print(pv.shape)
-        (1000,)
-        >>>
-        >>> print(pv[:4])
-        [ 0.5599  1.      0.8389  0.7975]
+        >>> empirical_pvalues(x0, x1)  # doctest: +NPY_FLEX_NUMS
+        array([ 0.563 ,  1.    ,  0.839 ,  0.7982,  0.5803])
     """
     idxt = sp.argsort(xt)[::-1]
     idx0 = sp.argsort(x0)[::-1]

@@ -39,6 +39,9 @@ class LimixPlot(object):
     def ioff(self):
         plt.ioff()
 
+    def savefig(self, *args, **kwargs):
+        self._figure.savefig(*args, **kwargs)
+
     def show(self):
         plt.show()
 
