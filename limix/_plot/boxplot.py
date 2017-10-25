@@ -20,3 +20,6 @@ def plot_boxplot(df, style=None, ax=None):
         linestyle='-',
         color='#EEEEEE',
         alpha=1.0)
+
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
