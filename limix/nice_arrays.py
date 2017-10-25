@@ -61,6 +61,9 @@ def covariates_process(M, nsamples):
         msg += "is not finite."
         raise ValueError(msg)
 
+    if M.shape[0] != nsamples:
+        raise ValueError("Wrong number of rows in the covariate matrix.")
+
     return M
 
 
