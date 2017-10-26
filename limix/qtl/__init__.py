@@ -75,10 +75,10 @@ alternative hypotheses to be tested:
     >>>
     >>> model = scan(candidates, y, 'normal', kinship, verbose=False)
     >>> print(model.variant_pvalues)  # doctest: +NPY_FLEX_NUMS
-    0    0.128600
-    1    0.210929
-    2    0.231456
-    3    0.037974
+    0    0.227217
+    1    0.398150
+    2    0.446014
+    3    0.063058
     dtype: float64
     >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
     0    0.314872
@@ -87,26 +87,26 @@ alternative hypotheses to be tested:
     3    0.511300
     dtype: float64
     >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
-    0    0.207201
-    1    0.196026
-    2    0.152686
-    3    0.246394
+    0    0.260751
+    1    0.290239
+    2    0.239749
+    3    0.275073
     dtype: float64
     >>> print(model)  # doctest: +NPY_FLEX_NUMS
     Variants
            effsizes  effsizes_se   pvalues
     count  4.000000     4.000000  4.000000
-    mean   0.099559     0.200577  0.152240
-    std    0.371683     0.038545  0.088195
-    min   -0.245231     0.152686  0.037974
-    25%   -0.198338     0.185191  0.105943
-    50%    0.066083     0.201614  0.169765
-    75%    0.363979     0.216999  0.216061
-    max    0.511300     0.246394  0.231456
+    mean   0.099559     0.266453  0.283610
+    std    0.371683     0.021492  0.174468
+    min   -0.245231     0.239749  0.063058
+    25%   -0.198338     0.255501  0.186178
+    50%    0.066083     0.267912  0.312684
+    75%    0.363979     0.278864  0.410116
+    max    0.511300     0.290239  0.446014
     <BLANKLINE>
     Covariate effect sizes for the null model
-      offset
-     0.00139
+       offset
+    -0.097159
 
 The above example prints the estimated p-value, effect size, and standard
 error of the effect size of each variant.

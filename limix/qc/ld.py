@@ -18,8 +18,16 @@ def _sq_pearson(X):
 
     X2 = X - X.mean(1)[:, newaxis]
     X2 = ascontiguousarray(X2)
-    norms = _row_norms(X2)
-    _distance_wrap.pdist_cosine_wrap(X2, dm, norms)
+    if hasattr(_distance_wrap, 'pdist_cosine_wrap'):
+        norms = _row_norms(X2)
+
+    X2 = X - X.mean(axis=1, keepdims=True)
+
+    if hasattr(_distance_wrap, 'pdist_cosine_wrap'):
+        _distance_wrap.pdist_cosine_wrap(X2, dm, norms)
+    else:
+        _distance_wrap.pdist_cosine_double_wrap(X2, dm)
+
     return (-dm + 1)**2
 
 
