@@ -26,7 +26,6 @@ then
     exit 1
 fi
 
-
 USE_CONDA="no"
 command -v conda >/dev/null 2>&1
 if [ $? -eq 0 ]
@@ -85,6 +84,10 @@ function failed
 
 GIT_URL=https://github.com/limix/limix.git
 GIT_FOLDER="$tmpdir/limix"
+
+silent_run pip uninstall limix --yes
+silent_run pip uninstall limix --yes
+silent_run pip uninstall limix --yes
 
 echo -n "[1/4] Cloning repository... "
 silent_run git clone -b develop $GIT_URL $GIT_FOLDER
