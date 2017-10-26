@@ -111,7 +111,7 @@ silent_run pip install -r requirements.txt
 [ $? == 0 ] && echo "done." || failed
 
 echo -n "[4/4] Installing limix itself... "
-silent_run python setup.py develop
+silent_run python setup.py install
 [ $? == 0 ] && echo "done." || failed
 
 rm "$logfile" || true
