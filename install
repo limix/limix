@@ -21,10 +21,16 @@ then
     yes_or_no $msg && USE_CONDA="yes" || USE_CONDA="no"
 fi
 
-rm /tmp/limix.XXXX.log >/dev/null 2>&1 || true
-
-logfile=$(mktemp /tmp/limix.XXXX.log)
+tmpdir=`mktemp -d 2>/dev/null || mktemp -d -t 'tmpdir'`
+logfile="$tmpdir/limix.log"
 exec 3>"$logfile"
+
+function cleanup
+{
+    rm -rf "$tmpdir" >/dev/null 2>&1 || true
+}
+
+trap cleanup EXIT
 
 function silent_run
 {
@@ -53,7 +59,7 @@ function failed
 }
 
 GIT_URL=https://github.com/limix/limix.git
-GIT_FOLDER=$(pwd)/limix-dev
+GIT_FOLDER="$tmpdir/limix"
 
 echo -n "[1/5] Cloning repository... "
 silent_run git clone -b develop $GIT_URL $GIT_FOLDER
