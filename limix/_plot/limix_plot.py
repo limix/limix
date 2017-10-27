@@ -284,7 +284,7 @@ class LimixPlot(object):
         self._initialise_figure()
         plot_power(df, style, self.axes)
 
-    def qqplot(self, df, alpha=0.05, style=None):
+    def qqplot(self, df, alpha=0.05, cutoff=0.1, style=None):
         r"""Quantile-Quantile of observed p-values versus theoretical ones.
 
         Parameters
@@ -294,6 +294,8 @@ class LimixPlot(object):
         alpha : float
             Significance level defining the band boundary.
             Defaults to ``0.05``.
+        cutoff : float
+            P-values higher than `cutoff` will not be plotted.
         style : dict
             Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
             function.
@@ -321,7 +323,7 @@ class LimixPlot(object):
         """
         from .qqplot import qqplot
         self._initialise_figure()
-        qqplot(df, alpha, style, self.axes)
+        qqplot(df, alpha, cutoff, style, self.axes)
 
     def see_image(self, filepath, verbose=True):
         r"""Plot a image represented in a file.

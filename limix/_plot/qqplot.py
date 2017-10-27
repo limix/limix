@@ -6,7 +6,7 @@ from numpy import (arange, ascontiguousarray, flipud, linspace, log10, ones,
 from scipy.special import betaincinv
 
 
-def qqplot(df, alpha, style=None, ax=None):
+def qqplot(df, alpha, cutoff=0.1, style=None, ax=None):
     r"""Quantile-Quantile plot of observed p-values versus theoretical ones.
 
     Parameters
@@ -15,6 +15,8 @@ def qqplot(df, alpha, style=None, ax=None):
         Data frame.
     alpha : float
         Significance level defining the band boundary. Defaults to ``0.05``.
+    cutoff : float
+        P-values higher than `cutoff` will not be plotted.
     style : dict
         Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
         function.
@@ -34,7 +36,7 @@ def qqplot(df, alpha, style=None, ax=None):
 
     for label, df0 in df.groupby('label'):
         pv = sort(df0['pv'].values)
-        ok = _subsample(pv)
+        ok = _subsample(pv, cutoff)
 
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
         qemp = -log10(pv)
@@ -96,13 +98,13 @@ def _plot_confidence_band(ok, null_qvals, significance_level, ax):
         alpha=0.15)
 
 
-def _subsample(pvalues):
+def _subsample(pvalues, cutoff):
     resolution = 500
 
     if len(pvalues) <= resolution:
         return ones(len(pvalues), dtype=bool)
 
-    ok = pvalues <= percentile(pvalues, 0.1)
+    ok = pvalues <= percentile(pvalues, cutoff)
     nok = ~ok
 
     qv = -log10(pvalues[nok])
