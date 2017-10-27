@@ -12,19 +12,49 @@ function yes_or_no {
 
 echo "[0/4] Installing development limix version"
 
-which conda &>/dev/null
+command -v python >/dev/null 2>&1
+if [ $? -eq 1 ]
+then
+    echo >&2 "python command has not been found. Aborting."
+    exit 1
+fi
 
-if [ $? == 0 ]
+command -v pip >/dev/null 2>&1
+if [ $? -eq 1 ]
+then
+    echo >&2 "pip command has not been found. Aborting."
+    exit 1
+fi
+
+USE_CONDA="no"
+command -v conda >/dev/null 2>&1
+if [ $? -eq 0 ]
 then
     echo "Looks like you have conda package manager."
     msg="Shall we use it to install the C libraries? (Recommended.)"
     yes_or_no $msg && USE_CONDA="yes" || USE_CONDA="no"
 fi
 
-rm /tmp/limix.XXXX.log >/dev/null 2>&1 || true
-
-logfile=$(mktemp /tmp/limix.XXXX.log)
+tmpdir=`mktemp -d 2>/dev/null || mktemp -d -t 'tmpdir'`
+logfile="$tmpdir/limix.log"
 exec 3>"$logfile"
+
+function cleanup
+{
+    rm -rf "$tmpdir" >/dev/null 2>&1 || true
+}
+
+trap cleanup EXIT
+
+if [[ $USE_CONDA == "no" ]]
+then
+    command -v cmake >/dev/null 2>&1
+    if [ $? -eq 1 ]
+    then
+        echo >&2 "cmake command has not been found. Aborting."
+        exit 1
+    fi
+fi
 
 function silent_run
 {
@@ -53,9 +83,13 @@ function failed
 }
 
 GIT_URL=https://github.com/limix/limix.git
-GIT_FOLDER=$(pwd)/limix-dev
+GIT_FOLDER="$tmpdir/limix"
 
-echo -n "[1/5] Cloning repository... "
+silent_run pip uninstall limix --yes
+silent_run pip uninstall limix --yes
+silent_run pip uninstall limix --yes
+
+echo -n "[1/4] Cloning repository... "
 silent_run git clone -b develop $GIT_URL $GIT_FOLDER
 cd $GIT_FOLDER
 [ $? == 0 ] && echo "done." || failed
@@ -80,7 +114,7 @@ silent_run pip install -r requirements.txt
 [ $? == 0 ] && echo "done." || failed
 
 echo -n "[4/4] Installing limix itself... "
-silent_run python setup.py develop
+silent_run python setup.py install
 [ $? == 0 ] && echo "done." || failed
 
 rm "$logfile" || true
