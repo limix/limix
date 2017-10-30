@@ -41,7 +41,8 @@ def qqplot(df, alpha, cutoff=0.1, style=None, ax=None):
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
         qemp = -log10(pv)
 
-        ax.plot(qnull[ok], qemp[ok], '-o', label=label, **style.get(label))
+        sty = style.get(label, {})
+        ax.plot(qnull[ok], qemp[ok], '-o', label=label, **sty)
 
         if label not in style:
             style[label] = dict()
