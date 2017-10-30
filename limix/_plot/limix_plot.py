@@ -69,10 +69,10 @@ class LimixPlot(object):
 
             limix.plot.boxplot(df)
             limix.plot.show()
-            """
-            from .boxplot import plot_boxplot
-            self._initialise_figure()
-            plot_boxplot(df, style, self.axes)
+        """
+        from .boxplot import plot_boxplot
+        self._initialise_figure()
+        plot_boxplot(df, style, self.axes)
 
     def curve(self, data, style=None):
         r"""Plot a curve and a confidence band around it.
@@ -105,10 +105,10 @@ class LimixPlot(object):
 
             limix.plot.curve(data)
             limix.plot.show()
-            """
-            from .curve import plot_curve
-            self._initialise_figure()
-            plot_curve(data, style, self.axes)
+        """
+        from .curve import plot_curve
+        self._initialise_figure()
+        plot_curve(data, style, self.axes)
 
     def kinship(self, K, nclusters=1, style=None):
         r"""Plot Kinship matrix.
@@ -137,10 +137,10 @@ class LimixPlot(object):
 
             limix.plot.kinship(K)
             limix.plot.show()
-            """
-            from .kinship import plot_kinship
-            self._initialise_figure()
-            plot_kinship(K, nclusters, style, self.axes)
+        """
+        from .kinship import plot_kinship
+        self._initialise_figure()
+        plot_kinship(K, nclusters, style, self.axes)
 
     def manhattan(self, df, alpha=None, null_style=None, alt_style=None):
         r"""Produce a manhattan plot.
@@ -181,10 +181,10 @@ class LimixPlot(object):
 
             limix.plot.manhattan(df)
             limix.plot.show()
-            """
-            from .manhattan import plot_manhattan
-            self._initialise_figure()
-            plot_manhattan(df, alpha, null_style, alt_style, self.axes)
+        """
+        from .manhattan import plot_manhattan
+        self._initialise_figure()
+        plot_manhattan(df, alpha, null_style, alt_style, self.axes)
 
     def normal(self, x, bins=20, nstd=2, style=None):
         r"""Plot a fit of a normal distribution to the data in x.
@@ -213,10 +213,10 @@ class LimixPlot(object):
             x = random.randn(100)
             limix.plot.normal(x, nstd=2)
             limix.plot.show()
-            """
-            from .normal import plot_normal
-            self._initialise_figure()
-            plot_normal(x, bins, nstd, style, self.axes)
+        """
+        from .normal import plot_normal
+        self._initialise_figure()
+        plot_normal(x, bins, nstd, style, self.axes)
 
     def pca(self, X, style=None):
         r"""Plot the first two principal components of a design matrix.
@@ -242,10 +242,10 @@ class LimixPlot(object):
 
             limix.plot.pca(X)
             limix.plot.show()
-            """
-            from .pca import plot_pca
-            self._initialise_figure()
-            plot_pca(X, style, self.axes)
+        """
+        from .pca import plot_pca
+        self._initialise_figure()
+        plot_pca(X, style, self.axes)
 
     def power(self, df, style=None):
         r"""Plot number of hits across significance levels.
@@ -279,10 +279,10 @@ class LimixPlot(object):
 
             limix.plot.power(df)
             limix.plot.show()
-            """
-            from .power import plot_power
-            self._initialise_figure()
-            plot_power(df, style, self.axes)
+        """
+        from .power import plot_power
+        self._initialise_figure()
+        plot_power(df, style, self.axes)
 
     def qqplot(self, df, alpha=0.05, cutoff=0.1, style=None):
         r"""Quantile-Quantile of observed p-values versus theoretical ones.
@@ -320,10 +320,10 @@ class LimixPlot(object):
 
             limix.plot.qqplot(df)
             limix.plot.show()
-            """
-            from .qqplot import qqplot
-            self._initialise_figure()
-            qqplot(df, alpha, cutoff, style, self.axes)
+        """
+        from .qqplot import qqplot
+        self._initialise_figure()
+        qqplot(df, alpha, cutoff, style, self.axes)
 
     def see_image(self, filepath, verbose=True):
         r"""Plot a image represented in a file.
@@ -345,6 +345,7 @@ def _matplotlib_setup():
     font = {
         'font.size': 10,
         'pdf.fonttype': 42,
+        'ps.fonttype': 42,
         'font.family': 'sans-serif',
         'font.sans-serif': ['Open Sans', 'Verdana', 'Arial', 'sans-serif'],
         'axes.labelsize': 14,
