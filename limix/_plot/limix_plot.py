@@ -354,7 +354,7 @@ def _matplotlib_setup():
         'axes.titlesize': 24,
         'xtick.labelsize': 24,
         'ytick.labelsize': 24,
-        'legend.fontsize': 24,
+        'legend.fontsize': 20,
     }
 
     rcParams = {
@@ -366,7 +366,7 @@ def _matplotlib_setup():
         'hatch.linewidth': 2.5,
         'lines.linewidth': 2.5,
         'patch.linewidth': 2.5,
-        'lines.markersize': 2.5,
+        'lines.markersize': 6.0,
         'lines.markeredgewidth': 1.5,
         'xtick.major.width': 2.5,
         'ytick.major.width': 2.5,

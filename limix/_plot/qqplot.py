@@ -2,7 +2,8 @@ from __future__ import division
 
 from numpy import sum as npsum
 from numpy import (arange, ascontiguousarray, flipud, linspace, log10, ones,
-                   percentile, searchsorted, sort, where, atleast_2d, inf)
+                   percentile, searchsorted, sort, where, atleast_2d, inf,
+                   insert)
 from scipy.special import betaincinv
 
 
@@ -45,7 +46,8 @@ def qqplot(df, alpha, cutoff=0.1, style=None, ax=None):
         qemp = -log10(pv)
 
         sty = style.get(label, {})
-        ax.plot(qnull[ok], qemp[ok], '.', label=label, **sty)
+        ax.plot(
+            qnull[ok], qemp[ok], 'o', markeredgecolor=None, label=label, **sty)
 
         qmin = min(qmin, min(qnull[ok].min(), qemp[ok].min()))
         qmax = max(qmax, min(qnull[ok].max(), qemp[ok].max()))
@@ -53,14 +55,16 @@ def qqplot(df, alpha, cutoff=0.1, style=None, ax=None):
         if label not in style:
             style[label] = dict()
 
-    ax.plot([qmin, qmax], [qmin, qmax], color='black')
-    _plot_confidence_band(ok, qnull, alpha, ax)
+    qmax = qmax + 0.025 * (qmax - qmin)
+    ax.plot([qmin, qmax], [qmin, qmax], color='black', zorder=0)
+    _plot_confidence_band(ok, qnull, alpha, ax, qmax)
     _set_axis_labels(ax)
 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
-    ax.xaxis.set_lim(qmin, qmax)
-    ax.yaxis.set_lim(qmin, qmax)
+    ax.set_xlim(qmin, qmax)
+    ax.set_ylim(qmin, qmax)
+    ax.set_aspect('equal', 'box')
 
     return ax
 
@@ -91,15 +95,23 @@ def _rank_confidence_band(nranks, significance_level, ok):
     return (bottom, top)
 
 
-def _plot_confidence_band(ok, null_qvals, significance_level, ax):
+def _plot_confidence_band(ok, null_qvals, significance_level, ax, qmax):
 
     (bo, to) = _rank_confidence_band(len(null_qvals), significance_level, ok)
 
     bo = -log10(bo)
     to = -log10(to)
 
+    m = null_qvals[ok]
+    m = insert(m, 0, qmax)
+
+    d = m[0] - m[1]
+
+    bo = insert(bo, 0, bo[0] + d * (bo[0] - bo[1]))
+    to = insert(to, 0, to[0] + d * (to[0] - to[1]))
+
     ax.fill_between(
-        null_qvals[ok], bo, to, facecolor='black', linewidth=0, alpha=0.15)
+        m, bo, to, facecolor='#DDDDDD', linewidth=0, zorder=-1, alpha=1.0)
 
 
 def _subsample(pvalues, cutoff):
