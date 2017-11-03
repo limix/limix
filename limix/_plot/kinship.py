@@ -2,7 +2,7 @@ from __future__ import division
 
 import warnings
 
-from numpy import argsort, asarray, inf
+from numpy import argsort, asarray, inf, isnan, percentile, clip
 
 
 def plot_kinship(K, nclusters=1, style=None, ax=None):
@@ -31,7 +31,6 @@ def plot_kinship(K, nclusters=1, style=None, ax=None):
     """
 
     import matplotlib.pyplot as plt
-    from seaborn import heatmap
 
     ax = plt.gca() if ax is None else ax
 
@@ -44,16 +43,36 @@ def plot_kinship(K, nclusters=1, style=None, ax=None):
     elif nclusters > 1:
         K = _clustering(K, nclusters)
 
-    heatmap(
-        K,
-        ax=ax,
-        linewidths=0,
-        xticklabels=False,
-        cmap='RdBu_r',
-        yticklabels=False,
-        square=True,
-        robust=True,
-        **style)
+    cmin = percentile(K, 2)
+    cmax = percentile(K, 98)
+    K = clip(K, cmin, cmax)
+    K = (K - K.min()) / (K.max() - K.min())
+
+    mesh = ax.pcolormesh(K, cmap='RdBu_r')
+
+    ax.set_aspect("equal")
+    ax.set(xlim=(0, K.shape[1]), ylim=(0, K.shape[0]))
+    ax.xaxis.set_ticks([])
+    ax.yaxis.set_ticks([])
+    cb = ax.figure.colorbar(mesh, None, ax)
+
+    #    ax.xaxis.set_ticks_position('both')
+    #    ax.yaxis.set_ticks_position('both')
+    #    ax.spines['right'].set_visible(True)
+    #    ax.spines['top'].set_visible(True)
+    #    ax.spines['left'].set_visible(True)
+    #    ax.spines['bottom'].set_visible(True)
+    #
+    #    fig = plt.gcf()
+    #    cb = fig.axes[-1]
+    #    cb.xaxis.set_ticks_position('both')
+    #    cb.yaxis.set_ticks_position('both')
+    #    cb.outline.set_linewidth(1.0)
+    #    #for spine in cb.spines.values():
+    #    #    spine.set_visible(True)
+    #    #    spine.set_linewidth(10.0)
+    #    #    spine.set_color('black')
+    #    #    spine.set_edgecolor('black')
 
     return ax
 

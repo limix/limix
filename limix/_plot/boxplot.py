@@ -12,14 +12,7 @@ def plot_boxplot(df, style=None, ax=None):
         flierprops=dict(markersize=3.0),
         **style)
 
-    ax.grid(
-        True,
-        which='major',
-        axis='y',
-        linewidth=0.75,
-        linestyle='-',
-        color='#EEEEEE',
-        alpha=1.0)
+    ax.grid(True, which='major', axis='y', alpha=1.0)
 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')

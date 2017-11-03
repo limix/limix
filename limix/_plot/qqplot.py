@@ -2,7 +2,7 @@ from __future__ import division
 
 from numpy import sum as npsum
 from numpy import (arange, ascontiguousarray, flipud, linspace, log10, ones,
-                   percentile, searchsorted, sort, where, atleast_2d)
+                   percentile, searchsorted, sort, where, atleast_2d, inf)
 from scipy.special import betaincinv
 
 
@@ -12,47 +12,55 @@ def qqplot(df, alpha, cutoff=0.1, style=None, ax=None):
     Parameters
     ----------
     df : :class:`pandas.DataFrame`
-        Data frame.
+    Data frame.
     alpha : float
-        Significance level defining the band boundary. Defaults to ``0.05``.
+    Significance level defining the band boundary. Defaults to ``0.05``.
     cutoff : float
-        P-values higher than `cutoff` will not be plotted.
+    P-values higher than `cutoff` will not be plotted.
     style : dict
-        Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
-        function.
+    Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
+    function.
     ax : :class:`matplotlib.axes.Axes`
-        The target handle for this figure. If ``None``, the current axes is
-        set.
+    The target handle for this figure. If ``None``, the current axes is
+    set.
 
     Returns
     -------
     :class:`matplotlib.axes.Axes`
-        Axes.
+    Axes.
     """
     df = _normalise_data(df)
 
     if style is None:
         style = dict()
 
+    qmin = +inf
+    qmax = -inf
     for label, df0 in df.groupby('label'):
         pv = sort(df0['pv'].values)
         ok = _subsample(pv, cutoff)
 
         qnull = -log10((0.5 + arange(len(pv))) / len(pv))
+
         qemp = -log10(pv)
 
         sty = style.get(label, {})
-        ax.plot(qnull[ok], qemp[ok], '-o', label=label, **sty)
+        ax.plot(qnull[ok], qemp[ok], '.', label=label, **sty)
+
+        qmin = min(qmin, min(qnull[ok].min(), qemp[ok].min()))
+        qmax = max(qmax, min(qnull[ok].max(), qemp[ok].max()))
 
         if label not in style:
             style[label] = dict()
 
-    ax.plot([0, qnull.max()], [0, qnull.max()], 'r')
+    ax.plot([qmin, qmax], [qmin, qmax], color='black')
     _plot_confidence_band(ok, qnull, alpha, ax)
     _set_axis_labels(ax)
 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
+    ax.xaxis.set_lim(qmin, qmax)
+    ax.yaxis.set_lim(qmin, qmax)
 
     return ax
 
@@ -91,12 +99,7 @@ def _plot_confidence_band(ok, null_qvals, significance_level, ax):
     to = -log10(to)
 
     ax.fill_between(
-        null_qvals[ok],
-        bo,
-        to,
-        facecolor='black',
-        edgecolor='black',
-        alpha=0.15)
+        null_qvals[ok], bo, to, facecolor='black', linewidth=0, alpha=0.15)
 
 
 def _subsample(pvalues, cutoff):
@@ -124,7 +127,7 @@ def _subsample(pvalues, cutoff):
     i = 0
     while i < len(idx) and idx[i] == n:
         i += 1
-    idx = idx[i:]
+        idx = idx[i:]
 
     ok[where(nok)[0][idx]] = True
 
