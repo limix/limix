@@ -6,4 +6,4 @@ ndarray-listener
 brent-search
 tqdm
 sphinx_rtd_theme
-glimix-core
+glimix-core>=1.3.6
