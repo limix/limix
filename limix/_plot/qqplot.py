@@ -62,9 +62,19 @@ def qqplot(df, alpha, cutoff=0.1, style=None, ax=None):
 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
+
     ax.set_xlim(qmin, qmax)
     ax.set_ylim(qmin, qmax)
+
     ax.set_aspect('equal', 'box')
+    ax.apply_aspect()
+
+    ticks = ax.get_yticks()
+    ymax = ax.get_xbound()[1]
+    ticks = [t for t in ticks if t < ymax]
+
+    ax.set_xticks(ticks)
+    ax.set_yticks(ticks)
 
     return ax
 
