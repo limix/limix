@@ -37,7 +37,7 @@ def qqplot(df, alpha, cutoff=0.1, style=None, ax=None):
 
     qmin = +inf
     qmax = -inf
-    for label, df0 in df.groupby('label'):
+    for label, df0 in df.groupby('label', sort=True):
         pv = sort(df0['pv'].values)
         ok = _subsample(pv, cutoff)
 
