@@ -56,6 +56,7 @@ def plot_curve(data, style=None, ax=None):
                 interpolate=True)
 
     ax.legend(loc='best')
+    ax.grid(True, which='major', axis='both', alpha=1.0)
 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
