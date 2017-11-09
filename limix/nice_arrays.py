@@ -171,3 +171,50 @@ def kinship_process(K, nsamples, verbose):
         K = _cache['K']['K']
 
     return K, QS
+
+
+from numpy.testing import assert_allclose, assert_equal
+import pandas as pd
+import dask.dataframe as dd
+import numpy as np
+
+
+def _isdataframe(df):
+    return isinstance(df, (pd.DataFrame, dd.DataFrame))
+
+
+def _normalise_dataframe_phenotype(y, lik):
+    if lik == 'binomial':
+        if y.shape[1] == 3:
+            print("Phenotype dataframe has three columns. I will be using the"
+                  " first one as the index.")
+            y = y.set_index(y.columns[0])
+    else:
+        if y.shape[1] == 2:
+            print("Phenotype dataframe has two columns. I will be using the"
+                  " first one as the index.")
+            y = y.set_index(y.columns[0])
+    y = y.astype(float)
+    return y
+
+
+def normalise_phenotype(y, lik):
+    if _isdataframe(y):
+        return _normalise_dataframe_phenotype(y, lik)
+
+    y = np.ascontiguousarray(y, float)
+    y = np.atleast_2d(y.T).T
+
+    if y.shape[1] > 2:
+        raise ValueError("Outcome matrix must have two or one columns.")
+
+    if lik == 'binomial':
+        pass
+    else:
+        if y.shape[1] > 1:
+            y = pd.DataFrame(data=y)
+        else:
+            index = ['sample{}'.format(i) for i in range(y.shape[0])]
+            y = pd.DataFrame(data=y, index=index)
+
+    return _normalise_dataframe_phenotype(y, lik)

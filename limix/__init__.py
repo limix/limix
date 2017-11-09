@@ -45,5 +45,6 @@ __all__ = [
     "__name__", "__version__", "__author__", "__author_email__", "test", 'io',
     'plot', 'qc', 'qtl', 'stats', 'util', 'her', 'download', 'extract',
     'filehash', 'cmdlimix', 'set_max_nthreads', 'get_max_nthreads', 'call',
-    'ConsensusCurve', 'LimixPlot', 'load_dataset', 'is_large_file'
+    'ConsensusCurve', 'LimixPlot', 'load_dataset', 'is_large_file',
+    'normalise_phenotype'
 ]
