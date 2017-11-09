@@ -19,6 +19,8 @@ def file_type(filepath):
         return 'bed'
     if any([filepath.endswith(ext) for ext in imexts]):
         return 'image'
+    if filepath.endswith('.txt'):
+        return 'csv'
     return 'unknown'
 
 

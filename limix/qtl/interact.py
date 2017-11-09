@@ -5,7 +5,7 @@ from tqdm import tqdm
 from glimix_core.lmm import LMM
 
 from .model import IQTLModel
-from ..nice_arrays import (assure_named_matrix, covariates_process,
+from ..nice_arrays import (assure_named_columns, covariates_process,
                            kinship_process, phenotype_process)
 from .util import print_analysis
 
@@ -110,11 +110,11 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
     y = phenotype_process(lik, y)
 
     nsamples = len(G)
-    G = assure_named_matrix(G)
+    G = assure_named_columns(G)
     if not npall(isfinite(G)):
         raise ValueError("Variant values must be finite.")
 
-    inter = assure_named_matrix(inter)
+    inter = assure_named_columns(inter)
     if not npall(isfinite(inter)):
         raise ValueError("Interaction values must be finite.")
 
@@ -123,6 +123,7 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
     M = covariates_process(M, nsamples)
 
     K, QS = kinship_process(K, nsamples, verbose)
+    y = _binomial_y(y.values, 'normal')
 
     if lik == 'normal':
         model = _perform_lmm(y, M, QS, G, inter, mixed, verbose)
@@ -171,3 +172,10 @@ def _perform_lmm(y, M, QS, G, inter, mixed, verbose):
     null_lml = Series(null_lmls, G.columns)
 
     return IQTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
+
+
+def _binomial_y(y, lik):
+    # ugly hack, remove this when possible
+    if lik == 'binomial':
+        return y[:, 0], y[:, 1]
+    return y.ravel()

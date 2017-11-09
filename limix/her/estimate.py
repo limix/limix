@@ -1,6 +1,5 @@
 from __future__ import division
 
-from numpy import asarray as npy_asarray
 from numpy import pi, var
 
 from glimix_core.glmm import GLMMExpFam
@@ -73,27 +72,20 @@ def estimate(y, lik, K, M=None, verbose=True):
     M = covariates_process(M, K.shape[0])
     K = gower_norm(K)
 
-    if isinstance(y, (tuple, list)):
-        y = tuple([npy_asarray(p, float) for p in y])
-    else:
-        y = npy_asarray(y, float)
-
     desc = "Eigen decomposition of the covariance matrix..."
     with Timer(desc=desc, disable=not verbose):
         QS = economic_qs(K)
 
     lik = lik.lower()
 
-    try:
-        if lik == 'normal':
-            method = LMM(y, named_to_unamed_matrix(M), QS)
-            method.fit(verbose=verbose)
-        else:
-            method = GLMMExpFam(y, lik, named_to_unamed_matrix(M), QS)
-            method.fit(verbose=verbose)
-    except OptimixError as e:
-        eprint(e)
-        return 0.0
+    if lik == 'normal':
+        method = LMM(_binomial_y(y.values, lik), named_to_unamed_matrix(M),
+                     QS)
+    else:
+        method = GLMMExpFam(_binomial_y(y.values, lik), lik,
+                            named_to_unamed_matrix(M), QS)
+
+    method.fit(verbose=verbose)
 
     g = method.scale * (1 - method.delta)
     e = method.scale * method.delta
@@ -106,3 +98,10 @@ def estimate(y, lik, K, M=None, verbose=True):
         v = var(method.mean())
 
     return g / (v + g + e)
+
+
+def _binomial_y(y, lik):
+    # ugly hack, remove this when possible
+    if lik == 'binomial':
+        return y[:, 0], y[:, 1]
+    return y.ravel()

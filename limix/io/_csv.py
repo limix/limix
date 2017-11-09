@@ -6,7 +6,10 @@ def read_csv(filename, sep=None, header=True):
     filename : str
         Path to a CSV file.
     sep : str
-        Separator.
+        Separator. ``None`` triggers auto-detection. Defaults to ``None``.
+    header : bool
+        ``True`` for file with a header; ``False`` otherwise. Defaults
+        to ``True``.
 
     Returns
     -------
@@ -26,22 +29,39 @@ def read_csv(filename, sep=None, header=True):
         1   size   float    -3     b
         2  force     int     f     c
     """
-    from dask.dataframe import read_csv as _read_csv
+    from ..limits import is_large_file
+    from dask.dataframe import read_csv as dask_read_csv
+    from pandas import read_csv as pandas_read_csv
 
     if sep is None:
         sep = _infer_separator(filename)
 
     header = 0 if header else None
-    return _read_csv(filename, sep=sep, header=header)
+
+    if is_large_file(filename):
+        df = dask_read_csv(filename, sep=sep, header=header)
+    else:
+        df = pandas_read_csv(filename, sep=sep, header=header)
+
+    if len(df.columns) > 0:
+        if df.columns[0] == 'Unnamed: 0':
+            df = df.set_index('Unnamed: 0')
+            df.index.name = None
+
+    return df
 
 
-def see(filepath, verbose):
+def see(filepath, header, verbose):
     """Shows a human-friendly representation of a CSV file.
 
     Parameters
     ----------
     filepath : str
         CSV file path.
+    header : bool
+        ``True`` for parsing the header; ``False`` otherwise.
+    verbose : bool
+        ``True`` for verbose; ``False`` otherwise.
 
     Returns
     -------
@@ -51,9 +71,14 @@ def see(filepath, verbose):
     from pandas import read_csv
     from limix.util import Timer
 
+    if header:
+        header = 0
+    else:
+        header = None
+
     with Timer(desc="Reading %s..." % filepath, disable=not verbose):
         sep = _infer_separator(filepath)
-        msg = read_csv(filepath, sep=sep).head()
+        msg = read_csv(filepath, sep=sep, header=header).head()
 
     print(msg)
 
@@ -76,11 +101,11 @@ def _infer_separator(fn):
     nmax = 9
 
     with open(fn, 'r') as f:
-        line = f.readline().strip()
+        line = _remove_repeat(f.readline())
         counter = _count(set(line), line)
 
         for _ in range(nmax - 1):
-            line = f.readline().strip()
+            line = _remove_repeat(f.readline())
             if len(line) == 0:
                 break
             c = _count(set(counter.keys()), line)
@@ -93,5 +118,13 @@ def _infer_separator(fn):
             return c
 
     counter = list(counter.items())
+    if len(counter) == 0:
+        return None
+
     counter = sorted(counter, key=lambda kv: kv[1])
     return counter[-1][0]
+
+
+def _remove_repeat(s):
+    from re import sub
+    return sub(r'(.)\1+', r'\1', s)

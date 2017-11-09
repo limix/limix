@@ -8,7 +8,7 @@ from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
 from .model import QTLModel
-from ..nice_arrays import (assure_named_matrix, covariates_process,
+from ..nice_arrays import (assure_named_columns, covariates_process,
                            kinship_process, phenotype_process)
 from .util import print_analysis
 
@@ -116,20 +116,24 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     y = phenotype_process(lik, y)
 
     nsamples = len(G)
-    G = assure_named_matrix(G)
+    G = assure_named_columns(G)
     if not npall(isfinite(G)):
         raise ValueError("Variant values must be finite.")
 
     mixed = K is not None
+    if K is not None:
+        K = assure_named_columns(K)
 
     M = covariates_process(M, nsamples)
 
     K, QS = kinship_process(K, nsamples, verbose)
 
     if lik == 'normal':
-        model = _perform_lmm(y, M, QS, G, mixed, verbose)
+        model = _perform_lmm(_binomial_y(y.values, lik), M, QS, G, mixed,
+                             verbose)
     else:
-        model = _perform_glmm(y, lik, M, K, QS, G, mixed, verbose)
+        model = _perform_glmm(_binomial_y(y.values, lik), lik, M, K, QS, G,
+                              mixed, verbose)
 
     if verbose:
         print(model)
@@ -196,3 +200,10 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     effsizes = Series(effsizes, list(G.keys()))
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
+
+
+def _binomial_y(y, lik):
+    # ugly hack, remove this when possible
+    if lik == 'binomial':
+        return y[:, 0], y[:, 1]
+    return y.ravel()

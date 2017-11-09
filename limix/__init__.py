@@ -34,6 +34,7 @@ from .util import download, extract, filehash
 from .cmd import call
 from ._examples import load_dataset
 from ._plot import plot, ConsensusCurve, LimixPlot
+from .limits import is_large_file
 
 __name__ = "limix"
 __version__ = "1.2.0"
@@ -42,7 +43,7 @@ __author_email__ = "stegle@ebi.ac.uk"
 
 __all__ = [
     "__name__", "__version__", "__author__", "__author_email__", "test", 'io',
-    'plot', 'qc', 'qtl', 'stats', 'util', 'her', 'download',
-    'extract', 'filehash', 'cmdlimix', 'set_max_nthreads', 'get_max_nthreads',
-    'call', 'ConsensusCurve', 'LimixPlot', 'load_dataset'
+    'plot', 'qc', 'qtl', 'stats', 'util', 'her', 'download', 'extract',
+    'filehash', 'cmdlimix', 'set_max_nthreads', 'get_max_nthreads', 'call',
+    'ConsensusCurve', 'LimixPlot', 'load_dataset', 'is_large_file'
 ]

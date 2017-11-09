@@ -3,6 +3,25 @@ from argparse import ArgumentParser
 from limix.io import possible_file_types
 
 
+def _do_see(filepath, filetype, options):
+    import limix
+
+    if filetype == 'hdf5':
+        limix.io.hdf5.see_hdf5(
+            filepath, show_chunks=options.show_chunks, verbose=options.verbose)
+    elif filetype == 'csv':
+        limix.io.csv.see(filepath, verbose=options.verbose,
+                         header=options.header == 'yes')
+    elif filetype == 'grm.raw':
+        limix.io.plink.see_kinship(filepath, verbose=options.verbose)
+    elif filetype == 'bed':
+        limix.io.plink.see_bed(filepath, verbose=options.verbose)
+    elif filetype == 'image':
+        limix.plot.see_image(filepath, verbose=options.verbose)
+    else:
+        print("Unknown file type: %s" % filepath)
+
+
 def do_see(args):
     import limix
 
@@ -11,33 +30,30 @@ def do_see(args):
     else:
         ft = args.type
 
-    if ft == 'hdf5':
-        limix.io.hdf5.see_hdf5(
-            args.file, show_chunks=args.show_chunks, verbose=not args.quiet)
-    elif ft == 'csv':
-        limix.io.csv.see(args.file, verbose=not args.quiet)
-    elif ft == 'grm.raw':
-        limix.io.plink.see_kinship(args.file, verbose=not args.quiet)
-    elif ft == 'bed':
-        limix.io.plink.see_bed(args.file, verbose=not args.quiet)
-    elif ft == 'image':
-        limix.plot.see_image(args.file, verbose=not args.quiet)
-    else:
-        print("Unknown file type: %s" % args.file)
+    try:
+        _do_see(args.file, ft, args)
+    except FileNotFoundError as e:
+        print(e)
 
 
 def see_parser(parser):
     parser.add_argument('file', help='file path')
-    parser.add_argument('--quiet', '-q', help='quiet', action='store_true')
+    parser.add_argument('--quiet', '-q', help='quiet', dest='verbose',
+                        action='store_false')
+    parser.add_argument('--verbose', help='verbose', dest='verbose',
+                        action='store_true')
     parser.add_argument(
         '--show-chunks',
         dest='show_chunks',
         action='store_true',
         help='show chunk information for hdf5 files')
+    parser.add_argument('--header', choices=['yes', 'no'], default='yes',
+                        help='parse header from file')
 
     msg = 'specify file type: %s' % ', '.join(possible_file_types())
     parser.add_argument('--type', dest='type', help=msg)
-    parser.set_defaults(show_chunks=False, verbose=True)
+
+    parser.set_defaults(show_chunks=False, header='yes', verbose=False)
     parser.set_defaults(func=do_see)
     return parser
 
@@ -45,7 +61,7 @@ def see_parser(parser):
 def do_download(args):
     import limix
 
-    limix.util.download(args.url, verbose=not args.quiet)
+    limix.util.download(args.url, verbose=args.verbose)
 
 
 def download_parser(parser):
@@ -60,7 +76,7 @@ def download_parser(parser):
 def do_extract(args):
     import limix
 
-    limix.util.extract(args.filepath, verbose=not args.quiet)
+    limix.util.extract(args.filepath, verbose=args.verbose)
 
 
 def extract_parser(parser):
