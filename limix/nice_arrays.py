@@ -1,6 +1,6 @@
 from __future__ import division
 
-from numpy import clip, eye, ones
+from numpy import clip, eye, ones, ascontiguousarray, atleast_2d
 from numpy import stack as npy_stack
 from pandas import DataFrame, Series
 from dask.array import Array as DaskArray
@@ -173,14 +173,8 @@ def kinship_process(K, nsamples, verbose):
     return K, QS
 
 
-from numpy.testing import assert_allclose, assert_equal
-import pandas as pd
-import dask.dataframe as dd
-import numpy as np
-
-
 def _isdataframe(df):
-    return isinstance(df, (pd.DataFrame, dd.DataFrame))
+    return isinstance(df, (DataFrame, DaskDataFrame))
 
 
 def _normalise_dataframe_phenotype(y, lik):
@@ -202,8 +196,8 @@ def normalise_phenotype(y, lik):
     if _isdataframe(y):
         return _normalise_dataframe_phenotype(y, lik)
 
-    y = np.ascontiguousarray(y, float)
-    y = np.atleast_2d(y.T).T
+    y = ascontiguousarray(y, float)
+    y = atleast_2d(y.T).T
 
     if y.shape[1] > 2:
         raise ValueError("Outcome matrix must have two or one columns.")
@@ -212,9 +206,9 @@ def normalise_phenotype(y, lik):
         pass
     else:
         if y.shape[1] > 1:
-            y = pd.DataFrame(data=y)
+            y = DataFrame(data=y)
         else:
             index = ['sample{}'.format(i) for i in range(y.shape[0])]
-            y = pd.DataFrame(data=y, index=index)
+            y = DataFrame(data=y, index=index)
 
     return _normalise_dataframe_phenotype(y, lik)
