@@ -1,10 +1,11 @@
 from limix.nice_arrays import normalise_phenotype_matrix
 from limix.nice_arrays import normalise_covariates_matrix
+from limix.nice_arrays import normalise_kinship_matrix
 
 from pandas import DataFrame
 from numpy.testing import assert_allclose, assert_equal
 from numpy.random import RandomState
-from numpy import newaxis, stack
+from numpy import newaxis, stack, dot, concatenate, arange
 
 
 def test_nice_arrays_phenotype():
@@ -50,3 +51,24 @@ def test_nice_arrays_covariates():
         assert_allclose(df.values, v[:, newaxis])
         assert_equal(df.shape[0], 5)
         assert_equal(df.shape[1], 1)
+
+
+def test_nice_arrays_kinship():
+
+    random = RandomState(0)
+    X = random.randn(5, 10)
+    K0 = dot(X, X.T)
+
+    K = [K0.copy()]
+    K += [DataFrame(data=K0.copy())]
+    data = K0.copy()
+    data = concatenate((arange(5)[:, newaxis], K0), axis=1)
+    K += [DataFrame(data=data)]
+    data = concatenate((arange(5)[newaxis, :], K0), axis=0)
+    K += [DataFrame(data=data)]
+
+    for i, Ki in enumerate(K):
+        df = normalise_kinship_matrix(Ki)
+        assert_allclose(df.values, K0)
+        assert_equal(df.shape[0], 5)
+        assert_equal(df.shape[1], 5)

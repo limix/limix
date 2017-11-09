@@ -2,7 +2,8 @@ from __future__ import division
 
 from numpy import clip, eye, ones, ascontiguousarray, atleast_2d
 from numpy import stack as npy_stack
-from pandas import DataFrame, Series
+from numpy import concatenate
+from pandas import DataFrame, Series, to_numeric, Int64Index
 from dask.array import Array as DaskArray
 from dask.array import stack as dsk_stack
 from dask.dataframe import DataFrame as DaskDataFrame
@@ -222,14 +223,14 @@ def _default_covariates_index(n):
     return ['covariate{}'.format(i) for i in range(n)]
 
 
-def _normalise_dataframe_covariates(M):
+def _normalise_covariates_dataframe(M):
     M = M.astype(float)
     return M
 
 
 def normalise_covariates_matrix(M):
     if _isdataframe(M):
-        return _normalise_dataframe_covariates(M)
+        return _normalise_covariates_dataframe(M)
 
     M = ascontiguousarray(M, float)
     M = atleast_2d(M.T).T
@@ -238,4 +239,58 @@ def normalise_covariates_matrix(M):
     columns = _default_covariates_index(M.shape[1])
     M = DataFrame(M, columns=columns, index=index)
 
-    return _normalise_dataframe_covariates(M)
+    return _normalise_covariates_dataframe(M)
+
+
+def _infer_same_index_col_type(M):
+    a = M.index
+    b = M.columns
+    X = npy_stack((a.ravel(), b.ravel()), axis=0)
+    X = Series(data=concatenate([a.ravel(), b.ravel()]))
+    try:
+        X = to_numeric(X).values
+    except ValueError:
+        X = X.astype('unicode').values.astype('unicode')
+
+    dtype = X.dtype
+
+    M.index = asarray(M.index, dtype=dtype)
+    M.columns = asarray(M.columns, dtype=dtype)
+
+    return M
+
+
+def _normalise_kinship_dataframe(M):
+    if M.shape[1] == M.shape[0] + 1:
+        print("Kinship matrix has one column too many. I will use the first"
+              " one as the sample index.")
+        M = M.set_index(M.columns[0])
+        if isinstance(M.columns, Int64Index):
+            M.columns = M.columns - 1
+
+    elif M.shape[0] == M.shape[1] + 1:
+        print("Kinship matrix has one row too many. I will use the first"
+              " one as the sample index.")
+        M.columns = M.iloc[0]
+        M = M.reindex(M.index.drop(0))
+        if isinstance(M.index, Int64Index):
+            M.index = M.index - 1
+
+    M = M.astype(float)
+    M = _infer_same_index_col_type(M)
+
+    return M
+
+
+def normalise_kinship_matrix(M):
+    if _isdataframe(M):
+        return _normalise_kinship_dataframe(M)
+
+    M = ascontiguousarray(M, float)
+    M = atleast_2d(M.T).T
+
+    index = _default_samples_index(M.shape[0])
+    columns = _default_samples_index(M.shape[1])
+    M = DataFrame(M, columns=columns, index=index)
+
+    return _normalise_kinship_dataframe(M)
