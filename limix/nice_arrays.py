@@ -192,7 +192,7 @@ def _normalise_dataframe_phenotype(y, lik):
     return y
 
 
-def normalise_phenotype(y, lik):
+def normalise_phenotype_matrix(y, lik):
     if _isdataframe(y):
         return _normalise_dataframe_phenotype(y, lik)
 
@@ -208,7 +208,34 @@ def normalise_phenotype(y, lik):
         if y.shape[1] > 1:
             y = DataFrame(data=y)
         else:
-            index = ['sample{}'.format(i) for i in range(y.shape[0])]
+            index = _default_samples_index(y.shape[0])
             y = DataFrame(data=y, index=index)
 
     return _normalise_dataframe_phenotype(y, lik)
+
+
+def _default_samples_index(n):
+    return ['sample{}'.format(i) for i in range(n)]
+
+
+def _default_covariates_index(n):
+    return ['covariate{}'.format(i) for i in range(n)]
+
+
+def _normalise_dataframe_covariates(M):
+    M = M.astype(float)
+    return M
+
+
+def normalise_covariates_matrix(M):
+    if _isdataframe(M):
+        return _normalise_dataframe_covariates(M)
+
+    M = ascontiguousarray(M, float)
+    M = atleast_2d(M.T).T
+
+    index = _default_samples_index(M.shape[0])
+    columns = _default_covariates_index(M.shape[1])
+    M = DataFrame(M, columns=columns, index=index)
+
+    return _normalise_dataframe_covariates(M)
