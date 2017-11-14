@@ -20,10 +20,11 @@ def test_qtl_lmm():
 
     model = scan(X, y, 'normal', K, M=M, verbose=False)
     pv = model.variant_pvalues
-    best_snp = pv.argmin()
+    ix_best_snp = pv.idxmin()
+    pos_best_snp = pv.values.argmin()
 
-    M = concatenate((M, X[:, [best_snp]]), axis=1)
+    M = concatenate((M, X[:, [pos_best_snp]]), axis=1)
 
     model = scan(X, y, 'normal', K, M=M, verbose=False)
     pv = model.variant_pvalues
-    assert_allclose(pv[best_snp], 1.0)
+    assert_allclose(pv.loc[ix_best_snp], 1.0)

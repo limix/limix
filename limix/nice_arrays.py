@@ -3,7 +3,7 @@ from __future__ import division
 from numpy import clip, eye, ones, ascontiguousarray, atleast_2d
 from numpy import stack as npy_stack
 from numpy import concatenate
-from pandas import DataFrame, Series, to_numeric, Int64Index
+from pandas import DataFrame, Series, to_numeric, Int64Index, Index
 from dask.array import Array as DaskArray
 from dask.array import stack as dsk_stack
 from dask.dataframe import DataFrame as DaskDataFrame
@@ -209,21 +209,30 @@ def normalise_phenotype_matrix(y, lik):
         if y.shape[1] > 1:
             y = DataFrame(data=y)
         else:
-            index = _default_samples_index(y.shape[0])
+            index = default_samples_index(y.shape[0])
             y = DataFrame(data=y, index=index)
 
     return _normalise_dataframe_phenotype(y, lik)
 
 
-def _default_samples_index(n):
+def default_samples_index(n):
     return ['sample{}'.format(i) for i in range(n)]
 
 
-def _default_covariates_index(n):
+def default_covariates_index(n):
     return ['covariate{}'.format(i) for i in range(n)]
 
 
+def default_candidates_index(n):
+    return ['candidate{}'.format(i) for i in range(n)]
+
+
 def _normalise_covariates_dataframe(M):
+    M = M.astype(float)
+    return M
+
+
+def _normalise_candidates_dataframe(M):
     M = M.astype(float)
     return M
 
@@ -235,11 +244,25 @@ def normalise_covariates_matrix(M):
     M = ascontiguousarray(M, float)
     M = atleast_2d(M.T).T
 
-    index = _default_samples_index(M.shape[0])
-    columns = _default_covariates_index(M.shape[1])
+    index = default_samples_index(M.shape[0])
+    columns = default_covariates_index(M.shape[1])
     M = DataFrame(M, columns=columns, index=index)
 
     return _normalise_covariates_dataframe(M)
+
+
+def normalise_candidates_matrix(X):
+    if _isdataframe(X):
+        return _normalise_candidates_dataframe(X)
+
+    X = ascontiguousarray(X, float)
+    X = atleast_2d(X.T).T
+
+    index = default_samples_index(X.shape[0])
+    columns = default_candidates_index(X.shape[1])
+    X = DataFrame(X, columns=columns, index=index)
+
+    return _normalise_candidates_dataframe(X)
 
 
 def _infer_same_index_col_type(M):
@@ -289,8 +312,43 @@ def normalise_kinship_matrix(M):
     M = ascontiguousarray(M, float)
     M = atleast_2d(M.T).T
 
-    index = _default_samples_index(M.shape[0])
-    columns = _default_samples_index(M.shape[1])
+    index = default_samples_index(M.shape[0])
+    columns = default_samples_index(M.shape[1])
     M = DataFrame(M, columns=columns, index=index)
 
     return _normalise_kinship_dataframe(M)
+
+
+def _index_set_intersection(arrs):
+    index_set = None
+    for a in arrs:
+
+        if hasattr(a, 'index') and isinstance(a.index, Index):
+
+            i = set(a.index)
+            if len(i) < len(a.index):
+                raise ValueError("Duplicated index.")
+
+            if index_set is None:
+                index_set = i
+            else:
+                index_set = index_set.intersection(i)
+
+    if index_set is None:
+        return set()
+    return index_set
+
+
+def _equal_index_if_possible(index_set, arrs):
+    for a in arrs:
+        if hasattr(a, 'index'):
+            if index_set == set(a.index):
+                return a.index.copy()
+    return Index(index_set)
+
+
+def infer_samples_index(arrs):
+    index_set = _index_set_intersection(arrs)
+    if len(index_set) == 0:
+        index_set = default_candidates_index(arrs[0].shape[0])
+    return _equal_index_if_possible(index_set, arrs)

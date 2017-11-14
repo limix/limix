@@ -1,7 +1,8 @@
 from __future__ import division
 
 from numpy import all as npall
-from numpy import diag, isfinite
+from numpy import diag, isfinite, ones, asarray
+from pandas import DataFrame
 
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
@@ -10,6 +11,14 @@ from numpy_sugar.linalg import economic_qs
 from .model import QTLModel
 from ..nice_arrays import (assure_named_columns, covariates_process,
                            kinship_process, phenotype_process)
+
+from ..nice_arrays import normalise_phenotype_matrix
+from ..nice_arrays import normalise_covariates_matrix
+from ..nice_arrays import normalise_kinship_matrix
+from ..nice_arrays import normalise_candidates_matrix
+from ..nice_arrays import infer_samples_index
+from ..nice_arrays import default_covariates_index
+from ..nice_arrays import default_candidates_index
 from .util import print_analysis
 
 
@@ -64,14 +73,17 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>>
         >>> n = 30
         >>> p = 3
+        >>> samples_index = range(n)
         >>>
         >>> M = DataFrame(dict(offset=ones(n), age=random.randint(10, 60, n)))
+        >>> M.index = samples_index
         >>>
         >>> X = random.randn(n, 100)
         >>> K = dot(X, X.T)
         >>>
         >>> candidates = random.randn(n, p)
-        >>> candidates = DataFrame(candidates, columns=['rs0', 'rs1', 'rs2'])
+        >>> candidates = DataFrame(candidates, index=samples_index,
+        ...                                    columns=['rs0', 'rs1', 'rs2'])
         >>>
         >>> y = random.poisson(exp(random.randn(n)))
         >>>
@@ -113,18 +125,72 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     if verbose:
         print_analysis(lik, "Quantitative trait locus analysis")
 
+    nsamples = len(G)
+    if isinstance(y, (tuple, list)):
+        y = asarray(y, float).T
+
+    if M is None:
+        M = ones((nsamples, 1))
+
+    arrs = [y, G, M]
+    if K is not None:
+        arrs.append(K)
+
+    samples_index = infer_samples_index(arrs)
+    if len(samples_index) == 0:
+        raise ValueError("Could not infer an index for samples."
+                         " Please, check if the passed arrays are in order.")
+
+    if hasattr(y, 'index'):
+        y = y.loc[y.index.intersection(samples_index)]
+    else:
+        y = DataFrame(data=y, index=samples_index.copy())
+
+    if hasattr(G, 'index'):
+        G = G.loc[G.index.intersection(samples_index)]
+    else:
+        G = DataFrame(data=G, index=samples_index.copy(),
+                      columns=default_candidates_index(G.shape[1]))
+
+    if hasattr(M, 'index'):
+        M = M.loc[M.index.intersection(samples_index)]
+    else:
+        M = DataFrame(data=M, index=samples_index.copy(),
+                      columns=default_covariates_index(M.shape[1]))
+
+    if K is not None:
+        if hasattr(K, 'index'):
+            K = K.loc[K.index.intersection(samples_index), :]
+            K = K.loc[:, K.columns.intersection(samples_index)]
+        else:
+            K = DataFrame(data=K, index=samples_index.copy(),
+                          columns=samples_index.copy())
+
+    y = normalise_phenotype_matrix(y, lik)
+    if K is not None:
+        K = normalise_kinship_matrix(K)
+
+    G = normalise_candidates_matrix(G)
+    M = covariates_process(M, nsamples)
+    M = normalise_covariates_matrix(M)
+
     y = phenotype_process(lik, y)
 
-    nsamples = len(G)
-    G = assure_named_columns(G)
     if not npall(isfinite(G)):
         raise ValueError("Variant values must be finite.")
 
     mixed = K is not None
-    if K is not None:
-        K = assure_named_columns(K)
 
-    M = covariates_process(M, nsamples)
+    indices = _intersect_indices(G, y, K, M)
+
+    G = G.loc[indices, :]
+    y = y.loc[indices, :]
+
+    if K is not None:
+        K = K.loc[indices, :]
+        K = K.loc[:, indices]
+
+    M = M.loc[indices, :]
 
     K, QS = kinship_process(K, nsamples, verbose)
 
@@ -182,9 +248,6 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     gnormal = GLMMNormal(eta, tau, M.values, QS)
     gnormal.fit(verbose=verbose)
 
-    scale = float(gnormal.scale)
-    delta = float(gnormal.delta)
-
     beta = gnormal.beta
 
     keys = list(M.keys())
@@ -207,3 +270,13 @@ def _binomial_y(y, lik):
     if lik == 'binomial':
         return y[:, 0], y[:, 1]
     return y.ravel()
+
+
+def _intersect_indices(G, y, K, M):
+    indices = G.index.copy()
+    indices = indices.intersection(y.index)
+    if K is not None:
+        indices = indices.intersection(K.index)
+    indices = indices.intersection(M.index)
+    # return Index(list(indices))
+    return indices

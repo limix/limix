@@ -75,22 +75,22 @@ alternative hypotheses to be tested:
     >>>
     >>> model = scan(candidates, y, 'normal', kinship, verbose=False)
     >>> print(model.variant_pvalues)  # doctest: +NPY_FLEX_NUMS
-    0    0.227217
-    1    0.398150
-    2    0.446014
-    3    0.063058
+    candidate0    0.227217
+    candidate1    0.398150
+    candidate2    0.446014
+    candidate3    0.063058
     dtype: float64
     >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
-    0    0.314872
-    1   -0.245231
-    2   -0.182707
-    3    0.511300
+    candidate0    0.314872
+    candidate1   -0.245231
+    candidate2   -0.182707
+    candidate3    0.511300
     dtype: float64
     >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
-    0    0.260751
-    1    0.290239
-    2    0.239749
-    3    0.275073
+    candidate0    0.260751
+    candidate1    0.290239
+    candidate2    0.239749
+    candidate3    0.275073
     dtype: float64
     >>> print(model)  # doctest: +NPY_FLEX_NUMS
     Variants
@@ -105,8 +105,8 @@ alternative hypotheses to be tested:
     max    0.511300     0.290239  0.446014
     <BLANKLINE>
     Covariate effect sizes for the null model
-       offset
-    -0.097159
+     covariate0
+      -0.097159
 
 The above example prints the estimated p-value, effect size, and standard
 error of the effect size of each variant.
@@ -157,25 +157,25 @@ The matrix ``G`` defines both five alternative hypotheses
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
     >>> print(model.variant_pvalues)
-    0    0.073623
-    1    0.341348
-    2    0.595322
-    3    0.742450
-    4    0.781789
+    candidate0    0.073623
+    candidate1    0.341348
+    candidate2    0.595322
+    candidate3    0.742450
+    candidate4    0.781789
     dtype: float64
     >>> print(model.variant_effsizes)
-    0    2.477110
-    1   -1.256363
-    2   -0.705970
-    3   -0.476551
-    4    0.376326
+    candidate0    2.477110
+    candidate1   -1.256363
+    candidate2   -0.705970
+    candidate3   -0.476551
+    candidate4    0.376326
     dtype: float64
     >>> print(model.variant_effsizes_se)
-    0    1.384672
-    1    1.320395
-    2    1.329161
-    3    1.450197
-    4    1.358630
+    candidate0    1.384672
+    candidate1    1.320395
+    candidate2    1.329161
+    candidate3    1.450197
+    candidate4    1.358630
     dtype: float64
     >>> print(model)
     Variants
@@ -190,8 +190,8 @@ The matrix ``G`` defines both five alternative hypotheses
     max    2.477110     1.450197  0.781789
     <BLANKLINE>
     Covariate effect sizes for the null model
-       offset
-     0.007468
+     covariate0
+       0.007468
 
 Out-of-core
 ^^^^^^^^^^^
