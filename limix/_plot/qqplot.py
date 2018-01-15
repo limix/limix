@@ -7,7 +7,7 @@ from numpy import (arange, ascontiguousarray, flipud, linspace, log10, ones,
 from scipy.special import betaincinv
 
 
-def qqplot(df, alpha, cutoff=0.1, style=None, ax=None):
+def qqplot(df, alpha, cutoff=0.1, style=None, ax=None, limits=None):
     r"""Quantile-Quantile plot of observed p-values versus theoretical ones.
 
     Parameters
@@ -50,18 +50,22 @@ def qqplot(df, alpha, cutoff=0.1, style=None, ax=None):
             qnull[ok], qemp[ok], 'o', markeredgecolor=None, label=label, **sty)
 
         qmin = min(qmin, min(qnull[ok].min(), qemp[ok].min()))
-        qmax = max(qmax, min(qnull[ok].max(), qemp[ok].max()))
+        qmax = max(qmax, max(qnull[ok].max(), qemp[ok].max()))
 
         if label not in style:
             style[label] = dict()
 
-    qmax = qmax + 0.025 * (qmax - qmin)
+    if limits is not None:
+        qmin = limits[0]
+        qmax = limits[1]
+
     ax.plot([qmin, qmax], [qmin, qmax], color='black', zorder=0)
     _plot_confidence_band(ok, qnull, alpha, ax, qmax)
     _set_axis_labels(ax)
 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
+    ax.grid(True, which='major', axis='both', alpha=1.0)
 
     ax.set_xlim(qmin, qmax)
     ax.set_ylim(qmin, qmax)

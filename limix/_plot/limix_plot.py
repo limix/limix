@@ -284,7 +284,7 @@ class LimixPlot(object):
         self._initialise_figure()
         plot_power(df, style, self.axes)
 
-    def qqplot(self, df, alpha=0.05, cutoff=0.1, style=None):
+    def qqplot(self, df, alpha=0.05, cutoff=0.1, style=None, limits=None):
         r"""Quantile-Quantile of observed p-values versus theoretical ones.
 
         Parameters
@@ -299,6 +299,8 @@ class LimixPlot(object):
         style : dict
         Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
         function.
+        limits : tuple
+        Lower and upper axis limits. Defaults to ``None``.
 
         Example
         -------
@@ -323,7 +325,7 @@ class LimixPlot(object):
         """
         from .qqplot import qqplot
         self._initialise_figure()
-        qqplot(df, alpha, cutoff, style, self.axes)
+        qqplot(df, alpha, cutoff, style, self.axes, limits=limits)
 
     def see_image(self, filepath, verbose=True):
         r"""Plot a image represented in a file.
