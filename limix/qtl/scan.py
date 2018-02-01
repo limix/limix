@@ -1,24 +1,21 @@
 from __future__ import division
 
 from numpy import all as npall
-from numpy import diag, isfinite, ones, asarray
+from numpy import asarray, diag, isfinite, ones
+from numpy_sugar.linalg import economic_qs
 from pandas import DataFrame
 
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
-from numpy_sugar.linalg import economic_qs
 
-from .model import QTLModel
 from ..nice_arrays import (assure_named_columns, covariates_process,
-                           kinship_process, phenotype_process)
-
-from ..nice_arrays import normalise_phenotype_matrix
-from ..nice_arrays import normalise_covariates_matrix
-from ..nice_arrays import normalise_kinship_matrix
-from ..nice_arrays import normalise_candidates_matrix
-from ..nice_arrays import infer_samples_index
-from ..nice_arrays import default_covariates_index
-from ..nice_arrays import default_candidates_index
+                           default_candidates_index, default_covariates_index,
+                           infer_samples_index, kinship_process,
+                           normalise_candidates_matrix,
+                           normalise_covariates_matrix,
+                           normalise_kinship_matrix,
+                           normalise_phenotype_matrix, phenotype_process)
+from .model import QTLModel
 from .util import print_analysis
 
 
@@ -92,11 +89,11 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>> print(model.variant_pvalues)  # doctest: +NPY_FLEX_NUMS
         rs0    0.554444
         rs1    0.218996
-        rs2    0.552201
+        rs2    0.552200
         dtype: float64
         >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
         rs0   -0.130866
-        rs1   -0.315077
+        rs1   -0.315078
         rs2   -0.143869
         dtype: float64
         >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
@@ -110,9 +107,9 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         count  3.000000     3.000000  3.000000
         mean  -0.196604     0.239910  0.441880
         std    0.102807     0.017563  0.193027
-        min   -0.315077     0.221390  0.218996
+        min   -0.315078     0.221389  0.218996
         25%   -0.229473     0.231701  0.385598
-        50%   -0.143869     0.242013  0.552201
+        50%   -0.143869     0.242013  0.552200
         75%   -0.137368     0.249170  0.553322
         max   -0.130866     0.256327  0.554444
         <BLANKLINE>
@@ -149,22 +146,28 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     if hasattr(G, 'index'):
         G = G.loc[G.index.intersection(samples_index)]
     else:
-        G = DataFrame(data=G, index=samples_index.copy(),
-                      columns=default_candidates_index(G.shape[1]))
+        G = DataFrame(
+            data=G,
+            index=samples_index.copy(),
+            columns=default_candidates_index(G.shape[1]))
 
     if hasattr(M, 'index'):
         M = M.loc[M.index.intersection(samples_index)]
     else:
-        M = DataFrame(data=M, index=samples_index.copy(),
-                      columns=default_covariates_index(M.shape[1]))
+        M = DataFrame(
+            data=M,
+            index=samples_index.copy(),
+            columns=default_covariates_index(M.shape[1]))
 
     if K is not None:
         if hasattr(K, 'index'):
             K = K.loc[K.index.intersection(samples_index), :]
             K = K.loc[:, K.columns.intersection(samples_index)]
         else:
-            K = DataFrame(data=K, index=samples_index.copy(),
-                          columns=samples_index.copy())
+            K = DataFrame(
+                data=K,
+                index=samples_index.copy(),
+                columns=samples_index.copy())
 
     y = normalise_phenotype_matrix(y, lik)
     if K is not None:
@@ -195,11 +198,11 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     K, QS = kinship_process(K, nsamples, verbose)
 
     if lik == 'normal':
-        model = _perform_lmm(_binomial_y(y.values, lik), M, QS, G, mixed,
-                             verbose)
+        model = _perform_lmm(
+            _binomial_y(y.values, lik), M, QS, G, mixed, verbose)
     else:
-        model = _perform_glmm(_binomial_y(y.values, lik), lik, M, K, QS, G,
-                              mixed, verbose)
+        model = _perform_glmm(
+            _binomial_y(y.values, lik), lik, M, K, QS, G, mixed, verbose)
 
     if verbose:
         print(model)

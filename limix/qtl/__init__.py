@@ -164,18 +164,18 @@ The matrix ``G`` defines both five alternative hypotheses
     candidate4    0.781846
     dtype: float64
     >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
-    candidate0    2.477110
-    candidate1   -1.256363
-    candidate2   -0.705970
-    candidate3   -0.476551
-    candidate4    0.376326
+    candidate0    2.476964
+    candidate1   -1.256319
+    candidate2   -0.705987
+    candidate3   -0.476535
+    candidate4    0.376351
     dtype: float64
     >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
-    candidate0    1.384672
-    candidate1    1.320395
-    candidate2    1.329161
-    candidate3    1.450197
-    candidate4    1.358630
+    candidate0    1.385050
+    candidate1    1.320770
+    candidate2    1.329578
+    candidate3    1.450610
+    candidate4    1.359087
     dtype: float64
     >>> print(model)  # doctest: +NPY_FLEX_NUMS
     Variants

@@ -241,7 +241,7 @@ shown as
     >>> limix.util.download(url, verbose=False)
     >>> limix.util.extract("example.csv.bz2", verbose=False)
     >>> limix.io.csv.see("example.csv", verbose=False, header=None)
-        0   1   2   3   4   5   6   7   8   9   ... 456 457 458 459  \
+                   0   1   2   3   4   5   6   7   8   9   ... 456 457 458 459  \
     0  snp_22_16050408   A   A   A   A   A   A   A   A   A ...   B   B   B   B
     1  snp_22_16050612   A   A   A   A   A   A   A   A   A ...   B   B   B   B
     2  snp_22_16050678   A   A   A   A   A   A   A   A   A ...   B   B   B   B

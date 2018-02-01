@@ -10,6 +10,9 @@ from time import strftime
 import sphinx_rtd_theme
 from setuptools import find_packages
 
+import limix
+import limix.npy_doctest
+
 
 def get_init_metadata(name):
     expr = re.compile(r"__%s__ *= *\"(.*)\"" % name)
@@ -60,3 +63,4 @@ intersphinx_mapping = {
 }
 doctest_default_flags = doctest.NORMALIZE_WHITESPACE
 doctest_global_cleanup = "True"
+doctest.OutputChecker = limix.npy_doctest.FlexNumOutputChecker
