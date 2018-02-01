@@ -1,7 +1,3 @@
-from os import chdir, getcwd
-from os.path import abspath, basename, dirname, realpath
-
-
 def test(verbose=True):
     r"""Run tests to verify this package's integrity.
 
@@ -16,19 +12,10 @@ def test(verbose=True):
         Exit code: ``0`` for success.
     """
 
-    pkgname = basename(dirname(realpath(__file__)))
+    args = ['--doctest-modules', '-x', '--pep8']
+    if not verbose:
+        args += ['--quiet']
 
-    p = __import__(pkgname).__path__[0]
-    src_path = abspath(p)
-    old_path = getcwd()
-    chdir(src_path)
+    args += ['--pyargs', __name__.split('.')[0]]
 
-    try:
-        return_code = __import__('pytest').main(['-q', '--doctest-modules'])
-    finally:
-        chdir(old_path)
-
-    if return_code == 0:
-        print("Congratulations. All tests have passed!")
-
-    return return_code
+    return __import__('pytest').main(args)

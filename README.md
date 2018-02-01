@@ -1,11 +1,4 @@
-
-Limix
-=====
-
-|PyPI-Status| |Conda-Forge-Status| |Conda-Downloads| |Doc-Status|
-
-|Build-Status| |Codacy-Grade| |License-Badge| |Coverage|
-
+# Limix
 
 Genomic analyses require flexible models that can be adapted to the needs of the user.
 Limix is a flexible and efficient linear mixed model library with interfaces to Python.
