@@ -90,7 +90,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
         >>> indep_pairwise(X, 4, 2, 0.5, verbose=False)
         array([ True,  True, False,  True,  True,  True,  True,  True,  True,
                 True,  True,  True,  True,  True,  True,  True,  True,  True,
-                True,  True], dtype=bool)
+                True,  True])
     """
     from .. import get_max_nthreads
     left = 0
