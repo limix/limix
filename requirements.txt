@@ -23,5 +23,6 @@ scipy>=1.0.0
 seaborn>=0.8.1
 setuptools>=38.4.0
 sphinx_rtd_theme>=0.2.4
+sphinx>=1.6.6
 statsmodels>=0.8.0
 tqdm>=4.19.5
