@@ -58,15 +58,21 @@ class LimixPlot(object):
 
         Example
         -------
+
         .. plot::
             :include-source:
 
-            import limix
-
-            df = limix.load_dataset("boxplot")
-
-            limix.plot.boxplot(df)
-            limix.plot.show()
+            >>> import limix
+            >>> df = limix.load_dataset("boxplot")
+            >>> df.head()
+               value category variable
+            0     85    1 min     rest
+            1     85   15 min     rest
+            2     88   30 min     rest
+            3     90    1 min     rest
+            4     92   15 min     rest
+            >>> limix.plot.boxplot(df)
+            >>> limix.plot.show()
         """
         from .boxplot import plot_boxplot
         self._initialise_figure()
@@ -88,21 +94,20 @@ class LimixPlot(object):
         .. plot::
             :include-source:
 
-            import limix
-            from numpy.random import RandomState
-            from numpy import sort
-
-            random = RandomState(0)
-            x = random.randn(100)
-            x = sort(x)
-            y = x + random.randn(100) * 0.1
-            ytop = y + 0.5
-            ybottom = y - 0.5
-            data = [dict(label='A', x=x, y=y, ybottom=ybottom,
-            ytop=ytop)]
-
-            limix.plot.curve(data)
-            limix.plot.show()
+            >>> import limix
+            >>> from numpy.random import RandomState
+            >>> from numpy import sort
+            >>>
+            >>> random = RandomState(0)
+            >>> x = random.randn(100)
+            >>> x = sort(x)
+            >>> y = x + random.randn(100) * 0.1
+            >>> ytop = y + 0.5
+            >>> ybottom = y - 0.5
+            >>> data = [dict(label='A', x=x, y=y, ybottom=ybottom, ytop=ytop)]
+            >>>
+            >>> limix.plot.curve(data)
+            >>> limix.plot.show()
         """
         from .curve import plot_curve
         self._initialise_figure()
@@ -129,12 +134,12 @@ class LimixPlot(object):
         .. plot::
             :include-source:
 
-            import limix
-
-            K = limix.load_dataset("kinship", verbose=False)
-
-            limix.plot.kinship(K)
-            limix.plot.show()
+            >>> import limix
+            >>> K = limix.load_dataset("kinship", verbose=False)
+            >>> type(K)
+            numpy.ndarray
+            >>> limix.plot.kinship(K)
+            >>> limix.plot.show()
         """
         from .kinship import plot_kinship
         self._initialise_figure()
@@ -165,20 +170,26 @@ class LimixPlot(object):
         .. plot::
             :include-source:
 
-            import limix
-            from numpy.random import RandomState
-            from numpy import arange, ones, kron
-            from pandas import DataFrame
-
-            random = RandomState(1)
-            pv = random.rand(5000)
-            pv[1200:1250] = random.rand(50)**4
-            chrom  = kron(arange(1, 6), ones(1000))
-            pos = kron(ones(5), arange(1, 1001))
-            df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos))
-
-            limix.plot.manhattan(df)
-            limix.plot.show()
+            >>> import limix
+            >>> from numpy.random import RandomState
+            >>> from numpy import arange, ones, kron
+            >>> from pandas import DataFrame
+            >>>
+            >>> random = RandomState(1)
+            >>> pv = random.rand(5000)
+            >>> pv[1200:1250] = random.rand(50)**4
+            >>> chrom  = kron(arange(1, 6), ones(1000))
+            >>> pos = kron(ones(5), arange(1, 1001))
+            >>> df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos))
+            >>> df.head()
+               chrom  pos        pv
+            0    1.0  1.0  0.417022
+            1    1.0  2.0  0.720324
+            2    1.0  3.0  0.000114
+            3    1.0  4.0  0.302333
+            4    1.0  5.0  0.146756
+            >>> limix.plot.manhattan(df)
+            >>> limix.plot.show()
         """
         from .manhattan import plot_manhattan
         self._initialise_figure()
@@ -204,13 +215,13 @@ class LimixPlot(object):
         .. plot::
             :include-source:
 
-            import limix
-            from numpy.random import RandomState
-
-            random = RandomState(10)
-            x = random.randn(100)
-            limix.plot.normal(x, nstd=2)
-            limix.plot.show()
+            >>> import limix
+            >>> from numpy.random import RandomState
+            >>>
+            >>> random = RandomState(10)
+            >>> x = random.randn(100)
+            >>> limix.plot.normal(x, nstd=2)
+            >>> limix.plot.show()
         """
         from .normal import plot_normal
         self._initialise_figure()
@@ -232,14 +243,13 @@ class LimixPlot(object):
         .. plot::
             :include-source:
 
-            import limix
-            from numpy.random import RandomState
-
-            random = RandomState(0)
-            X = random.randn(30, 10)
-
-            limix.plot.pca(X)
-            limix.plot.show()
+            >>> import limix
+            >>> from numpy.random import RandomState
+            >>>
+            >>> random = RandomState(0)
+            >>> X = random.randn(30, 10)
+            >>> limix.plot.pca(X)
+            >>> limix.plot.show()
         """
         from .pca import plot_pca
         self._initialise_figure()
@@ -261,22 +271,28 @@ class LimixPlot(object):
         .. plot::
             :include-source:
 
-            import limix
-            from pandas import DataFrame
-            from numpy.random import RandomState
-
-            random = RandomState(1)
-            nsnps = 10000
-
-            pv0 = list(random.rand(nsnps))
-            pv1 = list(0.7 * random.rand(nsnps))
-
-            data = dict(pv=pv0 + pv1,
-            label=['label0'] * nsnps + ['label1'] * nsnps)
-            df = DataFrame(data=data)
-
-            limix.plot.power(df)
-            limix.plot.show()
+            >>> import limix
+            >>> from pandas import DataFrame
+            >>> from numpy.random import RandomState
+            >>>
+            >>> random = RandomState(1)
+            >>> nsnps = 10000
+            >>>
+            >>> pv0 = list(random.rand(nsnps))
+            >>> pv1 = list(0.7 * random.rand(nsnps))
+            >>>
+            >>> label = ['label0'] * nsnps + ['label1'] * nsnps
+            >>> data = dict(pv=pv0 + pv1, label=label)
+            >>> df = DataFrame(data=data)
+            >>> df.head()
+                label        pv
+            0  label0  0.417022
+            1  label0  0.720324
+            2  label0  0.000114
+            3  label0  0.302333
+            4  label0  0.146756
+            >>> limix.plot.power(df)
+            >>> limix.plot.show()
         """
         from .power import plot_power
         self._initialise_figure()
@@ -305,21 +321,27 @@ class LimixPlot(object):
         .. plot::
             :include-source:
 
-            import limix
-            from pandas import DataFrame
-            from numpy.random import RandomState
-
-            random = RandomState(1)
-
-            pv0 = random.rand(10000)
-            pv1 = random.rand(10000)
-
-            pv = list(pv0) + list(pv1)
-            label = ['label0'] * len(pv0) + ['label1'] * len(pv1)
-            df = DataFrame(data=dict(pv=pv, label=label))
-
-            limix.plot.qqplot(df)
-            limix.plot.show()
+            >>> import limix
+            >>> from pandas import DataFrame
+            >>> from numpy.random import RandomState
+            >>>
+            >>> random = RandomState(1)
+            >>>
+            >>> pv0 = random.rand(10000)
+            >>> pv1 = random.rand(10000)
+            >>>
+            >>> pv = list(pv0) + list(pv1)
+            >>> label = ['label0'] * len(pv0) + ['label1'] * len(pv1)
+            >>> df = DataFrame(data=dict(pv=pv, label=label))
+            >>> df.head()
+                label        pv
+            0  label0  0.417022
+            1  label0  0.720324
+            2  label0  0.000114
+            3  label0  0.302333
+            4  label0  0.146756
+            >>> limix.plot.qqplot(df)
+            >>> limix.plot.show()
         """
         from .qqplot import qqplot
         self._initialise_figure()
