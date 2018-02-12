@@ -96,4 +96,4 @@ def get_dataframe():
 88,111,15 min,running
 89,150,30 min,running"""
 
-    return pandas.DataFrame.read_csv(StringIO(csv))
+    return pandas.read_csv(StringIO(csv))

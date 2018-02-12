@@ -48,15 +48,13 @@ class LimixPlot(object):
     def boxplot(self, df, style=None):
         r"""Box plot of variable values from different categories.
 
-
         Parameters
         ----------
         df : data_frame
-        A data frame containing `value`, `variable`, and `category`
-        columns.
+            A data frame containing `value`, `variable`, and `category`
+            columns.
         style : dict
-        Keyword arguments forwarded to :func:`seaborn.boxplot`
-        function.
+            Keyword arguments forwarded to :func:`seaborn.boxplot` function.
 
         Example
         -------
@@ -80,10 +78,10 @@ class LimixPlot(object):
         Parameters
         ----------
         data : list
-        List of curves.
+            List of curves.
         style : dict
-        Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
-        function.
+            Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
+            function.
 
         Example
         -------
@@ -116,15 +114,15 @@ class LimixPlot(object):
         Parameters
         ----------
         K : array_like
-        Kinship matrix.
+            Kinship matrix.
         nclusters : int or str
-        Number of blocks to be seen from the heatmap. It defaults to ``1``,
-        which means that no ordering is performed. Pass 'auto' to
-        automatically determine the number of clusters. Pass an integer to
-        select the number of clusters.
+            Number of blocks to be seen from the heatmap. It defaults to ``1``,
+            which means that no ordering is performed. Pass 'auto' to
+            automatically determine the number of clusters. Pass an integer to
+            select the number of clusters.
         style : dict
-        Keyword arguments forwarded to the
-        :func:`matplotlib.axes.Axes.imshow` function.
+            Keyword arguments forwarded to the
+            :func:`matplotlib.axes.Axes.imshow` function.
 
         Example
         -------
@@ -148,19 +146,19 @@ class LimixPlot(object):
         Parameters
         ----------
         df : :class:`pandas.DataFrame`
-        A Pandas DataFrame containing columns `pv` for p-values, `pos` for
-        base-pair positions, and `chrom` for chromossome names.
+            A Pandas DataFrame containing columns `pv` for p-values, `pos` for
+            base-pair positions, and `chrom` for chromossome names.
         alpha : float
-        Threshold for significance. Defaults to ``0.01`` significance level
-        (bonferroni-adjusted).
+            Threshold for significance. Defaults to ``0.01`` significance level
+            (bonferroni-adjusted).
         null_style : dict
-        Keyword arguments forwarded to the
-        :func:`matplotlib.axes.Axes.plot` function when plotting the
-        non-significant results.
+            Keyword arguments forwarded to the
+            :func:`matplotlib.axes.Axes.plot` function when plotting the
+            non-significant results.
         alt_style : dict
-        Keyword arguments forwarded to the
-        :func:`matplotlib.axes.Axes.plot` function when plotting the
-        significant results.
+            Keyword arguments forwarded to the
+            :func:`matplotlib.axes.Axes.plot` function when plotting the
+            significant results.
 
         Example
         -------
@@ -192,14 +190,14 @@ class LimixPlot(object):
         Parameters
         ----------
         x : array_like
-        Values to be fitted.
+            Values to be fitted.
         bins : int
-        Number of histogram bins.
+            Number of histogram bins.
         nstd : float)
-        Standard deviation multiplier.
+            Standard deviation multiplier.
         style : dict
-        Keyword arguments forwarded to the :func:`matplotlib.axes.Axes.plot`
-        function.
+            Keyword arguments forwarded to the
+            :func:`matplotlib.axes.Axes.plot` function.
 
         Example
         -------
@@ -224,10 +222,10 @@ class LimixPlot(object):
         Parameters
         ----------
         X : array_like
-        Design matrix.
+            Design matrix.
         style : dict
-        Keyword arguments forwarded to the :func:`matplotlib.pyplt.plot`
-        function.
+            Keyword arguments forwarded to the :func:`matplotlib.pyplt.plot`
+            function.
 
         Example
         -------
@@ -253,10 +251,10 @@ class LimixPlot(object):
         Parameters
         ----------
         df : :class:`pandas.DataFrame`
-        Data frame with `pv` and `label` columns.
+            Data frame with `pv` and `label` columns.
         style : dict
-        Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
-        function.
+            Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
+            function.
 
         Example
         -------
@@ -290,17 +288,17 @@ class LimixPlot(object):
         Parameters
         ----------
         df : :class:`pandas.DataFrame`
-        Data frame.
+            Data frame.
         alpha : float
-        Significance level defining the band boundary.
-        Defaults to ``0.05``.
+            Significance level defining the band boundary.
+            Defaults to ``0.05``.
         cutoff : float
-        P-values higher than `cutoff` will not be plotted.
+            P-values higher than `cutoff` will not be plotted.
         style : dict
-        Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
-        function.
+            Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
+            function.
         limits : tuple
-        Lower and upper axis limits. Defaults to ``None``.
+            Lower and upper axis limits. Defaults to ``None``.
 
         Example
         -------
@@ -336,7 +334,7 @@ class LimixPlot(object):
         Parameters
         ----------
         filepath : str
-        File path to the image.
+            File path to the image.
         """
         from .image import see_image
         see_image(filepath, verbose)
