@@ -46,11 +46,13 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_sidebars = {
     '**': [
-        'relations.html',
+        'about.html',
+        'navigation.html',
+        'relations.html',  # needs 'show_related': True theme option to display
         'searchbox.html',
+        'donate.html',
     ]
 }
-
 htmlhelp_basename = 'limixdoc'
 
 man_pages = [(master_doc, 'limix', 'limix Documentation', [author], 1)]

@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
+SPHINXBUILD   = python -msphinx
 SPHINXPROJ    = limix
 SOURCEDIR     = .
 BUILDDIR      = _build
@@ -11,12 +11,6 @@ BUILDDIR      = _build
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-livehtml:
-	sphinx-autobuild -H 192.168.1.13 -i "*.bz2" -i "*.png" -i "*.hdf5" \
-	                 -i "*.csv" -i "*.log" -i "*.bim" -i "*.bed" -i "*.fam" \
-					 -i "*.txt" -i "*.pickle" \
-	                 . _build/html
 
 .PHONY: help Makefile
 
