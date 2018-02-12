@@ -71,12 +71,12 @@ class LimixPlot(object):
             2     88   30 min     rest
             3     90    1 min     rest
             4     92   15 min     rest
-            >>> limix.plot.boxplot(df)
-            >>> limix.plot.show()
+            >>> limix.plot.boxplot(df).show()
         """
         from .boxplot import plot_boxplot
         self._initialise_figure()
         plot_boxplot(df, style, self.axes)
+        return self
 
     def curve(self, data, style=None):
         r"""Plot a curve and a confidence band around it.
@@ -106,12 +106,12 @@ class LimixPlot(object):
             >>> ybottom = y - 0.5
             >>> data = [dict(label='A', x=x, y=y, ybottom=ybottom, ytop=ytop)]
             >>>
-            >>> limix.plot.curve(data)
-            >>> limix.plot.show()
+            >>> limix.plot.curve(data).show()
         """
         from .curve import plot_curve
         self._initialise_figure()
         plot_curve(data, style, self.axes)
+        return self
 
     def kinship(self, K, nclusters=1, style=None):
         r"""Plot Kinship matrix.
@@ -138,12 +138,12 @@ class LimixPlot(object):
             >>> K = limix.load_dataset("kinship", verbose=False)
             >>> type(K)
             numpy.ndarray
-            >>> limix.plot.kinship(K)
-            >>> limix.plot.show()
+            >>> limix.plot.kinship(K).show()
         """
         from .kinship import plot_kinship
         self._initialise_figure()
         plot_kinship(K, nclusters, style, self.axes)
+        return self
 
     def manhattan(self, df, alpha=None, null_style=None, alt_style=None):
         r"""Produce a manhattan plot.
@@ -188,12 +188,12 @@ class LimixPlot(object):
             2    1.0  3.0  0.000114
             3    1.0  4.0  0.302333
             4    1.0  5.0  0.146756
-            >>> limix.plot.manhattan(df)
-            >>> limix.plot.show()
+            >>> limix.plot.manhattan(df).show()
         """
         from .manhattan import plot_manhattan
         self._initialise_figure()
         plot_manhattan(df, alpha, null_style, alt_style, self.axes)
+        return self
 
     def normal(self, x, bins=20, nstd=2, style=None):
         r"""Plot a fit of a normal distribution to the data in x.
@@ -220,12 +220,12 @@ class LimixPlot(object):
             >>>
             >>> random = RandomState(10)
             >>> x = random.randn(100)
-            >>> limix.plot.normal(x, nstd=2)
-            >>> limix.plot.show()
+            >>> limix.plot.normal(x, nstd=2).show()
         """
         from .normal import plot_normal
         self._initialise_figure()
         plot_normal(x, bins, nstd, style, self.axes)
+        return self
 
     def pca(self, X, style=None):
         r"""Plot the first two principal components of a design matrix.
@@ -248,12 +248,12 @@ class LimixPlot(object):
             >>>
             >>> random = RandomState(0)
             >>> X = random.randn(30, 10)
-            >>> limix.plot.pca(X)
-            >>> limix.plot.show()
+            >>> limix.plot.pca(X).show()
         """
         from .pca import plot_pca
         self._initialise_figure()
         plot_pca(X, style, self.axes)
+        return self
 
     def power(self, df, style=None):
         r"""Plot number of hits across significance levels.
@@ -291,12 +291,12 @@ class LimixPlot(object):
             2  label0  0.000114
             3  label0  0.302333
             4  label0  0.146756
-            >>> limix.plot.power(df)
-            >>> limix.plot.show()
+            >>> limix.plot.power(df).show()
         """
         from .power import plot_power
         self._initialise_figure()
         plot_power(df, style, self.axes)
+        return self
 
     def qqplot(self, df, alpha=0.05, cutoff=0.1, style=None, limits=None):
         r"""Quantile-Quantile of observed p-values versus theoretical ones.
@@ -340,12 +340,12 @@ class LimixPlot(object):
             2  label0  0.000114
             3  label0  0.302333
             4  label0  0.146756
-            >>> limix.plot.qqplot(df)
-            >>> limix.plot.show()
+            >>> limix.plot.qqplot(df).show()
         """
         from .qqplot import qqplot
         self._initialise_figure()
         qqplot(df, alpha, cutoff, style, self.axes, limits=limits)
+        return self
 
     def see_image(self, filepath, verbose=True):
         r"""Plot a image represented in a file.
@@ -360,6 +360,7 @@ class LimixPlot(object):
         """
         from .image import see_image
         see_image(filepath, verbose)
+        return self
 
 
 def _matplotlib_setup():
