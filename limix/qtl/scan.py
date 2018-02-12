@@ -1,17 +1,15 @@
 from __future__ import division
 
 from numpy import all as npall
-from numpy import asarray, diag, isfinite, ones
-from numpy_sugar.linalg import economic_qs
+from numpy import asarray, isfinite, ones
 from pandas import DataFrame
 
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
 
-from ..nice_arrays import (assure_named_columns, covariates_process,
-                           default_candidates_index, default_covariates_index,
-                           infer_samples_index, kinship_process,
-                           normalise_candidates_matrix,
+from ..nice_arrays import (covariates_process, default_candidates_index,
+                           default_covariates_index, infer_samples_index,
+                           kinship_process, normalise_candidates_matrix,
                            normalise_covariates_matrix,
                            normalise_kinship_matrix,
                            normalise_phenotype_matrix, phenotype_process)
