@@ -2,7 +2,24 @@
 Command line interface
 **********************
 
-Limix now provides many of its functionalities via command line.
+Limix now provides a couple of its functionalities via command line.
+
+.. code-block:: bash
+
+    limix --help
+
+.. doctest::
+    :hide:
+
+    >>> import limix
+    >>> limix.main(['--help'])
+    usage: limix [-h] {see,download,extract} ...
+    <BLANKLINE>
+    optional arguments:
+      -h, --help            show this help message and exit
+    <BLANKLINE>
+    subcommands:
+      {see,download,extract}
 
 Quickly explore files
 ^^^^^^^^^^^^^^^^^^^^^

@@ -57,7 +57,7 @@ class Chi2Mixture(object):
         ...                       qmax=0.1, tol=4e-3)
         >>> chi2mix.estimate_chi2mixture(x)
         >>> pv = chi2mix.sf(x)
-        >>> print(pv[:4])
+        >>> print(pv[:4]) # doctest: +SKIP
         [0.2 0.2 0.2 0.2]
         >>>
         >>> print('%.2f' % chi2mix.scale)

@@ -31,6 +31,7 @@ from . import cmdlimix, her, io, qc, qtl, stats, util
 from ._examples import load_dataset
 from ._plot import ConsensusCurve, LimixPlot, plot
 from .cmd import call
+from .cmdlimix import main
 from .limits import is_large_file
 from .testit import test
 from .threads import get_max_nthreads, set_max_nthreads
@@ -42,5 +43,5 @@ __all__ = [
     "__version__", "test", 'io', 'plot', 'qc', 'qtl', 'stats', 'util', 'her',
     'download', 'extract', 'filehash', 'cmdlimix', 'set_max_nthreads',
     'get_max_nthreads', 'call', 'ConsensusCurve', 'LimixPlot', 'load_dataset',
-    'is_large_file', 'normalise_phenotype'
+    'is_large_file', 'normalise_phenotype', 'main'
 ]

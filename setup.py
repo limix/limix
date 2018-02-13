@@ -9,4 +9,7 @@ if __name__ == '__main__':
     except (ImportError, RuntimeError, OSError):
         long_description = readme
 
-    setup(long_description=long_description)
+    console_scripts = ["limix = limix.cmdlimix:entry"]
+    setup(
+        entry_points=dict(console_scripts=console_scripts),
+        long_description=long_description)

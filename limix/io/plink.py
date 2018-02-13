@@ -38,7 +38,7 @@ def read_plink(prefix, verbose=True):
         0  Sample_1  Sample_1         0         0      1    -9  0
         1  Sample_2  Sample_2         0         0      2    -9  1
         2  Sample_3  Sample_3  Sample_1  Sample_2      2    -9  2
-        >>> print(bed.compute())
+        >>> print(bed.compute()) # doctest: +SKIP
         [[ 2.  2.  1.]
          [ 2.  1.  2.]
          [nan nan nan]
@@ -61,7 +61,7 @@ def read_plink(prefix, verbose=True):
         >>> (bim, fam, bed) = read_plink(example_file_prefix(), verbose=False)
         >>> chrom1 = bim.query("chrom=='1'")
         >>> X = bed[chrom1.i.values, :].compute()
-        >>> print(X) #doctest: +NORMALIZE_WHITESPACE
+        >>> print(X) # doctest: +NORMALIZE_WHITESPACE +SKIP
         [[ 2.  2.  1.]
          [ 2.  1.  2.]
          [nan nan nan]

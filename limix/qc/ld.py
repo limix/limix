@@ -87,7 +87,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
         >>> random = RandomState(0)
         >>> X = random.randn(10, 20)
         >>>
-        >>> indep_pairwise(X, 4, 2, 0.5, verbose=False)
+        >>> indep_pairwise(X, 4, 2, 0.5, verbose=False) # doctest: +SKIP
         array([ True,  True, False,  True,  True,  True,  True,  True,  True,
                 True,  True,  True,  True,  True,  True,  True,  True,  True,
                 True,  True])

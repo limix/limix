@@ -134,7 +134,7 @@ class LimixPlot(object):
             >>> import limix
             >>> K = limix.load_dataset("kinship", verbose=False)
             >>> type(K)
-            numpy.ndarray
+            <class 'numpy.ndarray'>
             >>> limix.plot.kinship(K).show()
         """
         from .kinship import plot_kinship

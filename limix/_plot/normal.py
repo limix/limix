@@ -34,13 +34,11 @@ def plot_normal(x, bins=20, nstd=2, style=None, ax=None):
 
         >>> from numpy.random import RandomState
         >>> from matplotlib import pyplot as plt
-        >>> from limix.plot import plot_normal
+        >>> import limix
         >>>
         >>> random = RandomState(10)
         >>> x = random.randn(100)
-        >>> ax = plot_normal(x, nstd=2)
-        >>> plt.tight_layout()
-        >>> plt.show()
+        >>> limix.plot.normal(x, nstd=2).show()
     """
     import matplotlib.pyplot as plt
 
