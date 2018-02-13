@@ -23,19 +23,19 @@ def pca(X, ncomp):
     --------
     .. doctest::
 
+        >>> from numpy import round
         >>> from numpy.random import RandomState
-        >>> from numpy import array_str
         >>> from limix.stats import pca
         >>>
         >>> X = RandomState(1).randn(4, 5)
-        >>> result = pca(X, ncomp=2)
-        >>> print(array_str(result['components'], precision=4))
-        [[-0.7502  0.5835 -0.0797  0.1957 -0.2285]
-         [ 0.4884  0.7227  0.0197 -0.4616 -0.1603]]
-        >>> print(array_str(result['explained_variance'], precision=4)) # doctest: +SKIP
-        [6.4466 0.5145]
-        >>> print(array_str(result['explained_variance_ratio'], precision=4)) # doctest: +SKIP
-        [0.9205 0.0735]
+        >>> r = pca(X, ncomp=2)
+        >>> round(r['components'], 2)
+        array([[-0.75,  0.58, -0.08,  0.2 , -0.23],
+               [ 0.49,  0.72,  0.02, -0.46, -0.16]])
+        >>> round(r['explained_variance'], 4) # doctest: +SKIP
+        array([ 6.4466,  0.5145])
+        >>> round(r['explained_variance_ratio'], 4) # doctest: +SKIP
+        array([ 0.9205,  0.0735])
     """
     from sklearn.decomposition import PCA
 
