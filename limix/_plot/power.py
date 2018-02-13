@@ -27,6 +27,8 @@ def plot_power(df, style=None, ax=None):
 
     ax = plt.gca() if ax is None else ax
 
+    ax.grid(True, which='major', axis='both', alpha=1.0)
+
     labels = list(df['label'].unique())
     if style is None:
         style = {label: dict() for label in labels}

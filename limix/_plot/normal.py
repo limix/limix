@@ -1,7 +1,7 @@
 import scipy.stats as st
+from numpy import arange
 from numpy import mean as _mean
 from numpy import std as _std
-from numpy import arange
 
 
 def plot_normal(x, bins=20, nstd=2, style=None, ax=None):
@@ -30,16 +30,17 @@ def plot_normal(x, bins=20, nstd=2, style=None, ax=None):
     Examples
     --------
     .. plot::
+        :include-source:
 
-        from numpy.random import RandomState
-        from matplotlib import pyplot as plt
-        from limix.plot import plot_normal
-
-        random = RandomState(10)
-        x = random.randn(100)
-        ax = plot_normal(x, nstd=2)
-        plt.tight_layout()
-        plt.show()
+        >>> from numpy.random import RandomState
+        >>> from matplotlib import pyplot as plt
+        >>> from limix.plot import plot_normal
+        >>>
+        >>> random = RandomState(10)
+        >>> x = random.randn(100)
+        >>> ax = plot_normal(x, nstd=2)
+        >>> plt.tight_layout()
+        >>> plt.show()
     """
     import matplotlib.pyplot as plt
 

@@ -36,21 +36,22 @@ def plot_manhattan(df, alpha=None, null_style=None, alt_style=None, ax=None):
     Examples
     --------
     .. plot::
+        :include-source:
 
-        from numpy.random import RandomState
-        from numpy import arange, ones, kron
-        from pandas import DataFrame
-        import limix
-
-        random = RandomState(1)
-        pv = random.rand(5000)
-        pv[1200:1250] = random.rand(50)**4
-        chrom  = kron(arange(1, 6), ones(1000))
-        pos = kron(ones(5), arange(1, 1001))
-        df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos))
-        p = limix.plot.get()
-        p.manhattan(df)
-        p.show()
+        >>> from numpy.random import RandomState
+        >>> from numpy import arange, ones, kron
+        >>> from pandas import DataFrame
+        >>> import limix
+        >>>
+        >>> random = RandomState(1)
+        >>> pv = random.rand(5000)
+        >>> pv[1200:1250] = random.rand(50)**4
+        >>> chrom  = kron(arange(1, 6), ones(1000))
+        >>> pos = kron(ones(5), arange(1, 1001))
+        >>> df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos))
+        >>> p = limix.plot.get()
+        >>> p.manhattan(df)
+        >>> p.show()
     """
 
     import matplotlib.pyplot as plt

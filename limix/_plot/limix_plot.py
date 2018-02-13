@@ -1,4 +1,3 @@
-import matplotlib as mpl
 from matplotlib import pyplot as plt
 
 _figure_id = 98748
@@ -8,18 +7,15 @@ class LimixPlot(object):
     def __init__(self):
         self._figure = None
         self._axes = None
-        self._figure_initialised = False
 
     def _initialise_figure(self):
         plt.close(_figure_id)
 
-        _matplotlib_setup()
         figure = plt.figure(_figure_id)
         axes = figure.add_subplot(111)
 
         self._figure = figure
         self._axes = axes
-        self._figure_initialised = True
 
         axes.set_axisbelow(True)
         axes.spines['right'].set_visible(True)
@@ -63,6 +59,7 @@ class LimixPlot(object):
             :include-source:
 
             >>> import limix
+            >>>
             >>> df = limix.load_dataset("boxplot")
             >>> df.head()
                value category variable
@@ -361,48 +358,3 @@ class LimixPlot(object):
         from .image import see_image
         see_image(filepath, verbose)
         return self
-
-
-def _matplotlib_setup():
-
-    font = {
-        'font.size': 16,
-        'pdf.fonttype': 42,
-        'ps.fonttype': 42,
-        'font.family': 'sans-serif',
-        'font.serif': ['Times', 'Palatino', 'New Century Schoolbook'],
-        'font.sans-serif': ['Open Sans', 'Verdana', 'Arial'],
-        'font.monospace': ['Courier', 'Computer Modern Typewriter'],
-        'axes.labelsize': 24,
-        'axes.titlesize': 24,
-        'xtick.labelsize': 24,
-        'ytick.labelsize': 24,
-        'legend.fontsize': 20,
-    }
-
-    rcParams = {
-        'axes.axisbelow': True,
-        'axes.linewidth': 2.5,
-        'grid.color': '#DDDDDD',
-        'grid.linestyle': '-',
-        'grid.linewidth': 2.5,
-        'hatch.linewidth': 2.5,
-        'lines.linewidth': 2.5,
-        'patch.linewidth': 2.5,
-        'lines.markersize': 6.0,
-        'lines.markeredgewidth': 1.5,
-        'xtick.major.width': 2.5,
-        'ytick.major.width': 2.5,
-        'xtick.major.size': 8,
-        'ytick.major.size': 8,
-        'xtick.minor.width': 2,
-        'ytick.minor.width': 2,
-        'xtick.major.pad': 3.0,
-        'ytick.major.pad': 3.0,
-        'xtick.direction': 'in',
-        'ytick.direction': 'in',
-        'savefig.transparent': True,
-        'savefig.bbox': 'tight'
-    }
-    rcParams.update(font)
-    mpl.rcParams.update(rcParams)
