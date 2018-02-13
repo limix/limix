@@ -1,9 +1,11 @@
-# Limix
+# limix
+
+[![Travis](https://img.shields.io/travis/limix/limix.svg?style=flat-square&label=linux%20%2F%20macos%20build)](https://travis-ci.org/limix/limix) [![AppVeyor](https://img.shields.io/appveyor/ci/Horta/limix.svg?style=flat-square&label=windows%20build)](https://ci.appveyor.com/project/Horta/limix) [![Documentation](https://img.shields.io/readthedocs/limix.svg?style=flat-square&version=stable)](https://limix.readthedocs.io/)
 
 Genomic analyses require flexible models that can be adapted to the needs of the user.
-Limix is a flexible and efficient linear mixed model library with interfaces to Python.
 
-Limix includes methods for
+Limix is a flexible and efficient linear mixed model library with interfaces to Python.
+It includes methods for
 
 - Single-variant association and interaction testing
 - Variance decompostion analysis with linear mixed models
@@ -12,101 +14,49 @@ Limix includes methods for
 
 The documentation can be found at  https://limix.readthedocs.io/en/develop.
 
-Install
--------
+## Install
 
-The development version of limix can be installed on MacOS and Linux via
+The development version of limix can be installed on macOS and Linux via
 
-.. code:: bash
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/limix/limix/develop/install)
+```
 
-    bash <(curl -fsSL https://raw.githubusercontent.com/limix/limix/develop/install)
+Stable versions of limix are installed via [conda](http://conda.pydata.org/docs/index.html) though
 
-Stable versions of limix are installed via conda_ though
-
-.. code:: bash
-
-    conda install -c conda-forge limix
+```bash
+conda install -c conda-forge limix
+```
 
 It will handle all the necessary dependencies and should work for GNU/Linux
 distributions, MacOS, and Windows.
 
-An alternative way would be via pip_
-In this case, first you need to install hcephes_ and liknorm_ C libraries.
+An alternative way would be via [pip](https://pypi.python.org/pypi/pip)
+In this case, first you need to install [hcephes](https://github.com/limix/hcephes) and [liknorm](https://github.com/limix/liknorm) C libraries.
 Then,
 
-.. code:: bash
+```bash
+pip install limix
+```
 
-    pip install limix
 
-
-Running the tests
------------------
+## Running the tests
 
 After installation, you can test it
 
-.. code:: bash
+```bash
+python -c "import limix; limix.test()"
+```
 
-    python -c "import limix; limix.test()"
+as long as you have [pytest](https://docs.pytest.org/en/latest/).
 
-as long as you have pytest_.
+## Authors
 
-Authors
--------
+* [Christoph Lippert](https://github.com/clippert)
+* [Danilo Horta](https://github.com/horta)
+* [Francesco Paolo Casale](https://github.com/fpcasale)
+* [Oliver Stegle](https://github.com/ostegle)
 
-* `Christoph Lippert`_
-* `Danilo Horta`_
-* `Francesco Paolo Casale`_
-* `Oliver Stegle`_
+## License
 
-License
--------
-This project is licensed under the Apache License License - see the
-`License file`_ for details.
-
-
-.. |Build-Status| image:: https://travis-ci.org/limix/limix.svg?branch=develop
-    :target: https://travis-ci.org/limix/limix
-
-.. |Codacy-Grade| image:: https://api.codacy.com/project/badge/Grade/cd0ff739fa004091a1459f1a13d55ad0
-    :target: https://www.codacy.com/app/danilo.horta/limix?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=limix/limix&amp;utm_campaign=Badge_Grade
-
-.. |PyPI-Status| image:: https://img.shields.io/pypi/v/limix.svg
-    :target: https://pypi.python.org/pypi/limix
-
-.. |PyPI-Versions| image:: https://img.shields.io/pypi/pyversions/limix.svg
-    :target: https://pypi.python.org/pypi/limix
-
-.. |Conda-Forge-Status| image:: https://anaconda.org/conda-forge/limix/badges/version.svg
-    :target: https://anaconda.org/conda-forge/limix
-
-.. |Conda-Downloads| image:: https://anaconda.org/conda-forge/limix/badges/downloads.svg
-    :target: https://anaconda.org/conda-forge/limix
-
-.. |License-Badge| image:: https://img.shields.io/pypi/l/limix.svg
-    :target: https://raw.githubusercontent.com/limix/limix/develop/LICENSE.txt
-
-.. |Doc-Status| image:: https://readthedocs.org/projects/limix/badge/?style=flat-square&version=develop
-    :target: https://limix.readthedocs.io/en/develop
-
-.. |Coverage| image:: https://codecov.io/gh/limix/limix/branch/develop/graph/badge.svg
-    :target: https://codecov.io/gh/limix/limix/branch/develop
-
-.. _License file: https://raw.githubusercontent.com/limix/limix/develop/LICENSE.txt
-
-.. _Christoph Lippert: https://github.com/clippert
-
-.. _Danilo Horta: https://github.com/horta
-
-.. _Francesco Paolo Casale: https://github.com/fpcasale
-
-.. _Oliver Stegle: https://github.com/ostegle
-
-.. _conda: http://conda.pydata.org/docs/index.html
-
-.. _pip: https://pypi.python.org/pypi/pip
-
-.. _pytest: http://docs.pytest.org/en/latest/
-
-.. _hcephes: https://github.com/limix/hcephes
-
-.. _liknorm: https://github.com/limix/liknorm
+This project is licensed under the [Apache License License](https://raw.githubusercontent.com/limix/limix/develop/LICENSE.md).
