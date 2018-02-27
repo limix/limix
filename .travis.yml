@@ -20,3 +20,12 @@ notifications:
     - danilo.horta@gmail.com
     on_success: never
     on_failure: always
+deploy:
+  provider: pypi
+  user: dhorta
+  password:
+    secure: ODiTueADVj7CETJDIvXu3SFaSvpriJtcIbP1bbJEoynG1INhBz6KSlG4FF40NJ08LTcSoSxeQ8dRnNiIf0EwQIBve15E6u14nV63UOseduQje4cVmaN/mHBCmtdQNv9bP+a7rpCsB6/yQgiZnPdlI1HLIdA/7MW9X5rAZsxe8w9CrXY87tww/92dSrYUDUukO/EtvxgDOWVvykRSkQk/z4Nh41tB/cQgQVAz9XkgoXeHM2ZmiQGMt8T83tUgLwMrtaWc6jx8ir+MFYvVyF4jpSynjvNBZqksrIA1UCKRtPHtIf7twxRFb3BjDqwfbsWHmc9ItnQPTQcRcspgISm2y++bJXomye13vlekU9cM5IaGuYZd5GzYbkKtd2Pd/TYYVEWBuFYaGo1ixQbg/9+/CIbD6gCZdw/txvYjNMfNXgYkwmOL+Eswl2KmCATA964uZml1HqaihJo2und5HMGuaPfGCqlKWc6uB2qs5IK4YYuhhQDdEi/XNg8M3DDf9O1I393ZCIEpwOXjemX9D4+5bPNaiVTwieO2ONcJeRZapEZyhZ6EJwk2lXwEJS14mZMNTowNaKJRR+mpMtBsE5S/UweNPW9JTEV2l6/3lUqNPcZWxtnl/R/Cc9idShHqlAbgEcug+/ggnIBsJ1r6kmVp3LHPVMrBhLO4dAeflGkR8rQ=
+  on:
+    tags: true
+    repo: limix/limix
+    branch: 1.0.x

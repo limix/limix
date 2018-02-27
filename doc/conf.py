@@ -1,13 +1,10 @@
 from __future__ import unicode_literals
 
 import os
+
 import sphinx_rtd_theme
 
-try:
-    import limix
-    version = limix.__version__
-except ImportError:
-    version = 'unknown'
+version = '1.0.13'
 
 extensions = [
     'matplotlib.sphinxext.only_directives',
@@ -45,5 +42,7 @@ texinfo_documents = [
     (master_doc, 'limix', 'limix Documentation', author, 'limix',
      'A flexible and fast mixed model toolbox.', 'Miscellaneous'),
 ]
-intersphinx_mapping = {'https://docs.python.org/': None,
-                       'http://matplotlib.org': None}
+intersphinx_mapping = {
+    'https://docs.python.org/': None,
+    'http://matplotlib.org': None
+}
