@@ -21,7 +21,7 @@ def setup_package():
     needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
     pytest_runner = ['pytest-runner>=2.9'] if needs_pytest else []
 
-    setup_requires = ["cython", "numpy"] + pytest_runner
+    setup_requires = ["cython", "numpy>=1.14.1"] + pytest_runner
     install_requires = [
         'scikit-learn', 'limix-core>=1.0.2',
         'dask[array,bag,dataframe,delayed]>=0.14', 'h5py',
