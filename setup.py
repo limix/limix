@@ -27,7 +27,8 @@ def setup_package():
         'dask[array,bag,dataframe,delayed]>=0.14', 'h5py',
         'pandas-plink>=1.2.1', 'limix-legacy>=0.8.12', 'glimix-core==1.2.*',
         'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.19', 'distributed',
-        'numpy-sugar>=1.0.47', 'ncephes>=1.0.40', 'asciitree>=0.3.3'
+        'numpy-sugar>=1.0.47', 'ncephes>=1.0.40', 'asciitree>=0.3.3',
+        'numpy>=1.14.1'
     ]
     tests_require = ['pytest', 'pytest-console-scripts', 'pytest-pep8']
 
