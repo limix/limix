@@ -8,7 +8,7 @@ joblib>=0.11
 limix-core>=1.0.2
 limix-legacy>=0.8.12
 ncephes>=1.0.40
-numpy
+numpy>=1.14.1
 numpy-sugar>=1.0.47
 pandas-plink>=1.2.1
 pytest-console-scripts

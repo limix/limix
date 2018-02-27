@@ -158,18 +158,18 @@ def unique_variants(snps, return_idxs=False):
             >>> snps = kron(random.randn(N,3)<0., ones((1,2)))
             >>>
             >>> print(snps)
-            [[ 0.  0.  1.  1.  1.  1.]
-             [ 1.  1.  0.  0.  1.  1.]
-             [ 0.  0.  1.  1.  0.  0.]
-             [ 1.  1.  0.  0.  1.  1.]]
+            [[0. 0. 1. 1. 1. 1.]
+             [1. 1. 0. 0. 1. 1.]
+             [0. 0. 1. 1. 0. 0.]
+             [1. 1. 0. 0. 1. 1.]]
             >>>
             >>> snps_u = unique_variants(snps)
             >>>
             >>> print(snps_u)
-            [[ 0.  1.  1.]
-             [ 1.  0.  1.]
-             [ 0.  1.  0.]
-             [ 1.  0.  1.]]
+            [[0. 1. 1.]
+             [1. 0. 1.]
+             [0. 1. 0.]
+             [1. 0. 1.]]
     """
 
     _s = sp.dot(sp.rand(snps.shape[0]), snps)

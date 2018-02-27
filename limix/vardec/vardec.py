@@ -74,7 +74,7 @@ class VarianceDecomposition(object):
              [-0.1212  0.8284 -0.0412]
              [-0.0052 -0.0412  0.8147]]
             >>> print(vc.getWeights(0))
-            [[ 0.039   0.0899  0.1213]]
+            [[0.039  0.0899 0.1213]]
             >>> print(vc.getWeights(1))
             [[-0.0176]
              [-0.0095]]
@@ -316,8 +316,8 @@ class VarianceDecomposition(object):
             elif perturb:
                 params = {
                     'covar':
-                    params0['covar'] + pertSize *
-                    sp.randn(params0['covar'].shape[0])
+                    params0['covar'] +
+                    pertSize * sp.randn(params0['covar'].shape[0])
                 }
                 self.gp.setParams(params)
             conv, info = self.gp.optimize(verbose=verbose)
@@ -505,7 +505,7 @@ class VarianceDecomposition(object):
             Iok = vec(~sp.isnan(mean.Y))[:, 0]
             if Iok.all():
                 Iok = None
-            covar = SumCov(* [
+            covar = SumCov(*[
                 KronCov(self.trait_covars[i], self.sample_covars[i], Iok=Iok)
                 for i in range(self.n_randEffs)
             ])
@@ -676,8 +676,8 @@ class VarianceDecomposition(object):
                 out += C.Kgrad_param(param_i)**2 * Sigma1[param_i, param_i]
                 for param_j in range(param_i):
                     out += 2 * abs(
-                        C.Kgrad_param(param_i) *
-                        C.Kgrad_param(param_j)) * Sigma1[param_i, param_j]
+                        C.Kgrad_param(param_i) * C.Kgrad_param(param_j)
+                    ) * Sigma1[param_i, param_j]
         out = sp.sqrt(out)
         return out
 
@@ -1138,8 +1138,8 @@ class VarianceDecomposition(object):
             out[m, m] = 0.5 * sp.trace(
                 sp.dot(Ki,
                        sp.dot(
-                           Ctot.Kgrad_param(m), sp.dot(Ki, Ctot.Kgrad_param(
-                               m)))))
+                           Ctot.Kgrad_param(m), sp.dot(Ki,
+                                                       Ctot.Kgrad_param(m)))))
             for n in range(m):
                 out[m, n] = 0.5 * sp.trace(
                     sp.dot(Ki,

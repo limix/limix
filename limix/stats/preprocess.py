@@ -86,7 +86,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
         >>> indep_pairwise(X, 4, 2, 0.5, verbose=False)
         array([ True,  True, False,  True,  True,  True,  True,  True,  True,
                 True,  True,  True,  True,  True,  True,  True,  True,  True,
-                True,  True], dtype=bool)
+                True,  True])
     """
     left = 0
     excls = zeros(X.shape[1], dtype=bool)
@@ -167,7 +167,7 @@ def maf(X):
             >>> X = random.randint(0, 3, size=(100, 10))
             >>>
             >>> print(maf(X))
-            [ 0.49   0.49   0.445  0.495  0.5    0.45   0.48   0.48   0.47   0.435]
+            [0.49  0.49  0.445 0.495 0.5   0.45  0.48  0.48  0.47  0.435]
     """
     ok = _check_encoding(X)
     if not ok:

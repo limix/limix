@@ -2,14 +2,15 @@
 FDR estimation using Benjamini Hochberg and Stories method
 """
 
+import logging as LG
+import pdb
+import pickle
+import sys
+
 import numpy as np
 import scipy as sp
-import sys
-import pickle
-import pdb
-import scipy.stats as st
 import scipy.interpolate
-import logging as LG
+import scipy.stats as st
 
 
 def qvalues1(PV, m=None, pi=1.0):
@@ -59,13 +60,12 @@ def qvalues1(PV, m=None, pi=1.0):
     return QV
 
 
-def qvalues(
-        pv,
-        m=None,
-        return_pi0=False,
-        lowmem=False,
-        pi0=None,
-        fix_lambda=None):
+def qvalues(pv,
+            m=None,
+            return_pi0=False,
+            lowmem=False,
+            pi0=None,
+            fix_lambda=None):
     r"""
     FDR estimation using Benjamini-Hochberg and Stories methods
 
@@ -97,16 +97,17 @@ def qvalues(
             >>> pv = RandomState(1).rand(1000)
             >>> qv, pi0 = qvalues(pv, return_pi0 = True)
             >>> print(qv[:4])
-            [ 0.9874  0.9874  0.1144  0.9874]
+            [0.9874 0.9874 0.1144 0.9874]
             >>> print('%.2f' % pi0)
             1.00
     """
 
     original_shape = pv.shape
 
-    assert(pv.min() >= 0 and pv.max() <= 1)
+    assert (pv.min() >= 0 and pv.max() <= 1)
 
-    pv = pv.ravel()  # flattens the array in place, more efficient than flatten()
+    pv = pv.ravel(
+    )  # flattens the array in place, more efficient than flatten()
 
     if m is None:
         m = float(len(pv))
@@ -127,8 +128,9 @@ def qvalues(
 
         if fix_lambda is not None:
             interv_count = (pv > fix_lambda - 0.01).sum()
-            uniform_sim = sp.array([(pv > fix_lambda - 0.01).sum() * (i + 1)
-                                    for i in sp.arange(0, len(sp.arange(0, 0.90, 0.01)))][::-1])
+            uniform_sim = sp.array(
+                [(pv > fix_lambda - 0.01).sum() * (i + 1)
+                 for i in sp.arange(0, len(sp.arange(0, 0.90, 0.01)))][::-1])
             counts += uniform_sim
 
         for l in range(len(lam)):
@@ -141,15 +143,15 @@ def qvalues(
         pi0 = sp.interpolate.splev(lam[-1], tck)
         if pi0 > 1:
             LG.warning(
-                "got pi0 > 1 (%.3f) while estimating qvalues, setting it to 1" %
-                pi0)
+                "got pi0 > 1 (%.3f) while estimating qvalues, setting it to 1"
+                % pi0)
             pi0 = 1.0
 
-        assert(pi0 >= 0 and pi0 <= 1), "%f" % pi0
+        assert (pi0 >= 0 and pi0 <= 1), "%f" % pi0
 
     if lowmem:
         # low memory version, only uses 1 pv and 1 qv matrices
-        qv = sp.zeros((len(pv),))
+        qv = sp.zeros((len(pv), ))
         last_pv = pv.argmax()
         qv[last_pv] = (pi0 * pv[last_pv] * m) / float(m)
         pv[last_pv] = -sp.inf

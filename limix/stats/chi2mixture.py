@@ -54,7 +54,7 @@ class Chi2mixture(object):
             >>> chi2mix.estimate_chi2mixture(x)
             >>> pv = chi2mix.sf(x)
             >>> print(pv[:4])
-            [ 0.2  0.2  0.2  0.2]
+            [0.2 0.2 0.2 0.2]
             >>>
             >>> print('%.2f' % chi2mix.scale)
             1.98

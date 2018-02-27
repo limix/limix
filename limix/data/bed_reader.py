@@ -61,9 +61,9 @@ class BedReader():
         3     1   rs940550  0.0  78032  0  T  7
         >>>
         >>> print(X)
-        [[ 2.  2.  2.  2.]
-         [ 2.  2.  1.  2.]
-         [ 2.  2.  0.  2.]]
+        [[2. 2. 2. 2.]
+         [2. 2. 1. 2.]
+         [2. 2. 0. 2.]]
 
     Lazy subsetting using queries:
 
@@ -80,9 +80,9 @@ class BedReader():
         >>>
         >>> # only when using getGenotypes, the genotypes are loaded
         >>> print( reader_sub.getGenotypes( impute=True ) )
-        [[ 2.  2.  2.  2.]
-         [ 2.  2.  1.  2.]
-         [ 2.  2.  0.  2.]]
+        [[2. 2. 2. 2.]
+         [2. 2. 1. 2.]
+         [2. 2. 0. 2.]]
 
     You can do it in place as well:
 
