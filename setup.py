@@ -23,9 +23,9 @@ def setup_package():
 
     setup_requires = ["cython", "numpy"] + pytest_runner
     install_requires = [
-        'scikit-learn', 'limix-core>=1.0.1',
+        'scikit-learn', 'limix-core>=1.0.2',
         'dask[array,bag,dataframe,delayed]>=0.14', 'h5py',
-        'pandas-plink>=1.2.1', 'limix-legacy>=0.8.12', 'glimix-core>=1.2.19',
+        'pandas-plink>=1.2.1', 'limix-legacy>=0.8.12', 'glimix-core==1.2.*',
         'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.19', 'distributed',
         'numpy-sugar>=1.0.47', 'ncephes>=1.0.40', 'asciitree>=0.3.3'
     ]
@@ -68,7 +68,9 @@ def setup_package():
             "License :: OSI Approved :: MIT License",
             "Operating System :: OS Independent",
         ],
-        entry_points={'console_scripts': console_scripts})
+        entry_points={
+            'console_scripts': console_scripts
+        })
 
     try:
         setup(**metadata)

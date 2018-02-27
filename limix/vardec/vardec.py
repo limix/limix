@@ -65,9 +65,6 @@ class VarianceDecomposition(object):
             >>> vc.addRandomEffect(K=kinship)
             >>> vc.addRandomEffect(is_noise=True)
             >>> conv = vc.optimize()
-            >>> print(conv)
-            True
-            >>>
             >>> print(vc.getTraitCovar(0))
             [[ 0.0097  0.023  -0.0032]
              [ 0.023   0.0562 -0.0062]

@@ -1,8 +1,10 @@
-import scipy as sp
-import pandas as pd
 import copy
-from limix.io import read_plink
+
+import pandas as pd
+import scipy as sp
 from sklearn.preprocessing import Imputer
+
+from limix.io import read_plink
 
 
 class BedReader():
@@ -126,10 +128,8 @@ class BedReader():
         self._geno = bed
 
     def _init_imputer(self):
-        self._imputer = Imputer(missing_values=3.,
-                                strategy='mean',
-                                axis=0,
-                                copy=False)
+        self._imputer = Imputer(
+            missing_values=3., strategy='mean', axis=0, copy=False)
 
     def __str__(self):
         rv = '<' + str(self.__class__)
@@ -166,8 +166,8 @@ class BedReader():
         """
         # query
         geno, snpinfo = self._query(query)
-        snpinfo = snpinfo.assign(i=pd.Series(sp.arange(snpinfo.shape[0]),
-                                             index=snpinfo.index))
+        snpinfo = snpinfo.assign(
+            i=pd.Series(sp.arange(snpinfo.shape[0]), index=snpinfo.index))
 
         if inplace:
             # replace
@@ -226,7 +226,6 @@ class BedReader():
         X = geno.compute().T
 
         # impute and standardize
-        import pdb
         if impute:
             X = self._imputer.fit_transform(X)
 
@@ -245,5 +244,5 @@ class BedReader():
             return self._geno, self._snpinfo
         snpinfo = self._snpinfo.query(query)
         snpinfo.reset_index(inplace=True, drop=True)
-        geno = self._geno[snpinfo.i, :]
+        geno = self._geno[snpinfo.i.values, :]
         return geno, snpinfo

@@ -5,6 +5,7 @@ from joblib import Parallel, cpu_count, delayed
 from numpy import (asarray, ascontiguousarray, double, einsum, isfinite,
                    logical_not, minimum, newaxis, sqrt, unique, zeros)
 from scipy.spatial import _distance_wrap
+from scipy.spatial.distance import pdist
 from tqdm import tqdm
 
 
@@ -19,8 +20,9 @@ def _sq_pearson(X):
 
     X2 = X - X.mean(1)[:, newaxis]
     X2 = ascontiguousarray(X2)
-    norms = _row_norms(X2)
-    _distance_wrap.pdist_cosine_wrap(X2, dm, norms)
+    dm = pdist(X2, 'cosine')
+    # norms = _row_norms(X2)
+    # _distance_wrap.pdist_cosine_wrap(X2, dm, norms)
     return (-dm + 1)**2
 
 
