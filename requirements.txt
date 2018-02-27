@@ -1,6 +1,6 @@
 asciitree>=0.3.3
 cython
-dask[array,bag,dataframe,delayed]>=0.17.1
+dask[complete]>=0.17.1
 distributed
 glimix-core==1.2.*
 h5py
@@ -11,7 +11,7 @@ matplotlib>=2.1.0
 ncephes>=1.0.40
 numpy-sugar>=1.0.47
 numpy>=1.14.1
-pandas-plink>=1.2.1
+pandas-plink>=1.2.18
 pytest-console-scripts
 pytest-pep8
 pytest-runner>=3.0
@@ -20,5 +20,5 @@ scikit-learn
 scipy>=0.19
 setuptools>=38.4.0
 sphinx_rtd_theme>=0.2.4
-sphinx>=1.6.6<Paste>
+sphinx>=1.6.6
 tqdm>=4.10

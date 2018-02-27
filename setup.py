@@ -24,8 +24,8 @@ def setup_package():
     setup_requires = ["cython", "numpy>=1.14.1"] + pytest_runner
     install_requires = [
         'scikit-learn', 'limix-core>=1.0.2',
-        'dask[array,bag,dataframe,delayed]>=0.14', 'h5py',
-        'pandas-plink>=1.2.1', 'limix-legacy>=0.8.12', 'glimix-core==1.2.*',
+        'dask[all]>=0.17.1', 'h5py',
+        'pandas-plink>=1.2.18', 'limix-legacy>=0.8.12', 'glimix-core==1.2.*',
         'joblib>=0.11', 'tqdm>=4.10', 'scipy>=0.19', 'distributed',
         'numpy-sugar>=1.0.47', 'ncephes>=1.0.40', 'asciitree>=0.3.3',
         'numpy>=1.14.1', 'matplotlib>=2.1.0'
@@ -48,7 +48,7 @@ def setup_package():
 
     metadata = dict(
         name='limix',
-        version='1.0.13',
+        version='1.0.14',
         maintainer="Limix Developers",
         maintainer_email="horta@ebi.ac.uk",
         author=("Christoph Lippert, Danilo Horta, " +
