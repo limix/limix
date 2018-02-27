@@ -10,16 +10,11 @@ A flexible and fast mixed model toolbox.
 from __future__ import absolute_import as _absolute_import
 
 import limix_core as core
-from pkg_resources import DistributionNotFound as _DistributionNotFound
-from pkg_resources import get_distribution as _get_distribution
 
 from . import (heritability, io, iset, mtset, plot, qtl, scripts, stats, util,
                vardec)
 
-try:
-    __version__ = _get_distribution('limix').version
-except _DistributionNotFound:
-    __version__ = 'unknown'
+__version__ = '1.0.13'
 
 
 def test():
@@ -42,5 +37,5 @@ def test():
 
 __all__ = [
     'test', 'core', 'io', 'plot', 'qtl', 'stats', 'util', 'vardec', 'mtset',
-    'iset', 'scripts', 'heritability'
+    'iset', 'scripts', 'heritability', '__version__'
 ]
