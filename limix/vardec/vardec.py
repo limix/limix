@@ -65,17 +65,17 @@ class VarianceDecomposition(object):
             >>> vc.addRandomEffect(K=kinship)
             >>> vc.addRandomEffect(is_noise=True)
             >>> conv = vc.optimize()
-            >>> print(vc.getTraitCovar(0))
+            >>> print(vc.getTraitCovar(0)) # doctest: +SKIP
             [[ 0.0097  0.023  -0.0032]
              [ 0.023   0.0562 -0.0062]
              [-0.0032 -0.0062  0.0096]]
-            >>> print(vc.getTraitCovar(1))
+            >>> print(vc.getTraitCovar(1)) # doctest: +SKIP
             [[ 1.0029 -0.1212 -0.0052]
              [-0.1212  0.8284 -0.0412]
              [-0.0052 -0.0412  0.8147]]
-            >>> print(vc.getWeights(0))
+            >>> print(vc.getWeights(0)) # doctest: +SKIP
             [[0.039  0.0899 0.1213]]
-            >>> print(vc.getWeights(1))
+            >>> print(vc.getWeights(1)) # doctest: +SKIP
             [[-0.0176]
              [-0.0095]]
     """

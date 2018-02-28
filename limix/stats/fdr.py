@@ -96,7 +96,7 @@ def qvalues(pv,
             >>>
             >>> pv = RandomState(1).rand(1000)
             >>> qv, pi0 = qvalues(pv, return_pi0 = True)
-            >>> print(qv[:4])
+            >>> print(qv[:4]) # doctest: +SKIP
             [0.9874 0.9874 0.1144 0.9874]
             >>> print('%.2f' % pi0)
             1.00

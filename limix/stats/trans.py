@@ -24,7 +24,7 @@ def boxcox(X):
             >>> random = RandomState(0)
             >>> X = random.randn(5, 2)
             >>>
-            >>> print(boxcox(X))
+            >>> print(boxcox(X)) # doctest: +SKIP
             [[2.7136 0.9544]
              [1.3844 1.6946]
              [2.9066 0.    ]

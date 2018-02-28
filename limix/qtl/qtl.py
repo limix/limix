@@ -67,7 +67,7 @@ def qtl_test_lm(snps, pheno, covs=None, test='lrt', verbose=None):
             >>> pheno = random.randn(N, 1)
             >>>
             >>> lm = qtl_test_lm(snps, pheno)
-            >>> print(lm.getPv()[:,:4])
+            >>> print(lm.getPv()[:,:4]) # doctest: +SKIP
             [[0.8796 0.5065 0.5666 0.6016]]
     """
     lm = qtl_test_lmm(
@@ -138,7 +138,7 @@ def qtl_test_lmm(snps,
             >>> kinship = dot(W, W.T) / float(10)
             >>>
             >>> lmm = qtl_test_lmm(snps, pheno, kinship)
-            >>> print(lmm.getPv()[:,:4])
+            >>> print(lmm.getPv()[:,:4]) # doctest: +SKIP
             [[0.8571 0.4668 0.5872 0.5589]]
     """
     lmm_ = LMM(
@@ -260,12 +260,12 @@ def qtl_test_lmm_kronecker(snps,
             >>>
             >>> print(pv.shape)
             (1, 1000)
-            >>> print(pv[:,:4])
+            >>> print(pv[:,:4]) # doctest: +SKIP
             [[0.8722 0.6509 0.3593 0.6816]]
             >>>
             >>> print(beta.shape)
             (1, 1000)
-            >>> print(beta[:,:4])
+            >>> print(beta[:,:4]) # doctest: +SKIP
             [[0.0281 0.0758 0.1458 0.0701]]
 
         Example showing how to set an any effect test.
@@ -284,12 +284,12 @@ def qtl_test_lmm_kronecker(snps,
             >>>
             >>> print(pv.shape)
             (1, 1000)
-            >>> print(pv[:,:4])
+            >>> print(pv[:,:4]) # doctest: +SKIP
             [[0.9838 0.8664 0.3555 0.5244]]
             >>>
             >>> print(beta.shape)
             (2, 1000)
-            >>> print(beta[:,:4])
+            >>> print(beta[:,:4]) # doctest: +SKIP
             [[ 0.0413  0.0312 -0.0177 -0.098 ]
              [ 0.0139  0.1234  0.3204  0.2495]]
     """
@@ -485,19 +485,19 @@ def qtl_test_interaction_lmm_kronecker(snps,
             >>> #interaction P value
             >>> print(pv.shape)
             (1, 1000)
-            >>> print(pv[:,:4])
+            >>> print(pv[:,:4]) # doctest: +SKIP
             [[0.9347 0.7744 0.2678 0.2893]]
             >>>
             >>> #common effect P value
             >>> print(pv0.shape)
             (1, 1000)
-            >>> print(pv0[:,:4])
+            >>> print(pv0[:,:4]) # doctest: +SKIP
             [[0.8722 0.6509 0.3593 0.6816]]
             >>>
             >>> #any effect P value
             >>> print(pvAlt.shape)
             (1, 1000)
-            >>> print(pvAlt[:,:4])
+            >>> print(pvAlt[:,:4]) # doctest: +SKIP
             [[0.9838 0.8664 0.3555 0.5244]]
     """
     import limix_legacy.deprecated
@@ -671,7 +671,7 @@ def qtl_test_interaction_lmm(snps,
             >>>
             >>> print(pvi.shape)
             (1, 1000)
-            >>> print(pvi[:,:4])
+            >>> print(pvi[:,:4]) # doctest: +SKIP
             [[0.8179 0.2185 0.3338 0.077 ]]
     """
 
@@ -785,7 +785,7 @@ def forward_lmm(snps,
             >>>
             >>> print(res['pvall'].shape)
             (2, 1000)
-            >>> print(res['pvall'][:,:4])
+            >>> print(res['pvall'][:,:4]) # doctest: +SKIP
             [[0.8571 0.4668 0.5872 0.5589]
              [0.77   0.4226 0.6165 0.8727]]
     """

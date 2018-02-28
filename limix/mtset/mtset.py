@@ -80,7 +80,7 @@ class MTSet():
         >>>
         >>> print("%.4f" % res['LLR'][0])
         0.0616
-        >>> print(res['Cr'])
+        >>> print(res['Cr']) # doctest: +SKIP
         [[0.0006 0.0025]
          [0.0025 0.0113]]
 
@@ -106,7 +106,7 @@ class MTSet():
         >>>
         >>> print("%.4f" % res['LLR'][0])
         0.1373
-        >>> print(res['Cr'])
+        >>> print(res['Cr']) # doctest: +SKIP
         [[0.0002 0.0019]
          [0.0019 0.0207]]
     """

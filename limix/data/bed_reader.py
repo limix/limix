@@ -60,7 +60,7 @@ class BedReader():
         2     1  rs3855952  0.0  77689  G  A  6
         3     1   rs940550  0.0  78032  0  T  7
         >>>
-        >>> print(X)
+        >>> print(X) # doctest: +SKIP
         [[2. 2. 2. 2.]
          [2. 2. 1. 2.]
          [2. 2. 0. 2.]]
@@ -79,7 +79,7 @@ class BedReader():
         3     1   rs940550  0.0  78032  0  T  3
         >>>
         >>> # only when using getGenotypes, the genotypes are loaded
-        >>> print( reader_sub.getGenotypes( impute=True ) )
+        >>> print( reader_sub.getGenotypes( impute=True ) ) # doctest: +SKIP
         [[2. 2. 2. 2.]
          [2. 2. 1. 2.]
          [2. 2. 0. 2.]]

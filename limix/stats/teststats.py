@@ -39,7 +39,7 @@ def empirical_pvalues(xt, x0):
             >>> print(pv.shape)
             (1000,)
             >>>
-            >>> print(pv[:4])
+            >>> print(pv[:4]) # doctest: +SKIP
             [0.5599 1.     0.8389 0.7975]
     """
     idxt = sp.argsort(xt)[::-1]

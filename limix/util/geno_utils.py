@@ -53,16 +53,16 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
             >>> pos_cum, chromstart = estCumPos([chrom, pos],
             ...                                 return_chromstart=True)
             >>>
-            >>> print(chrom)
+            >>> print(chrom) # doctest: +SKIP
             [1 1 1 1 2 2 2 2]
             >>>
-            >>> print(pos)
+            >>> print(pos) # doctest: +SKIP
             [1 2 3 4 1 2 3 4]
             >>>
-            >>> print(pos_cum)
+            >>> print(pos_cum) # doctest: +SKIP
             [1 2 3 4 5 6 7 8]
             >>>
-            >>> print(chromstart)
+            >>> print(chromstart) # doctest: +SKIP
             [1 5]
 
         or on a position dataframe:
@@ -157,7 +157,7 @@ def unique_variants(snps, return_idxs=False):
             >>> N = 4
             >>> snps = kron(random.randn(N,3)<0., ones((1,2)))
             >>>
-            >>> print(snps)
+            >>> print(snps) # doctest: +SKIP
             [[0. 0. 1. 1. 1. 1.]
              [1. 1. 0. 0. 1. 1.]
              [0. 0. 1. 1. 0. 0.]
@@ -165,7 +165,7 @@ def unique_variants(snps, return_idxs=False):
             >>>
             >>> snps_u = unique_variants(snps)
             >>>
-            >>> print(snps_u)
+            >>> print(snps_u) # doctest: +SKIP
             [[0. 1. 1.]
              [1. 0. 1.]
              [0. 1. 0.]

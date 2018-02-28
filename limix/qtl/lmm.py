@@ -81,11 +81,11 @@ class LMM:
             >>>
             >>> print(pv.shape)
             (1, 1000)
-            >>> print(pv[:,:4])
+            >>> print(pv[:,:4]) # doctest: +SKIP
             [[0.8571 0.4668 0.5872 0.5589]]
-            >>> print(beta[:,:4])
+            >>> print(beta[:,:4]) # doctest: +SKIP
             [[ 0.0436 -0.1695 -0.12    0.1388]]
-            >>> print(beta_ste[:,:4])
+            >>> print(beta_ste[:,:4]) # doctest: +SKIP
             [[0.2422 0.2329 0.221  0.2375]]
 
         As shown in the exmaple below,
@@ -104,7 +104,7 @@ class LMM:
             >>>
             >>> print(pv.shape)
             (3, 1000)
-            >>> print(pv[:,:4])
+            >>> print(pv[:,:4]) # doctest: +SKIP
             [[0.4712 0.694  0.3369 0.5221]
              [0.7336 0.8799 0.8109 0.1071]
              [0.0662 0.9203 0.2873 0.8268]]
