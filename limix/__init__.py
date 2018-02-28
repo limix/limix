@@ -14,7 +14,7 @@ import limix_core as core
 from . import (heritability, io, iset, mtset, plot, qtl, scripts, stats, util,
                vardec)
 
-__version__ = '1.0.14'
+__version__ = '1.0.15'
 
 
 def test():
