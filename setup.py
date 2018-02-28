@@ -23,7 +23,7 @@ def setup_package():
 
     setup_requires = ["cython", "numpy"] + pytest_runner
     install_requires = [
-        'scikit-learn', 'limix-core', 'dask[all]', 'h5py',
+        'scikit-learn', 'limix-core', 'dask[complete]', 'h5py',
         'pandas-plink>=1.2.18', 'limix-legacy', 'glimix-core', 'joblib',
         'tqdm', 'scipy', 'distributed', 'numpy-sugar', 'ncephes', 'asciitree',
         'numpy', 'matplotlib'
