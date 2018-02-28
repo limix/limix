@@ -24,7 +24,7 @@ def setup_package():
     setup_requires = ["cython", "numpy"] + pytest_runner
     install_requires = [
         'scikit-learn', 'limix-core', 'dask[complete]', 'h5py',
-        'pandas-plink>=1.2.18', 'limix-legacy', 'glimix-core', 'joblib',
+        'pandas-plink>=1.2.18', 'limix-legacy', 'glimix-core==1.2.*', 'joblib',
         'tqdm', 'scipy', 'distributed', 'numpy-sugar', 'ncephes', 'asciitree',
         'numpy', 'matplotlib'
     ]
@@ -46,7 +46,7 @@ def setup_package():
 
     metadata = dict(
         name='limix',
-        version='1.0.16',
+        version='1.0.17',
         maintainer="Limix Developers",
         maintainer_email="horta@ebi.ac.uk",
         author=("Christoph Lippert, Danilo Horta, " +

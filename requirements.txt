@@ -2,7 +2,7 @@ asciitree
 cython
 dask[complete]
 distributed
-glimix-core
+glimix-core==1.2.*
 h5py
 joblib
 limix-core

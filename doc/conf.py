@@ -4,7 +4,7 @@ import os
 
 import sphinx_rtd_theme
 
-version = '1.0.16'
+version = '1.0.17'
 
 extensions = [
     'matplotlib.sphinxext.only_directives',
