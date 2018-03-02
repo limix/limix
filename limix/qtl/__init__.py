@@ -157,41 +157,41 @@ The matrix ``G`` defines both five alternative hypotheses
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
     >>> print(model.variant_pvalues)
-    candidate0    0.073718
-    candidate1    0.341502
-    candidate2    0.595429
-    candidate3    0.742529
-    candidate4    0.781846
+    candidate0    0.073782
+    candidate1    0.341604
+    candidate2    0.595500
+    candidate3    0.742581
+    candidate4    0.781884
     dtype: float64
     >>> print(model.variant_effsizes)
-    candidate0    2.476964
-    candidate1   -1.256319
-    candidate2   -0.705987
-    candidate3   -0.476535
-    candidate4    0.376351
+    candidate0    2.476867
+    candidate1   -1.256291
+    candidate2   -0.705998
+    candidate3   -0.476524
+    candidate4    0.376367
     dtype: float64
     >>> print(model.variant_effsizes_se)
-    candidate0    1.385050
-    candidate1    1.320770
-    candidate2    1.329578
-    candidate3    1.450610
-    candidate4    1.359087
+    candidate0    1.385302
+    candidate1    1.321020
+    candidate2    1.329856
+    candidate3    1.450884
+    candidate4    1.359392
     dtype: float64
     >>> print(model)
     Variants
            effsizes  effsizes_se   pvalues
     count  5.000000     5.000000  5.000000
-    mean   0.082895     1.369019  0.507005
-    std    1.461718     0.052192  0.297471
-    min   -1.256319     1.320770  0.073718
-    25%   -0.705987     1.329578  0.341502
-    50%   -0.476535     1.359087  0.595429
-    75%    0.376351     1.385050  0.742529
-    max    2.476964     1.450610  0.781846
+    mean   0.082884     1.369291  0.507070
+    std    1.461673     0.052194  0.297458
+    min   -1.256291     1.321020  0.073782
+    25%   -0.705998     1.329856  0.341604
+    50%   -0.476524     1.359392  0.595500
+    75%    0.376367     1.385302  0.742581
+    max    2.476867     1.450884  0.781884
     <BLANKLINE>
     Covariate effect sizes for the null model
      covariate0
-       0.007168
+       0.006968
 
 Out-of-core
 ^^^^^^^^^^^
