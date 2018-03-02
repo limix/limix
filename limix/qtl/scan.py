@@ -7,12 +7,11 @@ from pandas import DataFrame
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
 
-from ..nice_arrays import (covariates_process, default_candidates_index,
-                           default_covariates_index, infer_samples_index,
-                           kinship_process, normalise_candidates_matrix,
-                           normalise_covariates_matrix,
-                           normalise_kinship_matrix,
-                           normalise_phenotype_matrix, phenotype_process)
+from ..nice_arrays import (
+    covariates_process, default_candidates_index, default_covariates_index,
+    infer_samples_index, kinship_process, normalise_candidates_matrix,
+    normalise_covariates_matrix, normalise_kinship_matrix,
+    normalise_phenotype_matrix, phenotype_process)
 from .model import QTLModel
 from .util import print_analysis
 
@@ -242,7 +241,6 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
         glmm.delta = 1
         glmm.fix('delta')
     glmm.fit(verbose=verbose)
-    print("GLMM: delta: {}, scale: {}".format(glmm.delta, glmm.scale))
 
     eta = glmm.site.eta
     tau = glmm.site.tau

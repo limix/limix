@@ -90,6 +90,10 @@ def estimate(y, lik, K, M=None, verbose=True, VER=0):
             n_int = 100
             factr = 1e6
             pgtol = 1e-3
+        elif VER == 2:
+            n_int = 500
+            factr = 1e6
+            pgtol = 1e-3
         method = GLMMExpFam(
             _binomial_y(y.values, lik),
             lik,
