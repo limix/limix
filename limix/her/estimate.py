@@ -1,17 +1,16 @@
 from __future__ import division
 
-from numpy import pi, var
-
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
-from ..fprint import eprint, oprint
+from numpy import pi, var
+from numpy_sugar.linalg import economic_qs
+
+from ..fprint import oprint
+from ..nice_arrays import (covariates_process, named_to_unamed_matrix,
+                           phenotype_process)
 from ..qc import gower_norm
 from ..util import Timer
 from ..util.npy_dask import asarray
-from ..nice_arrays import (covariates_process, named_to_unamed_matrix,
-                           phenotype_process)
-from numpy_sugar.linalg import economic_qs
-from optimix import OptimixError
 
 
 def estimate(y, lik, K, M=None, verbose=True):
@@ -79,11 +78,10 @@ def estimate(y, lik, K, M=None, verbose=True):
     lik = lik.lower()
 
     if lik == 'normal':
-        method = LMM(_binomial_y(y.values, lik), named_to_unamed_matrix(M),
-                     QS)
+        method = LMM(_binomial_y(y.values, lik), named_to_unamed_matrix(M), QS)
     else:
-        method = GLMMExpFam(_binomial_y(y.values, lik), lik,
-                            named_to_unamed_matrix(M), QS)
+        method = GLMMExpFam(
+            _binomial_y(y.values, lik), lik, named_to_unamed_matrix(M), QS)
 
     method.fit(verbose=verbose)
 

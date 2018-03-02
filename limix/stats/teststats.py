@@ -32,7 +32,7 @@ def empirical_pvalues(xt, x0):
         >>> x0 = random.chisquare(1, 5)
         >>> x1 = random.chisquare(1, 10000)
         >>>
-        >>> empirical_pvalues(x0, x1) # doctest: +NPY_FLEX_NUMS +SKIP
+        >>> empirical_pvalues(x0, x1) # doctest: +SKIP
         array([0.563 , 1.    , 0.839 , 0.7982, 0.5803])
     """
     idxt = sp.argsort(xt)[::-1]

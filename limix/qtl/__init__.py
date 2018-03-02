@@ -74,25 +74,25 @@ alternative hypotheses to be tested:
     >>> kinship = dot(X, X.T) / float(10)
     >>>
     >>> model = scan(candidates, y, 'normal', kinship, verbose=False)
-    >>> print(model.variant_pvalues)  # doctest: +NPY_FLEX_NUMS
+    >>> print(model.variant_pvalues)
     candidate0    0.227217
     candidate1    0.398150
     candidate2    0.446014
     candidate3    0.063058
     dtype: float64
-    >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
+    >>> print(model.variant_effsizes)
     candidate0    0.314872
     candidate1   -0.245231
     candidate2   -0.182707
     candidate3    0.511300
     dtype: float64
-    >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
+    >>> print(model.variant_effsizes_se)
     candidate0    0.260751
     candidate1    0.290239
     candidate2    0.239749
     candidate3    0.275073
     dtype: float64
-    >>> print(model)  # doctest: +NPY_FLEX_NUMS
+    >>> print(model)
     Variants
            effsizes  effsizes_se   pvalues
     count  4.000000     4.000000  4.000000
@@ -156,28 +156,28 @@ The matrix ``G`` defines both five alternative hypotheses
     >>> K = dot(G[:, 5:], G[:, 5:].T)
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
-    >>> print(model.variant_pvalues)  # doctest: +NPY_FLEX_NUMS
+    >>> print(model.variant_pvalues)
     candidate0    0.073718
     candidate1    0.341502
     candidate2    0.595429
     candidate3    0.742529
     candidate4    0.781846
     dtype: float64
-    >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
+    >>> print(model.variant_effsizes)
     candidate0    2.476964
     candidate1   -1.256319
     candidate2   -0.705987
     candidate3   -0.476535
     candidate4    0.376351
     dtype: float64
-    >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
+    >>> print(model.variant_effsizes_se)
     candidate0    1.385050
     candidate1    1.320770
     candidate2    1.329578
     candidate3    1.450610
     candidate4    1.359087
     dtype: float64
-    >>> print(model)  # doctest: +NPY_FLEX_NUMS
+    >>> print(model)
     Variants
            effsizes  effsizes_se   pvalues
     count  5.000000     5.000000  5.000000
