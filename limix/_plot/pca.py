@@ -36,11 +36,11 @@ def plot_pca(X, style=None, ax=None):
     if a > b:
         ax.set_xbound((xbound[0], vxticks[-1] + a))
     else:
-        ax.set_xbound((vxticks[0] - n, xbound[1]))
+        ax.set_xbound((vxticks[0] - b, xbound[1]))
     ax.set_ybound(ax.get_xbound())
 
-    #ax.set_xlabel('first component')
-    #ax.set_ylabel('second component')
+    ax.set_xlabel('first component')
+    ax.set_ylabel('second component')
 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')

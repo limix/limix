@@ -17,8 +17,8 @@ Stable versions of limix are installed via conda_ though
 It will handle all the necessary dependencies and should work for GNU/Linux
 distributions, MacOS, and Windows.
 
-An alternative way would be via pip_
-In this case, first you need to install hcephes_ and liknorm_ C libraries.
+An alternative way would be via pip_.
+In this case, you first need to install hcephes_ and liknorm_ C libraries.
 Then,
 
 .. code:: bash

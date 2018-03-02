@@ -1,24 +1,19 @@
 from __future__ import division
 
 from numpy import all as npall
-from numpy import diag, isfinite, ones, asarray
+from numpy import asarray, isfinite, ones
 from pandas import DataFrame
 
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
-from numpy_sugar.linalg import economic_qs
 
+from ..nice_arrays import (covariates_process, default_candidates_index,
+                           default_covariates_index, infer_samples_index,
+                           kinship_process, normalise_candidates_matrix,
+                           normalise_covariates_matrix,
+                           normalise_kinship_matrix,
+                           normalise_phenotype_matrix, phenotype_process)
 from .model import QTLModel
-from ..nice_arrays import (assure_named_columns, covariates_process,
-                           kinship_process, phenotype_process)
-
-from ..nice_arrays import normalise_phenotype_matrix
-from ..nice_arrays import normalise_covariates_matrix
-from ..nice_arrays import normalise_kinship_matrix
-from ..nice_arrays import normalise_candidates_matrix
-from ..nice_arrays import infer_samples_index
-from ..nice_arrays import default_covariates_index
-from ..nice_arrays import default_candidates_index
 from .util import print_analysis
 
 
@@ -89,36 +84,36 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>>
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
-        >>> print(model.variant_pvalues)  # doctest: +NPY_FLEX_NUMS
-        rs0    0.554444
-        rs1    0.218996
-        rs2    0.552201
+        >>> model.variant_pvalues.round(2)
+        rs0    0.55
+        rs1    0.22
+        rs2    0.55
         dtype: float64
-        >>> print(model.variant_effsizes)  # doctest: +NPY_FLEX_NUMS
-        rs0   -0.130866
-        rs1   -0.315077
-        rs2   -0.143869
+        >>> model.variant_effsizes.round(2)
+        rs0   -0.13
+        rs1   -0.32
+        rs2   -0.14
         dtype: float64
-        >>> print(model.variant_effsizes_se)  # doctest: +NPY_FLEX_NUMS
-        rs0    0.221389
-        rs1    0.256327
-        rs2    0.242013
+        >>> model.variant_effsizes_se.round(2)
+        rs0    0.22
+        rs1    0.26
+        rs2    0.24
         dtype: float64
-        >>> print(model)  # doctest: +NPY_FLEX_NUMS
+        >>> model
         Variants
                effsizes  effsizes_se   pvalues
-        count  3.000000     3.000000  3.000000
-        mean  -0.196604     0.239910  0.441880
-        std    0.102807     0.017563  0.193027
-        min   -0.315077     0.221390  0.218996
-        25%   -0.229473     0.231701  0.385598
-        50%   -0.143869     0.242013  0.552201
-        75%   -0.137368     0.249170  0.553322
-        max   -0.130866     0.256327  0.554444
+        count  3.000...     3.000...  3.000...
+        mean  -0.196...     0.239...  0.441...
+        std    0.102...     0.017...  0.193...
+        min   -0.315...     0.221...  0.218...
+        25%   -0.229...     0.231...  0.385...
+        50%   -0.143...     0.242...  0.552...
+        75%   -0.137...     0.249...  0.553...
+        max   -0.130...     0.256...  0.554...
         <BLANKLINE>
         Covariate effect sizes for the null model
               age   offset
-        -0.005568  0.39529
+        -0.005...  0.39...
     """
     lik = lik.lower()
 

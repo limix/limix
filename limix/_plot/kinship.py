@@ -2,7 +2,7 @@ from __future__ import division
 
 import warnings
 
-from numpy import argsort, asarray, inf, isnan, percentile, clip
+from numpy import argsort, asarray, clip, inf, percentile
 
 
 def plot_kinship(K, nclusters=1, style=None, ax=None):
@@ -54,7 +54,8 @@ def plot_kinship(K, nclusters=1, style=None, ax=None):
     ax.set(xlim=(0, K.shape[1]), ylim=(0, K.shape[0]))
     ax.xaxis.set_ticks([])
     ax.yaxis.set_ticks([])
-    cb = ax.figure.colorbar(mesh, None, ax)
+    # cb = ax.figure.colorbar(mesh, None, ax)
+    ax.figure.colorbar(mesh, None, ax)
 
     #    ax.xaxis.set_ticks_position('both')
     #    ax.yaxis.set_ticks_position('both')

@@ -2,7 +2,24 @@
 Command line interface
 **********************
 
-Limix now provides many of its functionalities via command line.
+Limix now provides a couple of its functionalities via command line.
+
+.. code-block:: bash
+
+    limix --help
+
+.. doctest::
+    :hide:
+
+    >>> import limix
+    >>> limix.main(['--help'])
+    usage: limix [-h] {see,download,extract} ...
+    <BLANKLINE>
+    optional arguments:
+      -h, --help            show this help message and exit
+    <BLANKLINE>
+    subcommands:
+      {see,download,extract}
 
 Quickly explore files
 ^^^^^^^^^^^^^^^^^^^^^
@@ -241,7 +258,7 @@ shown as
     >>> limix.util.download(url, verbose=False)
     >>> limix.util.extract("example.csv.bz2", verbose=False)
     >>> limix.io.csv.see("example.csv", verbose=False, header=None)
-        0   1   2   3   4   5   6   7   8   9   ... 456 457 458 459  \
+                   0   1   2   3   4   5   6   7   8   9   ... 456 457 458 459  \
     0  snp_22_16050408   A   A   A   A   A   A   A   A   A ...   B   B   B   B
     1  snp_22_16050612   A   A   A   A   A   A   A   A   A ...   B   B   B   B
     2  snp_22_16050678   A   A   A   A   A   A   A   A   A ...   B   B   B   B

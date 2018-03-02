@@ -1,8 +1,9 @@
 from __future__ import division
 
-from numpy import arange, asarray, cumsum, flipud, issubdtype, log10, number
-from adjustText import adjust_text
+from numpy import arange, asarray, cumsum, flipud, log10
+from pandas.api.types import is_numeric_dtype
 
+from adjustText import adjust_text
 from limix.fprint import oprint
 
 
@@ -35,21 +36,20 @@ def plot_manhattan(df, alpha=None, null_style=None, alt_style=None, ax=None):
     Examples
     --------
     .. plot::
+        :include-source:
 
-        from numpy.random import RandomState
-        from numpy import arange, ones, kron
-        from pandas import DataFrame
-        import limix
-
-        random = RandomState(1)
-        pv = random.rand(5000)
-        pv[1200:1250] = random.rand(50)**4
-        chrom  = kron(arange(1, 6), ones(1000))
-        pos = kron(ones(5), arange(1, 1001))
-        df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos))
-        p = limix.plot.get()
-        p.manhattan(df)
-        p.show()
+        >>> from numpy.random import RandomState
+        >>> from numpy import arange, ones, kron
+        >>> from pandas import DataFrame
+        >>> import limix
+        >>>
+        >>> random = RandomState(1)
+        >>> pv = random.rand(5000)
+        >>> pv[1200:1250] = random.rand(50)**4
+        >>> chrom  = kron(arange(1, 6), ones(1000))
+        >>> pos = kron(ones(5), arange(1, 1001))
+        >>> df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos))
+        >>> limix.plot.manhattan(df).show()
     """
 
     import matplotlib.pyplot as plt
@@ -63,7 +63,7 @@ def plot_manhattan(df, alpha=None, null_style=None, alt_style=None, ax=None):
     ax = plt.gca() if ax is None else ax
 
     if 'pos' in df:
-        if not issubdtype(df['pos'].dtype, number):
+        if not is_numeric_dtype(df['pos']):
             oprint("Position is not a numeric type." +
                    " Converting it to numbers...")
             df['pos'] = df['pos'].astype(int)

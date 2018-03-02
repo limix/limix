@@ -1,6 +1,0 @@
-pytest
-pytest-pep8
-pytest-sugar
-ndarray-listener>=1.0.26
-matplotlib
-sphinx-testing

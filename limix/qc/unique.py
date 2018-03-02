@@ -55,19 +55,19 @@ def unique_variants(X):
         >>> N = 4
         >>> X = kron(random.randn(N, 3) < 0, ones((1, 2)))
         >>>
-        >>> print(X)
-        [[ 0.  0.  1.  1.  1.  1.]
-         [ 1.  1.  0.  0.  1.  1.]
-         [ 0.  0.  1.  1.  0.  0.]
-         [ 1.  1.  0.  0.  1.  1.]]
+        >>> print(X) # doctest: +SKIP
+        [[0. 0. 1. 1. 1. 1.]
+         [1. 1. 0. 0. 1. 1.]
+         [0. 0. 1. 1. 0. 0.]
+         [1. 1. 0. 0. 1. 1.]]
         >>>
         >>> idx = unique_variants(X)
         >>>
-        >>> print(X[:, sort(idx)])
-        [[ 0.  1.  1.]
-         [ 1.  0.  1.]
-         [ 0.  1.  0.]
-         [ 1.  0.  1.]]
+        >>> print(X[:, sort(idx)]) # doctest: +SKIP
+        [[0. 1. 1.]
+         [1. 0. 1.]
+         [0. 1. 0.]
+         [1. 0. 1.]]
     """
     import dask.array as da
 

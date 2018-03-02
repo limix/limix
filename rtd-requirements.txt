@@ -1,9 +1,0 @@
-numpy
-pandas
-scipy
-setuptools
-ndarray-listener
-brent-search
-tqdm
-sphinx_rtd_theme
-glimix-core>=1.3.6

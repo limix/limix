@@ -1,7 +1,7 @@
 r"""Plotting utilities"""
 
-from .limix_plot import LimixPlot
 from .consensus import ConsensusCurve
+from .limix_plot import LimixPlot
 
 plot = LimixPlot()
 

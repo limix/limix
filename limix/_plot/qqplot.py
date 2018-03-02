@@ -1,9 +1,9 @@
 from __future__ import division
 
+from numpy import (arange, ascontiguousarray, atleast_2d, flipud, inf, insert,
+                   linspace, log10, ones, percentile, searchsorted, sort)
 from numpy import sum as npsum
-from numpy import (arange, ascontiguousarray, flipud, linspace, log10, ones,
-                   percentile, searchsorted, sort, where, atleast_2d, inf,
-                   insert)
+from numpy import where
 from scipy.special import betaincinv
 
 
@@ -13,22 +13,22 @@ def qqplot(df, alpha, cutoff=0.1, style=None, ax=None, limits=None):
     Parameters
     ----------
     df : :class:`pandas.DataFrame`
-    Data frame.
+        Data frame.
     alpha : float
-    Significance level defining the band boundary. Defaults to ``0.05``.
+        Significance level defining the band boundary. Defaults to ``0.05``.
     cutoff : float
-    P-values higher than `cutoff` will not be plotted.
+        P-values higher than `cutoff` will not be plotted.
     style : dict
-    Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
-    function.
+        Keyword arguments forwarded to :func:`matplotlib.axes.Axes.plot`
+        function.
     ax : :class:`matplotlib.axes.Axes`
-    The target handle for this figure. If ``None``, the current axes is
-    set.
+        The target handle for this figure. If ``None``, the current axes is
+        set.
 
     Returns
     -------
     :class:`matplotlib.axes.Axes`
-    Axes.
+        Axes.
     """
     df = _normalise_data(df)
 
@@ -65,7 +65,6 @@ def qqplot(df, alpha, cutoff=0.1, style=None, ax=None, limits=None):
 
     ax.xaxis.set_ticks_position('both')
     ax.yaxis.set_ticks_position('both')
-    ax.grid(True, which='major', axis='both', alpha=1.0)
 
     ax.set_xlim(qmin, qmax)
     ax.set_ylim(qmin, qmax)

@@ -4,17 +4,17 @@ from numpy import pi, var
 
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
-from ..fprint import eprint, oprint
+from numpy_sugar.linalg import economic_qs
+
+from ..fprint import oprint
+from ..nice_arrays import (covariates_process, named_to_unamed_matrix,
+                           phenotype_process)
 from ..qc import gower_norm
 from ..util import Timer
 from ..util.npy_dask import asarray
-from ..nice_arrays import (covariates_process, named_to_unamed_matrix,
-                           phenotype_process)
-from numpy_sugar.linalg import economic_qs
-from optimix import OptimixError
 
 
-def estimate(y, lik, K, M=None, verbose=True):
+def estimate(y, lik, K, M=None, verbose=True, VER=0):
     r"""Estimate the so-called narrow-sense heritability.
 
     It supports Normal, Bernoulli, Binomial, and Poisson phenotypes.
@@ -79,13 +79,24 @@ def estimate(y, lik, K, M=None, verbose=True):
     lik = lik.lower()
 
     if lik == 'normal':
-        method = LMM(_binomial_y(y.values, lik), named_to_unamed_matrix(M),
-                     QS)
+        method = LMM(_binomial_y(y.values, lik), named_to_unamed_matrix(M), QS)
+        method.fit(verbose=verbose)
     else:
-        method = GLMMExpFam(_binomial_y(y.values, lik), lik,
-                            named_to_unamed_matrix(M), QS)
-
-    method.fit(verbose=verbose)
+        if VER == 0:
+            n_int = 1000
+            factr = 1e5
+            pgtol = 1e-7
+        elif VER == 1:
+            n_int = 100
+            factr = 1e6
+            pgtol = 1e-3
+        method = GLMMExpFam(
+            _binomial_y(y.values, lik),
+            lik,
+            named_to_unamed_matrix(M),
+            QS,
+            n_int=n_int)
+        method.fit(verbose=verbose, factr=factr, pgtol=pgtol)
 
     g = method.scale * (1 - method.delta)
     e = method.scale * method.delta

@@ -107,6 +107,9 @@ class QTLModel(object):
 
         return msg
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class IQTLModel(object):
     r"""Result of a Interaction QTL analysis.
