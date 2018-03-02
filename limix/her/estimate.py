@@ -5,6 +5,7 @@ from numpy import pi, var
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
+from numpy_sugar import epsilon
 
 from ..fprint import oprint
 from ..nice_arrays import (covariates_process, named_to_unamed_matrix,
@@ -82,6 +83,8 @@ def estimate(y, lik, K, M=None, verbose=True, VER=0):
         method = LMM(_binomial_y(y.values, lik), named_to_unamed_matrix(M), QS)
         method.fit(verbose=verbose)
     else:
+        rtol = epsilon.small * 1000
+        atol = epsilon.small
         if VER == 0:
             n_int = 1000
             factr = 1e5
@@ -94,12 +97,18 @@ def estimate(y, lik, K, M=None, verbose=True, VER=0):
             n_int = 500
             factr = 1e6
             pgtol = 1e-3
+        elif VER == 3:
+            n_int = 500
+            factr = 1e6
+            pgtol = 1e-3
+            rtol = epsilon.small * 1000 * 2
+            atol = epsilon.small * 2
         method = GLMMExpFam(
             _binomial_y(y.values, lik),
             lik,
             named_to_unamed_matrix(M),
             QS,
-            n_int=n_int)
+            n_int=n_int, rtol=rtol, atol=atol)
         method.fit(verbose=verbose, factr=factr, pgtol=pgtol)
 
     g = method.scale * (1 - method.delta)
