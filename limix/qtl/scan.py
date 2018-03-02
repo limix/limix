@@ -149,22 +149,28 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     if hasattr(G, 'index'):
         G = G.loc[G.index.intersection(samples_index)]
     else:
-        G = DataFrame(data=G, index=samples_index.copy(),
-                      columns=default_candidates_index(G.shape[1]))
+        G = DataFrame(
+            data=G,
+            index=samples_index.copy(),
+            columns=default_candidates_index(G.shape[1]))
 
     if hasattr(M, 'index'):
         M = M.loc[M.index.intersection(samples_index)]
     else:
-        M = DataFrame(data=M, index=samples_index.copy(),
-                      columns=default_covariates_index(M.shape[1]))
+        M = DataFrame(
+            data=M,
+            index=samples_index.copy(),
+            columns=default_covariates_index(M.shape[1]))
 
     if K is not None:
         if hasattr(K, 'index'):
             K = K.loc[K.index.intersection(samples_index), :]
             K = K.loc[:, K.columns.intersection(samples_index)]
         else:
-            K = DataFrame(data=K, index=samples_index.copy(),
-                          columns=samples_index.copy())
+            K = DataFrame(
+                data=K,
+                index=samples_index.copy(),
+                columns=samples_index.copy())
 
     y = normalise_phenotype_matrix(y, lik)
     if K is not None:
@@ -195,11 +201,11 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     K, QS = kinship_process(K, nsamples, verbose)
 
     if lik == 'normal':
-        model = _perform_lmm(_binomial_y(y.values, lik), M, QS, G, mixed,
-                             verbose)
+        model = _perform_lmm(
+            _binomial_y(y.values, lik), M, QS, G, mixed, verbose)
     else:
-        model = _perform_glmm(_binomial_y(y.values, lik), lik, M, K, QS, G,
-                              mixed, verbose)
+        model = _perform_glmm(
+            _binomial_y(y.values, lik), lik, M, K, QS, G, mixed, verbose)
 
     if verbose:
         print(model)
@@ -241,6 +247,7 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
         glmm.delta = 1
         glmm.fix('delta')
     glmm.fit(verbose=verbose)
+    print("GLMM: delta: {}, scale: {}".format(glmm.delta, glmm.scale))
 
     eta = glmm.site.eta
     tau = glmm.site.tau

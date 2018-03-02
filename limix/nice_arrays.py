@@ -2,7 +2,7 @@ from __future__ import division
 
 from numpy import clip, eye, ones, ascontiguousarray, atleast_2d
 from numpy import stack as npy_stack
-from numpy import concatenate
+from numpy import concatenate, minimum
 from pandas import DataFrame, Series, to_numeric, Int64Index, Index
 from dask.array import Array as DaskArray
 from dask.array import stack as dsk_stack
@@ -137,6 +137,13 @@ def phenotype_process(lik, y):
         if y.shape[1] != 2:
             raise ValueError("Binomial phenotype matrix has to have"
                              " two columns.")
+
+        v = y.values
+        ratio = v[:, 0] / v[:, 1]
+        v[:, 1] = minimum(v[:, 1], 300)
+        v[:, 0] = ratio * v[:, 1]
+        v[:, 0] = v[:, 0].round()
+        y[:] = v
     return y
 
 
