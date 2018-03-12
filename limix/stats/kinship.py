@@ -31,7 +31,7 @@ def linear_kinship(G, out=None, verbose=True):
 
     nsteps = min(30, p)
 
-    for i in tqdm(range(nsteps), disable=not verbose):
+    for i in tqdm(range(nsteps), desc='Kinship', disable=not verbose):
         start = i * int(p / nsteps)
 
         if i < nsteps - 1:
