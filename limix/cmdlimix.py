@@ -36,6 +36,60 @@ def do_see(args):
         print(e)
 
 
+def do_estimate_kinship(args):
+    import limix
+    input_file = getattr(args, 'input-file')
+
+    if args.type is None:
+        ft = limix.io.file_type(input_file)
+    else:
+        ft = args.type
+
+    if args.verbose:
+        print("Detected file type: {}".format(ft))
+
+    if ft == 'bgen':
+        G = limix.io.bgen.fetch_dosage(input_file, verbose=args.verbose)
+    elif ft == 'bed':
+        G = limix.io.plink.fetch_dosage(input_file, verbose=args.verbose)
+    else:
+        print("Unknown file type: %s" % input_file)
+
+    K = limix.stats.linear_kinship(G, verbose=args.verbose)
+
+    if args.output_file is None:
+        output_file = input_file + '.npy'
+    else:
+        output_file = args.output_file
+
+    oft = limix.io.file_type(output_file)
+
+    if oft == 'npy':
+        limix.io.npy.save_kinship(output_file, K, verbose=args.verbose)
+    else:
+        print("Unknown output file type: %s" % output_file)
+
+
+def estimate_kinship_parser(parser):
+    parser.add_argument('input-file', help='input file path')
+    parser.add_argument(
+        '--quiet', '-q', help='quiet', dest='verbose', action='store_false')
+    parser.add_argument(
+        '--verbose', help='verbose', dest='verbose', action='store_true')
+    parser.add_argument(
+        '--output-file',
+        dest='output_file',
+        default=None,
+        help='output file path')
+
+    msg = 'specify input file type: %s' % ', '.join(possible_file_types())
+    parser.add_argument('--type', dest='type', help=msg)
+
+    parser.set_defaults(output_file=None, verbose=True)
+    parser.set_defaults(func=do_estimate_kinship)
+    return parser
+
+
 def see_parser(parser):
     parser.add_argument('file', help='file path')
     parser.add_argument(
@@ -105,6 +159,7 @@ def entry(args=None):
     see_parser(subparsers.add_parser('see'))
     download_parser(subparsers.add_parser('download'))
     extract_parser(subparsers.add_parser('extract'))
+    estimate_kinship_parser(subparsers.add_parser('estimate-kinship'))
 
     args = p.parse_args(args=args)
     if hasattr(args, 'func'):

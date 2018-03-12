@@ -1,5 +1,6 @@
 from __future__ import division
 
+import numpy as np
 from numpy import ascontiguousarray, sqrt, zeros
 from tqdm import tqdm
 
@@ -38,9 +39,11 @@ def linear_kinship(G, out=None, verbose=True):
         else:
             end = p
 
-        g = G[:, start:end]
-        g = g - g.mean(0)
-        g /= g.std(0)
+        g = np.asarray(G[:, start:end])
+        m = np.nanmean(g, 0)
+        g = np.where(np.isnan(g), m, g)
+        g = g - m
+        g /= np.std(g, 0)
         g /= sqrt(p)
 
         out += ascontiguousarray(g.dot(g.T), float)

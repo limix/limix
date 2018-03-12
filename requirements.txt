@@ -1,6 +1,7 @@
 adjustText>=0.6.1
 ansicolors>=1.1.8
 asciitree>=0.3.3
+bgen-reader>=1.0.4
 brent-search>=1.0.32
 dask[distributed,array,dataframe]>=0.16.1
 glimix-core>=1.3.7

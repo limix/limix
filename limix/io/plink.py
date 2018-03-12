@@ -97,6 +97,12 @@ def see_kinship(filepath, verbose):
     limix.plot.show()
 
 
+def fetch_dosage(prefix, verbose):
+    from pandas_plink import read_plink
+    bed = read_plink(prefix, verbose=verbose)[2]
+    return bed.compute()
+
+
 def _print_title(title, msg):
     k = msg.find("\n") - len(title) - 2
     left = ("-" * (k // 2)) + " "

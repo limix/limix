@@ -1,4 +1,4 @@
-from numpy import load
+from numpy import load, save
 
 
 def see_kinship(filepath):
@@ -7,3 +7,9 @@ def see_kinship(filepath):
 
     K = load(filepath)
     limix.plot.plot_kinship(K)
+
+
+def save_kinship(filepath, K, verbose=True):
+    if verbose:
+        print("Saving {}...".format(filepath))
+    save(filepath, K)

@@ -13,6 +13,8 @@ def file_type(filepath):
         return 'hdf5'
     if filepath.endswith('.csv'):
         return 'csv'
+    if filepath.endswith('.npy'):
+        return 'npy'
     if filepath.endswith('.grm.raw'):
         return 'grm.raw'
     if _is_bed(filepath):
@@ -21,6 +23,8 @@ def file_type(filepath):
         return 'image'
     if filepath.endswith('.txt'):
         return 'csv'
+    if filepath.endswith('.bgen'):
+        return 'bgen'
     return 'unknown'
 
 
