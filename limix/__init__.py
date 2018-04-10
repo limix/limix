@@ -28,7 +28,6 @@ at https://limix.readthedocs.io/.
 from __future__ import absolute_import as _
 
 from . import cmdlimix, her, io, qc, qtl, stats, util, plot
-from ._examples import load_dataset
 from .cmd import call
 from .cmdlimix import main
 from .limits import is_large_file
@@ -41,6 +40,5 @@ __version__ = "1.2.0"
 __all__ = [
     "__version__", "test", 'io', 'plot', 'qc', 'qtl', 'stats', 'util', 'her',
     'download', 'extract', 'filehash', 'cmdlimix', 'set_max_nthreads',
-    'get_max_nthreads', 'call', 'ConsensusCurve', 'LimixPlot', 'load_dataset',
-    'is_large_file', 'normalise_phenotype', 'main'
+    'get_max_nthreads', 'call', 'is_large_file', 'normalise_phenotype', 'main'
 ]
