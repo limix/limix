@@ -27,9 +27,8 @@ at https://limix.readthedocs.io/.
 
 from __future__ import absolute_import as _
 
-from . import cmdlimix, her, io, qc, qtl, stats, util
+from . import cmdlimix, her, io, qc, qtl, stats, util, plot
 from ._examples import load_dataset
-from ._plot import ConsensusCurve, LimixPlot, plot
 from .cmd import call
 from .cmdlimix import main
 from .limits import is_large_file
