@@ -1,4 +1,5 @@
 from numpy import loadtxt
+from matplotlib import pyplot as plt
 
 
 def read_plink(prefix, verbose=True):
@@ -93,8 +94,8 @@ def see_kinship(filepath, verbose):
         print("File %s not found." % filepath)
         return
 
-    limix.plot.plot_kinship(K)
-    limix.plot.show()
+    limix.plot.kinship(K)
+    plt.show()
 
 
 def fetch_dosage(prefix, verbose):

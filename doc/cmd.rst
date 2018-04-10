@@ -36,9 +36,9 @@ Heatmap representing a plink_ kinship matrix:
 
 .. code-block:: bash
 
-    limix download http://rest.s3for.me/limix/example.grm.raw.bz2 -q
-    limix extract example.grm.raw.bz2
-    limix see example.grm.raw
+    limix download http://rest.s3for.me/limix/small_example.grm.raw.bz2 -q
+    limix extract small_example.grm.raw.bz2
+    limix see small_example.grm.raw.bz2
 
 .. image:: imgs/example.grm.raw.png
    :width: 400px
