@@ -208,27 +208,26 @@ The following command shows the hierarchy of a HDF5 file:
 
 .. code-block:: bash
 
-    limix download http://rest.s3for.me/limix/example.hdf5.bz2 -q
-    limix extract example.hdf5.bz2 -q
-    limix see example.hdf5 -q
+    limix download http://rest.s3for.me/limix/small_example.hdf5 -q
+    limix see small_example.hdf5 -q
 
 .. doctest::
     :hide:
 
     >>> import limix
     >>>
-    >>> url = "http://rest.s3for.me/limix/example.hdf5.bz2"
+    >>> url = "http://rest.s3for.me/limix/small_example.hdf5"
     >>> limix.util.download(url, verbose=False)
-    >>> limix.util.extract("example.hdf5.bz2", verbose=False)
-    >>> limix.io.hdf5.see_hdf5("example.hdf5", verbose=False)
+    >>> limix.io.hdf5.see_hdf5("small_example.hdf5", verbose=False)
     /
       +--genotype
          +--col_header
-         |  +--chrom [|S8, (1097199,)]
-         |  +--pos [int64, (1097199,)]
-         +--matrix [uint8, (183, 1097199)]
+         |  +--chrom [|S8, (100,)]
+         |  +--pos [int64, (100,)]
+         +--matrix [uint8, (183, 100)]
          +--row_header
             +--sample_ID [|S7, (183,)]
+
 
 .. testcleanup::
 
