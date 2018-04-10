@@ -67,4 +67,5 @@ epub_exclude_files = ['search.html']
 intersphinx_mapping = {
     'python': ('http://docs.python.org/', None),
     'numpy': ('http://docs.scipy.org/doc/numpy/', None),
+    'limix-plot': ('https://limix-plot.readthedocs.io/en/stable/', None)
 }
