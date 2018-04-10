@@ -244,19 +244,19 @@ shown as
 
 .. code-block:: bash
 
-    limix download http://rest.s3for.me/limix/example.csv.bz2 -q
-    limix extract example.csv.bz2 -q
-    limix see example.csv -q
+    limix download http://rest.s3for.me/limix/small_example.csv.bz2 -q
+    limix extract small_example.csv.bz2 -q
+    limix see small_example.csv -q --header no
 
 .. doctest::
     :hide:
 
     >>> import limix
     >>>
-    >>> url = "http://rest.s3for.me/limix/example.csv.bz2"
+    >>> url = "http://rest.s3for.me/limix/small_example.csv.bz2"
     >>> limix.util.download(url, verbose=False)
-    >>> limix.util.extract("example.csv.bz2", verbose=False)
-    >>> limix.io.csv.see("example.csv", verbose=False, header=None)
+    >>> limix.util.extract("small_example.csv.bz2", verbose=False)
+    >>> limix.io.csv.see("small_example.csv", verbose=False, header=False)
                    0   1   2   3   4   5   6   7   8   9   ... 456 457 458 459  \
     0  snp_22_16050408   A   A   A   A   A   A   A   A   A ...   B   B   B   B
     1  snp_22_16050612   A   A   A   A   A   A   A   A   A ...   B   B   B   B
@@ -264,7 +264,7 @@ shown as
     3  snp_22_16051107   A   A   A   A   A   A   A   A   A ...   B   B   B   B
     4  snp_22_16051249   A   A   A   A   A   A   A   A   A ...   B   B   B   B
     <BLANKLINE>
-        460 461 462 463 464 465
+      460 461 462 463 464 465
     0   B   B   B   B   B   B
     1   B   B   B   B   B   B
     2   B   B   B   B   B   B
