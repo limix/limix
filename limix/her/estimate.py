@@ -1,11 +1,11 @@
 from __future__ import division
 
-from numpy import pi, var
+from numpy import pi, var, ones
+from numpy import asarray as npy_asarray
 
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
-from numpy_sugar import epsilon
 
 from ..fprint import oprint
 from ..nice_arrays import (covariates_process, named_to_unamed_matrix,
@@ -13,9 +13,10 @@ from ..nice_arrays import (covariates_process, named_to_unamed_matrix,
 from ..qc import gower_norm
 from ..util import Timer
 from ..util.npy_dask import asarray
+from ..likelihood import conformation
 
 
-def estimate(y, lik, K, M=None, verbose=True, VER=0):
+def estimate(y, lik, K, M=None, verbose=True):
     r"""Estimate the so-called narrow-sense heritability.
 
     It supports Normal, Bernoulli, Binomial, and Poisson phenotypes.
@@ -23,7 +24,7 @@ def estimate(y, lik, K, M=None, verbose=True, VER=0):
 
     Parameters
     ----------
-    y : (tuple, array_like)
+    y : tuple, array_like
         Either a tuple of two arrays of `N` individuals each (Binomial
         phenotypes) or an array of `N` individuals (Normal, Poisson, or
         Bernoulli phenotypes). It does not support missing values yet.
@@ -31,10 +32,10 @@ def estimate(y, lik, K, M=None, verbose=True, VER=0):
         Sample likelihood describing the residual distribution.
     K : array_like
         `N` by `N` covariance matrix (e.g., kinship coefficients).
-    M : (array_like, optional)
+    M : array_like, optional
         `N` individuals by `D` covariates.
         By default, ``M`` is a (`N`, `1`) array of ones.
-    verbose : (bool, optional)
+    verbose : bool, optional
         if ``True``, details such as runtime are displayed.
 
     Returns
@@ -67,7 +68,14 @@ def estimate(y, lik, K, M=None, verbose=True, VER=0):
         analysis_name = "Heritability estimation"
         oprint("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
 
+    if isinstance(y, (tuple, list)):
+        y = npy_asarray(y, float).T
+
+    if M is None:
+        M = ones((y.shape[0], 1))
+
     y = phenotype_process(lik, y)
+    conformation(y, lik)
 
     K = asarray(K)
     M = covariates_process(M, K.shape[0])
@@ -78,38 +86,15 @@ def estimate(y, lik, K, M=None, verbose=True, VER=0):
         QS = economic_qs(K)
 
     lik = lik.lower()
+    M = named_to_unamed_matrix(M)
+    y = _binomial_y(y.values, lik)
 
     if lik == 'normal':
-        method = LMM(_binomial_y(y.values, lik), named_to_unamed_matrix(M), QS)
+        method = LMM(y, M, QS)
         method.fit(verbose=verbose)
     else:
-        rtol = epsilon.small * 1000
-        atol = epsilon.small
-        if VER == 0:
-            n_int = 1000
-            factr = 1e5
-            pgtol = 1e-7
-        elif VER == 1:
-            n_int = 100
-            factr = 1e6
-            pgtol = 1e-3
-        elif VER == 2:
-            n_int = 500
-            factr = 1e6
-            pgtol = 1e-3
-        elif VER == 3:
-            n_int = 500
-            factr = 1e6
-            pgtol = 1e-3
-            rtol = epsilon.small * 1000 * 2
-            atol = epsilon.small * 2
-        method = GLMMExpFam(
-            _binomial_y(y.values, lik),
-            lik,
-            named_to_unamed_matrix(M),
-            QS,
-            n_int=n_int, rtol=rtol, atol=atol)
-        method.fit(verbose=verbose, factr=factr, pgtol=pgtol)
+        method = GLMMExpFam(y, lik, M, QS, n_int=500)
+        method.fit(verbose=verbose, factr=1e6, pgtol=1e-3)
 
     g = method.scale * (1 - method.delta)
     e = method.scale * method.delta
@@ -125,7 +110,6 @@ def estimate(y, lik, K, M=None, verbose=True, VER=0):
 
 
 def _binomial_y(y, lik):
-    # ugly hack, remove this when possible
     if lik == 'binomial':
         return y[:, 0], y[:, 1]
     return y.ravel()
