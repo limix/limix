@@ -8,10 +8,14 @@ from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
 
 from ..nice_arrays import (
-    covariates_process, default_candidates_index, default_covariates_index,
-    infer_samples_index, kinship_process, normalise_candidates_matrix,
-    normalise_covariates_matrix, normalise_kinship_matrix,
-    normalise_phenotype_matrix, phenotype_process)
+    covariates_process, default_covariates_index, kinship_process,
+    normalise_candidates_matrix, normalise_covariates_matrix,
+    normalise_kinship_matrix, normalise_phenotype_matrix, phenotype_process)
+from ..dataframe import infer_samples_index, make_sure_phenotype_dataframe
+from ..dataframe import make_sure_covariates_dataframe
+from ..dataframe import make_sure_candidates_dataframe
+from ..dataframe import make_sure_kinship_dataframe
+from ..likelihood import normalise_extreme_values
 from .model import QTLModel
 from .util import print_analysis
 
@@ -126,53 +130,30 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     if M is None:
         M = ones((nsamples, 1))
 
-    arrs = [y, G, M]
-    if K is not None:
-        arrs.append(K)
-
+    arrs = [a for a in [y, G, M, K] if a is not None]
     samples_index = infer_samples_index(arrs)
     if len(samples_index) == 0:
         raise ValueError("Could not infer an index for samples."
                          " Please, check if the passed arrays are in order.")
 
-    if hasattr(y, 'index'):
-        y = y.loc[y.index.intersection(samples_index)]
-    else:
-        y = DataFrame(data=y, index=samples_index.copy())
-
-    if hasattr(G, 'index'):
-        G = G.loc[G.index.intersection(samples_index)]
-    else:
-        G = DataFrame(
-            data=G,
-            index=samples_index.copy(),
-            columns=default_candidates_index(G.shape[1]))
-
-    if hasattr(M, 'index'):
-        M = M.loc[M.index.intersection(samples_index)]
-    else:
-        M = DataFrame(
-            data=M,
-            index=samples_index.copy(),
-            columns=default_covariates_index(M.shape[1]))
+    y = make_sure_phenotype_dataframe(y, samples_index)
+    G = make_sure_candidates_dataframe(G, samples_index)
+    M = make_sure_covariates_dataframe(M, samples_index)
 
     if K is not None:
-        if hasattr(K, 'index'):
-            K = K.loc[K.index.intersection(samples_index), :]
-            K = K.loc[:, K.columns.intersection(samples_index)]
-        else:
-            K = DataFrame(
-                data=K,
-                index=samples_index.copy(),
-                columns=samples_index.copy())
+        K = make_sure_kinship_dataframe(K, samples_index)
 
-    y = normalise_phenotype_matrix(y, lik)
+    y = normalise_extreme_values(y, lik)
     if K is not None:
         K = normalise_kinship_matrix(K)
 
+    import pdb
+    pdb.set_trace()
     G = normalise_candidates_matrix(G)
-    M = covariates_process(M, nsamples)
-    M = normalise_covariates_matrix(M)
+    # M = covariates_process(M, nsamples)
+    import pdb
+    pdb.set_trace()
+    # M = normalise_covariates_matrix(M)
 
     y = phenotype_process(lik, y)
 

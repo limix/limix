@@ -13,7 +13,7 @@ from ..nice_arrays import (covariates_process, named_to_unamed_matrix,
 from ..qc import gower_norm
 from ..util import Timer
 from ..util.npy_dask import asarray
-from ..likelihood import conformation
+from ..likelihood import normalise_extreme_values
 
 
 def estimate(y, lik, K, M=None, verbose=True):
@@ -75,7 +75,7 @@ def estimate(y, lik, K, M=None, verbose=True):
         M = ones((y.shape[0], 1))
 
     y = phenotype_process(lik, y)
-    conformation(y, lik)
+    normalise_extreme_values(y, lik)
 
     K = asarray(K)
     M = covariates_process(M, K.shape[0])

@@ -106,11 +106,10 @@ def _index_set_intersection(arrs):
     return index_set
 
 
-def _equal_index_if_possible(index_set, arrs):
+def _same_order_if_possible(index_set, arrs):
     for a in arrs:
-        if hasattr(a, 'index'):
-            if index_set == set(a.index):
-                return a.index.copy()
+        if index_set == set(a.index):
+            return a.index.copy()
     return Index(index_set)
 
 
@@ -137,9 +136,7 @@ def infer_samples_index(arrs):
     else:
         index_set = default_candidates_index(arrs[0].shape[0])
 
-    # if len(index_set) == 0:
-    #     index_set = default_candidates_index(arrs[0].shape[0])
-    return _equal_index_if_possible(index_set, arrs)
+    return _same_order_if_possible(index_set, iarrs)
 
 
 def assert_compatible_samples_arrays(arrs):
@@ -169,3 +166,46 @@ def assert_compatible_samples_arrays(arrs):
         return all([all(index == a.index) for a in iarrs])
 
     return False
+
+
+def make_sure_phenotype_dataframe(y, samples_index):
+    if _isindexed(y):
+        y = y.loc[y.index.intersection(samples_index)]
+    else:
+        y = DataFrame(data=y, index=samples_index.copy())
+
+    return y
+
+
+def make_sure_candidates_dataframe(G, samples_index):
+    if _isindexed(G):
+        G = G.loc[G.index.intersection(samples_index)]
+    else:
+        i = samples_index.copy()
+        colnames = default_candidates_index(G.shape[1])
+        G = DataFrame(data=G, index=i, columns=colnames)
+
+    return G
+
+
+def make_sure_covariates_dataframe(M, samples_index):
+    if _isindexed(M):
+        M = M.loc[M.index.intersection(samples_index)]
+    else:
+        i = samples_index.copy()
+        colnames = default_covariates_index(M.shape[1])
+        M = DataFrame(data=M, index=i, columns=colnames)
+
+    return M
+
+
+def make_sure_kinship_dataframe(K, samples_index):
+    if _isindexed(K):
+        K = K.loc[K.index.intersection(samples_index), :]
+        K = K.loc[:, K.columns.intersection(samples_index)]
+    else:
+        rows = samples_index.copy()
+        cols = samples_index.copy()
+        K = DataFrame(data=K, index=rows, columns=cols)
+
+    return K
