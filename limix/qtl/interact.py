@@ -10,7 +10,7 @@ from ..nice_arrays import (assure_named_columns, covariates_process,
 from .util import print_analysis
 
 
-def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
+def iscan(G, Ginter, y, lik, inter, K=None, M=None, verbose=True):
     r"""Interaction single-variant association testing via mixed models.
 
     It supports Normal (linear mixed model), Bernoulli, Binomial, and Poisson
@@ -27,6 +27,9 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
     ----------
     G : array_like
         `n` individuals by `s` candidate markers.
+    Ginter : array_like
+        `n` individuals by `s` candidate markers. used for interaction.
+        Can be none, in which case G is used.
     y : tuple, array_like
         Either a tuple of two arrays of `n` individuals each (Binomial
         phenotypes) or an array of `n` individuals (Normal, Poisson, or
