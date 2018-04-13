@@ -10,7 +10,7 @@ from ..nice_arrays import (assure_named_columns, covariates_process,
 from .util import print_analysis
 
 
-def iscan(G, Ginter, y, lik, inter, K=None, M=None, verbose=True):
+def iscan(G, y, lik, inter, Ginter=None, K=None, M=None, verbose=True):
     r"""Interaction single-variant association testing via mixed models.
 
     It supports Normal (linear mixed model), Bernoulli, Binomial, and Poisson
@@ -27,9 +27,6 @@ def iscan(G, Ginter, y, lik, inter, K=None, M=None, verbose=True):
     ----------
     G : array_like
         `n` individuals by `s` candidate markers.
-    Ginter : array_like
-        `n` individuals by `s` candidate markers. used for interaction.
-        Can be none, in which case G is used.
     y : tuple, array_like
         Either a tuple of two arrays of `n` individuals each (Binomial
         phenotypes) or an array of `n` individuals (Normal, Poisson, or
@@ -38,6 +35,9 @@ def iscan(G, Ginter, y, lik, inter, K=None, M=None, verbose=True):
         Sample likelihood describing the residual distribution.
     inter : array_like
         `n` individuals by `i` interaction factors.
+    Ginter : array_like
+        `n` individuals by `s` candidate markers. used for interaction.
+        Defaults to ``None``, in which case G is used.
     K : array_like, optional
         `n` by `n` covariance matrix (e.g., kinship coefficients).
         Set to ``None`` for a generalised linear model without random effects.
@@ -106,7 +106,10 @@ def iscan(G, Ginter, y, lik, inter, K=None, M=None, verbose=True):
         SNP09  0.64945  0.67185  0.76600
     """
     lik = lik.lower()
-
+    
+    if Ginter is None:
+        Ginter = G
+    
     if verbose:
         print_analysis(lik, "Interaction QTL analysis")
 
@@ -129,7 +132,7 @@ def iscan(G, Ginter, y, lik, inter, K=None, M=None, verbose=True):
     y = _binomial_y(y.values, 'normal')
 
     if lik == 'normal':
-        model = _perform_lmm(y, M, QS, G, inter, mixed, verbose)
+        model = _perform_lmm(y, M, QS, G, inter, Ginter, mixed, verbose)
     else:
         raise NotImplementedError
 
@@ -139,7 +142,7 @@ def iscan(G, Ginter, y, lik, inter, K=None, M=None, verbose=True):
     return model
 
 
-def _perform_lmm(y, M, QS, G, inter, mixed, verbose):
+def _perform_lmm(y, M, QS, G, inter, Ginter, mixed, verbose):
     from pandas import DataFrame, Series
 
     alt_lmls = dict()
@@ -148,8 +151,8 @@ def _perform_lmm(y, M, QS, G, inter, mixed, verbose):
     null_lmls = []
     interv = inter.values
 
-    for c in tqdm(G.columns, disable=not verbose):
-        g = G[c].values[:, newaxis]
+    for c in tqdm(Ginter.columns, disable=not verbose):
+        g = Ginter[c].values[:, newaxis]
         X1 = g * interv
 
         covariates = concatenate((M.values, g), axis=1)
