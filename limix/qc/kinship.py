@@ -16,6 +16,31 @@ def gower_norm(K, out=None):
 
     It works well with `Dask`_ array as log as ``out`` is ``None``.
 
+    Notes
+    -----
+    The reasoning of the scaling is as follows.
+    Let :math:`\mathbf g` be a vector of :math:`n` independent samples and let
+    :math:`\mathrm C` be the Gower's centering matrix.
+    The unbiased variance estimator is
+
+    .. math::
+        v = \sum_i \frac{(g_i-\overline g)^2}{n-1}
+        =\frac{\mathrm{Tr}[(\mathbf g - \overline g\mathbf 1)^t(\mathbf g - \overline g\mathbf 1)]}{n-1}
+        = \frac{\mathrm{Tr}[\mathrm C\mathbf g\mathbf g^t\mathrm C]}{n-1}
+
+    Let :math:`\mathrm K` be the covariance matrix of :math:`\mathbf g`.
+    The expectation of the unbiased variance estimator is
+
+    .. math::
+
+        \mathbb E[v] =
+        \frac{\mathrm{Tr}[\mathrm C\mathbb E[\mathbf g\mathbf g^t]\mathrm C]}{n-1}
+        = \frac{\mathrm{Tr}[\mathrm C\mathrm K\mathrm C]}{n-1}
+
+    assuming that :math:`\mathbb E[g_i]=0`.
+    We thus divide :math:`\mathrm K` by :math:`\mathbb E[v]` to achieve the
+    desired normalisation.
+
     Parameters
     ----------
     K : array_like

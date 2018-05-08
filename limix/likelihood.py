@@ -25,3 +25,5 @@ def normalise_extreme_values(y, likelihood):
         _poisson_normalise_extreme_values(y)
     elif likelihood == 'binomial':
         _binomial_normalise_extreme_values(y)
+
+    return y

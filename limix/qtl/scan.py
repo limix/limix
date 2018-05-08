@@ -147,32 +147,32 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     if K is not None:
         K = normalise_kinship_matrix(K)
 
-    import pdb
-    pdb.set_trace()
-    G = normalise_candidates_matrix(G)
-    # M = covariates_process(M, nsamples)
-    import pdb
-    pdb.set_trace()
-    # M = normalise_covariates_matrix(M)
+    # import pdb
+    # pdb.set_trace()
+    # G = normalise_candidates_matrix(G)
+    # # M = covariates_process(M, nsamples)
+    # import pdb
+    # pdb.set_trace()
+    # # M = normalise_covariates_matrix(M)
 
-    y = phenotype_process(lik, y)
+    # y = phenotype_process(lik, y)
 
     if not npall(isfinite(G)):
-        raise ValueError("Variant values must be finite.")
+        raise ValueError("Candidate values must be finite.")
 
     mixed = K is not None
 
     indices = _intersect_indices(G, y, K, M)
 
-    G = G.loc[indices, :]
-    y = y.loc[indices, :]
+    M = M.loc[indices]
+    G = G.loc[indices]
+    y = y.loc[indices]
 
     if K is not None:
-        K = K.loc[indices, :]
-        K = K.loc[:, indices]
+        K = K.loc[indices, :].loc[:, indices]
 
-    M = M.loc[indices, :]
-
+    import pdb
+    pdb.set_trace()
     K, QS = kinship_process(K, nsamples, verbose)
 
     if lik == 'normal':
