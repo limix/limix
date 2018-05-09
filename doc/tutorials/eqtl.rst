@@ -1,5 +1,3 @@
-.. _ipython_directive:
-
 eQTL
 ^^^^
 
@@ -16,12 +14,13 @@ deprecated.
 Importing limix
 ---------------
 
-.. ipython::
+.. nbplot::
 
-    In [1]: import limix
+    >>> import limix
+    >>> import matplotlib.pyplot as plt
 
-Downloading the data
---------------------
+Downloading data
+----------------
 
 We are going to use a HDF5 file containg phenotype and genotyped data from
 a remote repository.
@@ -29,23 +28,16 @@ Limix provides some handy utilities to perform common command line tasks,
 like as downloading and extracting files.
 However, feel free to use whatever method you prefer.
 
-.. ipython::
+.. nbplot::
 
-    In [2]: url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
-
-    In [3]: limix.download(url, verbose=False)
-
-    @doctest
-    In [4]: print(limix.filehash("smith08.hdf5.bz2"))
+    >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
+    >>> limix.download(url, verbose=False)
+    >>> print(limix.filehash("smith08.hdf5.bz2"))
     aecd5ebabd13ed2e38419c11d116e8d582077212efb37871a50c3a08fadb2ee1
-
-    In [5]: limix.extract("smith08.hdf5.bz2", verbose=False)
-
-    In [6]: print(limix.filehash("smith08.hdf5"))
+    >>> limix.extract("smith08.hdf5.bz2", verbose=False)
+    >>> print(limix.filehash("smith08.hdf5"))
     4648f596249ee2e3e60b9cd024d6f1af257079d39b2bff5192407a30de989266
-
-    @doctest
-    In [7]: limix.io.hdf5.see_hdf5("smith08.hdf5", verbose=False)
+    >>> limix.io.hdf5.see_hdf5("smith08.hdf5", verbose=False)
     /
       +--genotype
       |  +--col_header
@@ -67,27 +59,22 @@ However, feel free to use whatever method you prefer.
          +--matrix [float64, (109, 10986)]
          +--row_header
             +--sample_ID [int64, (109,)]
-
-    In [8]: data = limix.io.read_hdf5_limix("smith08.hdf5")
-
-    @doctest
-    In [9]: print(data['phenotype']['row_header'].head())
+    >>> data = limix.io.read_hdf5_limix("smith08.hdf5")
+    >>> print(data['phenotype']['row_header'].head())
        sample_ID  i
     0          0  0
     1          1  1
     2          2  2
     3          3  3
     4          4  4
-
-    @doctest
-    In [10]: print(data['phenotype']['col_header'].head())
+    >>> print(data['phenotype']['col_header'].head())
        environment  gene_ID gene_chrom  gene_end  gene_start gene_strand  \
     0          0.0  YOL161C         15     11548       11910           C
     1          0.0  YJR107W         10    628319      627333           W
     2          0.0  YPL270W         16     32803       30482           W
     3          0.0  YGR256W          7   1006108     1004630           W
     4          0.0  YDR518W          4   1480153     1478600           W
-
+    <BLANKLINE>
       phenotype_ID  i
     0    YOL161C:0  0
     1    YJR107W:0  1
@@ -101,25 +88,19 @@ Selecting gene YBR115C under the glucose condition
 Query for a specific phenotype, select the phenotype itself, and plot it.
 The glucose condition is given by the environment ``0``.
 
-.. ipython::
+.. nbplot::
 
-    In [11]: header = data['phenotype']['col_header']
-
-    In [12]: query = "gene_ID=='YBR115C' and environment==0"
-
-    In [13]: idx = header.query(query).i.values
-
-    In [14]: y = data['phenotype']['matrix'][:, idx].ravel()
-
-    @savefig yeast_pheno01.png width=5in
-    In [15]: limix.plot.plot_normal(y);
-
+    >>> header = data['phenotype']['col_header']
+    >>> query = "gene_ID=='YBR115C' and environment==0"
+    >>> idx = header.query(query).i.values
+    >>> y = data['phenotype']['matrix'][:, idx].ravel()
+    >>> limix.plot.normal(y)
 
 This will clean up the figure for the next plot.
 
-.. ipython::
+.. nbplot::
 
-    In [16]: limix.plot.clf()
+    >>> plt.clf()
 
 Genetic relatedness matrix
 --------------------------
@@ -127,16 +108,12 @@ Genetic relatedness matrix
 The genetic relatedness will be determined by the inner-product of SNP
 readings between individuals, and the result will be visualised via heatmap.
 
-.. ipython::
+.. nbplot::
 
-    In [17]: G = data['genotype']['matrix']
-
-    In [18]: K = limix.stats.linear_kinship(G, verbose=False)
-
-    @savefig yeast_kinship01.png width=5in
-    In [19]: limix.plot.plot_kinship(K);
-
-    In [20]: limix.plot.clf()
+    >>> G = data['genotype']['matrix']
+    >>> K = limix.stats.linear_kinship(G, verbose=False)
+    >>> limix.plot.kinship(K)
+    >>> plt.clf()
 
 Univariate association test with linear mixed model
 ---------------------------------------------------
@@ -151,27 +128,21 @@ name and base-pair position.
 However, it is often the case that SNP IDs are provided along with the
 data, which can naturally be used for naming those candidates.
 
-.. ipython::
+.. nbplot::
 
-    In [21]: print(data['genotype']['col_header'].head())
+    >>> print(data['genotype']['col_header'].head())
     chrom   pos  pos_cum  i
     0      1   483      483  0
     1      1   484      484  1
     2      1  3220     3220  2
     3      1  3223     3223  3
     4      1  3232     3232  4
-
-    In [22]: from pandas import DataFrame
-
-    In [23]: chrom = data['genotype']['col_header']['chrom']
-
-    In [24]: pos = data['genotype']['col_header']['pos']
-
-    In [25]: candidate_ids = ["c{}_p{}".format(c, p) for c, p in zip(chrom, pos)]
-
-    In [26]: G = DataFrame(G, columns=candidate_ids)
-
-    In [27]: print(G.head())
+    >>> from pandas import DataFrame
+    >>> chrom = data['genotype']['col_header']['chrom']
+    >>> pos = data['genotype']['col_header']['pos']
+    >>> candidate_ids = ["c{}_p{}".format(c, p) for c, p in zip(chrom, pos)]
+    >>> G = DataFrame(G, columns=candidate_ids)
+    >>> print(G.head())
     c1_p483  c1_p484  c1_p3220  c1_p3223  c1_p3232  c1_p3235  c1_p3244  \
     0      1.0      1.0       1.0       1.0       1.0       1.0       1.0
     1      1.0      0.0       1.0       1.0       1.0       1.0       1.0
@@ -206,11 +177,10 @@ As you can see, we now have a pandas data frame ``G`` that keeps the candidate
 identifications together with the actual allele read.
 This data frame can be readily used to perform association scan.
 
-.. ipython::
+.. nbplot::
 
-    In [28]: qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
-
-    In [29]: print(qtl)
+    >>> qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
+    >>> print(qtl)
     Variants
           effsizes  effsizes_se       pvalues
     count  2956.000000  2956.000000  2.956000e+03
@@ -231,19 +201,17 @@ Printing the result of an association scan will show a summary of the results.
 Inspecting the p-values and effect-sizes are now easier because candidate
 names are kept together with their corresponding statistics.
 
-.. ipython::
+.. nbplot::
 
-    In [30]: sorted_pvs = qtl.variant_pvalues.sort_values()
-
-    In [31]: print(sorted_pvs.head())
+    >>> sorted_pvs = qtl.variant_pvalues.sort_values()
+    >>> print(sorted_pvs.head())
     c2_p477206    2.583307e-20
     c2_p479161    1.250239e-13
     c2_p479164    1.250239e-13
     c2_p479166    1.250239e-13
     c2_p480009    9.086078e-13
     dtype: float64
-
-    In [32]: print(qtl.variant_effsizes.loc[sorted_pvs.index].head())
+    >>> print(qtl.variant_effsizes.loc[sorted_pvs.index].head())
     c2_p477206    4.198421
     c2_p479161    3.839388
     c2_p479164    3.839388
@@ -254,21 +222,13 @@ names are kept together with their corresponding statistics.
 A Manhattan plot now automaticallt tags the significant associations using
 their names.
 
-.. ipython::
+.. nbplot::
 
-    In [33]: pvs = qtl.variant_pvalues
-
-    In [34]: pv = pvs.values
-
-    In [35]: chrom = [i.split('_')[0][1:] for i, _ in pvs.iteritems()]
-
-    In [36]: pos = [int(i.split('_')[1][1:]) for i, _ in pvs.iteritems()]
-
-    In [37]: label = pvs.index.values
-
-    In [38]: df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos, label=label))
-
-    @savefig yeast_manhattan01.png width=7in
-    In [39]: limix.plot.plot_manhattan(df);
-
-    In [40]: limix.plot.clf()
+    >>> pvs = qtl.variant_pvalues
+    >>> pv = pvs.values
+    >>> chrom = [i.split('_')[0][1:] for i, _ in pvs.iteritems()]
+    >>> pos = [int(i.split('_')[1][1:]) for i, _ in pvs.iteritems()]
+    >>> label = pvs.index.values
+    >>> df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos, label=label))
+    >>> limix.plot.manhattan(df);
+    >>> plt.clf()

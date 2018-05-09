@@ -20,10 +20,11 @@ the following functions and classes:
 .. _limix-plot: https://limix-plot.readthedocs.io/
 """
 from __future__ import absolute_import as _
+from matplotlib import pyplot
 from limix_plot import (kinship, qqplot, box_aspect, image, manhattan, pca,
                         normal, power, ConsensusCurve, load_dataset)
 
 __all__ = [
     'kinship', 'qqplot', 'box_aspect', 'image', 'manhattan', 'pca', 'normal',
-    'power', 'ConsensusCurve', 'load_dataset'
+    'power', 'ConsensusCurve', 'load_dataset', 'pyplot'
 ]

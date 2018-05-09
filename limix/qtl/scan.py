@@ -171,8 +171,6 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     if K is not None:
         K = K.loc[indices, :].loc[:, indices]
 
-    import pdb
-    pdb.set_trace()
     K, QS = kinship_process(K, nsamples, verbose)
 
     if lik == 'normal':
