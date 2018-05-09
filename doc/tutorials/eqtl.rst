@@ -2,10 +2,10 @@ eQTL
 ^^^^
 
 This tutorial illustrates the use of limix to analyse expression datasets.
-For this illustration, we consider gene expression levels from a yeast genetics
-study with freely available data . These data span 109 individuals with 2,956
-marker SNPs and expression levels for 5,493 in glucose and ethanol growth media
-respectively.
+We consider gene expression levels from a yeast genetics
+study with freely available data.
+This data set span 109 individuals with 2,956 marker SNPs and expression
+levels for 5,493 in glucose and ethanol growth media respectively.
 It is based on the `eQTL basics tutorial`_ of limix 1.0, which is now
 deprecated.
 
@@ -17,7 +17,6 @@ Importing limix
 .. nbplot::
 
     >>> import limix
-    >>> import matplotlib.pyplot as plt
 
 Downloading data
 ----------------
@@ -35,8 +34,6 @@ However, feel free to use whatever method you prefer.
     >>> print(limix.filehash("smith08.hdf5.bz2"))
     aecd5ebabd13ed2e38419c11d116e8d582077212efb37871a50c3a08fadb2ee1
     >>> limix.extract("smith08.hdf5.bz2", verbose=False)
-    >>> print(limix.filehash("smith08.hdf5"))
-    4648f596249ee2e3e60b9cd024d6f1af257079d39b2bff5192407a30de989266
     >>> limix.io.hdf5.see_hdf5("smith08.hdf5", verbose=False)
     /
       +--genotype
@@ -94,7 +91,7 @@ The glucose condition is given by the environment ``0``.
     >>> query = "gene_ID=='YBR115C' and environment==0"
     >>> idx = header.query(query).i.values
     >>> y = data['phenotype']['matrix'][:, idx].ravel()
-    >>> limix.plot.normal(y)
+    >>> limix.plot.normal(y) #doctest: +SKIP
 
 Genetic relatedness matrix
 --------------------------
@@ -106,8 +103,7 @@ readings between individuals, and the result will be visualised via heatmap.
 
     >>> G = data['genotype']['matrix']
     >>> K = limix.stats.linear_kinship(G, verbose=False)
-    >>> plt.clf()
-    >>> limix.plot.kinship(K)
+    >>> limix.plot.kinship(K) #doctest: +SKIP
 
 Univariate association test with linear mixed model
 ---------------------------------------------------
@@ -124,6 +120,7 @@ data, which can naturally be used for naming those candidates.
 
 .. nbplot::
 
+    >>> from pandas import DataFrame
     >>> print(data['genotype']['col_header'].head())
     chrom   pos  pos_cum  i
     0      1   483      483  0
@@ -131,7 +128,6 @@ data, which can naturally be used for naming those candidates.
     2      1  3220     3220  2
     3      1  3223     3223  3
     4      1  3232     3232  4
-    >>> from pandas import DataFrame
     >>> chrom = data['genotype']['col_header']['chrom']
     >>> pos = data['genotype']['col_header']['pos']
     >>> candidate_ids = ["c{}_p{}".format(c, p) for c, p in zip(chrom, pos)]
@@ -176,7 +172,7 @@ This data frame can be readily used to perform association scan.
     >>> qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
     >>> print(qtl)
     Variants
-          effsizes  effsizes_se       pvalues
+              effsizes  effsizes_se       pvalues
     count  2956.000000  2956.000000  2.956000e+03
     mean      0.129739     0.589186  5.605584e-01
     std       0.550630     0.114092  2.778524e-01
@@ -187,10 +183,8 @@ This data frame can be readily used to perform association scan.
     max       4.198421     0.963061  9.996669e-01
     <BLANKLINE>
     Covariate effect sizes for the null model
-    offset
-    0.012073
-
-Printing the result of an association scan will show a summary of the results.
+     covariate0
+       0.012073
 
 Inspecting the p-values and effect-sizes are now easier because candidate
 names are kept together with their corresponding statistics.
@@ -213,16 +207,12 @@ names are kept together with their corresponding statistics.
     c2_p480009    3.857026
     dtype: float64
 
-A Manhattan plot now automaticallt tags the significant associations using
-their names.
+A Manhattan plot can help understand the result.
 
 .. nbplot::
 
-    >>> pvs = qtl.variant_pvalues
-    >>> pv = pvs.values
-    >>> chrom = [i.split('_')[0][1:] for i, _ in pvs.iteritems()]
-    >>> pos = [int(i.split('_')[1][1:]) for i, _ in pvs.iteritems()]
-    >>> label = pvs.index.values
-    >>> df = DataFrame(data=dict(pv=pv, chr=chrom, pos=pos, label=label))
-    >>> plt.clf()
-    >>> limix.plot.manhattan(df);
+    >>> pv = qtl.variant_pvalues
+    >>> chrom = [i.split('_')[0][1:] for i, _ in pv.iteritems()]
+    >>> pos = [int(i.split('_')[1][1:]) for i, _ in pv.iteritems()]
+    >>> df = DataFrame(data=dict(pv=pv, chr=chrom, pos=pos))
+    >>> limix.plot.manhattan(df) #doctest: +SKIP

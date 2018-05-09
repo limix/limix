@@ -35,7 +35,7 @@ from .testit import test
 from .threads import get_max_nthreads, set_max_nthreads
 from .util import download, extract, filehash
 
-__version__ = "1.2.0"
+__version__ = "2.0.0"
 
 __all__ = [
     "__version__", "test", 'io', 'plot', 'qc', 'qtl', 'stats', 'util', 'her',
