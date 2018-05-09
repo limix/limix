@@ -96,12 +96,6 @@ The glucose condition is given by the environment ``0``.
     >>> y = data['phenotype']['matrix'][:, idx].ravel()
     >>> limix.plot.normal(y)
 
-This will clean up the figure for the next plot.
-
-.. nbplot::
-
-    >>> plt.clf()
-
 Genetic relatedness matrix
 --------------------------
 
@@ -112,8 +106,8 @@ readings between individuals, and the result will be visualised via heatmap.
 
     >>> G = data['genotype']['matrix']
     >>> K = limix.stats.linear_kinship(G, verbose=False)
-    >>> limix.plot.kinship(K)
     >>> plt.clf()
+    >>> limix.plot.kinship(K)
 
 Univariate association test with linear mixed model
 ---------------------------------------------------
@@ -229,6 +223,6 @@ their names.
     >>> chrom = [i.split('_')[0][1:] for i, _ in pvs.iteritems()]
     >>> pos = [int(i.split('_')[1][1:]) for i, _ in pvs.iteritems()]
     >>> label = pvs.index.values
-    >>> df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos, label=label))
-    >>> limix.plot.manhattan(df);
+    >>> df = DataFrame(data=dict(pv=pv, chr=chrom, pos=pos, label=label))
     >>> plt.clf()
+    >>> limix.plot.manhattan(df);
