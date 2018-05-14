@@ -4,9 +4,9 @@ from tqdm import tqdm
 
 from glimix_core.lmm import LMM
 
-from .model import IQTLModel
 from ..nice_arrays import (assure_named_columns, covariates_process,
                            kinship_process, phenotype_process)
+from .model import IQTLModel
 from .util import print_analysis
 
 
@@ -91,16 +91,16 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
         >>> with option_context('precision', 5):
         ...     print(model.variant_pvalues)
                inter00  inter01  inter02
-        SNP00  0.81180  0.63035  0.61240
-        SNP01  0.02847  0.64437  0.82671
-        SNP02  0.56817  0.72882  0.23928
-        SNP03  0.53793  0.64628  0.86144
-        SNP04  0.13858  0.39475  0.28650
-        SNP05  0.06722  0.56295  0.39859
-        SNP06  0.12739  0.62219  0.68084
-        SNP07  0.32834  0.96894  0.67628
+        SNP00  0.81179  0.63036  0.61238
+        SNP01  0.02847  0.64436  0.82670
+        SNP02  0.56818  0.72880  0.23926
+        SNP03  0.53791  0.64630  0.86148
+        SNP04  0.13858  0.39474  0.28650
+        SNP05  0.06722  0.56295  0.39860
+        SNP06  0.12739  0.62220  0.68084
+        SNP07  0.32834  0.96894  0.67626
         SNP08  0.28341  0.29361  0.56248
-        SNP09  0.64945  0.67185  0.76600
+        SNP09  0.64945  0.67183  0.76601
     """
     lik = lik.lower()
 

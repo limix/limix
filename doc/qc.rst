@@ -27,7 +27,7 @@ Impute
 Kinship
 ^^^^^^^
 
-.. autofunction:: limix.qc.gower_norm
+.. autofunction:: limix.qc.normalise_covariance
 
 Normalisation
 ^^^^^^^^^^^^^

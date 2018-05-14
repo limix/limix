@@ -91,7 +91,7 @@ The glucose condition is given by the environment ``0``.
     >>> query = "gene_ID=='YBR115C' and environment==0"
     >>> idx = header.query(query).i.values
     >>> y = data['phenotype']['matrix'][:, idx].ravel()
-    >>> limix.plot.normal(y) #doctest: +SKIP
+    >>> limix.plot.normal(y) # doctest: +SKIP
 
 Genetic relatedness matrix
 --------------------------
@@ -103,7 +103,7 @@ readings between individuals, and the result will be visualised via heatmap.
 
     >>> G = data['genotype']['matrix']
     >>> K = limix.stats.linear_kinship(G, verbose=False)
-    >>> limix.plot.kinship(K) #doctest: +SKIP
+    >>> limix.plot.kinship(K) # doctest: +SKIP
 
 Univariate association test with linear mixed model
 ---------------------------------------------------
@@ -170,7 +170,7 @@ This data frame can be readily used to perform association scan.
 .. nbplot::
 
     >>> qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
-    >>> print(qtl)
+    >>> print(qtl) # doctest: +FLOAT_CMP
     Variants
               effsizes  effsizes_se       pvalues
     count  2956.000000  2956.000000  2.956000e+03
@@ -191,15 +191,15 @@ names are kept together with their corresponding statistics.
 
 .. nbplot::
 
-    >>> sorted_pvs = qtl.variant_pvalues.sort_values()
-    >>> print(sorted_pvs.head())
+    >>> pv = qtl.variant_pvalues.sort_values()
+    >>> print(pv.head()) # doctest: +FLOAT_CMP
     c2_p477206    2.583307e-20
     c2_p479161    1.250239e-13
     c2_p479164    1.250239e-13
     c2_p479166    1.250239e-13
     c2_p480009    9.086078e-13
     dtype: float64
-    >>> print(qtl.variant_effsizes.loc[sorted_pvs.index].head())
+    >>> print(qtl.variant_effsizes.loc[pv.index].head()) # doctest: +FLOAT_CMP
     c2_p477206    4.198421
     c2_p479161    3.839388
     c2_p479164    3.839388
@@ -215,4 +215,4 @@ A Manhattan plot can help understand the result.
     >>> chrom = [i.split('_')[0][1:] for i, _ in pv.iteritems()]
     >>> pos = [int(i.split('_')[1][1:]) for i, _ in pv.iteritems()]
     >>> df = DataFrame(data=dict(pv=pv, chr=chrom, pos=pos))
-    >>> limix.plot.manhattan(df) #doctest: +SKIP
+    >>> limix.plot.manhattan(df) # doctest: +SKIP

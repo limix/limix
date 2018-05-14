@@ -1,19 +1,19 @@
 from __future__ import division
 
-from numpy import pi, var, ones
+from numpy import all as npall
 from numpy import asarray as npy_asarray
+from numpy import isfinite, ones, pi, var
 
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
+from ..dataframe import (infer_samples_index, make_sure_covariates_dataframe,
+                         make_sure_kinship_dataframe,
+                         make_sure_phenotype_dataframe)
 from ..fprint import oprint
-from ..nice_arrays import (covariates_process, named_to_unamed_matrix,
-                           phenotype_process)
-from ..qc import gower_norm
-from ..util import Timer
-from ..util.npy_dask import asarray
 from ..likelihood import normalise_extreme_values
+from ..qc import normalise_covariance
 
 
 def estimate(y, lik, K, M=None, verbose=True):
@@ -24,11 +24,11 @@ def estimate(y, lik, K, M=None, verbose=True):
 
     Parameters
     ----------
-    y : tuple, array_like
+    y : array_like
         Either a tuple of two arrays of `N` individuals each (Binomial
         phenotypes) or an array of `N` individuals (Normal, Poisson, or
         Bernoulli phenotypes). It does not support missing values yet.
-    lik : {'normal', 'bernoulli', 'binomial', 'poisson'}
+    lik : 'normal', 'bernoulli', 'binomial', 'poisson'
         Sample likelihood describing the residual distribution.
     K : array_like
         `N` by `N` covariance matrix (e.g., kinship coefficients).
@@ -61,39 +61,52 @@ def estimate(y, lik, K, M=None, verbose=True):
         >>> print('%.2f' % estimate(y, 'poisson', K, verbose=False))
         0.18
     """
-
     if verbose:
         lik_name = lik.lower()
         lik_name = lik_name[0].upper() + lik_name[1:]
         analysis_name = "Heritability estimation"
         oprint("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
 
-    if isinstance(y, (tuple, list)):
-        y = npy_asarray(y, float).T
+    y = npy_asarray(y, float).T
 
     if M is None:
         M = ones((y.shape[0], 1))
 
-    y = phenotype_process(lik, y)
-    normalise_extreme_values(y, lik)
+    arrs = [a for a in [y, M, K] if a is not None]
+    samples_index = infer_samples_index(arrs)
+    if len(samples_index) == 0:
+        raise ValueError("Could not infer an index for samples."
+                         " Please, check if the passed arrays are in order.")
 
-    K = asarray(K)
-    M = covariates_process(M, K.shape[0])
-    K = gower_norm(K)
+    y = make_sure_phenotype_dataframe(y, samples_index)
+    M = make_sure_covariates_dataframe(M, samples_index)
 
-    desc = "Eigen decomposition of the covariance matrix..."
-    with Timer(desc=desc, disable=not verbose):
+    if K is not None:
+        K = normalise_covariance(K)
+        K = make_sure_kinship_dataframe(K, samples_index)
+
+    y = normalise_extreme_values(y, lik)
+    if K is not None:
+        K = make_sure_kinship_dataframe(K, samples_index)
+
+    indices = _intersect_indices(y, K, M)
+
+    M = M.loc[indices]
+    y = y.loc[indices]
+
+    if K is not None:
+        K = K.loc[indices, :].loc[:, indices]
+        if not npall(isfinite(K)):
+            raise ValueError("Kinship matrix contain non-finite values.")
         QS = economic_qs(K)
-
-    lik = lik.lower()
-    M = named_to_unamed_matrix(M)
-    y = _binomial_y(y.values, lik)
+    else:
+        QS = None
 
     if lik == 'normal':
-        method = LMM(y, M, QS)
+        method = LMM(y.values, M.values, QS)
         method.fit(verbose=verbose)
     else:
-        method = GLMMExpFam(y, lik, M, QS, n_int=500)
+        method = GLMMExpFam(y.values, lik, M.values, QS, n_int=500)
         method.fit(verbose=verbose, factr=1e6, pgtol=1e-3)
 
     g = method.scale * (1 - method.delta)
@@ -113,3 +126,11 @@ def _binomial_y(y, lik):
     if lik == 'binomial':
         return y[:, 0], y[:, 1]
     return y.ravel()
+
+
+def _intersect_indices(y, K, M):
+    indices = y.index.copy()
+    if K is not None:
+        indices = indices.intersection(K.index)
+    indices = indices.intersection(M.index)
+    return indices

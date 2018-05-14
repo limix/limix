@@ -209,3 +209,6 @@ def make_sure_kinship_dataframe(K, samples_index):
         K = DataFrame(data=K, index=rows, columns=cols)
 
     return K
+
+
+# def normalise_kinship_matrix()

@@ -74,39 +74,39 @@ alternative hypotheses to be tested:
     >>> kinship = dot(X, X.T) / float(10)
     >>>
     >>> model = scan(candidates, y, 'normal', kinship, verbose=False)
-    >>> print(model.variant_pvalues)
-    candidate0    0.227217
-    candidate1    0.398150
-    candidate2    0.446014
-    candidate3    0.063058
+    >>> print(model.variant_pvalues) # doctest: +FLOAT_CMP
+    candidate0    0.227204
+    candidate1    0.398132
+    candidate2    0.446016
+    candidate3    0.063060
     dtype: float64
-    >>> print(model.variant_effsizes)
-    candidate0    0.314872
-    candidate1   -0.245231
-    candidate2   -0.182707
-    candidate3    0.511300
+    >>> print(model.variant_effsizes) # doctest: +FLOAT_CMP
+    candidate0    0.314881
+    candidate1   -0.245241
+    candidate2   -0.182706
+    candidate3    0.511296
     dtype: float64
-    >>> print(model.variant_effsizes_se)
+    >>> print(model.variant_effsizes_se) # doctest: +FLOAT_CMP
     candidate0    0.260751
     candidate1    0.290239
     candidate2    0.239749
     candidate3    0.275073
     dtype: float64
-    >>> print(model)
+    >>> print(model) # doctest: +FLOAT_CMP
     Variants
            effsizes  effsizes_se   pvalues
     count  4.000000     4.000000  4.000000
-    mean   0.099559     0.266453  0.283610
-    std    0.371683     0.021492  0.174468
-    min   -0.245231     0.239749  0.063058
-    25%   -0.198338     0.255501  0.186178
-    50%    0.066083     0.267912  0.312684
-    75%    0.363979     0.278864  0.410116
-    max    0.511300     0.290239  0.446014
+    mean   0.099557     0.266453  0.283603
+    std    0.371686     0.021492  0.174466
+    min   -0.245241     0.239749  0.063060
+    25%   -0.198340     0.255500  0.186168
+    50%    0.066087     0.267912  0.312668
+    75%    0.363985     0.278864  0.410103
+    max    0.511296     0.290239  0.446016
     <BLANKLINE>
     Covariate effect sizes for the null model
      covariate0
-      -0.097159
+      -0.097162
 
 The above example prints the estimated p-value, effect size, and standard
 error of the effect size of each variant.
@@ -156,28 +156,28 @@ The matrix ``G`` defines both five alternative hypotheses
     >>> K = dot(G[:, 5:], G[:, 5:].T)
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
-    >>> print(model.variant_pvalues)
+    >>> print(model.variant_pvalues) # doctest: +FLOAT_CMP
     candidate0    0.073782
     candidate1    0.341604
     candidate2    0.595500
     candidate3    0.742581
     candidate4    0.781884
     dtype: float64
-    >>> print(model.variant_effsizes)
+    >>> print(model.variant_effsizes) # doctest: +FLOAT_CMP
     candidate0    2.476867
     candidate1   -1.256291
     candidate2   -0.705998
     candidate3   -0.476524
     candidate4    0.376367
     dtype: float64
-    >>> print(model.variant_effsizes_se)
+    >>> print(model.variant_effsizes_se) # doctest: +FLOAT_CMP
     candidate0    1.385302
     candidate1    1.321020
     candidate2    1.329856
     candidate3    1.450884
     candidate4    1.359392
     dtype: float64
-    >>> print(model)
+    >>> print(model) # doctest: +FLOAT_CMP
     Variants
            effsizes  effsizes_se   pvalues
     count  5.000000     5.000000  5.000000
@@ -213,8 +213,6 @@ Interface
     :members:
 
 """
-
-# TODO: move this documentation to rst
 
 from .interact import iscan
 from .scan import scan

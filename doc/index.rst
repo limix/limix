@@ -10,15 +10,15 @@ Limix's documentation
    :name: mastertoc
    :maxdepth: 2
 
-   install
-   tutorials/index
    cmd
+   her
+   install
+   io
+   plot
    qc
    qtl
-   her
-   io
    stats
-   plot
+   tutorials/index
    util
 
 *****************

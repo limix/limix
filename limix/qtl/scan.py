@@ -2,19 +2,15 @@ from __future__ import division
 
 from numpy import all as npall
 from numpy import asarray, isfinite, ones
-from pandas import DataFrame
 
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
+from numpy_sugar.linalg import economic_qs
 
-from ..nice_arrays import (
-    covariates_process, default_covariates_index, kinship_process,
-    normalise_candidates_matrix, normalise_covariates_matrix,
-    normalise_kinship_matrix, normalise_phenotype_matrix, phenotype_process)
-from ..dataframe import infer_samples_index, make_sure_phenotype_dataframe
-from ..dataframe import make_sure_covariates_dataframe
-from ..dataframe import make_sure_candidates_dataframe
-from ..dataframe import make_sure_kinship_dataframe
+from ..dataframe import (infer_samples_index, make_sure_candidates_dataframe,
+                         make_sure_covariates_dataframe,
+                         make_sure_kinship_dataframe,
+                         make_sure_phenotype_dataframe)
 from ..likelihood import normalise_extreme_values
 from .model import QTLModel
 from .util import print_analysis
@@ -124,8 +120,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         print_analysis(lik, "Quantitative trait locus analysis")
 
     nsamples = len(G)
-    if isinstance(y, (tuple, list)):
-        y = asarray(y, float).T
+    y = asarray(y, float).T
 
     if M is None:
         M = ones((nsamples, 1))
@@ -145,17 +140,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
     y = normalise_extreme_values(y, lik)
     if K is not None:
-        K = normalise_kinship_matrix(K)
-
-    # import pdb
-    # pdb.set_trace()
-    # G = normalise_candidates_matrix(G)
-    # # M = covariates_process(M, nsamples)
-    # import pdb
-    # pdb.set_trace()
-    # # M = normalise_covariates_matrix(M)
-
-    # y = phenotype_process(lik, y)
+        K = make_sure_kinship_dataframe(K, samples_index)
 
     if not npall(isfinite(G)):
         raise ValueError("Candidate values must be finite.")
@@ -170,8 +155,11 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
     if K is not None:
         K = K.loc[indices, :].loc[:, indices]
-
-    K, QS = kinship_process(K, nsamples, verbose)
+        if not npall(isfinite(K)):
+            raise ValueError("Kinship matrix contain non-finite values.")
+        QS = economic_qs(K)
+    else:
+        QS = None
 
     if lik == 'normal':
         model = _perform_lmm(
@@ -257,5 +245,4 @@ def _intersect_indices(G, y, K, M):
     if K is not None:
         indices = indices.intersection(K.index)
     indices = indices.intersection(M.index)
-    # return Index(list(indices))
     return indices

@@ -9,7 +9,7 @@ from dask.array import stack as dsk_stack
 from dask.dataframe import DataFrame as DaskDataFrame
 
 from .fprint import wprint
-from .qc import gower_norm
+from .qc import normalise_covariance
 from .util import Timer, array_hash
 from .util.npy_dask import all as _all
 from .util.npy_dask import asarray, isfinite
@@ -166,7 +166,7 @@ def kinship_process(K, nsamples, verbose):
             msg += "is not finite."
             raise ValueError(msg)
 
-        K = gower_norm(K)
+        K = normalise_covariance(K)
 
         desc = "Eigen decomposition of the covariance matrix..."
         with Timer(desc=desc, disable=not verbose):
