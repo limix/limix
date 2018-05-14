@@ -7,10 +7,7 @@ from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
-from ..dataframe import (infer_samples_index, make_sure_candidates_dataframe,
-                         make_sure_covariates_dataframe,
-                         make_sure_kinship_dataframe,
-                         make_sure_phenotype_dataframe)
+from ..dataframe import normalise_dataset
 from ..likelihood import normalise_extreme_values
 from .model import QTLModel
 from .util import print_analysis
@@ -119,54 +116,23 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     if verbose:
         print_analysis(lik, "Quantitative trait locus analysis")
 
-    nsamples = len(G)
-    y = asarray(y, float).T
-
-    if M is None:
-        M = ones((nsamples, 1))
-
-    arrs = [a for a in [y, G, M, K] if a is not None]
-    samples_index = infer_samples_index(arrs)
-    if len(samples_index) == 0:
-        raise ValueError("Could not infer an index for samples."
-                         " Please, check if the passed arrays are in order.")
-
-    y = make_sure_phenotype_dataframe(y, samples_index)
-    G = make_sure_candidates_dataframe(G, samples_index)
-    M = make_sure_covariates_dataframe(M, samples_index)
-
-    if K is not None:
-        K = make_sure_kinship_dataframe(K, samples_index)
-
-    y = normalise_extreme_values(y, lik)
-    if K is not None:
-        K = make_sure_kinship_dataframe(K, samples_index)
-
-    if not npall(isfinite(G)):
-        raise ValueError("Candidate values must be finite.")
+    data = normalise_dataset(y, lik, M=M, G=G, K=K)
+    y = data['y']
+    M = data['M']
+    G = data['G']
+    K = data['K']
 
     mixed = K is not None
 
-    indices = _intersect_indices(G, y, K, M)
-
-    M = M.loc[indices]
-    G = G.loc[indices]
-    y = y.loc[indices]
-
     if K is not None:
-        K = K.loc[indices, :].loc[:, indices]
-        if not npall(isfinite(K)):
-            raise ValueError("Kinship matrix contain non-finite values.")
         QS = economic_qs(K)
     else:
         QS = None
 
     if lik == 'normal':
-        model = _perform_lmm(
-            _binomial_y(y.values, lik), M, QS, G, mixed, verbose)
+        model = _perform_lmm(y.values, M, QS, G, verbose)
     else:
-        model = _perform_glmm(
-            _binomial_y(y.values, lik), lik, M, K, QS, G, mixed, verbose)
+        model = _perform_glmm(y.values, lik, M, K, QS, G, verbose)
 
     if verbose:
         print(model)
@@ -174,13 +140,10 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     return model
 
 
-def _perform_lmm(y, M, QS, G, mixed, verbose):
+def _perform_lmm(y, M, QS, G, verbose):
     from pandas import Series
 
     lmm = LMM(y, M.values, QS)
-    if not mixed:
-        lmm.delta = 1
-        lmm.fix('delta')
 
     lmm.fit(verbose=verbose)
 
@@ -200,13 +163,10 @@ def _perform_lmm(y, M, QS, G, mixed, verbose):
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
 
-def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
+def _perform_glmm(y, lik, M, K, QS, G, verbose):
     from pandas import Series
 
     glmm = GLMMExpFam(y, lik, M.values, QS)
-    if not mixed or lik == 'bernoulli':
-        glmm.delta = 1
-        glmm.fix('delta')
     glmm.fit(verbose=verbose)
 
     eta = glmm.site.eta
@@ -230,19 +190,3 @@ def _perform_glmm(y, lik, M, K, QS, G, mixed, verbose):
     effsizes = Series(effsizes, list(G.keys()))
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
-
-
-def _binomial_y(y, lik):
-    # ugly hack, remove this when possible
-    if lik == 'binomial':
-        return y[:, 0], y[:, 1]
-    return y.ravel()
-
-
-def _intersect_indices(G, y, K, M):
-    indices = G.index.copy()
-    indices = indices.intersection(y.index)
-    if K is not None:
-        indices = indices.intersection(K.index)
-    indices = indices.intersection(M.index)
-    return indices

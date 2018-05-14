@@ -1,84 +1,15 @@
+from numpy import all as npall
+from numpy import asarray, isfinite, ones
 from pandas import DataFrame, Index
 
-
-def make_sure_dataframes(y, G=None, M=None, K=None):
-
-    # Rows represent samples in every array of this list.
-    arrs = [a for a in [y, G, M, K] if a is not None]
-
-    samples_index = infer_samples_index(arrs)
-    # if len(samples_index) == 0:
-    #     raise ValueError("Could not infer an index for samples."
-    #                      " Please, check if the passed arrays are in order.")
-    #
-    # if hasattr(y, 'index'):
-    #     y = y.loc[y.index.intersection(samples_index)]
-    # else:
-    #     y = DataFrame(data=y, index=samples_index.copy())
-    #
-    # if hasattr(G, 'index'):
-    #     G = G.loc[G.index.intersection(samples_index)]
-    # else:
-    #     G = DataFrame(
-    #         data=G,
-    #         index=samples_index.copy(),
-    #         columns=default_candidates_index(G.shape[1]))
-    #
-    # if hasattr(M, 'index'):
-    #     M = M.loc[M.index.intersection(samples_index)]
-    # else:
-    #     M = DataFrame(
-    #         data=M,
-    #         index=samples_index.copy(),
-    #         columns=default_covariates_index(M.shape[1]))
-    #
-    # if K is not None:
-    #     if hasattr(K, 'index'):
-    #         K = K.loc[K.index.intersection(samples_index), :]
-    #         K = K.loc[:, K.columns.intersection(samples_index)]
-    #     else:
-    #         K = DataFrame(
-    #             data=K,
-    #             index=samples_index.copy(),
-    #             columns=samples_index.copy())
-    #
-    # y = normalise_phenotype_matrix(y, lik)
-    # if K is not None:
-    #     K = normalise_kinship_matrix(K)
-    #
-    # G = normalise_candidates_matrix(G)
-    # M = covariates_process(M, nsamples)
-    # M = normalise_covariates_matrix(M)
-    #
-    # y = phenotype_process(lik, y)
-    #
-    # if not npall(isfinite(G)):
-    #     raise ValueError("Variant values must be finite.")
-    #
-    # mixed = K is not None
-    #
-    # indices = _intersect_indices(G, y, K, M)
-    #
-    # G = G.loc[indices, :]
-    # y = y.loc[indices, :]
-    #
-    # if K is not None:
-    #     K = K.loc[indices, :]
-    #     K = K.loc[:, indices]
-    #
-    # M = M.loc[indices, :]
-    return dict(y=y, G=G, M=M, K=K)
+from .likelihood import normalise_extreme_values
 
 
-def default_samples_index(n):
-    return ['sample{}'.format(i) for i in range(n)]
-
-
-def default_covariates_index(n):
+def _default_covariates_index(n):
     return ['covariate{}'.format(i) for i in range(n)]
 
 
-def default_candidates_index(n):
+def _default_candidates_index(n):
     return ['candidate{}'.format(i) for i in range(n)]
 
 
@@ -134,7 +65,7 @@ def infer_samples_index(arrs):
     if len(iarrs) > 0:
         index_set = _index_set_intersection(arrs)
     else:
-        index_set = default_candidates_index(arrs[0].shape[0])
+        index_set = _default_candidates_index(arrs[0].shape[0])
 
     return _same_order_if_possible(index_set, iarrs)
 
@@ -168,7 +99,7 @@ def assert_compatible_samples_arrays(arrs):
     return False
 
 
-def make_sure_phenotype_dataframe(y, samples_index):
+def _make_sure_phenotype_dataframe(y, samples_index):
     if _isindexed(y):
         y = y.loc[y.index.intersection(samples_index)]
     else:
@@ -177,29 +108,29 @@ def make_sure_phenotype_dataframe(y, samples_index):
     return y
 
 
-def make_sure_candidates_dataframe(G, samples_index):
+def _make_sure_candidates_dataframe(G, samples_index):
     if _isindexed(G):
         G = G.loc[G.index.intersection(samples_index)]
     else:
         i = samples_index.copy()
-        colnames = default_candidates_index(G.shape[1])
+        colnames = _default_candidates_index(G.shape[1])
         G = DataFrame(data=G, index=i, columns=colnames)
 
     return G
 
 
-def make_sure_covariates_dataframe(M, samples_index):
+def _make_sure_covariates_dataframe(M, samples_index):
     if _isindexed(M):
         M = M.loc[M.index.intersection(samples_index)]
     else:
         i = samples_index.copy()
-        colnames = default_covariates_index(M.shape[1])
+        colnames = _default_covariates_index(M.shape[1])
         M = DataFrame(data=M, index=i, columns=colnames)
 
     return M
 
 
-def make_sure_kinship_dataframe(K, samples_index):
+def _make_sure_kinship_dataframe(K, samples_index):
     if _isindexed(K):
         K = K.loc[K.index.intersection(samples_index), :]
         K = K.loc[:, K.columns.intersection(samples_index)]
@@ -211,4 +142,48 @@ def make_sure_kinship_dataframe(K, samples_index):
     return K
 
 
-# def normalise_kinship_matrix()
+def _intersect_indices(arrs):
+    indices = arrs[0].index.copy()
+    for a in arrs:
+        indices = indices.intersection(a.index)
+    return indices
+
+
+def normalise_dataset(y, lik, M=None, G=None, K=None):
+    y = asarray(y, float).T
+
+    if M is None:
+        M = ones((y.shape[0], 1))
+
+    arrs = [a for a in [y, G, M, K] if a is not None]
+    samples_index = infer_samples_index(arrs)
+    if len(samples_index) == 0:
+        raise ValueError("Could not infer an index for samples."
+                         " Please, check if the passed arrays are in order.")
+
+    y = _make_sure_phenotype_dataframe(y, samples_index)
+    if G is not None:
+        G = _make_sure_candidates_dataframe(G, samples_index)
+        if not npall(isfinite(G)):
+            raise ValueError("Candidate values must be finite.")
+
+    M = _make_sure_covariates_dataframe(M, samples_index)
+
+    if K is not None:
+        K = _make_sure_kinship_dataframe(K, samples_index)
+
+    y = normalise_extreme_values(y, lik)
+
+    indices = _intersect_indices([a for a in [y, G, M, K] if a is not None])
+
+    M = M.loc[indices]
+    if G is not None:
+        G = G.loc[indices]
+    y = y.loc[indices]
+
+    if K is not None:
+        K = K.loc[indices, :].loc[:, indices]
+        if not npall(isfinite(K)):
+            raise ValueError("Kinship matrix contain non-finite values.")
+
+    return dict(y=y, M=M, G=G, K=K)

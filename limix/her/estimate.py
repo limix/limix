@@ -1,16 +1,12 @@
 from __future__ import division
 
-from numpy import all as npall
-from numpy import asarray as npy_asarray
-from numpy import isfinite, ones, pi, var
+from numpy import pi, var
 
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
-from ..dataframe import (infer_samples_index, make_sure_covariates_dataframe,
-                         make_sure_kinship_dataframe,
-                         make_sure_phenotype_dataframe)
+from ..dataframe import normalise_dataset
 from ..fprint import oprint
 from ..likelihood import normalise_extreme_values
 from ..qc import normalise_covariance
@@ -67,37 +63,17 @@ def estimate(y, lik, K, M=None, verbose=True):
         analysis_name = "Heritability estimation"
         oprint("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
 
-    y = npy_asarray(y, float).T
-
-    if M is None:
-        M = ones((y.shape[0], 1))
-
-    arrs = [a for a in [y, M, K] if a is not None]
-    samples_index = infer_samples_index(arrs)
-    if len(samples_index) == 0:
-        raise ValueError("Could not infer an index for samples."
-                         " Please, check if the passed arrays are in order.")
-
-    y = make_sure_phenotype_dataframe(y, samples_index)
-    M = make_sure_covariates_dataframe(M, samples_index)
-
     if K is not None:
         K = normalise_covariance(K)
-        K = make_sure_kinship_dataframe(K, samples_index)
+
+    data = normalise_dataset(y, lik, M=M, K=K)
+    y = data['y']
+    M = data['M']
+    K = data['K']
 
     y = normalise_extreme_values(y, lik)
-    if K is not None:
-        K = make_sure_kinship_dataframe(K, samples_index)
-
-    indices = _intersect_indices(y, K, M)
-
-    M = M.loc[indices]
-    y = y.loc[indices]
 
     if K is not None:
-        K = K.loc[indices, :].loc[:, indices]
-        if not npall(isfinite(K)):
-            raise ValueError("Kinship matrix contain non-finite values.")
         QS = economic_qs(K)
     else:
         QS = None
@@ -120,17 +96,3 @@ def estimate(y, lik, K, M=None, verbose=True):
         v = var(method.mean())
 
     return g / (v + g + e)
-
-
-def _binomial_y(y, lik):
-    if lik == 'binomial':
-        return y[:, 0], y[:, 1]
-    return y.ravel()
-
-
-def _intersect_indices(y, K, M):
-    indices = y.index.copy()
-    if K is not None:
-        indices = indices.intersection(K.index)
-    indices = indices.intersection(M.index)
-    return indices
