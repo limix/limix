@@ -14,18 +14,13 @@ def _default_candidates_index(n):
 
 
 def _index_set_intersection(arrs):
-    """Return the indices that are present in every indexed DataFrame/Series.
-
-    It fails if there are duplicated indices.
-    """
+    """Indices that are present in every indexed DataFrame/Series."""
     index_set = None
     for a in arrs:
 
         if hasattr(a, 'index') and isinstance(a.index, Index):
 
             i = set(a.index)
-            if len(i) < len(a.index):
-                raise ValueError("Duplicated index.")
 
             if index_set is None:
                 index_set = i
@@ -39,7 +34,7 @@ def _index_set_intersection(arrs):
 
 def _same_order_if_possible(index_set, arrs):
     for a in arrs:
-        if index_set == set(a.index):
+        if index_set == set(a.index) and len(index_set) == len(a.index):
             return a.index.copy()
     return Index(index_set)
 
@@ -48,7 +43,7 @@ def _isindexed(a):
     return hasattr(a, 'index') and isinstance(a.index, Index)
 
 
-def infer_samples_index(arrs):
+def _infer_samples_index(arrs):
     if not isinstance(arrs, (list, tuple)):
         arrs = [arrs]
 
@@ -101,7 +96,7 @@ def assert_compatible_samples_arrays(arrs):
 
 def _make_sure_phenotype_dataframe(y, samples_index):
     if _isindexed(y):
-        y = y.loc[y.index.intersection(samples_index)]
+        y = y.loc[samples_index]
     else:
         y = DataFrame(data=y, index=samples_index.copy())
 
@@ -110,7 +105,7 @@ def _make_sure_phenotype_dataframe(y, samples_index):
 
 def _make_sure_candidates_dataframe(G, samples_index):
     if _isindexed(G):
-        G = G.loc[G.index.intersection(samples_index)]
+        G = G.loc[samples_index]
     else:
         i = samples_index.copy()
         colnames = _default_candidates_index(G.shape[1])
@@ -121,7 +116,7 @@ def _make_sure_candidates_dataframe(G, samples_index):
 
 def _make_sure_covariates_dataframe(M, samples_index):
     if _isindexed(M):
-        M = M.loc[M.index.intersection(samples_index)]
+        M = M.loc[samples_index]
     else:
         i = samples_index.copy()
         colnames = _default_covariates_index(M.shape[1])
@@ -132,8 +127,8 @@ def _make_sure_covariates_dataframe(M, samples_index):
 
 def _make_sure_kinship_dataframe(K, samples_index):
     if _isindexed(K):
-        K = K.loc[K.index.intersection(samples_index), :]
-        K = K.loc[:, K.columns.intersection(samples_index)]
+        K = K.loc[samples_index, :]
+        K = K.loc[:, samples_index]
     else:
         rows = samples_index.copy()
         cols = samples_index.copy()
@@ -149,19 +144,47 @@ def _intersect_indices(arrs):
     return indices
 
 
+def _check_duplicity(samples_index, arrs):
+    for a in arrs:
+        indices = samples_index.intersection(a.index)
+        if len(indices) > len(set(indices)):
+            return False
+    return True
+
+
 def normalise_dataset(y, lik, M=None, G=None, K=None):
-    y = asarray(y, float).T
+    """Convert to dataframes and align the arrays."""
+    if isinstance(y, (tuple, list)):
+        y = asarray(y, float).T
 
     if M is None:
         M = ones((y.shape[0], 1))
 
     arrs = [a for a in [y, G, M, K] if a is not None]
-    samples_index = infer_samples_index(arrs)
+
+    # Exit early if all the indices are the same.
+    if all([_isindexed(a) for a in arrs]):
+        a0 = arrs[0]
+        if all([len(a.index) == len(a0.index) for a in arrs[1:]]):
+            if all([all(a.index == a0.index) for a in arrs[1:]]):
+                return dict(y=y, M=M, G=G, K=K)
+
+    samples_index = _infer_samples_index(arrs)
+    arrs0 = [a for a in [G, M, K] if a is not None and _isindexed(a)]
+    ok = _check_duplicity(samples_index, arrs0)
+
+    if not ok:
+        msg = "Duplicated indices are allowed only on the"
+        msg += " outcome variable when the indices differ."
+        raise ValueError(msg)
+
     if len(samples_index) == 0:
         raise ValueError("Could not infer an index for samples."
                          " Please, check if the passed arrays are in order.")
 
     y = _make_sure_phenotype_dataframe(y, samples_index)
+    samples_index = y.index
+
     if G is not None:
         G = _make_sure_candidates_dataframe(G, samples_index)
         if not npall(isfinite(G)):
@@ -171,19 +194,9 @@ def normalise_dataset(y, lik, M=None, G=None, K=None):
 
     if K is not None:
         K = _make_sure_kinship_dataframe(K, samples_index)
+        if not npall(isfinite(K)):
+            raise ValueError("Covariance values must be finite.")
 
     y = normalise_extreme_values(y, lik)
-
-    indices = _intersect_indices([a for a in [y, G, M, K] if a is not None])
-
-    M = M.loc[indices]
-    if G is not None:
-        G = G.loc[indices]
-    y = y.loc[indices]
-
-    if K is not None:
-        K = K.loc[indices, :].loc[:, indices]
-        if not npall(isfinite(K)):
-            raise ValueError("Kinship matrix contain non-finite values.")
 
     return dict(y=y, M=M, G=G, K=K)

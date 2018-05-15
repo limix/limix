@@ -71,3 +71,23 @@ def test_qtl_glmm_bernoulli():
     pv = lmm.variant_pvalues
     assert_allclose(
         pv, [0.38268514676745735, 0.39206106093718096], atol=1e-6, rtol=1e-6)
+
+
+def test_qtl_glmm_bernoulli_nokinship():
+    random = RandomState(0)
+    nsamples = 50
+
+    X = random.randn(50, 2)
+    G = random.randn(50, 100)
+    ntrials = random.randint(1, 2, nsamples)
+    z = dot(G, random.randn(100)) / sqrt(100)
+
+    successes = zeros(len(ntrials), int)
+    for i, nt in enumerate(ntrials):
+        for _ in range(nt):
+            successes[i] += int(z[i] + 0.5 * random.randn() > 0)
+
+    lmm = scan(X, successes, 'bernoulli', verbose=False)
+    pv = lmm.variant_pvalues
+    assert_allclose(
+        pv, [0.9259612341394918, 0.1767987580861164], atol=1e-6, rtol=1e-6)

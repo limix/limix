@@ -202,26 +202,3 @@ class IQTLModel(object):
             Estimated covariant effect sizes under the null hypothesis.
         """
         return self._null_covariate_effsizes
-
-    # def __str__(self):
-    #     from pandas import DataFrame
-    #
-    #     data = dict(
-    #         effsizes=self.variant_effsizes,
-    #         effsizes_se=self.variant_effsizes_se,
-    #         pvalues=self.variant_pvalues)
-    #
-    #     variant_msg = str(DataFrame(data=data).describe())
-    #
-    #     data = self.null_covariate_effsizes
-    #     k = data.index.values
-    #     v = [[vi] for vi in data.values]
-    #
-    #     covariate_msg = str(DataFrame(data=dict(zip(list(k), list(v)))))
-    #     covariate_msg = '\n'.join([x[2:] for x in covariate_msg.split('\n')])
-    #
-    #     msg = 'Variants\n' + variant_msg
-    #     msg += '\n\nCovariate effect sizes for the'
-    #     msg += ' null model\n' + covariate_msg
-    #
-    #     return msg

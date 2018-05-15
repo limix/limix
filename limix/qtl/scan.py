@@ -1,14 +1,12 @@
 from __future__ import division
 
-from numpy import all as npall
-from numpy import asarray, isfinite, ones
+from pandas import Series
 
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
 from ..dataframe import normalise_dataset
-from ..likelihood import normalise_extreme_values
 from .model import QTLModel
 from .util import print_analysis
 
@@ -122,8 +120,6 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     G = data['G']
     K = data['K']
 
-    mixed = K is not None
-
     if K is not None:
         QS = economic_qs(K)
     else:
@@ -141,8 +137,6 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
 
 def _perform_lmm(y, M, QS, G, verbose):
-    from pandas import Series
-
     lmm = LMM(y, M.values, QS)
 
     lmm.fit(verbose=verbose)
@@ -164,7 +158,6 @@ def _perform_lmm(y, M, QS, G, verbose):
 
 
 def _perform_glmm(y, lik, M, K, QS, G, verbose):
-    from pandas import Series
 
     glmm = GLMMExpFam(y, lik, M.values, QS)
     glmm.fit(verbose=verbose)

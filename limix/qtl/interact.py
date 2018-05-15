@@ -1,3 +1,5 @@
+from __future__ import division
+
 from numpy import all as npall
 from numpy import concatenate, isfinite, newaxis
 from tqdm import tqdm
