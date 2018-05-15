@@ -90,19 +90,18 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
         >>>
         >>> model = iscan(X, y, 'normal', inter, K, verbose=False)
         >>>
-        >>> with option_context('precision', 5):
-        ...     print(model.variant_pvalues)
-               inter00  inter01  inter02
-        SNP00  0.81179  0.63036  0.61238
-        SNP01  0.02847  0.64436  0.82670
-        SNP02  0.56818  0.72880  0.23926
-        SNP03  0.53791  0.64630  0.86148
-        SNP04  0.13858  0.39474  0.28650
-        SNP05  0.06722  0.56295  0.39860
-        SNP06  0.12739  0.62220  0.68084
-        SNP07  0.32834  0.96894  0.67626
-        SNP08  0.28341  0.29361  0.56248
-        SNP09  0.64945  0.67183  0.76601
+        >>> print(model.variant_pvalues)  # doctest: +FLOAT_CMP
+                inter00   inter01   inter02
+        SNP00  0.811788  0.630360  0.612383
+        SNP01  0.028471  0.644362  0.826705
+        SNP02  0.568177  0.728797  0.239263
+        SNP03  0.537905  0.646300  0.861481
+        SNP04  0.138576  0.394737  0.286499
+        SNP05  0.067216  0.562946  0.398597
+        SNP06  0.127386  0.622196  0.680844
+        SNP07  0.328337  0.968937  0.676259
+        SNP08  0.283405  0.293609  0.562479
+        SNP09  0.649447  0.671832  0.766009
     """
     lik = lik.lower()
 
@@ -125,7 +124,6 @@ def iscan(G, y, lik, inter, K=None, M=None, verbose=True):
     M = covariates_process(M, nsamples)
 
     K, QS = kinship_process(K, nsamples, verbose)
-    y = _binomial_y(y.values, 'normal')
 
     if lik == 'normal':
         model = _perform_lmm(y, M, QS, G, inter, mixed, verbose)
@@ -174,10 +172,3 @@ def _perform_lmm(y, M, QS, G, inter, mixed, verbose):
     null_lml = Series(null_lmls, G.columns)
 
     return IQTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
-
-
-def _binomial_y(y, lik):
-    # ugly hack, remove this when possible
-    if lik == 'binomial':
-        return y[:, 0], y[:, 1]
-    return y.ravel()

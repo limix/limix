@@ -78,36 +78,36 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>>
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
-        >>> model.variant_pvalues.round(2)
-        rs0    0.55
-        rs1    0.22
-        rs2    0.55
+        >>> model.variant_pvalues  # doctest: +FLOAT_CMP
+        rs0    0.554445
+        rs1    0.218997
+        rs2    0.552201
         dtype: float64
-        >>> model.variant_effsizes.round(2)
-        rs0   -0.13
-        rs1   -0.32
-        rs2   -0.14
+        >>> model.variant_effsizes  # doctest: +FLOAT_CMP
+        rs0   -0.130867
+        rs1   -0.315078
+        rs2   -0.143869
         dtype: float64
-        >>> model.variant_effsizes_se.round(2)
-        rs0    0.22
-        rs1    0.26
-        rs2    0.24
+        >>> model.variant_effsizes_se  # doctest: +FLOAT_CMP
+        rs0    0.221390
+        rs1    0.256327
+        rs2    0.242014
         dtype: float64
-        >>> model
+        >>> model  # doctest: +FLOAT_CMP
         Variants
                effsizes  effsizes_se   pvalues
-        count  3.000...     3.000...  3.000...
-        mean  -0.196...     0.239...  0.441...
-        std    0.102...     0.017...  0.193...
-        min   -0.315...     0.221...  0.218...
-        25%   -0.229...     0.231...  0.385...
-        50%   -0.143...     0.242...  0.552...
-        75%   -0.137...     0.249...  0.553...
-        max   -0.130...     0.256...  0.554...
+        count  3.000000     3.000000  3.000000
+        mean  -0.196604     0.239910  0.441881
+        std    0.102807     0.017563  0.193027
+        min   -0.315078     0.221390  0.218997
+        25%   -0.229473     0.231702  0.385599
+        50%   -0.143869     0.242014  0.552201
+        75%   -0.137368     0.249171  0.553323
+        max   -0.130867     0.256327  0.554445
         <BLANKLINE>
         Covariate effect sizes for the null model
               age   offset
-        -0.005...  0.39...
+        -0.005568  0.395284
     """
     lik = lik.lower()
 
