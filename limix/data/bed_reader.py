@@ -240,6 +240,40 @@ class BedReader():
         else:
             return X
 
+    def getRealGenotypes(self,
+                     query=None,
+                     return_snpinfo=False):
+        r""" Query and Load genotype data.
+
+        Parameters
+        ----------
+        query : str
+            pandas query on the bim file.
+            The default is None.
+        return_snpinfo : bool, optional
+            If True, returns genotype info
+            By default is False.
+
+        Returns
+        -------
+            X : ndarray
+                (`N`, `S`) ndarray of queried genotype values
+                for `N` individuals and `S` variants.
+            snpinfo : :class:`pandas.DataFrame`
+                dataframe with genotype info.
+                Returned only if ``return_snpinfo=True``.
+        """
+        # query
+        geno, snpinfo = self._query(query)
+
+        # compute
+        X = geno.compute().T
+
+        if return_snpinfo:
+            return X, snpinfo
+        else:
+            return X
+
     def _query(self, query):
         if query is None:
             return self._geno, self._snpinfo
