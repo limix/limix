@@ -25,9 +25,7 @@ The official documentation together with examples and tutorials can be found
 at https://limix.readthedocs.io/.
 """
 
-from __future__ import absolute_import as _
-
-from . import cmdlimix, her, io, qc, qtl, stats, util, plot
+from . import cmdlimix, her, io, qc, qtl, stats, util, plot, glmm
 from .cmd import call
 from .cmdlimix import main
 from .limits import is_large_file
@@ -38,7 +36,24 @@ from .util import download, extract, filehash
 __version__ = "2.0.0"
 
 __all__ = [
-    "__version__", "test", 'io', 'plot', 'qc', 'qtl', 'stats', 'util', 'her',
-    'download', 'extract', 'filehash', 'cmdlimix', 'set_max_nthreads',
-    'get_max_nthreads', 'call', 'is_large_file', 'normalise_phenotype', 'main'
+    "__version__",
+    "test",
+    "io",
+    "plot",
+    "qc",
+    "qtl",
+    "stats",
+    "util",
+    "her",
+    "glmm",
+    "download",
+    "extract",
+    "filehash",
+    "cmdlimix",
+    "set_max_nthreads",
+    "get_max_nthreads",
+    "call",
+    "is_large_file",
+    "normalise_phenotype",
+    "main",
 ]

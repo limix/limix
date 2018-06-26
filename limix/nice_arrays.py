@@ -33,11 +33,11 @@ def assure_named_phenotype(lik, y):
 
 
 def _normalise_phenotype_dataframe(lik, y):
-    ncmax = 2 + (lik == 'binomial')
+    ncmax = 2 + (lik == "binomial")
     if len(y.columns) > ncmax:
         raise ValueError("The phenotype data frame has too many columns.")
 
-    nc = 2 + (lik == 'binomial')
+    nc = 2 + (lik == "binomial")
 
     if len(y.columns) == nc:
         msg = "The ({}) phenotype data frame has {} columns. ".format(lik, nc)
@@ -100,7 +100,7 @@ def named_to_unamed_matrix(M):
 
 def covariates_process(M, nsamples):
     if M is None:
-        M = DataFrame({'offset': ones(nsamples, float)})
+        M = DataFrame({"offset": ones(nsamples, float)})
     else:
         M = assure_named_columns(M)
 
@@ -120,7 +120,7 @@ def phenotype_process(lik, y):
         y = asarray(y, float).T
     y = assure_named_phenotype(lik, y)
 
-    if lik == 'poisson':
+    if lik == "poisson":
         y = clip(y, 0., 25000.)
 
     y = y.astype(float)
@@ -130,13 +130,11 @@ def phenotype_process(lik, y):
         msg += "is not finite."
         raise ValueError(msg)
 
-    if lik == 'binomial':
+    if lik == "binomial":
         if y.ndim != 2:
-            raise ValueError("Binomial phenotype matrix has to be"
-                             " bi-dimensional")
+            raise ValueError("Binomial phenotype matrix has to be" " bi-dimensional")
         if y.shape[1] != 2:
-            raise ValueError("Binomial phenotype matrix has to have"
-                             " two columns.")
+            raise ValueError("Binomial phenotype matrix has to have" " two columns.")
 
         v = y.values
         ratio = v[:, 0] / v[:, 1]
@@ -155,8 +153,8 @@ def kinship_process(K, nsamples, verbose):
     K = asarray(K)
 
     ah = array_hash(K)
-    nvalid = _cache['K']['K'] is None
-    nvalid = nvalid or (_cache['K']['hash'] != ah)
+    nvalid = _cache["K"]["K"] is None
+    nvalid = nvalid or (_cache["K"]["hash"] != ah)
 
     if nvalid:
 
@@ -171,12 +169,12 @@ def kinship_process(K, nsamples, verbose):
         desc = "Eigen decomposition of the covariance matrix..."
         with Timer(desc=desc, disable=not verbose):
             QS = economic_qs(K)
-            _cache['K']['hash'] = ah
-            _cache['K']['QS'] = QS
-            _cache['K']['K'] = K
+            _cache["K"]["hash"] = ah
+            _cache["K"]["QS"] = QS
+            _cache["K"]["K"] = K
     else:
-        QS = _cache['K']['QS']
-        K = _cache['K']['K']
+        QS = _cache["K"]["QS"]
+        K = _cache["K"]["K"]
 
     return K, QS
 
@@ -186,15 +184,19 @@ def _isdataframe(df):
 
 
 def _normalise_dataframe_phenotype(y, lik):
-    if lik == 'binomial':
+    if lik == "binomial":
         if y.shape[1] == 3:
-            print("Phenotype dataframe has three columns. I will be using the"
-                  " first one as the index.")
+            print(
+                "Phenotype dataframe has three columns. I will be using the"
+                " first one as the index."
+            )
             y = y.set_index(y.columns[0])
     else:
         if y.shape[1] == 2:
-            print("Phenotype dataframe has two columns. I will be using the"
-                  " first one as the index.")
+            print(
+                "Phenotype dataframe has two columns. I will be using the"
+                " first one as the index."
+            )
             y = y.set_index(y.columns[0])
     y = y.astype(float)
     return y
@@ -210,7 +212,7 @@ def normalise_phenotype_matrix(y, lik):
     if y.shape[1] > 2:
         raise ValueError("Outcome matrix must have two or one columns.")
 
-    if lik == 'binomial':
+    if lik == "binomial":
         pass
     else:
         if y.shape[1] > 1:
@@ -223,15 +225,15 @@ def normalise_phenotype_matrix(y, lik):
 
 
 def default_samples_index(n):
-    return ['sample{}'.format(i) for i in range(n)]
+    return ["sample{}".format(i) for i in range(n)]
 
 
 def default_covariates_index(n):
-    return ['covariate{}'.format(i) for i in range(n)]
+    return ["covariate{}".format(i) for i in range(n)]
 
 
 def default_candidates_index(n):
-    return ['candidate{}'.format(i) for i in range(n)]
+    return ["candidate{}".format(i) for i in range(n)]
 
 
 def _normalise_covariates_dataframe(M):
@@ -280,7 +282,7 @@ def _infer_same_index_col_type(M):
     try:
         X = to_numeric(X).values
     except ValueError:
-        X = X.astype('unicode').values.astype('unicode')
+        X = X.astype("unicode").values.astype("unicode")
 
     dtype = X.dtype
 
@@ -292,15 +294,19 @@ def _infer_same_index_col_type(M):
 
 def _normalise_kinship_dataframe(M):
     if M.shape[1] == M.shape[0] + 1:
-        print("Kinship matrix has one column too many. I will use the first"
-              " one as the sample index.")
+        print(
+            "Kinship matrix has one column too many. I will use the first"
+            " one as the sample index."
+        )
         M = M.set_index(M.columns[0])
         if isinstance(M.columns, Int64Index):
             M.columns = M.columns - 1
 
     elif M.shape[0] == M.shape[1] + 1:
-        print("Kinship matrix has one row too many. I will use the first"
-              " one as the sample index.")
+        print(
+            "Kinship matrix has one row too many. I will use the first"
+            " one as the sample index."
+        )
         M.columns = M.iloc[0]
         M = M.reindex(M.index.drop(0))
         if isinstance(M.index, Int64Index):
@@ -330,7 +336,7 @@ def _index_set_intersection(arrs):
     index_set = None
     for a in arrs:
 
-        if hasattr(a, 'index') and isinstance(a.index, Index):
+        if hasattr(a, "index") and isinstance(a.index, Index):
 
             i = set(a.index)
             if len(i) < len(a.index):
@@ -348,7 +354,7 @@ def _index_set_intersection(arrs):
 
 def _equal_index_if_possible(index_set, arrs):
     for a in arrs:
-        if hasattr(a, 'index'):
+        if hasattr(a, "index"):
             if index_set == set(a.index):
                 return a.index.copy()
     return Index(index_set)

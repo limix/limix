@@ -21,9 +21,18 @@ def normalise_extreme_values(y, likelihood):
         msg = "There are non-finite values in the the provided phenotype."
         raise ValueError(msg)
 
-    if likelihood == 'poisson':
+    if likelihood == "poisson":
         _poisson_normalise_extreme_values(y)
-    elif likelihood == 'binomial':
+    elif likelihood == "binomial":
         _binomial_normalise_extreme_values(y)
 
     return y
+
+
+def assert_likelihood_name(likname):
+    likname = likname.lower()
+    valid_names = set(["normal", "bernoulli", "probit", "binomial", "poisson"])
+    if likname not in valid_names:
+        msg = f"Unrecognized likelihood name: {likname}.\n"
+        msg += f"Valid names are: {valid_names}."
+        raise ValueError(msg)
