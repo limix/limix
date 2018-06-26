@@ -115,17 +115,17 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         print_analysis(lik, "Quantitative trait locus analysis")
 
     data = normalise_dataset(y, lik, M=M, G=G, K=K)
-    y = data['y']
-    M = data['M']
-    G = data['G']
-    K = data['K']
+    y = data["y"]
+    M = data["M"]
+    G = data["G"]
+    K = data["K"]
 
     if K is not None:
         QS = economic_qs(K)
     else:
         QS = None
 
-    if lik == 'normal':
+    if lik == "normal":
         model = _perform_lmm(y.values, M, QS, G, verbose)
     else:
         model = _perform_glmm(y.values, lik, M, K, QS, G, verbose)
