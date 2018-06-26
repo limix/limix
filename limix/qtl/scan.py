@@ -106,8 +106,8 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         max   -0.130867     0.256327  0.554445
         <BLANKLINE>
         Covariate effect sizes for the null model
-              age   offset
-        -0.005568  0.395284
+           offset       age
+         0.395284 -0.005568
     """
     lik = lik.lower()
 

@@ -1,7 +1,7 @@
 from __future__ import division
 
 from numpy import all as npall
-from numpy import concatenate, isfinite, newaxis
+from numpy import concatenate, isfinite, newaxis, asarray
 from tqdm import tqdm
 
 from glimix_core.lmm import LMM
@@ -150,7 +150,7 @@ def _perform_lmm(y, M, QS, G, inter, mixed, verbose):
         X1 = g * interv
 
         covariates = concatenate((M.values, g), axis=1)
-        lmm = LMM(y, covariates, QS)
+        lmm = LMM(asarray(y), covariates, QS)
         if not mixed:
             lmm.delta = 1
             lmm.fix('delta')

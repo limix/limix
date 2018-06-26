@@ -257,19 +257,40 @@ shown as
     >>> limix.util.download(url, verbose=False)
     >>> limix.util.extract("small_example.csv.bz2", verbose=False)
     >>> limix.io.csv.see("small_example.csv", verbose=False, header=False)
-                   0   1   2   3   4   5   6   7   8   9   ... 456 457 458 459  \
-    0  snp_22_16050408   A   A   A   A   A   A   A   A   A ...   B   B   B   B
-    1  snp_22_16050612   A   A   A   A   A   A   A   A   A ...   B   B   B   B
-    2  snp_22_16050678   A   A   A   A   A   A   A   A   A ...   B   B   B   B
-    3  snp_22_16051107   A   A   A   A   A   A   A   A   A ...   B   B   B   B
-    4  snp_22_16051249   A   A   A   A   A   A   A   A   A ...   B   B   B   B
+                   0   1   2   3   4   5   6   7   8   9   10  11  12  13  14   \
+    0  snp_22_16050408   A   A   A   A   A   A   A   A   A   A   A   A   A   A
+    1  snp_22_16050612   A   A   A   A   A   A   A   A   A   A   A   A   A   A
+    2  snp_22_16050678   A   A   A   A   A   A   A   A   A   A   A   A   A   A
+    3  snp_22_16051107   A   A   A   A   A   A   A   A   A   A   A   A   A   A
+    4  snp_22_16051249   A   A   A   A   A   A   A   A   A   A   A   A   A   A
     <BLANKLINE>
-      460 461 462 463 464 465
-    0   B   B   B   B   B   B
-    1   B   B   B   B   B   B
-    2   B   B   B   B   B   B
-    3   B   B   B   B   B   B
-    4   B   B   C   C   B   B
+      15  16  17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33   \
+    0   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A
+    1   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A
+    2   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A
+    3   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A
+    4   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A
+    <BLANKLINE>
+      34  35  36  37  38  ... 427 428 429 430 431 432 433 434 435 436 437 438 439  \
+    0   A   A   A   A   A ...   B   B   B   B   B   B   B   B   B   B   B   B   B
+    1   A   A   A   A   A ...   B   B   B   B   B   B   B   B   B   B   B   B   B
+    2   A   A   A   A   A ...   B   B   B   B   B   B   B   B   B   B   B   B   B
+    3   A   A   A   A   A ...   B   B   B   B   B   B   B   B   B   B   B   B   B
+    4   A   A   A   A   A ...   B   B   B   B   B   B   B   B   B   B   C   B   B
+    <BLANKLINE>
+      440 441 442 443 444 445 446 447 448 449 450 451 452 453 454 455 456 457 458  \
+    0   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B
+    1   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B
+    2   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B
+    3   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B
+    4   B   B   B   B   C   B   B   B   B   B   B   B   C   C   B   B   B   B   B
+    <BLANKLINE>
+      459 460 461 462 463 464 465
+    0   B   B   B   B   B   B   B
+    1   B   B   B   B   B   B   B
+    2   B   B   B   B   B   B   B
+    3   B   B   B   B   B   B   B
+    4   B   B   B   C   C   B   B
     <BLANKLINE>
     [5 rows x 466 columns]
 

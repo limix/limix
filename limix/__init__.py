@@ -31,7 +31,7 @@ from . import cmdlimix, her, io, qc, qtl, stats, util, plot
 from .cmd import call
 from .cmdlimix import main
 from .limits import is_large_file
-from .testit import test
+from ._testit import test
 from .threads import get_max_nthreads, set_max_nthreads
 from .util import download, extract, filehash
 
