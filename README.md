@@ -19,7 +19,7 @@ The documentation can be found at  https://limix.readthedocs.io/en/develop.
 The development version of limix can be installed on macOS and Linux via
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/limix/limix/develop/install)
+bash <(curl -fsSL https://raw.githubusercontent.com/limix/limix/2.0.0/install)
 ```
 
 Stable versions of limix are installed via [conda](http://conda.pydata.org/docs/index.html) though
@@ -59,4 +59,4 @@ as long as you have [pytest](https://docs.pytest.org/en/latest/).
 
 ## License
 
-This project is licensed under the [Apache License License](https://raw.githubusercontent.com/limix/limix/develop/LICENSE.md).
+This project is licensed under the [Apache License License](https://raw.githubusercontent.com/limix/limix/2.0.0/LICENSE.md).
