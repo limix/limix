@@ -98,10 +98,10 @@ function install_deps
 {
     if [[ $USE_CONDA == "yes" ]]
     then
-        conda install --yes -c conda-forge hcephes liknorm
+        conda install --yes -c conda-forge bgen liknorm
     else
-        bash <(curl -fsSL https://raw.githubusercontent.com/limix/hcephes/master/install)
         bash <(curl -fsSL https://raw.githubusercontent.com/limix/liknorm/master/install)
+        bash <(curl -fsSL https://raw.githubusercontent.com/limix/bgen/master/install)
     fi
 }
 

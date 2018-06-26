@@ -39,7 +39,6 @@ Then,
 pip install limix
 ```
 
-
 ## Running the tests
 
 After installation, you can test it
