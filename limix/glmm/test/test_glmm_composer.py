@@ -1,5 +1,5 @@
 from limix.glmm import GLMMComposer
-from numpy import dot, sqrt, zeros
+from numpy import dot
 from numpy.random import RandomState
 
 
@@ -7,7 +7,7 @@ def test_glmm_composer():
     random = RandomState(0)
     nsamples = 50
 
-    glmm = GLMMComposer()
+    glmm = GLMMComposer(nsamples)
 
     glmm.fixed_effects.append_offset()
 
@@ -29,3 +29,19 @@ def test_glmm_composer():
 
     y = random.randn(nsamples)
     glmm.y = y
+
+    print(glmm.covariance_matrices[0].scale)
+    print(glmm.covariance_matrices[1].scale)
+
+    print(glmm.fixed_effects[0].offset)
+    print(glmm.fixed_effects[1].effsizes)
+
+    print("Fixed-effect sizes: {}".format(glmm.fixed_effects))
+    print("Covariance-matrix scales: {}".format(glmm.covariance_matrices))
+
+    glmm.fit()
+
+    print("Fixed-effect sizes: {}".format(glmm.fixed_effects))
+    print("Covariance-matrix scales: {}".format(glmm.covariance_matrices))
+
+    print(glmm)

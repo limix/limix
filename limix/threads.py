@@ -1,10 +1,10 @@
 from multiprocessing.pool import ThreadPool
 
-from dask import set_options
+import dask
 from joblib import cpu_count
 
 _max_nthreads = max(1, cpu_count())
-set_options(pool=ThreadPool(_max_nthreads))
+dask.config.set(pool=ThreadPool(_max_nthreads))
 
 
 def set_max_nthreads(nthreads):
@@ -21,7 +21,7 @@ def set_max_nthreads(nthreads):
         raise ValueError("Cannot set number of threads smaller than one.")
     _max_nthreads = nthreads
 
-    set_options(pool=ThreadPool(nthreads))
+    dask.config.set(pool=ThreadPool(nthreads))
 
 
 def get_max_nthreads():
