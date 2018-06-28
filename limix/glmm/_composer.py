@@ -14,6 +14,7 @@ class GLMMComposer(object):
         self._y = None
         self._fixed_effects = FixedEffects(nsamples)
         self._covariance_matrices = CovarianceMatrices(nsamples)
+        self._glmm = None
 
     @property
     def likname(self):
@@ -23,6 +24,7 @@ class GLMMComposer(object):
     def likname(self, likname):
         assert_likelihood_name(likname)
         self._likname = likname.lower()
+        self._glmm = None
 
     @property
     def y(self):
@@ -32,6 +34,7 @@ class GLMMComposer(object):
     def y(self, y):
         if not npall(isfinite(y)):
             raise ValueError("Phenotype values must be finite.")
+        self._glmm = None
         self._y = y
 
     @property
@@ -43,13 +46,18 @@ class GLMMComposer(object):
         return self._covariance_matrices
 
     def fit(self, verbose=True):
-        glmm = self._build_glmm()
-        glmm.feed().maximize(verbose=verbose)
+        self._build_glmm()
+        self._glmm.feed().maximize(verbose=verbose)
+
+    def lml(self):
+        self._build_glmm()
+        return glmm.lml()
 
     def _build_glmm(self):
-        if self._likname == "normal":
+        if self._likname == "normal" and self._glmm is not None:
             gp = GP(self._y, self._fixed_effects.mean, self._covariance_matrices.cov)
-            return gp
+            self._glmm = gp
+            return
 
         raise NotImplementedError()
 
