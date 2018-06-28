@@ -110,6 +110,12 @@ silent_run install_deps
 [ $? == 0 ] && echo "done." || failed
 
 echo -n "[3/4] Installing Python dependencies... "
+if [[ $USE_CONDA == "yes" ]]
+then
+    silent_run conda install --yes numpy
+else
+    silent_run pip install numpy
+fi
 silent_run pip install -r requirements.txt
 [ $? == 0 ] && echo "done." || failed
 
