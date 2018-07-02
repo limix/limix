@@ -28,7 +28,7 @@ fi
 
 USE_CONDA="no"
 
-if [ ! command -v conda >/dev/null 2>&1 ]
+if ! [ command -v conda >/dev/null 2>&1 ]
 then
     echo "Looks like you have conda package manager."
     msg="Shall we use it to install the C libraries? (Recommended.)"
@@ -48,8 +48,8 @@ trap cleanup EXIT
 
 if [[ $USE_CONDA == "no" ]]
 then
-    command -v cmake >/dev/null 2>&1
-    if [ $? -eq 1 ]
+    
+    if [ command -v cmake >/dev/null 2>&1 ]
     then
         echo >&2 "cmake command has not been found. Aborting."
         exit 1
