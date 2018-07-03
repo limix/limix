@@ -29,15 +29,11 @@ def linear_kinship(G, out=None, verbose=True):
     if out is None:
         out = zeros((n, n))
 
-    nsteps = min(30, p)
+    chunks = _get_chunks(G)
 
-    for i in tqdm(range(nsteps), desc='Kinship', disable=not verbose):
-        start = i * int(p / nsteps)
-
-        if i < nsteps - 1:
-            end = (i + 1) * int(p / nsteps)
-        else:
-            end = p
+    start = 0
+    for chunk in tqdm(chunks, desc="Kinship", disable=not verbose):
+        end = start + chunk
 
         g = np.asarray(G[:, start:end])
         m = np.nanmean(g, 0)
@@ -48,4 +44,18 @@ def linear_kinship(G, out=None, verbose=True):
 
         out += ascontiguousarray(g.dot(g.T), float)
 
+        start = end
+
     return out
+
+
+def _get_chunks(G):
+    if hasattr(G, "chunks"):
+        return G.chunks[1]
+
+    siz = G.shape[1] // 100
+    sizl = G.shape[1] - siz * 100
+    chunks = [siz] * 100
+    if sizl > 0:
+        chunks += [sizl]
+    return tuple(chunks)
