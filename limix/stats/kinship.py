@@ -1,8 +1,10 @@
 from __future__ import division
 
 import numpy as np
-from numpy import ascontiguousarray, sqrt, zeros
+from numpy import sqrt, zeros, asfortranarray
 from tqdm import tqdm
+
+from scipy.linalg.blas import get_blas_funcs
 
 
 def linear_kinship(G, out=None, verbose=True):
@@ -27,9 +29,12 @@ def linear_kinship(G, out=None, verbose=True):
     """
     (n, p) = G.shape
     if out is None:
-        out = zeros((n, n))
+        out = zeros((n, n), order="F")
+    else:
+        out = asfortranarray(out)
 
     chunks = _get_chunks(G)
+    gemm = get_blas_funcs("gemm", [out])
 
     start = 0
     for chunk in tqdm(chunks, desc="Kinship", disable=not verbose):
@@ -42,7 +47,7 @@ def linear_kinship(G, out=None, verbose=True):
         g /= np.std(g, 0)
         g /= sqrt(p)
 
-        out += ascontiguousarray(g.dot(g.T), float)
+        gemm(1.0, g, g, 1.0, out, 0, 1, 1)
 
         start = end
 
