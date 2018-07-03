@@ -55,11 +55,15 @@ class GLMMComposer(object):
 
     def _build_glmm(self):
         if self._likname == "normal" and self._glmm is not None:
-            gp = GP(self._y, self._fixed_effects.mean, self._covariance_matrices.cov)
+            gp = GP(
+                self._y,
+                self._fixed_effects.mean,
+                self._covariance_matrices.cov,
+            )
             self._glmm = gp
             return
 
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
     def __str__(self):
         s = analysis_welcome(self._likname, "GLMMComposer") + "\n"
@@ -89,7 +93,9 @@ class FixedEffects(object):
     def append(self, m):
         m = asarray(m, float)
         if m.ndim > 2:
-            raise ValueError("Fixed-effect has to have between one and two dimensions.")
+            raise ValueError(
+                "Fixed-effect has to have between one and two dimensions."
+            )
 
         if not npall(isfinite(m)):
             raise ValueError("Fixed-effect values must be finite.")
