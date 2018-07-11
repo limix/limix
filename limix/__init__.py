@@ -9,6 +9,9 @@ A flexible and fast mixed model toolbox.
 
 from __future__ import absolute_import as _absolute_import
 
+import warnings
+warnings.filterwarnings("ignore", message="numpy.dtype size changed")
+warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 import limix_core as core
 
 from . import (heritability, io, iset, mtset, plot, qtl, scripts, stats, util,

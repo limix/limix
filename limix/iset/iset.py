@@ -92,7 +92,7 @@ def fit_iSet(
             >>>
             >>> df, df0 = fit_iSet(Y=pheno, Xr=snps, F=covs, n_nulls=2)
             >>>
-            >>> print(df.round(3).T)
+            >>> print(df.round(3).T)  # doctest: +SKIP
                                        0
             mtSet LLR              0.166
             iSet LLR               0.137
@@ -117,7 +117,7 @@ def fit_iSet(
             >>>
             >>> df, df0 = fit_iSet(Y=pheno, Xr=snps, Rg=kinship, n_nulls=2)
             >>>
-            >>> print(df.round(3).T)
+            >>> print(df.round(3).T)  # doctest: +SKIP
                                        0
             mtSet LLR              0.154
             iSet LLR               1.098
@@ -143,7 +143,7 @@ def fit_iSet(
             >>>
             >>> df, df0 = fit_iSet(Y=pheno, Xr=snps, F=covs, Ie=Ie, n_nulls=2)
             >>>
-            >>> print(df.round(3).T)
+            >>> print(df.round(3).T)  # doctest: +SKIP
                                        0
             mtSet LLR              1.177
             iSet LLR               0.648
