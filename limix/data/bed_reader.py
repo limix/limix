@@ -78,9 +78,9 @@ class BedReader:
         >>>
         >>> # only when using getGenotypes, the genotypes are loaded
         >>> print( reader_sub.getGenotypes( impute=True ) )
-         [2. 2. 1. 2.]
         [[2. 2. 2. 2.]
-         [2. 2. 1. 2.]]
+         [2. 2. 1. 2.]
+         [2. 2. 0. 2.]]
 
     You can do it in place as well:
 
