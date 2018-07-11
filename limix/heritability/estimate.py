@@ -3,7 +3,7 @@ from __future__ import division
 from numpy import ascontiguousarray, copy, ones, var
 from numpy_sugar.linalg import economic_qs
 
-from glimix_core.glmm import GLMM
+from glimix_core.glmm import GLMMExpFam
 
 
 def estimate(pheno, lik, K, covs=None, verbose=True):
@@ -52,7 +52,7 @@ def estimate(pheno, lik, K, covs=None, verbose=True):
 
     lik = lik.lower()
 
-    if lik == 'binomial':
+    if lik == "binomial":
         p = len(pheno[0])
     else:
         p = len(pheno)
@@ -60,7 +60,7 @@ def estimate(pheno, lik, K, covs=None, verbose=True):
     if covs is None:
         covs = ones((p, 1))
 
-    glmm = GLMM(pheno, lik, covs, QS)
+    glmm = GLMMExpFam(pheno, lik, covs, QS)
     glmm.feed().maximize(verbose=verbose)
 
     g = glmm.scale * (1 - glmm.delta)
@@ -73,7 +73,7 @@ def estimate(pheno, lik, K, covs=None, verbose=True):
 def _background_standardize(K):
     from ..stats.kinship import gower_norm
 
-    K = copy(K, 'C')
+    K = copy(K, "C")
     K = ascontiguousarray(K, dtype=float)
     gower_norm(K, K)
     K /= K.diagonal()

@@ -5,7 +5,7 @@ from limix.io import read_plink
 from sklearn.preprocessing import Imputer
 
 
-class BedReader():
+class BedReader:
     r"""
     Class to read and make queries on plink binary files.
 
@@ -59,9 +59,9 @@ class BedReader():
         3     1   rs940550  0.0  78032  0  T  7
         >>>
         >>> print(X)
-        [[ 2.  2.  2.  2.]
-         [ 2.  2.  1.  2.]
-         [ 2.  2.  0.  2.]]
+        [[2. 2. 2. 2.]
+         [2. 2. 1. 2.]
+         [2. 2. 0. 2.]]
 
     Lazy subsetting using queries:
 
@@ -78,9 +78,9 @@ class BedReader():
         >>>
         >>> # only when using getGenotypes, the genotypes are loaded
         >>> print( reader_sub.getGenotypes( impute=True ) )
-        [[ 2.  2.  2.  2.]
-         [ 2.  2.  1.  2.]
-         [ 2.  2.  0.  2.]]
+         [2. 2. 1. 2.]
+        [[2. 2. 2. 2.]
+         [2. 2. 1. 2.]]
 
     You can do it in place as well:
 
@@ -126,18 +126,14 @@ class BedReader():
         self._geno = bed
 
     def _init_imputer(self):
-        self._imputer = Imputer(missing_values=3.,
-                                strategy='mean',
-                                axis=0,
-                                copy=False)
+        self._imputer = Imputer(missing_values=3., strategy="mean", axis=0, copy=False)
 
     def __str__(self):
-        rv = '<' + str(self.__class__)
-        rv += ' instance at '
-        rv += hex(id(self)) + '>\n'
-        rv += 'File: ' + self._prefix + '\n'
-        rv += 'Dims: %d inds, %d snps' % (self._geno.shape[1],
-                                          self._geno.shape[0])
+        rv = "<" + str(self.__class__)
+        rv += " instance at "
+        rv += hex(id(self)) + ">\n"
+        rv += "File: " + self._prefix + "\n"
+        rv += "Dims: %d inds, %d snps" % (self._geno.shape[1], self._geno.shape[0])
         return rv
 
     def getSnpInfo(self):
@@ -166,8 +162,9 @@ class BedReader():
         """
         # query
         geno, snpinfo = self._query(query)
-        snpinfo = snpinfo.assign(i=pd.Series(sp.arange(snpinfo.shape[0]),
-                                             index=snpinfo.index))
+        snpinfo = snpinfo.assign(
+            i=pd.Series(sp.arange(snpinfo.shape[0]), index=snpinfo.index)
+        )
 
         if inplace:
             # replace
@@ -181,11 +178,9 @@ class BedReader():
             R._snpinfo = snpinfo
             return R
 
-    def getGenotypes(self,
-                     query=None,
-                     impute=False,
-                     standardize=False,
-                     return_snpinfo=False):
+    def getGenotypes(
+        self, query=None, impute=False, standardize=False, return_snpinfo=False
+    ):
         r""" Query and Load genotype data.
 
         Parameters
@@ -226,7 +221,6 @@ class BedReader():
         X = geno.compute().T
 
         # impute and standardize
-        import pdb
         if impute:
             X = self._imputer.fit_transform(X)
 
@@ -240,9 +234,7 @@ class BedReader():
         else:
             return X
 
-    def getRealGenotypes(self,
-                     query=None,
-                     return_snpinfo=False):
+    def getRealGenotypes(self, query=None, return_snpinfo=False):
         r""" Query and Load genotype data.
 
         Parameters
@@ -279,5 +271,5 @@ class BedReader():
             return self._geno, self._snpinfo
         snpinfo = self._snpinfo.query(query)
         snpinfo.reset_index(inplace=True, drop=True)
-        geno = self._geno[snpinfo.i, :]
+        geno = self._geno[snpinfo.i.values, :]
         return geno, snpinfo

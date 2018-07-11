@@ -35,6 +35,13 @@ from .qtl import forward_lmm
 from .glmm import qtl_test_glmm
 from .lmm import LMM
 
-__all__ = ['qtl_test_lm', 'qtl_test_lmm', 'qtl_test_lmm_kronecker',
-           'qtl_test_interaction_lmm_kronecker', 'qtl_test_interaction_lmm',
-           'forward_lmm', 'LMM', 'qtl_test_glmm']
+__all__ = [
+    "qtl_test_lm",
+    "qtl_test_lmm",
+    "qtl_test_lmm_kronecker",
+    "qtl_test_interaction_lmm_kronecker",
+    "qtl_test_interaction_lmm",
+    "forward_lmm",
+    "LMM",
+    "qtl_test_glmm",
+]

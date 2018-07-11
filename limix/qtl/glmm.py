@@ -5,7 +5,7 @@ from time import time
 from numpy import asarray, diag, ones
 from numpy_sugar.linalg import economic_qs
 
-from glimix_core.glmm import GLMM
+from glimix_core.glmm import GLMMExpFam
 from limix.qtl.lmm import LMM
 
 
@@ -92,7 +92,7 @@ def qtl_test_glmm(snps,
 
     start = time()
     QS = economic_qs(K)
-    glmm = GLMM(y, lik, covs, QS)
+    glmm = GLMMExpFam(y, lik, covs, QS)
     glmm.feed().maximize(verbose=verbose)
     # if verbose:
     #     print("Elapsed time for GLMM part: %.3f" % (time() - start))
