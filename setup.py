@@ -33,7 +33,7 @@ def setup_package():
         "limix-core>=1.0.1",
         "limix-legacy>=0.8.12",
         "ncephes>=1.0.40",
-        "numpy-sugar>=1.2.5)",
+        "numpy-sugar>=1.2.5",
         "numpy>=1.14.5",
         "pandas-plink>=1.2.26",
         "scikit-learn",
