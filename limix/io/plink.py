@@ -62,6 +62,16 @@ def read_plink(prefix, verbose=True):
         >>> chrom1 = bim.query("chrom=='1'")
         >>> X = bed[chrom1.i.values, :].compute()
         >>> print(X) #doctest: +NORMALIZE_WHITESPACE
+        [[ 2.  2.  1.]
+         [ 2.  1.  2.]
+         [nan nan nan]
+         [nan nan  1.]
+         [ 2.  2.  2.]
+         [ 2.  2.  2.]
+         [ 2.  1.  0.]
+         [ 2.  2.  2.]
+         [ 1.  2.  2.]
+         [ 2.  1.  2.]]
     """
     from pandas_plink import read_plink
 

@@ -6,15 +6,9 @@ from .mvsetfull import MvSetTestFull
 from .mvsetinc import MvSetTestInc
 
 
-def fit_iSet(Y=None,
-             Xr=None,
-             F=None,
-             Rg=None,
-             Ug=None,
-             Sg=None,
-             Ie=None,
-             n_nulls=10,
-             factr=1e7):
+def fit_iSet(
+    Y=None, Xr=None, F=None, Rg=None, Ug=None, Sg=None, Ie=None, n_nulls=10, factr=1e7
+):
     """
     Fit interaction set test (iSet).
 
@@ -100,12 +94,12 @@ def fit_iSet(Y=None,
             >>>
             >>> print(df.round(3).T)
                                        0
-            Heterogeneity-GxC var  0.000
-            Persistent Var         0.005
-            Rescaling-GxC Var      0.005
+            mtSet LLR              0.166
             iSet LLR               0.137
             iSet-het LLR          -0.000
-            mtSet LLR              0.166
+            Persistent Var         0.005
+            Rescaling-GxC Var      0.005
+            Heterogeneity-GxC var  0.000
 
         This example shows how to fit iSet when considering complete designs
         and modelling population structure/relatedness using the full
@@ -125,12 +119,12 @@ def fit_iSet(Y=None,
             >>>
             >>> print(df.round(3).T)
                                        0
-            Heterogeneity-GxC var  0.000
-            Persistent Var         0.005
-            Rescaling-GxC Var      0.005
+            mtSet LLR              0.154
             iSet LLR               1.098
             iSet-het LLR           1.014
-            mtSet LLR              0.154
+            Persistent Var         0.005
+            Rescaling-GxC Var      0.005
+            Heterogeneity-GxC var  0.000
 
         This example shows how to fit iSet when considering stratified designs
         and modelling population structure/relatedness by introducing
@@ -151,12 +145,12 @@ def fit_iSet(Y=None,
             >>>
             >>> print(df.round(3).T)
                                        0
-            Heterogeneity-GxC var -0.000
-            Persistent Var         0.064
-            Rescaling-GxC Var      0.006
+            mtSet LLR              1.177
             iSet LLR               0.648
             iSet-het LLR           0.000
-            mtSet LLR              1.177
+            Persistent Var         0.064
+            Rescaling-GxC Var      0.006
+            Heterogeneity-GxC var -0.000
 
         For more info and examples see the `iSet tutorial`_.
 
@@ -167,28 +161,28 @@ def fit_iSet(Y=None,
     noneNone = Sg is not None and Ug is not None
     bgRE = Rg is not None or noneNone
     # fixed effect
-    msg = 'The current implementation of the full rank iSet'
-    msg += ' does not support covariates.'
-    msg += ' We reccommend to regress out covariates and'
-    msg += ' subsequently quantile normalize the phenotypes'
-    msg += ' to a normal distribution prior to use mtSet/iSet.'
-    msg += ' This can be done within the LIMIX framework using'
-    msg += ' the methods limix.util.preprocess.regressOut and'
-    msg += ' limix.util.preprocess.gaussianize'
+    msg = "The current implementation of the full rank iSet"
+    msg += " does not support covariates."
+    msg += " We reccommend to regress out covariates and"
+    msg += " subsequently quantile normalize the phenotypes"
+    msg += " to a normal distribution prior to use mtSet/iSet."
+    msg += " This can be done within the LIMIX framework using"
+    msg += " the methods limix.util.preprocess.regressOut and"
+    msg += " limix.util.preprocess.gaussianize"
     assert not (F is not None and bgRE), msg
     # strat
     strat = Ie is not None
-    msg = 'iSet for interaction analysis of stratified populations '
-    msg += 'using contextual variables does not support random effect '
-    msg += 'correction for confounding. '
-    msg += 'Please use the fixed effects to correct for confounding. '
+    msg = "iSet for interaction analysis of stratified populations "
+    msg += "using contextual variables does not support random effect "
+    msg += "correction for confounding. "
+    msg += "Please use the fixed effects to correct for confounding. "
     assert not (strat and bgRE), msg
 
     # check inputs for strat design
     if strat:
-        assert Y.shape[1] == 1, 'Y has not the right shape'
+        assert Y.shape[1] == 1, "Y has not the right shape"
         valid_env_ids = (sp.unique(Ie) == sp.array([0, 1])).all()
-        assert valid_env_ids, 'The provided Ie is not valid'
+        assert valid_env_ids, "The provided Ie is not valid"
 
     # phenotype is centered for 2 random effect model
     if bgRE:
@@ -203,18 +197,18 @@ def fit_iSet(Y=None,
         mvset = MvSetTest(Y=Y, Xr=Xr, F=F, factr=factr)
 
     RV = {}
-    RV['mtSet LLR'] = mvset.assoc()
-    RV['iSet LLR'] = mvset.gxe()
-    RV['iSet-het LLR'] = mvset.gxehet()
-    RV['Persistent Var'] = mvset.info['full']['var_r'][0]
-    RV['Rescaling-GxC Var'] = mvset.info['full']['var_r'][1]
-    RV['Heterogeneity-GxC var'] = mvset.info['full']['var_r'][2]
+    RV["mtSet LLR"] = mvset.assoc()
+    RV["iSet LLR"] = mvset.gxe()
+    RV["iSet-het LLR"] = mvset.gxehet()
+    RV["Persistent Var"] = mvset.info["full"]["var_r"][0]
+    RV["Rescaling-GxC Var"] = mvset.info["full"]["var_r"][1]
+    RV["Heterogeneity-GxC var"] = mvset.info["full"]["var_r"][2]
     df = pd.DataFrame(RV)
 
     RV0 = {}
-    RV0['mtSet LLR0'] = mvset.assoc_null(n_nulls=n_nulls)
-    RV0['iSet LLR0'] = mvset.gxe_null(n_nulls=n_nulls)
-    RV0['iSet-het LLR0'] = mvset.gxehet_null(n_nulls=n_nulls)
+    RV0["mtSet LLR0"] = mvset.assoc_null(n_nulls=n_nulls)
+    RV0["iSet LLR0"] = mvset.gxe_null(n_nulls=n_nulls)
+    RV0["iSet-het LLR0"] = mvset.gxehet_null(n_nulls=n_nulls)
     df0 = pd.DataFrame(RV0)
 
     return df, df0

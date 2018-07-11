@@ -30,9 +30,9 @@ def pca(X, ncomp):
             [[-0.7502  0.5835 -0.0797  0.1957 -0.2285]
              [ 0.4884  0.7227  0.0197 -0.4616 -0.1603]]
             >>> print(result['explained_variance'])
-            [ 4.8349  0.3859]
+            [6.4466 0.5145]
             >>> print(result['explained_variance_ratio'])
-            [ 0.9205  0.0735]
+            [0.9205 0.0735]
     """
     from sklearn.decomposition import PCA
 
@@ -42,4 +42,5 @@ def pca(X, ncomp):
     return dict(
         components=pca.components_,
         explained_variance=pca.explained_variance_,
-        explained_variance_ratio=pca.explained_variance_ratio_)
+        explained_variance_ratio=pca.explained_variance_ratio_,
+    )

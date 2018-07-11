@@ -9,15 +9,17 @@ from glimix_core.glmm import GLMMExpFam
 from limix.qtl.lmm import LMM
 
 
-def qtl_test_glmm(snps,
-                  pheno,
-                  lik,
-                  K,
-                  covs=None,
-                  test='lrt',
-                  NumIntervalsDeltaAlt=100,
-                  searchDelta=False,
-                  verbose=True):
+def qtl_test_glmm(
+    snps,
+    pheno,
+    lik,
+    K,
+    covs=None,
+    test="lrt",
+    NumIntervalsDeltaAlt=100,
+    searchDelta=False,
+    verbose=True,
+):
     """
     Wrapper function for univariate single-variant association testing
     using a generalised linear mixed model.
@@ -73,7 +75,7 @@ def qtl_test_glmm(snps,
         >>> lm = qtl_test_glmm(candidates, y, 'poisson', K, verbose=False)
         >>>
         >>> print(lm.getPv())
-        [[ 0.0694  0.3336  0.5899  0.7388  0.7796]]
+        [[0.0694 0.3336 0.5899 0.7388 0.7796]]
     """
 
     snps = _asarray(snps)
@@ -94,12 +96,10 @@ def qtl_test_glmm(snps,
     QS = economic_qs(K)
     glmm = GLMMExpFam(y, lik, covs, QS)
     glmm.feed().maximize(verbose=verbose)
-    # if verbose:
-    #     print("Elapsed time for GLMM part: %.3f" % (time() - start))
 
     # extract stuff from glmm
-    eta = glmm._site.eta
-    tau = glmm._site.tau
+    eta = glmm.site.eta
+    tau = glmm.site.tau
     scale = float(glmm.scale)
     delta = float(glmm.delta)
 
