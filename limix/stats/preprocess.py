@@ -1,16 +1,25 @@
 from __future__ import division
 
-import scipy.spatial
 from joblib import Parallel, cpu_count, delayed
-from numpy import (asarray, ascontiguousarray, double, einsum, isfinite,
-                   logical_not, minimum, newaxis, sqrt, unique, zeros)
+from numpy import (
+    ascontiguousarray,
+    double,
+    einsum,
+    isfinite,
+    logical_not,
+    minimum,
+    newaxis,
+    sqrt,
+    unique,
+    zeros,
+)
 from scipy.spatial import _distance_wrap
 from scipy.spatial.distance import pdist
 from tqdm import tqdm
 
 
 def _row_norms(X):
-    norms = einsum('ij,ij->i', X, X, dtype=double)
+    norms = einsum("ij,ij->i", X, X, dtype=double)
     return sqrt(norms, out=norms)
 
 
@@ -20,10 +29,17 @@ def _sq_pearson(X):
 
     X2 = X - X.mean(1)[:, newaxis]
     X2 = ascontiguousarray(X2)
-    dm = pdist(X2, 'cosine')
-    # norms = _row_norms(X2)
-    # _distance_wrap.pdist_cosine_wrap(X2, dm, norms)
-    return (-dm + 1)**2
+    if hasattr(_distance_wrap, "pdist_cosine_wrap"):
+        norms = _row_norms(X2)
+
+    X2 = X - X.mean(axis=1, keepdims=True)
+
+    if hasattr(_distance_wrap, "pdist_cosine_wrap"):
+        _distance_wrap.pdist_cosine_wrap(X2, dm, norms)
+    else:
+        _distance_wrap.pdist_cosine_double_wrap(X2, dm)
+
+    return (-dm + 1) ** 2
 
 
 def _pdist_threshold(mark, dist, thr):
@@ -90,7 +106,6 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     """
     left = 0
     excls = zeros(X.shape[1], dtype=bool)
-    excl = zeros(window_size, dtype=bool)
 
     assert step_size <= window_size
 
@@ -99,7 +114,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     steps = list(range(n))
     cc = max(1, cpu_count())
 
-    with tqdm(total=n, desc='Indep. pairwise', disable=not verbose) as pbar:
+    with tqdm(total=n, desc="Indep. pairwise", disable=not verbose) as pbar:
 
         while len(steps) > 0:
             i = 0
@@ -119,17 +134,16 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
 
                 delayeds.append(delayed(func)(x, excls[left:right], threshold))
                 if len(delayeds) == cc:
-                    Parallel(
-                        n_jobs=min(len(delayeds), cc),
-                        backend='threading')(delayeds)
+                    Parallel(n_jobs=min(len(delayeds), cc), backend="threading")(
+                        delayeds
+                    )
                     pbar.update(len(delayeds))
                     delayeds = []
 
             if len(delayeds) == 0:
                 continue
 
-            Parallel(
-                n_jobs=min(len(delayeds), cc), backend='threading')(delayeds)
+            Parallel(n_jobs=min(len(delayeds), cc), backend="threading")(delayeds)
             pbar.update(len(delayeds))
 
     return logical_not(excls)
@@ -166,7 +180,7 @@ def maf(X):
             >>> random = RandomState(0)
             >>> X = random.randint(0, 3, size=(100, 10))
             >>>
-            >>> print(maf(X)) # doctest: +SKIP
+            >>> print(maf(X))
             [0.49  0.49  0.445 0.495 0.5   0.45  0.48  0.48  0.47  0.435]
     """
     ok = _check_encoding(X)

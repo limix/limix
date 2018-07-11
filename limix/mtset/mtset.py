@@ -7,7 +7,7 @@ import scipy as sp
 import scipy.linalg as la
 
 
-class MTSet():
+class MTSet:
     r"""
     Multi-trait set tests (mtSet).
 
@@ -80,7 +80,7 @@ class MTSet():
         >>>
         >>> print("%.4f" % res['LLR'][0])
         0.0616
-        >>> print(res['Cr']) # doctest: +SKIP
+        >>> print(res['Cr'])
         [[0.0006 0.0025]
          [0.0025 0.0113]]
 
@@ -106,37 +106,34 @@ class MTSet():
         >>>
         >>> print("%.4f" % res['LLR'][0])
         0.1373
-        >>> print(res['Cr']) # doctest: +SKIP
+        >>> print(res['Cr'])
         [[0.0002 0.0019]
          [0.0019 0.0207]]
     """
 
-    def __init__(self,
-                 Y=None,
-                 R=None,
-                 S_R=None,
-                 U_R=None,
-                 traitID=None,
-                 F=None,
-                 rank=1):
+    def __init__(
+        self, Y=None, R=None, S_R=None, U_R=None, traitID=None, F=None, rank=1
+    ):
         from limix_core.gp import GP2KronSum
         from limix_core.gp import GP2KronSumLR
         from limix_core.gp import GP3KronSumLR
         from limix_core.covar import FreeFormCov
+
         # data
         noneNone = S_R is not None and U_R is not None
         self.bgRE = R is not None or noneNone
         # fixed effect
-        msg = 'The current implementation of the full rank mtSet'
-        msg += ' does not support covariates.'
-        msg += ' We reccommend to regress out covariates and'
-        msg += ' subsequently quantile normalize the phenotypes'
-        msg += ' to a normal distribution prior to use mtSet.'
-        msg += ' This can be done within the LIMIX framework using'
-        msg += ' the methods limix.util.preprocess.regressOut and'
-        msg += ' limix.util.preprocess.gaussianize'
+        msg = "The current implementation of the full rank mtSet"
+        msg += " does not support covariates."
+        msg += " We reccommend to regress out covariates and"
+        msg += " subsequently quantile normalize the phenotypes"
+        msg += " to a normal distribution prior to use mtSet."
+        msg += " This can be done within the LIMIX framework using"
+        msg += " the methods limix.util.preprocess.regressOut and"
+        msg += " limix.util.preprocess.gaussianize"
         assert not (F is not None and self.bgRE), msg
         from limix.util.preprocess import remove_dependent_cols
+
         if F is not None:
             F = remove_dependent_cols(F)
             A = sp.eye(Y.shape[1])
@@ -144,7 +141,7 @@ class MTSet():
             A = None
         # traitID
         if traitID is None:
-            traitID = sp.array(['trait %d' % p for p in range(Y.shape[1])])
+            traitID = sp.array(["trait %d" % p for p in range(Y.shape[1])])
         self.setTraitID(traitID)
         # init covariance matrices and gp
         Cg = FreeFormCov(Y.shape[1])
@@ -152,7 +149,8 @@ class MTSet():
         G = 1. * (sp.rand(Y.shape[0], 1) < 0.2)
         if self.bgRE:
             self._gp = GP3KronSumLR(
-                Y=Y, Cg=Cg, Cn=Cn, R=R, S_R=S_R, U_R=U_R, G=G, rank=rank)
+                Y=Y, Cg=Cg, Cn=Cn, R=R, S_R=S_R, U_R=U_R, G=G, rank=rank
+            )
         else:
             self._gp = GP2KronSumLR(Y=Y, Cn=Cn, G=G, F=F, A=A)
         # null model params
@@ -226,8 +224,8 @@ class MTSet():
     #########################################
     @Y.setter
     def Y(self, value):
-        assert value.shape[0] == self.N, 'Dimension mismatch'
-        assert value.shape[1] == self.P, 'Dimension mismatch'
+        assert value.shape[0] == self.N, "Dimension mismatch"
+        assert value.shape[1] == self.P, "Dimension mismatch"
         self._gp.mean.Y = Y
 
     def setTraitID(self, traitID):
@@ -236,16 +234,18 @@ class MTSet():
     ################################################
     # Fitting null model
     ###############################################
-    def fitNull(self,
-                cache=False,
-                out_dir='./cache',
-                fname=None,
-                rewrite=False,
-                seed=None,
-                factr=1e3,
-                n_times=10,
-                init_method=None,
-                verbose=False):
+    def fitNull(
+        self,
+        cache=False,
+        out_dir="./cache",
+        fname=None,
+        rewrite=False,
+        seed=None,
+        factr=1e3,
+        n_times=10,
+        init_method=None,
+        verbose=False,
+    ):
         r"""
         Fit null model
 
@@ -300,12 +300,13 @@ class MTSet():
         from limix_core.gp import GP2KronSumLR
         from limix_core.gp import GP3KronSumLR
         from limix_core.covar import FreeFormCov
+
         if seed is not None:
             sp.random.seed(seed)
 
         read_from_file = False
         if cache:
-            assert fname is not None, 'MultiTraitSetTest:: specify fname'
+            assert fname is not None, "MultiTraitSetTest:: specify fname"
             if not os.path.exists(out_dir):
                 os.makedirs(out_dir)
             out_file = os.path.join(out_dir, fname)
@@ -313,7 +314,7 @@ class MTSet():
 
         RV = {}
         if read_from_file:
-            f = h5py.File(out_file, 'r')
+            f = h5py.File(out_file, "r")
             for key in list(f.keys()):
                 RV[key] = f[key][:]
             f.close()
@@ -329,14 +330,12 @@ class MTSet():
                     Cn=self.Cn,
                     R=None,
                     S_R=self.S_R,
-                    U_R=self.U_R)
+                    U_R=self.U_R,
+                )
             else:
                 self._gpNull = GP2KronSumLR(
-                    self.Y,
-                    self.Cn,
-                    G=sp.ones((self.N, 1)),
-                    F=self.F,
-                    A=self.A)
+                    self.Y, self.Cn, G=sp.ones((self.N, 1)), F=self.F, A=self.A
+                )
                 # freezes Cg to 0
                 n_params = self._gpNull.covar.Cr.getNumberParams()
                 self._gpNull.covar.Cr.setParams(1e-9 * sp.ones(n_params))
@@ -344,38 +343,38 @@ class MTSet():
             for i in range(n_times):
                 params0 = self._initParams(init_method=init_method)
                 self._gpNull.setParams(params0)
-                conv, info = self._gpNull.optimize(
-                    verbose=verbose, factr=factr)
+                conv, info = self._gpNull.optimize(verbose=verbose, factr=factr)
                 if conv:
                     break
             if not conv:
                 warnings.warn("not converged")
-            LMLgrad = (self._gpNull.LML_grad()['covar']**2).mean()
+            LMLgrad = (self._gpNull.LML_grad()["covar"] ** 2).mean()
             LML = self._gpNull.LML()
             if self._gpNull.mean.n_terms == 1:
-                RV['B'] = self._gpNull.mean.B[0]
+                RV["B"] = self._gpNull.mean.B[0]
             elif self._gpNull.mean.n_terms > 1:
-                warning.warn('generalize to more than 1 fixed effect term')
+                warning.warn("generalize to more than 1 fixed effect term")
             if self.bgRE:
-                RV['params0_g'] = self.Cg.getParams()
+                RV["params0_g"] = self.Cg.getParams()
             else:
-                RV['params0_g'] = sp.zeros_like(self.Cn.getParams())
-            RV['params0_n'] = self.Cn.getParams()
+                RV["params0_g"] = sp.zeros_like(self.Cn.getParams())
+            RV["params0_n"] = self.Cn.getParams()
             if self.bgRE:
-                RV['Cg'] = self.Cg.K()
+                RV["Cg"] = self.Cg.K()
             else:
-                RV['Cg'] = sp.zeros_like(self.Cn.K())
-            RV['Cn'] = self.Cn.K()
-            RV['conv'] = sp.array([conv])
-            RV['time'] = sp.array([TIME.time() - start])
-            RV['NLL0'] = sp.array([LML])
-            RV['LMLgrad'] = sp.array([LMLgrad])
-            RV['nit'] = sp.array([info['nit']])
-            RV['funcalls'] = sp.array([info['funcalls']])
+                RV["Cg"] = sp.zeros_like(self.Cn.K())
+            RV["Cn"] = self.Cn.K()
+            RV["conv"] = sp.array([conv])
+            RV["time"] = sp.array([TIME.time() - start])
+            RV["NLL0"] = sp.array([LML])
+            RV["LMLgrad"] = sp.array([LMLgrad])
+            RV["nit"] = sp.array([info["nit"]])
+            RV["funcalls"] = sp.array([info["funcalls"]])
             self.null = RV
             from limix.util.util_functions import smartDumpDictHdf5
+
             if cache:
-                f = h5py.File(out_file, 'w')
+                f = h5py.File(out_file, "w")
                 smartDumpDictHdf5(RV, f)
                 f.close()
         return RV
@@ -392,13 +391,7 @@ class MTSet():
     # Fitting alternative model
     ###########################################
 
-    def optimize(self,
-                 G,
-                 params0=None,
-                 n_times=10,
-                 vmax=5,
-                 factr=1e7,
-                 verbose=False):
+    def optimize(self, G, params0=None, n_times=10, vmax=5, factr=1e7, verbose=False):
         """
         Fit alternative model
 
@@ -452,24 +445,24 @@ class MTSet():
                 self.fitNull()
             if self.bgRE:
                 params0 = sp.concatenate(
-                    [self.null['params0_g'], self.null['params0_n']])
+                    [self.null["params0_g"], self.null["params0_n"]]
+                )
             else:
-                params0 = self.null['params0_n']
+                params0 = self.null["params0_n"]
             params_was_None = True
         else:
             params_was_None = False
-        G *= sp.sqrt(self.N / (G**2).sum())
+        G *= sp.sqrt(self.N / (G ** 2).sum())
         self._gp.covar.G = G
         start = TIME.time()
         for i in range(n_times):
             if params_was_None:
                 n_params = self.Cr.getNumberParams()
                 _params0 = {
-                    'covar':
-                    sp.concatenate([1e-3 * sp.randn(n_params), params0])
+                    "covar": sp.concatenate([1e-3 * sp.randn(n_params), params0])
                 }
             else:
-                _params0 = {'covar': params0}
+                _params0 = {"covar": params0}
             self._gp.setParams(_params0)
             conv, info = self._gp.optimize(factr=factr, verbose=verbose)
             conv *= self.Cr.K().diagonal().max() < vmax
@@ -482,19 +475,19 @@ class MTSet():
         # return value
         RV = {}
         if self.P > 1:
-            RV['Cr'] = self.Cr.K()
+            RV["Cr"] = self.Cr.K()
             if self.bgRE:
-                RV['Cg'] = self.Cg.K()
-            RV['Cn'] = self.Cn.K()
-        RV['time'] = sp.array([TIME.time() - start])
-        RV['params0'] = _params0
-        RV['nit'] = sp.array([info['nit']])
-        RV['funcalls'] = sp.array([info['funcalls']])
-        RV['var'] = self.getVariances()
-        RV['conv'] = sp.array([conv])
-        RV['NLLAlt'] = sp.array([self.getNLLAlt()])
-        RV['LLR'] = sp.array([self.getLLR()])
-        RV['LMLgrad'] = sp.array([self.getLMLgrad()])
+                RV["Cg"] = self.Cg.K()
+            RV["Cn"] = self.Cn.K()
+        RV["time"] = sp.array([TIME.time() - start])
+        RV["params0"] = _params0
+        RV["nit"] = sp.array([info["nit"]])
+        RV["funcalls"] = sp.array([info["funcalls"]])
+        RV["var"] = self.getVariances()
+        RV["conv"] = sp.array([conv])
+        RV["NLLAlt"] = sp.array([self.getNLLAlt()])
+        RV["LLR"] = sp.array([self.getLLR()])
+        RV["LMLgrad"] = sp.array([self.getLMLgrad()])
         return RV
 
     def getInfoOpt(self):
@@ -523,27 +516,24 @@ class MTSet():
         """
         get log likelihood ratio
         """
-        assert self.null is not None, 'null model needs to be fitted!'
-        return self.null['NLL0'][0] - self.getNLLAlt()
+        assert self.null is not None, "null model needs to be fitted!"
+        return self.null["NLL0"][0] - self.getNLLAlt()
 
     def getLMLgrad(self):
         """
         get norm LML gradient
         """
-        return (self._gp.LML_grad()['covar']**2).mean()
+        return (self._gp.LML_grad()["covar"] ** 2).mean()
 
-    def fitNullTraitByTrait(self,
-                            verbose=False,
-                            cache=False,
-                            out_dir='./cache',
-                            fname=None,
-                            rewrite=False):
+    def fitNullTraitByTrait(
+        self, verbose=False, cache=False, out_dir="./cache", fname=None, rewrite=False
+    ):
         """
         Fit null model trait by trait
         """
         read_from_file = False
         if cache:
-            assert fname is not None, 'MultiTraitSetTest:: specify fname'
+            assert fname is not None, "MultiTraitSetTest:: specify fname"
             if not os.path.exists(out_dir):
                 os.makedirs(out_dir)
             out_file = os.path.join(out_dir, fname)
@@ -551,7 +541,7 @@ class MTSet():
 
         RV = {}
         if read_from_file:
-            f = h5py.File(out_file, 'r')
+            f = h5py.File(out_file, "r")
             for p in range(self.P):
                 trait_id = self.traitID[p]
                 g = f[trait_id]
@@ -568,27 +558,29 @@ class MTSet():
             RV = {}
             for p in range(self.P):
                 trait_id = self.traitID[p]
-                self.stSet.Y = self.Y[:, p:p + 1]
+                self.stSet.Y = self.Y[:, p : p + 1]
                 RV[trait_id] = self.stSet.fitNull()
             self.nullST = RV
             from limix.util.util_functions import smartDumpDictHdf5
+
             if cache:
-                f = h5py.File(out_file, 'w')
+                f = h5py.File(out_file, "w")
                 smartDumpDictHdf5(RV, f)
                 f.close()
         return RV
 
     def optimizeTraitByTrait(self, G, verbose=False, n_times=10, factr=1e3):
         """ Optimize trait by trait """
-        assert self.nullST is not None, 'fit null model beforehand'
+        assert self.nullST is not None, "fit null model beforehand"
         RV = {}
         self.infoOptST = {}
         for p in range(self.P):
             trait_id = self.traitID[p]
-            self.stSet.Y = self.Y[:, p:p + 1]
+            self.stSet.Y = self.Y[:, p : p + 1]
             self.stSet.setNull(self.nullST[trait_id])
             RV[trait_id] = self.stSet.optimize(
-                G, n_times=n_times, factr=factr, verbose=verbose)
+                G, n_times=n_times, factr=factr, verbose=verbose
+            )
             self.infoOptST[trait_id] = self.stSet.getInfoOpt()
         return RV
 
@@ -599,18 +591,16 @@ class MTSet():
     def _initParams(self, init_method=None):
         """ internal function for params initialization """
         if self.bgRE:
-            if init_method == 'random':
-                params0 = {
-                    'covar': sp.randn(self._gpNull.covar.getNumberParams())
-                }
+            if init_method == "random":
+                params0 = {"covar": sp.randn(self._gpNull.covar.getNumberParams())}
             else:
                 if self.P == 1:
-                    params0 = {'covar': sp.sqrt(0.5) * sp.ones(2)}
+                    params0 = {"covar": sp.sqrt(0.5) * sp.ones(2)}
                 else:
                     cov = 0.5 * sp.cov(self.Y.T) + 1e-4 * sp.eye(self.P)
                     chol = la.cholesky(cov, lower=True)
                     params = chol[sp.tril_indices(self.P)]
-                    params0 = {'covar': sp.concatenate([params, params])}
+                    params0 = {"covar": sp.concatenate([params, params])}
         else:
             if self.P == 1:
                 params_cn = sp.array([1.])
@@ -618,11 +608,11 @@ class MTSet():
                 cov = sp.cov(self.Y.T) + 1e-4 * sp.eye(self.P)
                 chol = la.cholesky(cov, lower=True)
                 params_cn = chol[sp.tril_indices(self.P)]
-            params0 = {'covar': params_cn}
+            params0 = {"covar": params_cn}
         return params0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from limix.util.preprocess import covar_rescale
 
     sp.random.seed(0)

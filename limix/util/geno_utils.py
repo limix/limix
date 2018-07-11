@@ -88,39 +88,38 @@ def estCumPos(position, offset=0, chrom_len=None, return_chromstart=False):
     if type(position) != pd.core.frame.DataFrame:
 
         if type(position) != list:
-            raise TypeError('position must be a dataframe or list of arrays')
+            raise TypeError("position must be a dataframe or list of arrays")
 
         chrom = position[0]
         pos = position[1]
 
         if type(pos) != sp.ndarray or type(chrom) != sp.ndarray:
-            raise TypeError('position must be a dataframe or list of arrays')
+            raise TypeError("position must be a dataframe or list of arrays")
 
         if len(pos.shape) != 1 or len(chrom.shape) != 1:
-            raise ValueError('pos and chrom should be arrays')
+            raise ValueError("pos and chrom should be arrays")
 
         if len(pos) != len(chrom):
-            raise ValueError('pos and chrom should have the same length')
+            raise ValueError("pos and chrom should have the same length")
 
-        position = pd.DataFrame(
-            sp.array([pos, chrom]).T, columns=['pos', 'chrom'])
+        position = pd.DataFrame(sp.array([pos, chrom]).T, columns=["pos", "chrom"])
 
     RV = position.copy()
 
-    chromvals = sp.unique(position['chrom'])  # sp.unique is always sorted
+    chromvals = sp.unique(position["chrom"])  # sp.unique is always sorted
     chromstart = sp.zeros_like(chromvals)
     pos_cum = sp.zeros_like(position.shape[0])
-    if 'pos_cum' not in position:
-        RV["pos_cum"] = sp.zeros_like(position['pos'])
-    pos_cum = RV['pos_cum'].values
+    if "pos_cum" not in position:
+        RV["pos_cum"] = sp.zeros_like(position["pos"])
+    pos_cum = RV["pos_cum"].values
     to_add = 0
     for i, mychrom in enumerate(chromvals):
-        i_chr = position['chrom'] == mychrom
+        i_chr = position["chrom"] == mychrom
         if chrom_len is None:
-            maxpos = position['pos'][i_chr].max() + offset
+            maxpos = position["pos"][i_chr].max() + offset
         else:
             maxpos = chrom_len[i] + offset
-        pos_cum[i_chr.values] = to_add + position.loc[i_chr, 'pos']
+        pos_cum[i_chr.values] = to_add + position.loc[i_chr, "pos"]
         chromstart[i] = pos_cum[i_chr.values].min()
         to_add += maxpos
 
@@ -157,7 +156,7 @@ def unique_variants(snps, return_idxs=False):
             >>> N = 4
             >>> snps = kron(random.randn(N,3)<0., ones((1,2)))
             >>>
-            >>> print(snps) # doctest: +SKIP
+            >>> print(snps)
             [[0. 0. 1. 1. 1. 1.]
              [1. 1. 0. 0. 1. 1.]
              [0. 0. 1. 1. 0. 0.]
@@ -165,7 +164,7 @@ def unique_variants(snps, return_idxs=False):
             >>>
             >>> snps_u = unique_variants(snps)
             >>>
-            >>> print(snps_u) # doctest: +SKIP
+            >>> print(snps_u)
             [[0. 1. 1.]
              [1. 0. 1.]
              [0. 1. 0.]

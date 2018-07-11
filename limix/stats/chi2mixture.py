@@ -53,7 +53,7 @@ class Chi2mixture(object):
             ...                       qmax=0.1, tol=4e-3)
             >>> chi2mix.estimate_chi2mixture(x)
             >>> pv = chi2mix.sf(x)
-            >>> print(pv[:4]) # doctest: +SKIP
+            >>> print(pv[:4])
             [0.2 0.2 0.2 0.2]
             >>>
             >>> print('%.2f' % chi2mix.scale)
@@ -64,14 +64,16 @@ class Chi2mixture(object):
             0.20
     """
 
-    def __init__(self,
-                 scale_min=0.1,
-                 scale_max=5.0,
-                 dof_min=0.1,
-                 dof_max=5.0,
-                 n_intervals=100,
-                 qmax=0.1,
-                 tol=0):
+    def __init__(
+        self,
+        scale_min=0.1,
+        scale_max=5.0,
+        dof_min=0.1,
+        dof_max=5.0,
+        n_intervals=100,
+        qmax=0.1,
+        tol=0,
+    ):
 
         self.scale_min = scale_min
         self.scale_max = scale_max
@@ -98,7 +100,7 @@ class Chi2mixture(object):
         #           remaining parameters
         n_fitting = int(sp.ceil(self.qmax * n_false))
         lrt_sorted = -sp.sort(-lrt)[:n_fitting]
-        q = sp.linspace(0, 1, n_false)[1:n_fitting + 1]
+        q = sp.linspace(0, 1, n_false)[1 : n_fitting + 1]
         log_q = sp.log10(q)
 
         # step 3: fitting scale and dof by minimizing the squared error of the log10 p-values
@@ -107,12 +109,14 @@ class Chi2mixture(object):
         MSE = sp.zeros((self.n_intervals, self.n_intervals))
 
         for i, scale in enumerate(
-                sp.linspace(self.scale_min, self.scale_max, self.n_intervals)):
+            sp.linspace(self.scale_min, self.scale_max, self.n_intervals)
+        ):
             for j, dof in enumerate(
-                    sp.linspace(self.dof_min, self.dof_max, self.n_intervals)):
+                sp.linspace(self.dof_min, self.dof_max, self.n_intervals)
+            ):
                 p = st.chi2.sf(lrt_sorted / scale, dof)
                 log_p = sp.log10(p)
-                MSE[i, j] = sp.mean((log_q - log_p)**2)
+                MSE[i, j] = sp.mean((log_q - log_p) ** 2)
                 if MSE[i, j] < MSE_opt:
                     MSE_opt = MSE[i, j]
                     self.scale = scale

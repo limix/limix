@@ -73,9 +73,9 @@ class VarianceDecomposition(object):
             [[ 1.0029 -0.1212 -0.0052]
              [-0.1212  0.8284 -0.0412]
              [-0.0052 -0.0412  0.8147]]
-            >>> print(vc.getWeights(0)) # doctest: +SKIP
+            >>> print(vc.getWeights(0))
             [[0.039  0.0899 0.1213]]
-            >>> print(vc.getWeights(1)) # doctest: +SKIP
+            >>> print(vc.getWeights(1))
             [[-0.0176]
              [-0.0095]]
     """

@@ -7,7 +7,7 @@ from sklearn.preprocessing import Imputer
 from limix.io import read_plink
 
 
-class BedReader():
+class BedReader:
     r"""
     Class to read and make queries on plink binary files.
 
@@ -60,7 +60,7 @@ class BedReader():
         2     1  rs3855952  0.0  77689  G  A  6
         3     1   rs940550  0.0  78032  0  T  7
         >>>
-        >>> print(X) # doctest: +SKIP
+        >>> print(X)
         [[2. 2. 2. 2.]
          [2. 2. 1. 2.]
          [2. 2. 0. 2.]]
@@ -79,7 +79,7 @@ class BedReader():
         3     1   rs940550  0.0  78032  0  T  3
         >>>
         >>> # only when using getGenotypes, the genotypes are loaded
-        >>> print( reader_sub.getGenotypes( impute=True ) ) # doctest: +SKIP
+        >>> print( reader_sub.getGenotypes( impute=True ) )
         [[2. 2. 2. 2.]
          [2. 2. 1. 2.]
          [2. 2. 0. 2.]]
@@ -128,16 +128,14 @@ class BedReader():
         self._geno = bed
 
     def _init_imputer(self):
-        self._imputer = Imputer(
-            missing_values=3., strategy='mean', axis=0, copy=False)
+        self._imputer = Imputer(missing_values=3., strategy="mean", axis=0, copy=False)
 
     def __str__(self):
-        rv = '<' + str(self.__class__)
-        rv += ' instance at '
-        rv += hex(id(self)) + '>\n'
-        rv += 'File: ' + self._prefix + '\n'
-        rv += 'Dims: %d inds, %d snps' % (self._geno.shape[1],
-                                          self._geno.shape[0])
+        rv = "<" + str(self.__class__)
+        rv += " instance at "
+        rv += hex(id(self)) + ">\n"
+        rv += "File: " + self._prefix + "\n"
+        rv += "Dims: %d inds, %d snps" % (self._geno.shape[1], self._geno.shape[0])
         return rv
 
     def getSnpInfo(self):
@@ -167,7 +165,8 @@ class BedReader():
         # query
         geno, snpinfo = self._query(query)
         snpinfo = snpinfo.assign(
-            i=pd.Series(sp.arange(snpinfo.shape[0]), index=snpinfo.index))
+            i=pd.Series(sp.arange(snpinfo.shape[0]), index=snpinfo.index)
+        )
 
         if inplace:
             # replace
@@ -181,11 +180,9 @@ class BedReader():
             R._snpinfo = snpinfo
             return R
 
-    def getGenotypes(self,
-                     query=None,
-                     impute=False,
-                     standardize=False,
-                     return_snpinfo=False):
+    def getGenotypes(
+        self, query=None, impute=False, standardize=False, return_snpinfo=False
+    ):
         r""" Query and Load genotype data.
 
         Parameters
@@ -233,6 +230,38 @@ class BedReader():
             X = X.astype(float)
             X -= X.mean(0)
             X /= X.std(0)
+
+        if return_snpinfo:
+            return X, snpinfo
+        else:
+            return X
+
+    def getRealGenotypes(self, query=None, return_snpinfo=False):
+        r""" Query and Load genotype data.
+
+        Parameters
+        ----------
+        query : str
+            pandas query on the bim file.
+            The default is None.
+        return_snpinfo : bool, optional
+            If True, returns genotype info
+            By default is False.
+
+        Returns
+        -------
+            X : ndarray
+                (`N`, `S`) ndarray of queried genotype values
+                for `N` individuals and `S` variants.
+            snpinfo : :class:`pandas.DataFrame`
+                dataframe with genotype info.
+                Returned only if ``return_snpinfo=True``.
+        """
+        # query
+        geno, snpinfo = self._query(query)
+
+        # compute
+        X = geno.compute().T
 
         if return_snpinfo:
             return X, snpinfo
