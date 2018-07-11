@@ -24,21 +24,21 @@ def setup_package():
 
     setup_requires = ["cython", "numpy>=1.14.5"] + pytest_runner
     install_requires = [
-        "scikit-learn",
-        "limix-core>=1.0.1",
-        "dask[array,bag,dataframe,delayed]>=0.14",
-        "h5py",
-        "pandas-plink>=1.2.1",
-        "limix-legacy>=0.8.12",
-        "glimix-core>=1.2.19",
-        "joblib>=0.11",
-        "tqdm>=4.10",
-        "scipy>=0.19",
-        "distributed",
-        "numpy-sugar>=1.0.47",
-        "ncephes>=1.0.40",
         "asciitree>=0.3.3",
+        "dask[array,bag,dataframe,delayed]>=0.18.1",
+        "distributed",
+        "glimix-core>=1.5.0",
+        "h5py",
+        "joblib>=0.11",
+        "limix-core>=1.0.1",
+        "limix-legacy>=0.8.12",
+        "ncephes>=1.0.40",
+        "numpy-sugar>=1.2.5)",
         "numpy>=1.14.5",
+        "pandas-plink>=1.2.26",
+        "scikit-learn",
+        "scipy>=1.1.0",
+        "tqdm>=4.10",
     ]
     tests_require = ["pytest", "pytest-console-scripts", "pytest-pep8"]
 

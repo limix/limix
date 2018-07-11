@@ -1,6 +1,7 @@
 language: python
-sudo: required
-python: 3.6
+python:
+- 2.7
+- 3.6
 env:
 - PKG_NAME=limix
 addons:
@@ -9,9 +10,7 @@ addons:
     - pandoc
     - libffi-dev
     - libffi6
-install:
-- bash <(curl -fsSL https://raw.githubusercontent.com/limix/hcephes/master/install)
-- bash <(curl -fsSL https://raw.githubusercontent.com/limix/liknorm/master/install)
+    - cmake
 script:
 - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis.sh)
 notifications:
@@ -29,3 +28,4 @@ deploy:
     tags: true
     repo: limix/limix
     branch: 1.0.x
+    python: 3.6
