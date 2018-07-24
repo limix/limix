@@ -1,6 +1,6 @@
 from __future__ import division
 
-from numpy import copyto
+from numpy import copyto, asarray
 
 
 def normalise_covariance(K, out=None):
@@ -72,6 +72,7 @@ def normalise_covariance(K, out=None):
 
     .. _Dask: https://dask.pydata.org/
     """
+    K = asarray(K, float)
     c = (K.shape[0] - 1) / (K.trace() - K.mean(0).sum())
     if out is None:
         return c * K

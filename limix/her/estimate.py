@@ -22,7 +22,9 @@ def estimate(y, lik, K, M=None, verbose=True):
     y : array_like
         Either a tuple of two arrays of `N` individuals each (Binomial
         phenotypes) or an array of `N` individuals (Normal, Poisson, or
-        Bernoulli phenotypes).
+        Bernoulli phenotypes). If a continuous phenotype is provided (i.e., a Normal
+        one), make sure they have been normalised in such a way that its values are
+        not extremely large; it might cause numerical errors otherwise.
     lik : 'normal', 'bernoulli', 'probit', binomial', 'poisson'
         Sample likelihood describing the residual distribution.
     K : array_like
