@@ -27,11 +27,11 @@ def setup_package():
         "asciitree>=0.3.3",
         "dask[array,bag,dataframe,delayed]>=0.18.1",
         "distributed",
-        "glimix-core>=1.5.0",
+        "glimix-core>=1.5.2",
         "h5py",
         "joblib>=0.11",
         "limix-core>=1.0.1",
-        "limix-legacy>=0.8.12",
+        "limix-legacy>=0.8.13",
         "ncephes>=1.0.40",
         "numpy-sugar>=1.2.5",
         "numpy>=1.14.5",
@@ -40,7 +40,7 @@ def setup_package():
         "scipy>=1.1.0",
         "tqdm>=4.10",
     ]
-    tests_require = ["pytest", "pytest-console-scripts", "pytest-pep8"]
+    tests_require = ["pytest", "pytest-console-scripts"]
 
     console_scripts = [
         "limix_runner=limix.scripts.limix_runner:entry_point",
