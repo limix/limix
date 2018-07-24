@@ -7,7 +7,6 @@ from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
 from ..dataframe import normalise_dataset
-from ..fprint import oprint
 from ..likelihood import normalise_extreme_values
 from ..qc import normalise_covariance
 
@@ -15,7 +14,7 @@ from ..qc import normalise_covariance
 def estimate(y, lik, K, M=None, verbose=True):
     r"""Estimate the so-called narrow-sense heritability.
 
-    It supports Normal, Bernoulli, Binomial, and Poisson phenotypes.
+    It supports Normal, Bernoulli, Probit, Binomial, and Poisson phenotypes.
     Let :math:`N` be the sample size and :math:`S` the number of covariates.
 
     Parameters
@@ -23,16 +22,20 @@ def estimate(y, lik, K, M=None, verbose=True):
     y : array_like
         Either a tuple of two arrays of `N` individuals each (Binomial
         phenotypes) or an array of `N` individuals (Normal, Poisson, or
-        Bernoulli phenotypes). It does not support missing values yet.
-    lik : 'normal', 'bernoulli', 'binomial', 'poisson'
+        Bernoulli phenotypes).
+    lik : 'normal', 'bernoulli', 'probit', binomial', 'poisson'
         Sample likelihood describing the residual distribution.
     K : array_like
-        `N` by `N` covariance matrix (e.g., kinship coefficients).
+        `N` by `N` covariance matrix. It might be, for example, the estimated kinship
+        relationship between the individuals. The provided matrix will be normalised
+        via the function :func:`limix.qc.normalise_covariance`.
     M : array_like, optional
-        `N` individuals by `D` covariates.
-        By default, ``M`` is a (`N`, `1`) array of ones.
+        `N` individuals by `S` covariates.
+        It will create a (`N`, `1`) matrix ``M`` of ones representing the offset
+        covariate if ``None`` is passed. If an array is passed, it will used as is.
+        Defaults to ``None``.
     verbose : bool, optional
-        if ``True``, details such as runtime are displayed.
+        ``True`` to display progress and summary; ``False`` otherwise.
 
     Returns
     -------
@@ -54,22 +57,27 @@ def estimate(y, lik, K, M=None, verbose=True):
         >>> z = dot(G, random.randn(200)) + random.randn(150)
         >>> y = random.poisson(exp(z))
         >>>
-        >>> print('%.2f' % estimate(y, 'poisson', K, verbose=False))
-        0.18
+        >>> print('%.3f' % estimate(y, 'poisson', K, verbose=False))  # doctest: +FLOAT_CMP
+        0.183
+
+    Notes
+    -----
+    It will raise a ``ValueError`` exception if non-finite values are passed. Please,
+    refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
     if verbose:
         lik_name = lik.lower()
         lik_name = lik_name[0].upper() + lik_name[1:]
         analysis_name = "Heritability estimation"
-        oprint("*** %s using %s-GLMM ***" % (analysis_name, lik_name))
+        print("*** {} using {}-GLMM ***".format(analysis_name, lik_name))
 
     if K is not None:
         K = normalise_covariance(K)
 
     data = normalise_dataset(y, lik, M=M, K=K)
-    y = data['y']
-    M = data['M']
-    K = data['K']
+    y = data["y"]
+    M = data["M"]
+    K = data["K"]
 
     y = normalise_extreme_values(y, lik)
 
@@ -78,7 +86,7 @@ def estimate(y, lik, K, M=None, verbose=True):
     else:
         QS = None
 
-    if lik == 'normal':
+    if lik == "normal":
         method = LMM(y.values, M.values, QS)
         method.fit(verbose=verbose)
     else:
@@ -87,10 +95,10 @@ def estimate(y, lik, K, M=None, verbose=True):
 
     g = method.scale * (1 - method.delta)
     e = method.scale * method.delta
-    if lik == 'bernoulli':
+    if lik == "bernoulli":
         e += pi * pi / 3
 
-    if lik == 'normal':
+    if lik == "normal":
         v = method.fixed_effects_variance
     else:
         v = var(method.mean())
