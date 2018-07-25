@@ -24,7 +24,9 @@ def estimate(y, lik, K, M=None, verbose=True):
         phenotypes) or an array of `N` individuals (Normal, Poisson, or
         Bernoulli phenotypes). If a continuous phenotype is provided (i.e., a Normal
         one), make sure they have been normalised in such a way that its values are
-        not extremely large; it might cause numerical errors otherwise.
+        not extremely large; it might cause numerical errors otherwise. For example,
+        by using :func:`limix.qc.mean_standardize` or
+        :func:`limix.qc.quantile_gaussianize`.
     lik : 'normal', 'bernoulli', 'probit', binomial', 'poisson'
         Sample likelihood describing the residual distribution.
     K : array_like

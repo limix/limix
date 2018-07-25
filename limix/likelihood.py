@@ -1,8 +1,14 @@
+import warnings
 from numpy import clip, minimum, isfinite, all
 
 
 def _poisson_normalise_extreme_values(y):
     max_val = 25000.
+    if y.values.max() > max_val:
+        msg = "Output values of Poisson likelihood greater"
+        msg += " than {} is set to {} before applying GLMM."
+        msg = msg.format(max_val, max_val)
+        warnings.warn(msg)
     y.values[:] = clip(y.values, 0., max_val)
 
 
