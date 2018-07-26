@@ -7,7 +7,7 @@ from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
 from ..dataframe import normalise_dataset
-from .model import QTLModel
+from ._model import QTLModel
 from .util import print_analysis
 
 
@@ -49,7 +49,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
     Returns
     -------
-    :class:`limix.qtl.model.QTLModel`
+    :class:`limix.qtl.QTLModel`
         QTL representation.
 
     Examples

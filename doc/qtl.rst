@@ -110,7 +110,7 @@ alternative hypotheses to be tested:
 The above example prints the estimated p-value, effect size, and standard
 error of the effect size of each variant.
 It also shows a summary of the result by printing the variable ``model``, an
-instance of the :class:`limix.qtl.model.QTLModel` class.
+instance of the :class:`limix.qtl.QTLModel` class.
 
 A **generalised linear mixed model** (GLMM) [McC89]_ [McC11]_ in an extension of a LMM
 that allows for residual errors distributed according to an exponential-family
@@ -196,10 +196,7 @@ Interface
 ^^^^^^^^^
 
 .. autofunction:: limix.qtl.scan
-.. autoclass:: limix.qtl.model.QTLModel
-    :members:
-.. autofunction:: limix.qtl.iscan
-.. autoclass:: limix.qtl.model.IQTLModel
+.. autoclass:: limix.qtl.QTLModel
     :members:
 
 .. rubric:: References
