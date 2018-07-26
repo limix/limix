@@ -14,7 +14,7 @@ from .util import print_analysis
 def scan(G, y, lik, K=None, M=None, verbose=True):
     r"""Single-variant association testing via generalised linear mixed models.
 
-    It supports Normal (linear mixed model), Bernoulli, Binomial, and Poisson
+    It supports Normal (linear mixed model), Bernoulli, Probit, Binomial, and Poisson
     residual errors, defined by ``lik``.
     The columns of ``G`` define the candidates to be tested for association
     with the phenotype ``y``.
@@ -22,27 +22,30 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     If not provided, or set to ``None``, the generalised linear model
     without random effects is assumed.
     The covariates can be set via the parameter ``M``.
-    We recommend to always provide a column of ones in the case
+    We recommend to always provide a column of ones when covariates are actually
+    provided.
 
     Parameters
     ----------
     G : array_like
-        `n` individuals by `s` candidate markers.
+        :math:`N` individuals by :math:`S` candidate markers.
     y : tuple, array_like
-        Either a tuple of two arrays of `n` individuals each (Binomial
-        phenotypes) or an array of `n` individuals (Normal, Poisson, or
-        Bernoulli phenotypes). It does not support missing values yet.
-    lik : {'normal', 'bernoulli', 'binomial', 'poisson'}
+        Either a tuple of two arrays of :math:`N` individuals each (Binomial
+        phenotypes) or an array of :math:`N` individuals (Normal, Poisson, Bernoulli, or
+        Probit phenotypes).
+    lik : "normal", "bernoulli", "probit", binomial", "poisson"
         Sample likelihood describing the residual distribution.
     K : array_like, optional
-        `n` by `n` covariance matrix (e.g., kinship coefficients).
+        :math:`N`-by-:math:`N` covariance matrix (e.g., kinship coefficients).
         Set to ``None`` for a generalised linear model without random effects.
         Defaults to ``None``.
     M : array_like, optional
-        `n` individuals by `d` covariates.
-        By default, ``M`` is an `n` by `1` matrix of ones.
+        `N` individuals by `S` covariates.
+        It will create a :math:`N`-by-:math:`1` matrix ``M`` of ones representing the
+        offset covariate if ``None`` is passed. If an array is passed, it will used as
+        is. Defaults to ``None``.
     verbose : bool, optional
-        if ``True``, details such as runtime are displayed.
+        ``True`` to display progress and summary; ``False`` otherwise.
 
     Returns
     -------
@@ -108,6 +111,11 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         Covariate effect sizes for the null model
            offset       age
          0.395284 -0.005568
+    
+    Notes
+    -----
+    It will raise a ``ValueError`` exception if non-finite values are passed. Please,
+    refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
     lik = lik.lower()
 

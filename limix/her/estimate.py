@@ -27,15 +27,15 @@ def estimate(y, lik, K, M=None, verbose=True):
         not extremely large; it might cause numerical errors otherwise. For example,
         by using :func:`limix.qc.mean_standardize` or
         :func:`limix.qc.quantile_gaussianize`.
-    lik : 'normal', 'bernoulli', 'probit', binomial', 'poisson'
+    lik : "normal", "bernoulli", "probit", binomial", "poisson"
         Sample likelihood describing the residual distribution.
     K : array_like
-        `N` by `N` covariance matrix. It might be, for example, the estimated kinship
-        relationship between the individuals. The provided matrix will be normalised
-        via the function :func:`limix.qc.normalise_covariance`.
+        :math:`N`-by-:math:`N` covariance matrix. It might be, for example, the
+        estimated kinship relationship between the individuals. The provided matrix will
+        be normalised via the function :func:`limix.qc.normalise_covariance`.
     M : array_like, optional
-        `N` individuals by `S` covariates.
-        It will create a (`N`, `1`) matrix ``M`` of ones representing the offset
+        :math:`N` individuals by :math:`S` covariates.
+        It will create a :math:`N`-by-:math:`1` matrix ``M`` of ones representing the offset
         covariate if ``None`` is passed. If an array is passed, it will used as is.
         Defaults to ``None``.
     verbose : bool, optional
