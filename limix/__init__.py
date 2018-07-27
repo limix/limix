@@ -33,7 +33,7 @@ from ._testit import test
 from .threads import get_max_nthreads, set_max_nthreads
 from .util import download, extract, filehash
 
-__version__ = "2.0.0-alpha.1"
+__version__ = "2.0.0a1"
 
 __all__ = [
     "__version__",

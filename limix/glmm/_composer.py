@@ -50,14 +50,14 @@ class GLMMComposer(object):
     def covariance_matrices(self):
         return self._covariance_matrices
 
-    def fit(self, verbose=True):
+    def fit(self, verbose=True, progress=True):
         if self._likname == "normal":
             session_name = "composed lmm"
         else:
             session_name = "composed {}-glmm".format(self._likname)
         with session_text(session_name):
             self._build_glmm()
-            self._glmm.feed().maximize(verbose=verbose)
+            self._glmm.feed().maximize(verbose=progress)
             if verbose:
                 print(self)
 
@@ -82,9 +82,11 @@ class GLMMComposer(object):
 
         if self._likname == "normal":
             s = "GLMMComposer using LMM\n"
-            s += "^^^^^^^^^^^^^^^^^^^^^^\n"
+            s += "-----------------------\n"
         else:
             s = "unknown"
+
+        s += "LML: {}\n".format(self.lml())
 
         w = TextWrapper(initial_indent="", subsequent_indent=" " * 21, width=width)
         s += w.fill("Fixed-effect sizes: " + str(self._fixed_effects)) + "\n"
