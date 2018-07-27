@@ -1,12 +1,15 @@
 from numpy import all as npall
-from numpy import isfinite, atleast_2d, asarray, arange
-import glimix_core
-from . import _mean as user_mean
-from . import _cov as user_cov
-from glimix_core.gp import GP
+from numpy import arange, asarray, atleast_2d, isfinite
+from textwrap import TextWrapper
 
-# from glimix_core.lmm import LMM
+import glimix_core
+from glimix_core.gp import GP
+from blessings import Terminal
+
+from . import _cov as user_cov
+from . import _mean as user_mean
 from ..likelihood import assert_likelihood_name
+from ..util import session_text
 
 
 class GLMMComposer(object):
@@ -48,8 +51,15 @@ class GLMMComposer(object):
         return self._covariance_matrices
 
     def fit(self, verbose=True):
-        self._build_glmm()
-        self._glmm.feed().maximize(verbose=verbose)
+        if self._likname == "normal":
+            session_name = "composed lmm"
+        else:
+            session_name = "composed {}-glmm".format(self._likname)
+        with session_text(session_name):
+            self._build_glmm()
+            self._glmm.feed().maximize(verbose=verbose)
+            if verbose:
+                print(self)
 
     def lml(self):
         self._build_glmm()
@@ -61,13 +71,27 @@ class GLMMComposer(object):
             self._glmm = gp
             return
 
-        # raise NotImplementedError()
+        if self._likname != "normal":
+            raise NotImplementedError()
 
     def __str__(self):
-        s = analysis_welcome(self._likname, "GLMMComposer") + "\n"
-        s += "Fixed-effect sizes: " + str(self._fixed_effects) + "\n"
-        s += "Covariance-matrix scales: " + str(self._covariance_matrices)
-        return s
+        term = Terminal()
+        width = term.width
+        if width is None:
+            width = 79
+
+        if self._likname == "normal":
+            s = "GLMMComposer using LMM\n"
+            s += "^^^^^^^^^^^^^^^^^^^^^^\n"
+        else:
+            s = "unknown"
+
+        w = TextWrapper(initial_indent="", subsequent_indent=" " * 21, width=width)
+        s += w.fill("Fixed-effect sizes: " + str(self._fixed_effects)) + "\n"
+
+        w = TextWrapper(initial_indent="", subsequent_indent=" " * 27, width=width)
+        s += w.fill("Covariance-matrix scales: " + str(self._covariance_matrices))
+        return term.bold(s)
 
 
 class FixedEffects(object):
@@ -179,11 +203,7 @@ class CovarianceMatrices(object):
 
     def __str__(self):
         vals = []
-        for cm in self._covariance_matrices:
+        for cm in self._covariance_matrices["user"]:
             vals.append(cm.scale)
         return str(asarray(vals, float))
 
-
-def analysis_welcome(lik, name):
-    lik_name = lik[0].upper() + lik[1:]
-    return f"*** {name} using {lik_name}-GLMM ***"
