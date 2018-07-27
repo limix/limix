@@ -1,9 +1,11 @@
 from numpy import all as npall
 from numpy import isfinite, atleast_2d, asarray, arange
-from glimix_core.cov import EyeCov, GivenCov, SumCov
-from glimix_core.mean import OffsetMean, LinearMean, SumMean
+import glimix_core
+from . import _mean as user_mean
+from . import _cov as user_cov
 from glimix_core.gp import GP
-from glimix_core.lmm import LMM
+
+# from glimix_core.lmm import LMM
 from ..likelihood import assert_likelihood_name
 
 
@@ -51,15 +53,11 @@ class GLMMComposer(object):
 
     def lml(self):
         self._build_glmm()
-        return glmm.lml()
+        return self._glmm.lml()
 
     def _build_glmm(self):
-        if self._likname == "normal" and self._glmm is not None:
-            gp = GP(
-                self._y,
-                self._fixed_effects.mean,
-                self._covariance_matrices.cov,
-            )
+        if self._likname == "normal" and self._glmm is None:
+            gp = GP(self._y, self._fixed_effects.impl, self._covariance_matrices.impl)
             self._glmm = gp
             return
 
@@ -75,48 +73,57 @@ class GLMMComposer(object):
 class FixedEffects(object):
     def __init__(self, nsamples):
         self._sample_idx = arange(nsamples)
-        self._fixed_effects = []
+        self._fixed_effects = {"impl": [], "user": []}
         self._mean = None
 
     def __len__(self):
-        return len(self._fixed_effects)
+        return len(self._fixed_effects["impl"])
 
     def __getitem__(self, i):
-        return self._fixed_effects[i]
+        return self._fixed_effects["user"][i]
+
+    def _setup_mean(self):
+        if self._mean is None:
+            mean = glimix_core.mean.SumMean(self._fixed_effects["impl"])
+            self._mean = {"impl": mean, "user": user_mean.SumMean(mean)}
+
+    @property
+    def impl(self):
+        self._setup_mean()
+        return self._mean["impl"]
 
     def append_offset(self):
-        mean = OffsetMean()
+        mean = glimix_core.mean.OffsetMean()
         mean.set_data(self._sample_idx)
-        self._fixed_effects.append(mean)
+        self._fixed_effects["impl"].append(mean)
+        self._fixed_effects["user"].append(user_mean.OffsetMean(mean))
         self._mean = None
 
     def append(self, m):
         m = asarray(m, float)
         if m.ndim > 2:
-            raise ValueError(
-                "Fixed-effect has to have between one and two dimensions."
-            )
+            raise ValueError("Fixed-effect has to have between one and two dimensions.")
 
         if not npall(isfinite(m)):
             raise ValueError("Fixed-effect values must be finite.")
 
         m = atleast_2d(m.T).T
-        mean = LinearMean(m.shape[1])
+        mean = glimix_core.mean.LinearMean(m.shape[1])
         mean.set_data(m)
 
-        self._fixed_effects.append(mean)
+        self._fixed_effects["impl"].append(mean)
+        self._fixed_effects["user"].append(user_mean.LinearMean(mean))
         self._mean = None
 
     @property
     def mean(self):
-        if self._mean is None:
-            self._mean = SumMean(self._fixed_effects)
-        return self._mean
+        self._setup_mean()
+        return self._mean["user"]
 
     def __str__(self):
         vals = []
-        for fi in self._fixed_effects:
-            if isinstance(fi, OffsetMean):
+        for fi in self._fixed_effects["user"]:
+            if isinstance(fi, user_mean.OffsetMean):
                 vals.append(fi.offset)
             else:
                 vals += list(fi.effsizes)
@@ -126,19 +133,30 @@ class FixedEffects(object):
 class CovarianceMatrices(object):
     def __init__(self, nsamples):
         self._sample_idx = arange(nsamples)
-        self._covariance_matrices = []
+        self._covariance_matrices = {"impl": [], "user": []}
         self._cov = None
 
     def __len__(self):
-        return len(self._covariance_matrices)
+        return len(self._covariance_matrices["impl"])
 
     def __getitem__(self, i):
-        return self._covariance_matrices[i]
+        return self._covariance_matrices["user"][i]
+
+    def _setup_cov(self):
+        if self._cov is None:
+            cov = glimix_core.cov.SumCov(self._covariance_matrices["impl"])
+            self._cov = {"impl": cov, "user": user_cov.SumCov(cov)}
+
+    @property
+    def impl(self):
+        self._setup_cov()
+        return self._cov["impl"]
 
     def append_iid_noise(self):
-        cov = EyeCov()
+        cov = glimix_core.cov.EyeCov()
         cov.set_data((self._sample_idx, self._sample_idx))
-        self._covariance_matrices.append(cov)
+        self._covariance_matrices["impl"].append(cov)
+        self._covariance_matrices["user"].append(user_cov.EyeCov(cov))
         self._cov = None
 
     def append(self, K):
@@ -148,16 +166,16 @@ class CovarianceMatrices(object):
         if not npall(isfinite(K)):
             raise ValueError("Covariance-matrix values must be finite.")
 
-        cov = GivenCov(K)
+        cov = glimix_core.cov.GivenCov(K)
         cov.set_data((self._sample_idx, self._sample_idx))
-        self._covariance_matrices.append(cov)
+        self._covariance_matrices["impl"].append(cov)
+        self._covariance_matrices["user"].append(user_cov.GivenCov(cov))
         self._cov = None
 
     @property
     def cov(self):
-        if self._cov is None:
-            self._cov = SumCov(self._covariance_matrices)
-        return self._cov
+        self._setup_cov()
+        return self._cov["user"]
 
     def __str__(self):
         vals = []
