@@ -4,6 +4,7 @@ Tutorials
 
 
 .. toctree::
-   :maxdepth: 1
+    :maxdepth: 1
 
-   eqtl
+    eqtl
+    vardec

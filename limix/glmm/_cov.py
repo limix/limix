@@ -29,7 +29,7 @@ class EyeCov(BaseCov):
 
     @property
     def scale(self):
-        return self._cov.scale
+        return float(self._cov.scale)
 
     @scale.setter
     def scale(self, v):
@@ -42,7 +42,7 @@ class GivenCov(BaseCov):
 
     @property
     def scale(self):
-        return self._cov.scale
+        return float(self._cov.scale)
 
     @scale.setter
     def scale(self, v):

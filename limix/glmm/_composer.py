@@ -55,7 +55,7 @@ class GLMMComposer(object):
             session_name = "composed lmm"
         else:
             session_name = "composed {}-glmm".format(self._likname)
-        with session_text(session_name):
+        with session_text(session_name, disable=not verbose):
             self._build_glmm()
             self._glmm.feed().maximize(verbose=progress)
             if verbose:
@@ -66,6 +66,9 @@ class GLMMComposer(object):
         return self._glmm.lml()
 
     def _build_glmm(self):
+        if self._y is None:
+            raise ValueError("Phenotype has not been set.")
+
         if self._likname == "normal" and self._glmm is None:
             gp = GP(self._y, self._fixed_effects.impl, self._covariance_matrices.impl)
             self._glmm = gp
@@ -208,4 +211,3 @@ class CovarianceMatrices(object):
         for cm in self._covariance_matrices["user"]:
             vals.append(cm.scale)
         return str(asarray(vals, float))
-

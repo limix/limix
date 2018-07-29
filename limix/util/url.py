@@ -1,7 +1,8 @@
 import os
 import sys
+import warnings
 
-PY2 = sys.version_info < (3, )
+PY2 = sys.version_info < (3,)
 
 if PY2:
     from urllib import urlretrieve
@@ -12,14 +13,14 @@ else:
 
 
 # TODO: document it
-def download(url, dest=None, verbose=True):
+def download(url, dest=None, verbose=True, force=False):
     if dest is None:
         dest = os.getcwd()
 
     filepath = os.path.join(dest, _filename(url))
-    if os.path.exists(filepath):
-        if verbose:
-            print("File {} already exists.".format(filepath))
+    if not force and os.path.exists(filepath):
+        warnings.warn("File {} already exists.".format(filepath))
+        print("Set `force` to `True` in order to overwrite the existing file.")
         return
 
     if verbose:
