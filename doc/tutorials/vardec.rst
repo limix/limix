@@ -2,13 +2,24 @@ Variance decomposition
 ^^^^^^^^^^^^^^^^^^^^^^
 
 Limix enables flexible fitting of variance component models. Here, we illustrate the
-usage of variance component models fit to single genes.
+usage of variance component models fit to single genes. It is based on the
+`eQTL basics tutorial`_ of limix 1.0, which is now deprecated.
+
+.. _eQTL basics tutorial: https://github.com/limix/limix-tutorials/blob/master/eQTL/eQTL_basics.ipynb
+
+Importing limix
+---------------
+
+.. nbplot::
+
+    >>> import limix
 
 The Genetic Model
 -----------------
 
-The model considered by the LIMIX variance decomposition module is an extension of the genetic model
-employed in standard GWAS, however considers multiple random effects terms:
+The model considered by the LIMIX variance decomposition module is an extension of the
+genetic model employed in standard GWAS, however considers multiple random effects
+terms:
 
 .. math::
 
@@ -74,8 +85,6 @@ based variance components.
     >>> from matplotlib.ticker import FormatStrFormatter
     >>> from pandas import DataFrame
     >>>
-    >>> import limix
-    >>>
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
     >>> limix.download(url, verbose=False)
     >>> limix.extract("smith08.hdf5.bz2", verbose=False)
@@ -137,31 +146,31 @@ based variance components.
     ...     K_cis = dot(G_cis, G_cis.T)
     ...     K_trans = limix.qc.normalise_covariance(K_all - K_cis)
     ...     K_cis = limix.qc.normalise_covariance(K_cis)
-    >>>
-    >>>     # Definition of the model to fit our data from which we extract
-    >>>     # the relative signal strength.
-    >>>     glmm = limix.glmm.GLMMComposer(len(y))
-    >>>     glmm.y = y
-    >>>     glmm.fixed_effects.append_offset()
-    >>>     glmm.covariance_matrices.append(K_cis)
-    >>>     glmm.covariance_matrices.append(K_trans)
-    >>>     glmm.covariance_matrices.append_iid_noise()
-    >>>     glmm.fit(verbose=False, progress=False)
-    >>>
-    >>>     cis_scale = glmm.covariance_matrices[0].scale
-    >>>     trans_scale = glmm.covariance_matrices[1].scale
-    >>>     noise_scale = glmm.covariance_matrices[2].scale
-    >>>
-    >>>     res.append([cis_scale, trans_scale, noise_scale])
+    ...
+    ...     # Definition of the model to fit our data from which we extract
+    ...     # the relative signal strength.
+    ...     glmm = limix.glmm.GLMMComposer(len(y))
+    ...     glmm.y = y
+    ...     glmm.fixed_effects.append_offset()
+    ...     glmm.covariance_matrices.append(K_cis)
+    ...     glmm.covariance_matrices.append(K_trans)
+    ...     glmm.covariance_matrices.append_iid_noise()
+    ...     glmm.fit(verbose=False, progress=False)
+    ...
+    ...     cis_scale = glmm.covariance_matrices[0].scale
+    ...     trans_scale = glmm.covariance_matrices[1].scale
+    ...     noise_scale = glmm.covariance_matrices[2].scale
+    ...
+    ...     res.append([cis_scale, trans_scale, noise_scale])
     >>>
     >>> res = DataFrame(res, columns=["cis", "trans", "noise"])
     >>> res = res.div(res.sum(axis=1), axis=0).mean(axis=0)
     >>> res *= 100
     >>>
-    >>> ax = sns.barplot(x=res.index, y=res.values)
-    >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
+    >>> ax = sns.barplot(x=res.index, y=res.values) # doctest: +SKIP
+    >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%")) # doctest: +SKIP
     >>>
-    >>> plt.show()
+    >>> plt.show() # doctest: +SKIP
 
 
 Appendix
