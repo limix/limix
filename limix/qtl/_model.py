@@ -98,7 +98,8 @@ class QTLModel(object):
         k = data.index.values
         v = [[vi] for vi in data.values]
 
-        covariate_msg = str(DataFrame(data=dict(zip(list(k), list(v)))))
+        df = DataFrame(data=dict(zip(list(k), list(v)))).sort_index(axis=1)
+        covariate_msg = str(df)
         covariate_msg = "\n".join([x[2:] for x in covariate_msg.split("\n")])
 
         msg = "Variants\n" + variant_msg
