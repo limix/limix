@@ -9,11 +9,6 @@ addons:
     packages:
       - libffi-dev
       - libffi6
-install:
-  - bash <(curl -fsSL https://raw.githubusercontent.com/limix/liknorm/master/install)
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/zstd.install/master/install)
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/almosthere/master/install)
-  - bash <(curl -fsSL https://raw.githubusercontent.com/limix/bgen/master/install)
 script:
   - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis.sh)
 notifications:
