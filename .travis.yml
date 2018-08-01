@@ -1,33 +1,35 @@
 language: python
-sudo: required
-python: 3.6
+python:
+  - 2.7
+  - 3.6
 env:
-    - PKG_NAME=limix
+  - PKG_NAME=limix
 addons:
-    apt:
-        packages:
-            - libffi-dev
-            - libffi6
+  apt:
+    packages:
+      - libffi-dev
+      - libffi6
 install:
-    - 'bash <(curl -fsSL https://raw.githubusercontent.com/limix/hcephes/master/install)'
-    - 'bash <(curl -fsSL https://raw.githubusercontent.com/limix/liknorm/master/install)'
-    - 'bash <(curl -fsSL https://raw.githubusercontent.com/horta/zstd.install/master/install)'
-    - 'bash <(curl -fsSL https://raw.githubusercontent.com/horta/almosthere/master/install)'
-    - 'bash <(curl -fsSL https://raw.githubusercontent.com/limix/bgen/master/install)'
+  - bash <(curl -fsSL https://raw.githubusercontent.com/limix/hcephes/master/install)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/limix/liknorm/master/install)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/zstd.install/master/install)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/almosthere/master/install)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/limix/bgen/master/install)
 script:
-    - 'bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis.sh)'
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis.sh)
 notifications:
-    email:
-        recipients:
-            - danilo.horta@gmail.com
-        on_success: never
-        on_failure: always
+  email:
+    recipients:
+      - danilo.horta@gmail.com
+    on_success: never
+    on_failure: always
 deploy:
-    provider: pypi
-    user: dhorta
-    password:
-        secure: NS5ir5qJr4f9FcwVwJhNt8WIwOxDHyV4UJ6e01sZ2hPtW/afukFuCTgJ4duFJuYHWFlgMk1Kv3pEhQnTKwzi4MO7fqV7N0hg7e6L42OOL3BB0XamCtBnMY+76hPnXTSkGhA3wDrqBQ/dzBstN739qNPh3IeC8oax7otKh8QzyZfmIQHYqXQJqdTx6Cdap/gR4CF56h+VuNs7aGSRuvjVWV9lIOHsK/ZCKIE1QTq7aRnOAUU6fXtdE4uEqwOl4bzU1HauxElonSudaYiv+NTLNkB7YRR4Ur1VTa7HXNhs9y/RYId0R6xputp+ousutQg5mlGD/z2Qaez6hlwoCgAqIsVNeiLnNQinXx1Z+lJSLQfnw2AX5zi9HgAsgb6ts6gJm2vTCVuOBpcti0uJd9l+0LR0IuGLYwWz1lXQN7/hsAeQFpK/A4tzlDMGQV0wxNFvCq/hSe7LnVehnTOVmJ+HU51XAqF766HYyf+/KcKhaY8IDlpkuLxmTAvY5/vk/JPhmt8JtDP6q+afwSOiM47ciClRtXkRv4zrL/D8euDC1TtLb5Kqxwo59e7cPGB/kLaA9904i0FOcoclv0NZGxdRgXPNYS9ULofjGHzn0Cn5H4FVcYTS3YDYv6bSeNcodQ83zD4FBGvZLe1vuhRdwRbOWKcgeUJNeN0PTL7Txo7YchE=
-    on:
-        tags: true
-        repo: limix/limix
-        branch: master
+  provider: pypi
+  user: dhorta
+  password:
+    secure: NS5ir5qJr4f9FcwVwJhNt8WIwOxDHyV4UJ6e01sZ2hPtW/afukFuCTgJ4duFJuYHWFlgMk1Kv3pEhQnTKwzi4MO7fqV7N0hg7e6L42OOL3BB0XamCtBnMY+76hPnXTSkGhA3wDrqBQ/dzBstN739qNPh3IeC8oax7otKh8QzyZfmIQHYqXQJqdTx6Cdap/gR4CF56h+VuNs7aGSRuvjVWV9lIOHsK/ZCKIE1QTq7aRnOAUU6fXtdE4uEqwOl4bzU1HauxElonSudaYiv+NTLNkB7YRR4Ur1VTa7HXNhs9y/RYId0R6xputp+ousutQg5mlGD/z2Qaez6hlwoCgAqIsVNeiLnNQinXx1Z+lJSLQfnw2AX5zi9HgAsgb6ts6gJm2vTCVuOBpcti0uJd9l+0LR0IuGLYwWz1lXQN7/hsAeQFpK/A4tzlDMGQV0wxNFvCq/hSe7LnVehnTOVmJ+HU51XAqF766HYyf+/KcKhaY8IDlpkuLxmTAvY5/vk/JPhmt8JtDP6q+afwSOiM47ciClRtXkRv4zrL/D8euDC1TtLb5Kqxwo59e7cPGB/kLaA9904i0FOcoclv0NZGxdRgXPNYS9ULofjGHzn0Cn5H4FVcYTS3YDYv6bSeNcodQ83zD4FBGvZLe1vuhRdwRbOWKcgeUJNeN0PTL7Txo7YchE=
+  on:
+    tags: true
+    repo: limix/limix
+    branch: master
+    python: 3.6
