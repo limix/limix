@@ -1,5 +1,10 @@
 from setuptools import setup
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     console_scripts = ["limix = limix.cmdlimix:entry"]
-    setup(entry_points=dict(console_scripts=console_scripts))
+    setup(
+        dependency_links=[
+            "https://github.com/horta/pytest-doctestplus.git@precision#egg=pytest-doctestplus-0.1.4.dev"
+        ],
+        entry_points=dict(console_scripts=console_scripts),
+    )
