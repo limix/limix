@@ -119,7 +119,7 @@ based variance components.
     >>> window_size = int(5e5)
     >>>
     >>> res = []
-    >>> for gene in lysine_group:
+    >>> for gene in lysine_group[:3]:
     ...     # Select the row corresponding to gene of interest on environment 0.0.
     ...     query = "(gene_ID == '{}') & (environment == 0.0)".format(gene)
     ...     df = pheno_metadata.query(query)
