@@ -41,11 +41,10 @@ def test_glmm_composer():
     y = random.randn(nsamples)
     glmm.y = y
 
-    glmm.fit(verbose=False)
+    glmm.fit(verbose=False, progress=False)
 
     assert_allclose(glmm.covariance_matrices[0].scale, 0, atol=1e-7)
     assert_allclose(glmm.covariance_matrices[1].scale, 0, atol=1e-7)
     assert_allclose(glmm.covariance_matrices[2].scale, 1.099905167170892)
 
     assert_allclose(glmm.lml(), -73.32753446649403)
-

@@ -1,4 +1,8 @@
 def pytest_sessionstart(session):
+    pytest_pandas_format()
+
+
+def pytest_pandas_format():
     import pandas as pd
 
     pd.set_option("display.width", 88)

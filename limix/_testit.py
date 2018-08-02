@@ -11,6 +11,9 @@ def test(verbose=True):
     int
         Exit code: ``0`` for success.
     """
+    from ._conftest import pytest_pandas_format
+
+    pytest_pandas_format()
 
     args = ["--doctest-modules", "-x", "--doctest-plus"]
     if not verbose:
