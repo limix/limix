@@ -157,15 +157,15 @@ based variance components.
     ...
     ...     res.append([cis_scale, trans_scale, noise_scale])
     >>>
-
-res = DataFrame(res, columns=["cis", "trans", "noise"])
-res = res.div(res.sum(axis=1), axis=0).mean(axis=0)
-res *= 100
-
-ax = sns.barplot(x=res.index, y=res.values)  # doctest: +SKIP
-ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))  # doctest: +SKIP
-
-plt.show()  # doctest: +SKIP
+    >>>
+    >>> res = DataFrame(res, columns=["cis", "trans", "noise"])
+    >>> res = res.div(res.sum(axis=1), axis=0).mean(axis=0)
+    >>> res *= 100
+    >>>
+    >>> ax = sns.barplot(x=res.index, y=res.values)  # doctest: +SKIP
+    >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))  # doctest: +SKIP
+    >>>
+    >>> plt.show()  # doctest: +SKIP
 
 
 Appendix
