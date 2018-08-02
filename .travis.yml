@@ -9,10 +9,14 @@ addons:
     packages:
       - libffi-dev
       - libffi6
+      - gfortran
+      - libatlas-dev
+      - libatlas-base-dev
+      - eatmydata
 script:
   - python -m pip install -U setuptools pip pytest pytest-pycodestyle -q
   - "python -m pip install -U numpy -q --only-binary :all:"
-  - python setup.py test --addopts="-s"
+  - python setup.py test
 notifications:
   email:
     recipients:

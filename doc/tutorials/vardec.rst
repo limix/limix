@@ -86,8 +86,8 @@ based variance components.
     >>> from pandas import DataFrame
     >>>
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
-    >>> limix.download(url, verbose=True)
-    >>> limix.extract("smith08.hdf5.bz2", verbose=True)
+    >>> limix.download(url, verbose=False)
+    >>> limix.extract("smith08.hdf5.bz2", verbose=False)
     >>> data = limix.io.read_hdf5_limix("smith08.hdf5")
     >>> print(data['phenotype']['col_header'].head())
        environment  gene_ID gene_chrom  gene_end  gene_start gene_strand phenotype_ID  i
@@ -148,7 +148,7 @@ based variance components.
     ...     glmm.covariance_matrices.append(K_cis)
     ...     glmm.covariance_matrices.append(K_trans)
     ...     glmm.covariance_matrices.append_iid_noise()
-    ...     glmm.fit(verbose=True, progress=False)
+    ...     glmm.fit(verbose=False, progress=False)
     ...
     ...     cis_scale = glmm.covariance_matrices[0].scale
     ...     trans_scale = glmm.covariance_matrices[1].scale
@@ -163,7 +163,7 @@ based variance components.
     >>> ax = sns.barplot(x=res.index, y=res.values)
     >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
     >>>
-    >>> plt.show()
+    >>> plt.show()  # doctest: +SKIP
 
 
 Appendix
