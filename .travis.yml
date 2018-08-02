@@ -25,6 +25,7 @@ before_install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy setuptools pytest pip matplotlib cython
   - source activate test-environment
   - pip install -U pytest-pycodestyle pip -q
+  - pip install git+https://github.com/horta/pytest-doctestplus.git@precision -q
 
 script:
   - source activate test-environment
