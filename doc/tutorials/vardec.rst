@@ -86,8 +86,8 @@ based variance components.
     >>> from pandas import DataFrame
     >>>
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
-    >>> limix.download(url, verbose=False)
-    >>> limix.extract("smith08.hdf5.bz2", verbose=False)
+    >>> limix.download(url, verbose=True)
+    >>> limix.extract("smith08.hdf5.bz2", verbose=True)
     >>> data = limix.io.read_hdf5_limix("smith08.hdf5")
     >>> print(data['phenotype']['col_header'].head())
        environment  gene_ID gene_chrom  gene_end  gene_start gene_strand phenotype_ID  i
@@ -148,7 +148,7 @@ based variance components.
     ...     glmm.covariance_matrices.append(K_cis)
     ...     glmm.covariance_matrices.append(K_trans)
     ...     glmm.covariance_matrices.append_iid_noise()
-    ...     glmm.fit(verbose=False, progress=False)
+    ...     glmm.fit(verbose=True, progress=False)
     ...
     ...     cis_scale = glmm.covariance_matrices[0].scale
     ...     trans_scale = glmm.covariance_matrices[1].scale

@@ -10,7 +10,9 @@ addons:
       - libffi-dev
       - libffi6
 script:
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis.sh)
+  - python -m pip install -U setuptools pip pytest pytest-pycodestyle -q
+  - python -m pip install -U numpy -q --only-binary :all:
+  - python setup.py test --addopts="-s"
 notifications:
   email:
     recipients:
