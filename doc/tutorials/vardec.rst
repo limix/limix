@@ -119,7 +119,7 @@ based variance components.
     >>> window_size = int(5e5)
     >>>
     >>> res = []
-    >>> for gene in lysine_group[:3]:
+    >>> for gene in lysine_group[:2]:
     ...     # Select the row corresponding to gene of interest on environment 0.0.
     ...     query = "(gene_ID == '{}') & (environment == 0.0)".format(gene)
     ...     df = pheno_metadata.query(query)
@@ -160,8 +160,8 @@ based variance components.
     >>> res = res.div(res.sum(axis=1), axis=0).mean(axis=0)
     >>> res *= 100
     >>>
-    >>> ax = sns.barplot(x=res.index, y=res.values)
-    >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
+    >>> ax = sns.barplot(x=res.index, y=res.values)  # doctest: +SKIP
+    >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))  # doctest: +SKIP
     >>>
     >>> plt.show()  # doctest: +SKIP
 
