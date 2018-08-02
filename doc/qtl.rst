@@ -74,34 +74,34 @@ alternative hypotheses to be tested:
     >>>
     >>> model = scan(candidates, y, 'normal', kinship, verbose=False)
     >>> print(model.variant_pvalues) # doctest: +FLOAT_CMP
-    candidate0    0.749809
-    candidate1    0.005375
-    candidate2    0.070358
-    candidate3    0.971545
+    candidate0    0.74981
+    candidate1    0.00537
+    candidate2    0.07036
+    candidate3    0.97155
     dtype: float64
     >>> print(model.variant_effsizes) # doctest: +FLOAT_CMP
-    candidate0   -0.096603
-    candidate1   -1.028743
-    candidate2   -0.463141
-    candidate3   -0.011549
+    candidate0   -0.09660
+    candidate1   -1.02874
+    candidate2   -0.46314
+    candidate3   -0.01155
     dtype: float64
     >>> print(model.variant_effsizes_se) # doctest: +FLOAT_CMP
-    candidate0    0.302935
-    candidate1    0.369561
-    candidate2    0.255936
-    candidate3    0.323771
+    candidate0    0.30293
+    candidate1    0.36956
+    candidate2    0.25594
+    candidate3    0.32377
     dtype: float64
     >>> print(model) # doctest: +FLOAT_CMP
     Variants
-           effsizes  effsizes_se   pvalues
-    count  4.000000     4.000000  4.000000
-    mean  -0.400009     0.313051  0.449272
-    std    0.462691     0.047162  0.484325
-    min   -1.028743     0.255936  0.005375
-    25%   -0.604541     0.291185  0.054112
-    50%   -0.279872     0.313353  0.410084
-    75%   -0.075340     0.335218  0.805243
-    max   -0.011549     0.369561  0.971545
+           effsizes  effsizes_se  pvalues
+    count   4.00000      4.00000  4.00000
+    mean   -0.40001      0.31305  0.44927
+    std     0.46269      0.04716  0.48433
+    min    -1.02874      0.25594  0.00537
+    25%    -0.60454      0.29118  0.05411
+    50%    -0.27987      0.31335  0.41008
+    75%    -0.07534      0.33522  0.80524
+    max    -0.01155      0.36956  0.97155
     <BLANKLINE>
     Covariate effect sizes for the null model
      covariate0
@@ -156,37 +156,37 @@ The matrix ``G`` defines both the five alternative hypotheses
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
     >>> print(model.variant_pvalues) # doctest: +FLOAT_CMP
-    candidate0    0.198186
-    candidate1    0.441343
-    candidate2    0.473412
-    candidate3    0.215485
-    candidate4    0.706657
+    candidate0    0.19819
+    candidate1    0.44134
+    candidate2    0.47341
+    candidate3    0.21548
+    candidate4    0.70666
     dtype: float64
     >>> print(model.variant_effsizes) # doctest: +FLOAT_CMP
-    candidate0    1.691677
-    candidate1   -1.008630
-    candidate2   -1.249025
-    candidate3    2.041978
-    candidate4   -0.509744
+    candidate0    1.69168
+    candidate1   -1.00863
+    candidate2   -1.24902
+    candidate3    2.04198
+    candidate4   -0.50974
     dtype: float64
     >>> print(model.variant_effsizes_se) # doctest: +FLOAT_CMP
-    candidate0    1.314702
-    candidate1    1.310032
-    candidate2    1.742165
-    candidate3    1.648586
-    candidate4    1.354442
+    candidate0    1.31470
+    candidate1    1.31003
+    candidate2    1.74216
+    candidate3    1.64859
+    candidate4    1.35444
     dtype: float64
     >>> print(model) # doctest: +FLOAT_CMP
     Variants
-           effsizes  effsizes_se   pvalues
-    count  5.000000     5.000000  5.000000
-    mean   0.193251     1.473985  0.407016
-    std    1.555792     0.205517  0.209562
-    min   -1.249025     1.310032  0.198186
-    25%   -1.008630     1.314702  0.215485
-    50%   -0.509744     1.354442  0.441343
-    75%    1.691677     1.648586  0.473412
-    max    2.041978     1.742165  0.706657
+           effsizes  effsizes_se  pvalues
+    count   5.00000      5.00000  5.00000
+    mean    0.19325      1.47399  0.40702
+    std     1.55579      0.20552  0.20956
+    min    -1.24902      1.31003  0.19819
+    25%    -1.00863      1.31470  0.21548
+    50%    -0.50974      1.35444  0.44134
+    75%     1.69168      1.64859  0.47341
+    max     2.04198      1.74216  0.70666
     <BLANKLINE>
     Covariate effect sizes for the null model
      covariate0

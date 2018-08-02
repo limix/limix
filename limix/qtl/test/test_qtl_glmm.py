@@ -70,7 +70,7 @@ def test_qtl_glmm_bernoulli():
     lmm = scan(X, successes, 'bernoulli', K, verbose=False)
     pv = lmm.variant_pvalues
     assert_allclose(
-        pv, [0.3826766843951428, 0.3920631069390206], atol=1e-6, rtol=1e-6)
+        pv, [0.3826766843951428, 0.3920631069390206], atol=1e-5, rtol=1e-5)
 
 
 def test_qtl_glmm_bernoulli_nokinship():
@@ -90,4 +90,4 @@ def test_qtl_glmm_bernoulli_nokinship():
     lmm = scan(X, successes, 'bernoulli', verbose=False)
     pv = lmm.variant_pvalues
     assert_allclose(
-        pv, [0.9259612341394918, 0.1767987580861164], atol=1e-6, rtol=1e-6)
+        pv, [0.9259612341394918, 0.1767987580861164], atol=1e-5, rtol=1e-5)

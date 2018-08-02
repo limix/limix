@@ -90,19 +90,12 @@ based variance components.
     >>> limix.extract("smith08.hdf5.bz2", verbose=False)
     >>> data = limix.io.read_hdf5_limix("smith08.hdf5")
     >>> print(data['phenotype']['col_header'].head())
-       environment  gene_ID gene_chrom  gene_end  gene_start gene_strand  \
-    0          0.0  YOL161C         15     11548       11910           C
-    1          0.0  YJR107W         10    628319      627333           W
-    2          0.0  YPL270W         16     32803       30482           W
-    3          0.0  YGR256W          7   1006108     1004630           W
-    4          0.0  YDR518W          4   1480153     1478600           W
-    <BLANKLINE>
-      phenotype_ID  i
-    0    YOL161C:0  0
-    1    YJR107W:0  1
-    2    YPL270W:0  2
-    3    YGR256W:0  3
-    4    YDR518W:0  4
+       environment  gene_ID gene_chrom  gene_end  gene_start gene_strand phenotype_ID  i
+    0      0.00000  YOL161C         15     11548       11910           C    YOL161C:0  0
+    1      0.00000  YJR107W         10    628319      627333           W    YJR107W:0  1
+    2      0.00000  YPL270W         16     32803       30482           W    YPL270W:0  2
+    3      0.00000  YGR256W          7   1006108     1004630           W    YGR256W:0  3
+    4      0.00000  YDR518W          4   1480153     1478600           W    YDR518W:0  4
     >>> G_all = data["genotype"]["matrix"]
     >>> geno_metadata = data["genotype"]["col_header"]
     >>> K_all = dot(G_all, G_all.T)

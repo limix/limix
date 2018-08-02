@@ -1,12 +1,29 @@
 from time import time
 from blessings import Terminal
+import warnings
+
+
+class MockTerminal(object):
+    @property
+    def width(self):
+        return 88
+
+    def _return_msg(self, msg):
+        return msg
+
+    def __getattr__(self, name):
+        return self._return_msg
 
 
 class session_text(object):
     def __init__(self, session_name, disable=False):
         self._session_name = session_name
         self._start = None
-        self._term = Terminal()
+        try:
+            self._term = Terminal()
+        except ValueError as e:
+            warnings.warn(str(e))
+            self._term = MockTerminal()
         self._disable = disable
 
     def __enter__(self):

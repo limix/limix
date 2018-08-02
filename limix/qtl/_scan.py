@@ -84,35 +84,35 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
         >>> model.variant_pvalues  # doctest: +FLOAT_CMP
-        rs0   0.554449
-        rs1   0.219000
-        rs2   0.552203
+        rs0    0.554443
+        rs1    0.218996
+        rs2    0.552200
         dtype: float64
         >>> model.variant_effsizes  # doctest: +FLOAT_CMP
-        rs0   -0.130867
-        rs1   -0.315078
+        rs0   -0.130866
+        rs1   -0.315077
         rs2   -0.143869
         dtype: float64
         >>> model.variant_effsizes_se  # doctest: +FLOAT_CMP
-        rs0    0.221390
-        rs1    0.256327
-        rs2    0.242014
+        rs0    0.221389
+        rs1    0.256326
+        rs2    0.242013
         dtype: float64
         >>> model  # doctest: +FLOAT_CMP
         Variants
                effsizes  effsizes_se   pvalues
         count  3.000000     3.000000  3.000000
-        mean  -0.196604     0.239910  0.441881
+        mean  -0.196604     0.239910  0.441880
         std    0.102807     0.017563  0.193027
-        min   -0.315078     0.221390  0.218997
-        25%   -0.229473     0.231702  0.385599
-        50%   -0.143869     0.242014  0.552201
-        75%   -0.137368     0.249171  0.553323
-        max   -0.130867     0.256327  0.554445
+        min   -0.315077     0.221389  0.218996
+        25%   -0.229473     0.231701  0.385598
+        50%   -0.143869     0.242013  0.552200
+        75%   -0.137367     0.249170  0.553322
+        max   -0.130866     0.256326  0.554443
         <BLANKLINE>
         Covariate effect sizes for the null model
               age    offset
-        -0.005568  0.395285
+        -0.005568  0.395287
     
     Notes
     -----
