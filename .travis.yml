@@ -11,7 +11,7 @@ addons:
       - libffi6
 script:
   - python -m pip install -U setuptools pip pytest pytest-pycodestyle -q
-  - python -m pip install -U numpy -q --only-binary :all:
+  - "python -m pip install -U numpy -q --only-binary :all:"
   - python setup.py test --addopts="-s"
 notifications:
   email:
