@@ -12,10 +12,16 @@ def test(verbose=True):
         Exit code: ``0`` for success.
     """
 
-    args = ['--doctest-modules', '-x', '--doctest-plus']
+    args = [
+        "--doctest-modules",
+        "-x",
+        "--doctest-plus",
+        "--ignore=conftest.py",
+        "--ignore=limix/conftest.py",
+    ]
     if not verbose:
-        args += ['--quiet']
+        args += ["--quiet"]
 
-    args += ['--pyargs', __name__.split('.')[0]]
+    args += ["--pyargs", __name__.split(".")[0]]
 
-    return __import__('pytest').main(args)
+    return __import__("pytest").main(args)
