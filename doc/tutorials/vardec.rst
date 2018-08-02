@@ -86,8 +86,8 @@ based variance components.
     >>> from pandas import DataFrame
     >>>
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
-    >>> limix.download(url, verbose=True)  # doctest: +SKIP
-    >>> limix.extract("smith08.hdf5.bz2", verbose=True)  # doctest: +SKIP
+    >>> limix.download(url, verbose=True)
+    >>> limix.extract("smith08.hdf5.bz2", verbose=True)
     >>> data = limix.io.read_hdf5_limix("smith08.hdf5")
     >>> print(data['phenotype']['col_header'].head())
        environment  gene_ID gene_chrom  gene_end  gene_start gene_strand phenotype_ID  i
@@ -148,7 +148,7 @@ based variance components.
     ...     glmm.covariance_matrices.append(K_cis)
     ...     glmm.covariance_matrices.append(K_trans)
     ...     glmm.covariance_matrices.append_iid_noise()
-    ...     glmm.fit(verbose=True, progress=False)  # doctest: +SKIP
+    ...     glmm.fit(verbose=True, progress=False)
     ...
     ...     cis_scale = glmm.covariance_matrices[0].scale
     ...     trans_scale = glmm.covariance_matrices[1].scale
@@ -160,10 +160,10 @@ based variance components.
     >>> res = res.div(res.sum(axis=1), axis=0).mean(axis=0)
     >>> res *= 100
     >>>
-    >>> ax = sns.barplot(x=res.index, y=res.values) # doctest: +SKIP
-    >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%")) # doctest: +SKIP
+    >>> ax = sns.barplot(x=res.index, y=res.values)
+    >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
     >>>
-    >>> plt.show() # doctest: +SKIP
+    >>> plt.show()
 
 
 Appendix
