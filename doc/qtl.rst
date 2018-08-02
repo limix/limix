@@ -65,47 +65,47 @@ alternative hypotheses to be tested:
     >>>
     >>> random = RandomState(1)
     >>>
-    >>> n = 100
+    >>> n = 25
     >>>
     >>> candidates = (random.rand(n, 4) < 0.2).astype(float)
     >>> y = random.randn(n)
-    >>> X = random.randn(n, 10)
-    >>> kinship = dot(X, X.T) / float(10)
+    >>> X = random.randn(n, 50)
+    >>> kinship = dot(X, X.T) / float(25)
     >>>
     >>> model = scan(candidates, y, 'normal', kinship, verbose=False)
     >>> print(model.variant_pvalues) # doctest: +FLOAT_CMP
-    candidate0    0.227204
-    candidate1    0.398132
-    candidate2    0.446016
-    candidate3    0.063060
+    candidate0    0.749809
+    candidate1    0.005375
+    candidate2    0.070358
+    candidate3    0.971545
     dtype: float64
     >>> print(model.variant_effsizes) # doctest: +FLOAT_CMP
-    candidate0    0.314881
-    candidate1   -0.245241
-    candidate2   -0.182706
-    candidate3    0.511296
+    candidate0   -0.096603
+    candidate1   -1.028743
+    candidate2   -0.463141
+    candidate3   -0.011549
     dtype: float64
     >>> print(model.variant_effsizes_se) # doctest: +FLOAT_CMP
-    candidate0    0.260751
-    candidate1    0.290239
-    candidate2    0.239749
-    candidate3    0.275073
+    candidate0    0.302935
+    candidate1    0.369561
+    candidate2    0.255936
+    candidate3    0.323771
     dtype: float64
     >>> print(model) # doctest: +FLOAT_CMP
     Variants
            effsizes  effsizes_se   pvalues
     count  4.000000     4.000000  4.000000
-    mean   0.099557     0.266453  0.283603
-    std    0.371686     0.021492  0.174466
-    min   -0.245241     0.239749  0.063060
-    25%   -0.198340     0.255500  0.186168
-    50%    0.066087     0.267912  0.312668
-    75%    0.363985     0.278864  0.410103
-    max    0.511296     0.290239  0.446016
+    mean  -0.400009     0.313051  0.449272
+    std    0.462691     0.047162  0.484325
+    min   -1.028743     0.255936  0.005375
+    25%   -0.604541     0.291185  0.054112
+    50%   -0.279872     0.313353  0.410084
+    75%   -0.075340     0.335218  0.805243
+    max   -0.011549     0.369561  0.971545
     <BLANKLINE>
     Covariate effect sizes for the null model
      covariate0
-      -0.097162
+        0.04828
 
 The above example prints the estimated p-value, effect size, and standard
 error of the effect size of each variant.
@@ -143,10 +143,10 @@ The matrix ``G`` defines both the five alternative hypotheses
     >>>
     >>> random = RandomState(0)
     >>>
-    >>> G = random.randn(250, 500) / sqrt(500)
-    >>> beta = 0.01 * random.randn(500)
+    >>> G = random.randn(25, 50) / sqrt(50)
+    >>> beta = 0.01 * random.randn(50)
     >>>
-    >>> z = dot(G, beta) + 0.1 * random.randn(250)
+    >>> z = dot(G, beta) + 0.1 * random.randn(25)
     >>> z += dot(G[:, 0], 1) # causal SNP
     >>>
     >>> y = random.poisson(exp(z))
@@ -156,41 +156,41 @@ The matrix ``G`` defines both the five alternative hypotheses
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
     >>> print(model.variant_pvalues) # doctest: +FLOAT_CMP
-    candidate0    0.073623
-    candidate1    0.341348
-    candidate2    0.595322
-    candidate3    0.742450
-    candidate4    0.781789
+    candidate0    0.198186
+    candidate1    0.441343
+    candidate2    0.473412
+    candidate3    0.215485
+    candidate4    0.706657
     dtype: float64
     >>> print(model.variant_effsizes) # doctest: +FLOAT_CMP
-    candidate0    2.477110
-    candidate1   -1.256363
-    candidate2   -0.705970
-    candidate3   -0.476551
-    candidate4    0.376326
+    candidate0    1.691677
+    candidate1   -1.008630
+    candidate2   -1.249025
+    candidate3    2.041978
+    candidate4   -0.509744
     dtype: float64
     >>> print(model.variant_effsizes_se) # doctest: +FLOAT_CMP
-    candidate0    1.384672
-    candidate1    1.320395
-    candidate2    1.329161
-    candidate3    1.450197
-    candidate4    1.358630
+    candidate0    1.314702
+    candidate1    1.310032
+    candidate2    1.742165
+    candidate3    1.648586
+    candidate4    1.354442
     dtype: float64
     >>> print(model) # doctest: +FLOAT_CMP
     Variants
            effsizes  effsizes_se   pvalues
     count  5.000000     5.000000  5.000000
-    mean   0.082910     1.368611  0.506906
-    std    1.461785     0.052189  0.297491
-    min   -1.256363     1.320395  0.073623
-    25%   -0.705970     1.329161  0.341348
-    50%   -0.476551     1.358630  0.595322
-    75%    0.376326     1.384672  0.742450
-    max    2.477110     1.450197  0.781789
+    mean   0.193251     1.473985  0.407016
+    std    1.555792     0.205517  0.209562
+    min   -1.249025     1.310032  0.198186
+    25%   -1.008630     1.314702  0.215485
+    50%   -0.509744     1.354442  0.441343
+    75%    1.691677     1.648586  0.473412
+    max    2.041978     1.742165  0.706657
     <BLANKLINE>
     Covariate effect sizes for the null model
      covariate0
-       0.007468
+       -0.00042
 
 Interface
 ^^^^^^^^^
