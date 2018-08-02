@@ -119,43 +119,44 @@ based variance components.
     >>> window_size = int(5e5)
     >>>
     >>> res = []
-
-for gene in lysine_group[:2]:
-    # Select the row corresponding to gene of interest on environment 0.0.
-    query = "(gene_ID == '{}') & (environment == 0.0)".format(gene)
-    df = pheno_metadata.query(query)
-
-    pheno_idx = df.i.item()
-    gene_pos = df[["gene_chrom", "gene_end", "gene_start"]]
-    # Estimated middle point of the gene.
-    midpoint = (gene_pos["gene_end"].item() - gene_pos["gene_start"].item()) / 2
-
-    # Window definition.
-    start = midpoint - window_size // 2
-    end = midpoint + window_size // 2
-    geno = geno_metadata.query("(pos >= {}) & (pos <= {})".format(start, end))
-
-    y = phenotype[:, pheno_idx]
-    G_cis = G_all[:, geno.i.values]
-    K_cis = dot(G_cis, G_cis.T)
-    K_trans = limix.qc.normalise_covariance(K_all - K_cis)
-    K_cis = limix.qc.normalise_covariance(K_cis)
-
-    # Definition of the model to fit our data from which we extract
-    # the relative signal strength.
-    glmm = limix.glmm.GLMMComposer(len(y))
-    glmm.y = y
-    glmm.fixed_effects.append_offset()
-    glmm.covariance_matrices.append(K_cis)
-    glmm.covariance_matrices.append(K_trans)
-    glmm.covariance_matrices.append_iid_noise()
-    glmm.fit(verbose=False, progress=False)
-
-    cis_scale = glmm.covariance_matrices[0].scale
-    trans_scale = glmm.covariance_matrices[1].scale
-    noise_scale = glmm.covariance_matrices[2].scale
-
-    res.append([cis_scale, trans_scale, noise_scale])
+    >>>
+    >>> for gene in lysine_group[:2]:
+    ...     # Select the row corresponding to gene of interest on environment 0.0.
+    ...     query = "(gene_ID == '{}') & (environment == 0.0)".format(gene)
+    ...     df = pheno_metadata.query(query)
+    ...
+    ...     pheno_idx = df.i.item()
+    ...     gene_pos = df[["gene_chrom", "gene_end", "gene_start"]]
+    ...     # Estimated middle point of the gene.
+    ...     midpoint = (gene_pos["gene_end"].item() - gene_pos["gene_start"].item()) / 2
+    ...
+    ...     # Window definition.
+    ...     start = midpoint - window_size // 2
+    ...     end = midpoint + window_size // 2
+    ...     geno = geno_metadata.query("(pos >= {}) & (pos <= {})".format(start, end))
+    ...
+    ...     y = phenotype[:, pheno_idx]
+    ...     G_cis = G_all[:, geno.i.values]
+    ...     K_cis = dot(G_cis, G_cis.T)
+    ...     K_trans = limix.qc.normalise_covariance(K_all - K_cis)
+    ...     K_cis = limix.qc.normalise_covariance(K_cis)
+    ...
+    ...     # Definition of the model to fit our data from which we extract
+    ...     # the relative signal strength.
+    ...     glmm = limix.glmm.GLMMComposer(len(y))
+    ...     glmm.y = y
+    ...     glmm.fixed_effects.append_offset()
+    ...     glmm.covariance_matrices.append(K_cis)
+    ...     glmm.covariance_matrices.append(K_trans)
+    ...     glmm.covariance_matrices.append_iid_noise()
+    ...     glmm.fit(verbose=False, progress=False)
+    ...
+    ...     cis_scale = glmm.covariance_matrices[0].scale
+    ...     trans_scale = glmm.covariance_matrices[1].scale
+    ...     noise_scale = glmm.covariance_matrices[2].scale
+    ...
+    ...     res.append([cis_scale, trans_scale, noise_scale])
+    >>>
 
 res = DataFrame(res, columns=["cis", "trans", "noise"])
 res = res.div(res.sum(axis=1), axis=0).mean(axis=0)
