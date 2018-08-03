@@ -86,8 +86,8 @@ based variance components.
     >>> from pandas import DataFrame
     >>>
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
-    >>> limix.download(url, verbose=False)
-    >>> limix.extract("smith08.hdf5.bz2", verbose=False)
+    >>> limix.sh.download(url, verbose=False)
+    >>> limix.sh.extract("smith08.hdf5.bz2", verbose=False)
     >>> data = limix.io.read_hdf5_limix("smith08.hdf5")
     >>> print(data['phenotype']['col_header'].head())
        environment  gene_ID gene_chrom  gene_end  gene_start gene_strand phenotype_ID  i
@@ -168,17 +168,9 @@ based variance components.
     >>> plt.show()  # doctest: +SKIP
 
 
-Appendix
---------
+We then remove the temporary files.
 
+.. nbplot::
 
-This tutorial illustrates the use of limix to anlayse expression datasets. For this
-illustration, we consider gene expression levels from a yeast genetics study with freely
-available data <cite data-cite="smith2008gene">(Smith & Kruglyak, 2008)</cite>. These
-data span 109 individuals with 2,956 marker SNPs and expression levels for 5,493 in
-glucose and ethanol growth media respectively.
-
-We start out by discussing how to do QTL mapping, implement models that consider multi
-loci and introduce the application of variance component models for single quantitative
-traits. Subsequently, these analysis are extended to the corresponding multi-trait
-models.
+    >>> limix.sh.remove("smith08.hdf5.bz2")
+    >>> limix.sh.remove("smith08.hdf5")

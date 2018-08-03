@@ -24,14 +24,14 @@ stats
 The official documentation together with examples and tutorials can be found
 at https://limix.readthedocs.io/.
 """
+from __future__ import absolute_import
 
-from . import cmdlimix, her, io, qc, qtl, stats, util, plot, glmm
+from . import cmdlimix, her, io, qc, qtl, stats, util, plot, glmm, sh
 from .cmd import call
 from .cmdlimix import main
 from .limits import is_large_file
 from ._testit import test
 from .threads import get_max_nthreads, set_max_nthreads
-from .util import download, extract, filehash
 
 __version__ = "2.0.0a1"
 
@@ -46,9 +46,6 @@ __all__ = [
     "util",
     "her",
     "glmm",
-    "download",
-    "extract",
-    "filehash",
     "cmdlimix",
     "set_max_nthreads",
     "get_max_nthreads",
@@ -56,4 +53,5 @@ __all__ = [
     "is_large_file",
     "normalise_phenotype",
     "main",
+    "sh",
 ]

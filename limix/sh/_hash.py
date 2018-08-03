@@ -3,13 +3,13 @@ from __future__ import division
 import hashlib
 
 
-# TODO: document those functions
-def array_hash(X):
-    writeable = X.flags.writeable
-    X.flags.writeable = False
-    h = hash(X.tobytes())
-    X.flags.writeable = writeable
-    return h
+# # TODO: document those functions
+# def array_hash(X):
+#     writeable = X.flags.writeable
+#     X.flags.writeable = False
+#     h = hash(X.tobytes())
+#     X.flags.writeable = writeable
+#     return h
 
 
 def filehash(filepath):
@@ -17,7 +17,7 @@ def filehash(filepath):
     BUF_SIZE = 65536
     sha256 = hashlib.sha256()
 
-    with open(filepath, 'rb') as f:
+    with open(filepath, "rb") as f:
         while True:
             data = f.read(BUF_SIZE)
             if not data:

@@ -24,8 +24,8 @@ def extract(filepath, verbose=True):
             print("File {} already exists.".format(filename))
         return
 
-    with open(filepath, 'rb') as f:
+    with open(filepath, "rb") as f:
         o = bz2.decompress(f.read())
 
-    with open(filename, 'wb') as f:
+    with open(filename, "wb") as f:
         f.write(o)

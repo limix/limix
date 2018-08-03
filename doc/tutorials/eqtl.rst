@@ -30,10 +30,10 @@ However, feel free to use whatever method you prefer.
 .. nbplot::
 
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
-    >>> limix.download(url, verbose=False)
-    >>> print(limix.filehash("smith08.hdf5.bz2"))
+    >>> limix.sh.download(url, verbose=False)
+    >>> print(limix.sh.filehash("smith08.hdf5.bz2"))
     aecd5ebabd13ed2e38419c11d116e8d582077212efb37871a50c3a08fadb2ee1
-    >>> limix.extract("smith08.hdf5.bz2", verbose=False)
+    >>> limix.sh.extract("smith08.hdf5.bz2", verbose=False)
     >>> limix.io.hdf5.see_hdf5("smith08.hdf5", verbose=False)
     /
       +--genotype
@@ -267,3 +267,10 @@ A Manhattan plot can help understand the result.
     >>> pos = [int(i.split('_')[1][1:]) for i, _ in pv.iteritems()]
     >>> df = DataFrame(data=dict(pv=pv, chr=chrom, pos=pos))
     >>> limix.plot.manhattan(df) # doctest: +SKIP
+
+We then remove the temporary files.
+
+.. nbplot::
+
+    >>> limix.sh.remove("smith08.hdf5.bz2")
+    >>> limix.sh.remove("smith08.hdf5")

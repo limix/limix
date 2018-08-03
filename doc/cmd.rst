@@ -38,7 +38,7 @@ Heatmap representing a plink_ kinship matrix:
 
     limix download http://rest.s3for.me/limix/small_example.grm.raw.bz2 -q
     limix extract small_example.grm.raw.bz2
-    limix see small_example.grm.raw.bz2
+    limix see small_example.grm.raw
 
 .. image:: imgs/example.grm.raw.png
    :width: 400px
@@ -60,8 +60,8 @@ A preview of Plink files in BED format can be done via
     >>> import  limix
     >>>
     >>> url = "http://rest.s3for.me/limix/plink_example.tar.gz"
-    >>> limix.util.download(url, verbose=False)
-    >>> limix.util.extract("plink_example.tar.gz", verbose=False)
+    >>> limix.sh.download(url, verbose=False)
+    >>> limix.sh.extract("plink_example.tar.gz", verbose=False)
     >>> limix.io.plink.see_bed("plink_example", verbose=False)
         ----------------------------------- Samples -----------------------------------
        chrom                    snp       cm       pos    a0                 a1   i
@@ -217,7 +217,7 @@ The following command shows the hierarchy of a HDF5 file:
     >>> import limix
     >>>
     >>> url = "http://rest.s3for.me/limix/small_example.hdf5"
-    >>> limix.util.download(url, verbose=False)
+    >>> limix.sh.download(url, verbose=False)
     >>> limix.io.hdf5.see_hdf5("small_example.hdf5", verbose=False)
     /
       +--genotype
@@ -254,8 +254,8 @@ shown as
     >>> import limix
     >>>
     >>> url = "http://rest.s3for.me/limix/small_example.csv.bz2"
-    >>> limix.util.download(url, verbose=False)
-    >>> limix.util.extract("small_example.csv.bz2", verbose=False)
+    >>> limix.sh.download(url, verbose=False)
+    >>> limix.sh.extract("small_example.csv.bz2", verbose=False)
     >>> limix.io.csv.see("small_example.csv", verbose=False, header=False)
                        0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16   \
     0  snp_22_16050408   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
@@ -303,3 +303,21 @@ Finally, an image can be seen via
 
 .. _plink: https://www.cog-genomics.org/plink2
 .. _hdf5: https://support.hdfgroup.org/HDF5/
+
+Cleanup files
+-------------
+
+.. code-block:: bash
+
+    limix remove small_example.grm.raw.bz2
+    limix remove small_example.grm.raw
+
+    limix remove plink_example.tar.gz
+
+    limix remove small_example.hdf5
+
+    limix remove small_example.csv.bz2
+    limix remove small_example.csv
+
+    limix remove dali.jpg.bz2
+    limix remove dali.jpg
