@@ -21,15 +21,14 @@ the following functions and classes:
 """
 from __future__ import absolute_import
 
-try:
-    from matplotlib import pyplot
-except ImportError:
+from os import environ as _environ
+
+if "DISPLAY" not in _environ:
     from matplotlib import use as _backend_use
 
     _backend_use("Agg")
 
-    from matplotlib import pyplot
-
+from matplotlib import pyplot
 
 from limix_plot import (
     kinship,
