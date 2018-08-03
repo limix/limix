@@ -19,12 +19,42 @@ the following functions and classes:
 
 .. _limix-plot: https://limix-plot.readthedocs.io/
 """
-from __future__ import absolute_import as _
-from matplotlib import pyplot
-from limix_plot import (kinship, qqplot, box_aspect, image, manhattan, pca,
-                        normal, power, ConsensusCurve, load_dataset)
+from __future__ import absolute_import
+
+try:
+    from matplotlib import pyplot
+except ImportError:
+    from matplotlib import use as _backend_use
+
+    _backend_use("Agg")
+
+    from matplotlib import pyplot
+
+
+from limix_plot import (
+    kinship,
+    qqplot,
+    box_aspect,
+    image,
+    manhattan,
+    pca,
+    normal,
+    power,
+    ConsensusCurve,
+    load_dataset,
+)
+
 
 __all__ = [
-    'kinship', 'qqplot', 'box_aspect', 'image', 'manhattan', 'pca', 'normal',
-    'power', 'ConsensusCurve', 'load_dataset', 'pyplot'
+    "kinship",
+    "qqplot",
+    "box_aspect",
+    "image",
+    "manhattan",
+    "pca",
+    "normal",
+    "power",
+    "ConsensusCurve",
+    "load_dataset",
+    "pyplot",
 ]

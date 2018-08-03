@@ -1,5 +1,4 @@
 from numpy import loadtxt
-from matplotlib import pyplot as plt
 
 
 def read_plink(prefix, verbose=True):
@@ -75,6 +74,7 @@ def read_plink(prefix, verbose=True):
          [ 2.  1.  2.]]
     """
     from pandas_plink import read_plink
+
     return read_plink(prefix, verbose=verbose)
 
 
@@ -85,10 +85,10 @@ def _read_grm_raw(filepath):
 def see_kinship(filepath, verbose):
     # TODO: document
     import limix
+    from matplotlib import pyplot as plt
 
-    if filepath.endswith('.grm.raw'):
-        with limix.util.Timer(
-                desc="Reading %s..." % filepath, disable=not verbose):
+    if filepath.endswith(".grm.raw"):
+        with limix.util.Timer(desc="Reading %s..." % filepath, disable=not verbose):
             K = _read_grm_raw(filepath)
     else:
         print("File %s not found." % filepath)
@@ -100,6 +100,7 @@ def see_kinship(filepath, verbose):
 
 def fetch_dosage(prefix, verbose):
     from pandas_plink import read_plink
+
     return read_plink(prefix, verbose=verbose)[2].T
 
 
