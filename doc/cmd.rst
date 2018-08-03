@@ -13,13 +13,13 @@ Limix now provides a couple of its functionalities via command line.
 
     >>> import limix
     >>> limix.main(['--help'])
-    usage: limix [-h] {see,download,extract,estimate-kinship} ...
+    usage: limix [-h] {see,download,remove,extract,estimate-kinship} ...
     <BLANKLINE>
     optional arguments:
       -h, --help            show this help message and exit
     <BLANKLINE>
     subcommands:
-      {see,download,extract,estimate-kinship}
+      {see,download,remove,extract,estimate-kinship}
 
 Quickly explore files
 ^^^^^^^^^^^^^^^^^^^^^
