@@ -5,6 +5,9 @@ import h5py
 import limix
 
 
-def test_qtl_xarr():
-    pass
+def test_qtl_xarr(datadir):
+    import pdb
+
+    pdb.set_trace()
+    datadir.add("data/xarr.hdf5")
     # limix.io.hdf5.fetch()
