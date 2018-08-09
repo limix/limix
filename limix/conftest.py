@@ -27,13 +27,14 @@ def datadir(tmpdir, request):
             self._module_path = module_path
 
         def add(self, resource_path):
-            import pdb
-
-            pdb.set_trace()
             resource_package = self._module_path
             name = resource_path.split("/")[-1]
             content = pkg_resources.resource_string(resource_package, resource_path)
             with open(os.path.join(self._tmpdir, name), "wb") as f:
                 f.write(content)
+
+        @property
+        def tmpdir(self):
+            return self._tmpdir
 
     return DataDir(tmpdir, request.module.__name__)
