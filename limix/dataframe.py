@@ -1,16 +1,18 @@
 from numpy import all as npall
 from numpy import asarray, isfinite, ones
 from pandas import DataFrame, Index
+import dask.dataframe as da
+import xarray as xr
 
 from .likelihood import normalise_extreme_values
 
 
 def _default_covariates_index(n):
-    return ['covariate{}'.format(i) for i in range(n)]
+    return ["covariate{}".format(i) for i in range(n)]
 
 
 def _default_candidates_index(n):
-    return ['candidate{}'.format(i) for i in range(n)]
+    return ["candidate{}".format(i) for i in range(n)]
 
 
 def _index_set_intersection(arrs):
@@ -18,9 +20,13 @@ def _index_set_intersection(arrs):
     index_set = None
     for a in arrs:
 
-        if hasattr(a, 'index') and isinstance(a.index, Index):
+        if (
+            hasattr(a, "index")
+            and isinstance(a.index, Index)
+            or isinstance(a, xr.DataArray)
+        ):
 
-            i = set(a.index)
+            i = set(asarray(_getindex(a)))
 
             if index_set is None:
                 index_set = i
@@ -40,7 +46,15 @@ def _same_order_if_possible(index_set, arrs):
 
 
 def _isindexed(a):
-    return hasattr(a, 'index') and isinstance(a.index, Index)
+    return hasattr(a, "index") or isinstance(a, xr.DataArray)
+
+
+def _getindex(a):
+    if hasattr(a, "index"):
+        return a.index
+    if "samples" in a.dims:
+        return a["samples"]
+    return a["xsamples"]
 
 
 def _infer_samples_index(arrs):
@@ -96,7 +110,7 @@ def assert_compatible_samples_arrays(arrs):
 
 def _make_sure_phenotype_dataframe(y, samples_index):
     if _isindexed(y):
-        y = y.loc[samples_index]
+        y = y.loc[asarray(samples_index)]
     else:
         y = DataFrame(data=y, index=samples_index.copy())
 
@@ -105,7 +119,7 @@ def _make_sure_phenotype_dataframe(y, samples_index):
 
 def _make_sure_candidates_dataframe(G, samples_index):
     if _isindexed(G):
-        G = G.loc[samples_index]
+        G = G.loc[asarray(samples_index)]
     else:
         i = samples_index.copy()
         colnames = _default_candidates_index(G.shape[1])
@@ -116,7 +130,7 @@ def _make_sure_candidates_dataframe(G, samples_index):
 
 def _make_sure_covariates_dataframe(M, samples_index):
     if _isindexed(M):
-        M = M.loc[samples_index]
+        M = M.loc[asarray(samples_index)]
     else:
         i = samples_index.copy()
         colnames = _default_covariates_index(M.shape[1])
@@ -127,8 +141,8 @@ def _make_sure_covariates_dataframe(M, samples_index):
 
 def _make_sure_kinship_dataframe(K, samples_index):
     if _isindexed(K):
-        K = K.loc[samples_index, :]
-        K = K.loc[:, samples_index]
+        K = K.loc[asarray(samples_index), :]
+        K = K.loc[:, asarray(samples_index)]
     else:
         rows = samples_index.copy()
         cols = samples_index.copy()
@@ -146,7 +160,7 @@ def _intersect_indices(arrs):
 
 def _check_duplicity(samples_index, arrs):
     for a in arrs:
-        indices = samples_index.intersection(a.index)
+        indices = samples_index.intersection(asarray(_getindex(a)))
         if len(indices) > len(set(indices)):
             return False
     return True
@@ -159,14 +173,16 @@ def normalise_dataset(y, lik, M=None, G=None, K=None):
 
     if M is None:
         M = ones((y.shape[0], 1))
+        if _isindexed(y):
+            M = DataFrame(M, index=y.index)
 
     arrs = [a for a in [y, G, M, K] if a is not None]
 
     # Exit early if all the indices are the same.
     if all([_isindexed(a) for a in arrs]):
         a0 = arrs[0]
-        if all([len(a.index) == len(a0.index) for a in arrs[1:]]):
-            if all([all(a.index == a0.index) for a in arrs[1:]]):
+        if all([len(_getindex(a)) == len(_getindex(a0)) for a in arrs[1:]]):
+            if all([all(_getindex(a) == _getindex(a0)) for a in arrs[1:]]):
                 return dict(y=y, M=M, G=G, K=K)
 
     samples_index = _infer_samples_index(arrs)
@@ -179,22 +195,24 @@ def normalise_dataset(y, lik, M=None, G=None, K=None):
         raise ValueError(msg)
 
     if len(samples_index) == 0:
-        raise ValueError("Could not infer an index for samples."
-                         " Please, check if the passed arrays are in order.")
+        raise ValueError(
+            "Could not infer an index for samples."
+            " Please, check if the passed arrays are in order."
+        )
 
     y = _make_sure_phenotype_dataframe(y, samples_index)
     samples_index = y.index
 
     if G is not None:
         G = _make_sure_candidates_dataframe(G, samples_index)
-        if not npall(isfinite(G)):
+        if not isinstance(G, (da.DataFrame, xr.DataArray)) and not npall(isfinite(G)):
             raise ValueError("Candidate values must be finite.")
 
     M = _make_sure_covariates_dataframe(M, samples_index)
 
     if K is not None:
         K = _make_sure_kinship_dataframe(K, samples_index)
-        if not npall(isfinite(K)):
+        if not isinstance(K, da.DataFrame) and not npall(isfinite(K)):
             raise ValueError("Covariance values must be finite.")
 
     y = normalise_extreme_values(y, lik)

@@ -1,12 +1,13 @@
 from __future__ import division
 
-from pandas import Series
+from pandas import Series, DataFrame
 
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
 from ..dataframe import normalise_dataset
+from ..util import Timer
 from ._model import QTLModel
 from .util import print_analysis
 
@@ -124,7 +125,9 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     if verbose:
         print_analysis(lik, "Quantitative trait locus analysis")
 
-    data = normalise_dataset(y, lik, M=M, G=G, K=K)
+    with Timer("Normalising input...", disable=not verbose):
+        data = normalise_dataset(y, lik, M=M, G=G, K=K)
+
     y = data["y"]
     M = data["M"]
     G = data["G"]
@@ -187,9 +190,17 @@ def _perform_glmm(y, lik, M, K, QS, G, verbose):
     flmm.set_scale(1.0)
     null_lml = flmm.null_lml()
 
-    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+    if hasattr(G, "coords") and "snps" in G.coords:
+        columns = list(G.coords["snps"])
+    else:
+        columns = list(G.columns)
 
-    alt_lmls = Series(alt_lmls, list(G.keys()))
-    effsizes = Series(effsizes, list(G.keys()))
+    if isinstance(G, DataFrame):
+        alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+    else:
+        alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
+
+    alt_lmls = Series(alt_lmls, columns)
+    effsizes = Series(effsizes, columns)
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
