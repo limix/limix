@@ -1,7 +1,9 @@
 from numpy import all as npall
 from numpy import arange, asarray, atleast_2d, isfinite
 from numpy import issubdtype, number
+from numpy import var as np_var
 from textwrap import TextWrapper
+from pandas import DataFrame
 
 import glimix_core
 from glimix_core.gp import GP
@@ -21,6 +23,35 @@ class GLMMComposer(object):
         self._fixed_effects = FixedEffects(nsamples)
         self._covariance_matrices = CovarianceMatrices(nsamples)
         self._glmm = None
+
+    def plot(self):
+        from matplotlib import pyplot as plt
+        from matplotlib.ticker import FormatStrFormatter
+        import seaborn as sns
+
+        fe_vars = []
+        fe_names = []
+        for fe in self.fixed_effects:
+            if hasattr(fe, "offset"):
+                continue
+            fe_vars.append(np_var(fe.value()))
+            fe_names.append(fe.name)
+
+        scales = [cm.scale for cm in self.covariance_matrices]
+
+        fe = DataFrame([fe_vars], columns=fe_names)
+        re = DataFrame([scales], columns=[re.name for re in self.covariance_matrices])
+
+        fe = fe.div(fe.sum(axis=1), axis=0).mean(axis=0)
+        fe *= 100
+
+        re = re.div(re.sum(axis=1), axis=0).mean(axis=0)
+        re *= 100
+
+        ax = sns.barplot(x=re.index, y=re.values)
+        ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
+
+        plt.show()
 
     @property
     def likname(self):
@@ -127,6 +158,7 @@ class FixedEffects(object):
         mean.set_data(self._sample_idx)
         self._fixed_effects["impl"].append(mean)
         self._fixed_effects["user"].append(user_mean.OffsetMean(mean))
+        self._fixed_effects["user"][-1].name = "offset"
         self._mean = None
 
     def append(self, m):
@@ -141,8 +173,10 @@ class FixedEffects(object):
         mean = glimix_core.mean.LinearMean(m.shape[1])
         mean.set_data(m)
 
+        n = len(self._fixed_effects["impl"])
         self._fixed_effects["impl"].append(mean)
         self._fixed_effects["user"].append(user_mean.LinearMean(mean))
+        self._fixed_effects["user"][-1].name = "unnamed-fe-{}".format(n)
         self._mean = None
 
     @property
@@ -187,6 +221,7 @@ class CovarianceMatrices(object):
         cov.set_data((self._sample_idx, self._sample_idx))
         self._covariance_matrices["impl"].append(cov)
         self._covariance_matrices["user"].append(user_cov.EyeCov(cov))
+        self._covariance_matrices["user"][-1].name = "residual"
         self._cov = None
 
     def append(self, K):
@@ -201,8 +236,10 @@ class CovarianceMatrices(object):
 
         cov = glimix_core.cov.GivenCov(K)
         cov.set_data((self._sample_idx, self._sample_idx))
+        n = len(self._covariance_matrices["impl"])
         self._covariance_matrices["impl"].append(cov)
         self._covariance_matrices["user"].append(user_cov.GivenCov(cov))
+        self._covariance_matrices["user"][-1].name = "unnamed-re-{}".format(n)
         self._cov = None
 
     @property
