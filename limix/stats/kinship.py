@@ -1,7 +1,7 @@
 from __future__ import division
 
 import numpy as np
-from numpy import sqrt, zeros, asfortranarray
+from numpy import sqrt, zeros, asfortranarray, isfinite
 from tqdm import tqdm
 
 from scipy.linalg.blas import get_blas_funcs
@@ -55,8 +55,9 @@ def linear_kinship(G, out=None, verbose=True):
 
 
 def _get_chunks(G):
-    if hasattr(G, "chunks"):
-        return G.chunks[1]
+    if hasattr(G, "chunks") and G.chunks is not None:
+        if len(G.chunks) > 1 and all(isfinite(G.chunks[0])):
+            return G.chunks[1]
 
     siz = G.shape[1] // 100
     sizl = G.shape[1] - siz * 100

@@ -1,4 +1,5 @@
 import h5py
+from h5py import h5f
 from pandas import DataFrame
 
 import asciitree
@@ -31,7 +32,7 @@ class h5data_fetcher(object):
         self._filename = filename
 
     def __enter__(self):
-        self._f = h5py.File(self._filename, 'r')
+        self._f = h5py.File(self._filename, "r")
         return self
 
     def fetch(self, data_path):
@@ -48,6 +49,7 @@ class h5data_fetcher(object):
         X : dask array
         """
         from dask.array import from_array
+
         data = self._f[data_path]
         if data.chunks is None:
             chunks = data.shape
@@ -66,11 +68,11 @@ def fetch(fp, path):
     :returns: An :class:`numpy.ndarray` representation of the corresponding
     hdf5 dataset.
     """
-    with h5py.File(fp, 'r') as f:
+    with h5py.File(fp, "r") as f:
         return f[path][:]
 
 
-def see(f_or_filepath, root_name='/', ret=False, show_chunks=False):
+def see(f_or_filepath, root_name="/", ret=False, show_chunks=False):
     """Shows a human-friendly tree representation of the contents of
     a hdf5 file.
     :param f_or_filepath: hdf5 file path or a reference to an open one.
@@ -80,7 +82,7 @@ def see(f_or_filepath, root_name='/', ret=False, show_chunks=False):
     :returns str: String representation if is `ret=True`.
     """
     if isinstance(f_or_filepath, str):
-        with h5py.File(f_or_filepath, 'r') as f:
+        with h5py.File(f_or_filepath, "r") as f:
             return _tree(f, root_name, ret, show_chunks)
     else:
         return _tree(f_or_filepath, root_name, ret, show_chunks)
@@ -96,8 +98,8 @@ def see_hdf5(filepath, show_chunks=False, verbose=True):
     from limix.util import Timer
 
     with Timer(desc="Reading %s..." % filepath, disable=not verbose):
-        with h5py.File(filepath, 'r') as f:
-            msg = _tree(f, '/', True, show_chunks)
+        with h5py.File(filepath, "r") as f:
+            msg = _tree(f, "/", True, show_chunks)
     print(msg)
 
 
@@ -108,14 +110,14 @@ def _findnth(haystack, needle, n):
     return len(haystack) - len(parts[-1]) - len(needle)
 
 
-def _visititems(root, func, level=0, prefix=''):
-    if root.name != '/':
+def _visititems(root, func, level=0, prefix=""):
+    if root.name != "/":
         name = root.name
         eman = name[::-1]
-        i1 = _findnth(eman, '/', level)
-        name = '/' + eman[:i1][::-1]
+        i1 = _findnth(eman, "/", level)
+        name = "/" + eman[:i1][::-1]
         func(prefix + name, root)
-    if not hasattr(root, 'keys'):
+    if not hasattr(root, "keys"):
         return
     for k in root.keys():
         if root.file == root[k].file:
@@ -124,7 +126,7 @@ def _visititems(root, func, level=0, prefix=''):
             _visititems(root[k], func, 0, prefix + root.name)
 
 
-def _tree(f, root_name='/', ret=False, show_chunks=False):
+def _tree(f, root_name="/", ret=False, show_chunks=False):
     _names = []
 
     def get_names(name, obj):
@@ -133,8 +135,7 @@ def _tree(f, root_name='/', ret=False, show_chunks=False):
             shape = str(obj.shape)
             if show_chunks:
                 chunks = str(obj.chunks)
-                _names.append("%s [%s, %s, %s]" % (name[1:], dtype, shape,
-                                                   chunks))
+                _names.append("%s [%s, %s, %s]" % (name[1:], dtype, shape, chunks))
             else:
                 _names.append("%s [%s, %s]" % (name[1:], dtype, shape))
         else:
@@ -161,7 +162,7 @@ def _tree(f, root_name='/', ret=False, show_chunks=False):
 
     _names = sorted(_names)
     for n in _names:
-        ns = n.split('/')
+        ns = n.split("/")
         add_to_node(root, ns)
 
     def child_iter(node):
@@ -180,14 +181,14 @@ def _tree(f, root_name='/', ret=False, show_chunks=False):
 
 
 def _read_attrs(filepath, path):
-    with h5py.File(filepath, 'r') as f:
+    with h5py.File(filepath, "r") as f:
 
         h = dict()
         for attr in f[path].keys():
-            h[attr] = f[path + '/' + attr].value
+            h[attr] = f[path + "/" + attr].value
 
-            if h[attr].dtype.kind == 'S':
-                h[attr] = h[attr].astype('U')
+            if h[attr].dtype.kind == "S":
+                h[attr] = h[attr].astype("U")
 
         return DataFrame.from_dict(h)
 
@@ -206,21 +207,22 @@ def read_hdf5_limix(filepath):
         Phenotype and genotype.
     """
     p = dict()
-    p['matrix'] = fetch(filepath, "phenotype/matrix")
+    p["matrix"] = fetch(filepath, "phenotype/matrix")
 
-    p['row_header'] = _read_attrs(filepath, "phenotype/row_header")
-    p['row_header']['i'] = range(p['matrix'].shape[0])
+    p["row_header"] = _read_attrs(filepath, "phenotype/row_header")
+    p["row_header"]["i"] = range(p["matrix"].shape[0])
 
-    p['col_header'] = _read_attrs(filepath, "phenotype/col_header")
-    p['col_header']['i'] = range(p['matrix'].shape[1])
+    p["col_header"] = _read_attrs(filepath, "phenotype/col_header")
+    p["col_header"]["i"] = range(p["matrix"].shape[1])
 
     g = dict()
-    g['matrix'] = fetch(filepath, "genotype/matrix")
+    g["matrix"] = fetch(filepath, "genotype/matrix")
 
-    g['row_header'] = _read_attrs(filepath, "genotype/row_header")
-    g['row_header']['i'] = range(g['matrix'].shape[0])
+    g["row_header"] = _read_attrs(filepath, "genotype/row_header")
+    g["row_header"]["i"] = range(g["matrix"].shape[0])
 
-    g['col_header'] = _read_attrs(filepath, "genotype/col_header")
-    g['col_header']['i'] = range(g['matrix'].shape[1])
+    g["col_header"] = _read_attrs(filepath, "genotype/col_header")
+    g["col_header"]["i"] = range(g["matrix"].shape[1])
 
-    return {'phenotype': p, 'genotype': g}
+    return {"phenotype": p, "genotype": g}
+
