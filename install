@@ -112,7 +112,7 @@ silent_run install_deps
 echo -n "[3/4] Installing Python dependencies... "
 if [[ $USE_CONDA == "yes" ]]
 then
-    silent_run conda install --yes numpy
+    silent_run conda install --yes numpy netcdf4 h5py xarray
 else
     silent_run pip install numpy
 fi
