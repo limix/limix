@@ -51,7 +51,8 @@ class GLMMComposer(object):
         ax = sns.barplot(x=re.index, y=re.values)
         ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
 
-        plt.show()
+        # plt.show()
+        return ax
 
     @property
     def likname(self):
