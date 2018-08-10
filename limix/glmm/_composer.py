@@ -59,10 +59,10 @@ class GLMMComposer(object):
         for fe in self.fixed_effects:
             if hasattr(fe, "offset"):
                 continue
-            decomp["fixed_effects"] = {fe.name: np_var(fe.value())}
+            decomp["fixed_effects"][fe.name] = np_var(fe.value())
 
         for re in self.covariance_matrices:
-            decomp["random_effects"] = {re.name: re.scale}
+            decomp["random_effects"][re.name] = re.scale
 
         total = 0
         for _, v in iter(decomp.items()):
