@@ -1,5 +1,6 @@
 from numpy import all as npall
 from numpy import arange, asarray, atleast_2d, isfinite
+from numpy import issubdtype, number
 from textwrap import TextWrapper
 
 import glimix_core
@@ -189,6 +190,9 @@ class CovarianceMatrices(object):
         self._cov = None
 
     def append(self, K):
+        if not issubdtype(K.dtype, number):
+            raise ValueError("covariance-matrix is not numeric.")
+
         if K.ndim != 2:
             raise ValueError("Covariance-matrix has to have two dimensions.")
 
