@@ -263,7 +263,7 @@ class CovarianceMatrices(object):
 
         n = len(self._covariance_matrices["impl"])
         if name is None:
-            name = "unnamed-fe-{}".format(n)
+            name = "unnamed-re-{}".format(n)
 
         self._covariance_matrices["impl"].append(cov)
         self._covariance_matrices["user"].append(user_cov.GivenCov(cov))
