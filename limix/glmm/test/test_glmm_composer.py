@@ -94,4 +94,5 @@ def test_glmm_composer_plot():
 
     assert_allclose(glmm.lml(), -73.32753446649403)
 
-    glmm.plot()
+    # glmm.plot()
+    print(glmm.decomp())

@@ -25,7 +25,6 @@ class GLMMComposer(object):
         self._glmm = None
 
     def plot(self):
-        from matplotlib import pyplot as plt
         from matplotlib.ticker import FormatStrFormatter
         import seaborn as sns
 
@@ -38,9 +37,10 @@ class GLMMComposer(object):
             fe_names.append(fe.name)
 
         scales = [cm.scale for cm in self.covariance_matrices]
+        re_names = [re.name for re in self.covariance_matrices]
 
         fe = DataFrame([fe_vars], columns=fe_names)
-        re = DataFrame([scales], columns=[re.name for re in self.covariance_matrices])
+        re = DataFrame([scales], columns=re_names)
 
         fe = fe.div(fe.sum(axis=1), axis=0).mean(axis=0)
         fe *= 100
@@ -51,8 +51,29 @@ class GLMMComposer(object):
         ax = sns.barplot(x=re.index, y=re.values)
         ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
 
-        # plt.show()
         return ax
+
+    def decomp(self):
+        decomp = dict(fixed_effects={}, random_effects={})
+
+        for fe in self.fixed_effects:
+            if hasattr(fe, "offset"):
+                continue
+            decomp["fixed_effects"] = {fe.name: np_var(fe.value())}
+
+        for re in self.covariance_matrices:
+            decomp["random_effects"] = {re.name: re.scale}
+
+        total = 0
+        for _, v in iter(decomp.items()):
+            for _, vi in iter(v.items()):
+                total += vi
+
+        for k0, v in iter(decomp.items()):
+            for k1, vi in iter(v.items()):
+                decomp[k0][k1] = vi / total
+
+        return decomp
 
     @property
     def likname(self):
@@ -162,7 +183,7 @@ class FixedEffects(object):
         self._fixed_effects["user"][-1].name = "offset"
         self._mean = None
 
-    def append(self, m):
+    def append(self, m, name=None):
         m = asarray(m, float)
         if m.ndim > 2:
             raise ValueError("Fixed-effect has to have between one and two dimensions.")
@@ -175,9 +196,11 @@ class FixedEffects(object):
         mean.set_data(m)
 
         n = len(self._fixed_effects["impl"])
+        if name is None:
+            name = "unnamed-fe-{}".format(n)
         self._fixed_effects["impl"].append(mean)
         self._fixed_effects["user"].append(user_mean.LinearMean(mean))
-        self._fixed_effects["user"][-1].name = "unnamed-fe-{}".format(n)
+        self._fixed_effects["user"][-1].name = name
         self._mean = None
 
     @property
@@ -225,7 +248,7 @@ class CovarianceMatrices(object):
         self._covariance_matrices["user"][-1].name = "residual"
         self._cov = None
 
-    def append(self, K):
+    def append(self, K, name=None):
         if not issubdtype(K.dtype, number):
             raise ValueError("covariance-matrix is not numeric.")
 
@@ -237,10 +260,14 @@ class CovarianceMatrices(object):
 
         cov = glimix_core.cov.GivenCov(K)
         cov.set_data((self._sample_idx, self._sample_idx))
+
         n = len(self._covariance_matrices["impl"])
+        if name is None:
+            name = "unnamed-fe-{}".format(n)
+
         self._covariance_matrices["impl"].append(cov)
         self._covariance_matrices["user"].append(user_cov.GivenCov(cov))
-        self._covariance_matrices["user"][-1].name = "unnamed-re-{}".format(n)
+        self._covariance_matrices["user"][-1].name = name
         self._cov = None
 
     @property
