@@ -32,6 +32,8 @@ from .cmdlimix import main
 from .limits import is_large_file
 from ._testit import test
 from .threads import get_max_nthreads, set_max_nthreads
+from ._config import config
+from . import display
 
 __version__ = "2.0.0a1"
 
@@ -54,4 +56,6 @@ __all__ = [
     "normalise_phenotype",
     "main",
     "sh",
+    "config",
+    "display",
 ]

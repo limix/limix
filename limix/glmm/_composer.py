@@ -1,3 +1,4 @@
+import sys
 from numpy import all as npall
 from numpy import arange, asarray, atleast_2d, isfinite
 from numpy import issubdtype, number
@@ -7,12 +8,16 @@ from pandas import DataFrame
 
 import glimix_core
 from glimix_core.gp import GP
-from blessings import Terminal
 
 from . import _cov as user_cov
 from . import _mean as user_mean
 from ..likelihood import assert_likelihood_name
-from ..util import session_text
+from .. import display
+
+if sys.version_info < (3, 0):
+    PY2 = True
+else:
+    PY2 = False
 
 
 class GLMMComposer(object):
@@ -104,16 +109,19 @@ class GLMMComposer(object):
     def covariance_matrices(self):
         return self._covariance_matrices
 
-    def fit(self, verbose=True, progress=True):
+    def fit(self, verbose=True):
         if self._likname == "normal":
             session_name = "composed lmm"
         else:
             session_name = "composed {}-glmm".format(self._likname)
-        with session_text(session_name, disable=not verbose):
+        with display.session_text(session_name, disable=not verbose):
             self._build_glmm()
-            self._glmm.feed().maximize(verbose=progress)
+            self._glmm.fit(verbose=verbose)
+
             if verbose:
-                print(self)
+                sys.stdout.flush()
+                txt = display.bold(str(self))
+                display.display(display.format_richtext(txt))
 
     def lml(self):
         self._build_glmm()
@@ -131,11 +139,8 @@ class GLMMComposer(object):
         if self._likname != "normal":
             raise NotImplementedError()
 
-    def __str__(self):
-        term = Terminal()
-        width = term.width
-        if width is None:
-            width = 79
+    def __repr__(self):
+        width = display.width()
 
         if self._likname == "normal":
             s = "GLMMComposer using LMM\n"
@@ -150,7 +155,15 @@ class GLMMComposer(object):
 
         w = TextWrapper(initial_indent="", subsequent_indent=" " * 27, width=width)
         s += w.fill("Covariance-matrix scales: " + str(self._covariance_matrices))
-        return term.bold(s)
+        return s
+
+    def __str__(self):
+        if PY2:
+            return self.__unicode__().encode("utf-8")
+        return self.__repr__()
+
+    def __unicode__(self):
+        return self.__repr__()
 
 
 class FixedEffects(object):

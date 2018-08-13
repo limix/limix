@@ -93,6 +93,7 @@ alternative hypotheses to be tested:
     dtype: float64
     >>> print(model) # doctest: +FLOAT_CMP
     Variants
+    --------
            effsizes  effsizes_se  pvalues
     count   4.00000      4.00000  4.00000
     mean   -0.40001      0.31305  0.44927
@@ -103,7 +104,8 @@ alternative hypotheses to be tested:
     75%    -0.07534      0.33522  0.80524
     max    -0.01155      0.36956  0.97155
     <BLANKLINE>
-    Covariate effect sizes for the null model
+    Covariate effect sizes for H0
+    -----------------------------
      covariate0
         0.04828
 
@@ -178,6 +180,7 @@ The matrix ``G`` defines both the five alternative hypotheses
     dtype: float64
     >>> print(model) # doctest: +FLOAT_CMP
     Variants
+    --------
            effsizes  effsizes_se  pvalues
     count   5.00000      5.00000  5.00000
     mean    0.19325      1.47399  0.40702
@@ -188,7 +191,8 @@ The matrix ``G`` defines both the five alternative hypotheses
     75%     1.69168      1.64859  0.47341
     max     2.04198      1.74216  0.70666
     <BLANKLINE>
-    Covariate effect sizes for the null model
+    Covariate effect sizes for H0
+    -----------------------------
      covariate0
        -0.00042
 

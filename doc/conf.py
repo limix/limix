@@ -13,9 +13,9 @@ def _get_version():
 
 
 def _get_name():
-    import glimix_core
+    import limix
 
-    return glimix_core.__name__
+    return limix.__name__
 
 
 extensions = [

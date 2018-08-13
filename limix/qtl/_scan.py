@@ -2,14 +2,16 @@ from __future__ import division
 
 from pandas import Series, DataFrame
 
+import sys
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
 from ..dataframe import normalise_dataset
 from ..util import Timer
+from .. import display
 from ._model import QTLModel
-from .util import print_analysis
+from ..display import session_text
 
 
 def scan(G, y, lik, K=None, M=None, verbose=True):
@@ -101,6 +103,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         dtype: float64
         >>> model  # doctest: +FLOAT_CMP
         Variants
+        --------
                effsizes  effsizes_se   pvalues
         count  3.000000     3.000000  3.000000
         mean  -0.196604     0.239910  0.441880
@@ -111,7 +114,8 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         75%   -0.137367     0.249170  0.553322
         max   -0.130866     0.256326  0.554443
         <BLANKLINE>
-        Covariate effect sizes for the null model
+        Covariate effect sizes for H0
+        -----------------------------
               age    offset
         -0.005568  0.395287
     
@@ -122,37 +126,40 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     """
     lik = lik.lower()
 
-    if verbose:
-        print_analysis(lik, "Quantitative trait locus analysis")
+    with session_text("qtl analysis", disable=not verbose):
 
-    with Timer("Normalising input...", disable=not verbose):
-        data = normalise_dataset(y, lik, M=M, G=G, K=K)
+        with Timer("Normalising input...", disable=not verbose):
+            data = normalise_dataset(y, lik, M=M, G=G, K=K)
 
-    y = data["y"]
-    M = data["M"]
-    G = data["G"]
-    K = data["K"]
+        y = data["y"]
+        M = data["M"]
+        G = data["G"]
+        K = data["K"]
 
-    if K is not None:
-        QS = economic_qs(K)
-    else:
-        QS = None
+        if K is not None:
+            QS = economic_qs(K)
+        else:
+            QS = None
 
-    if lik == "normal":
-        model = _perform_lmm(y.values, M, QS, G, verbose)
-    else:
-        model = _perform_glmm(y.values, lik, M, K, QS, G, verbose)
+        if lik == "normal":
+            model = _perform_lmm(y.values, M, QS, G, verbose)
+        else:
+            model = _perform_glmm(y.values, lik, M, K, QS, G, verbose)
 
-    if verbose:
-        print(model)
+        if verbose:
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+            txt = display.bold(str(model))
+            display.display(display.format_richtext(txt))
 
-    return model
+        return model
 
 
 def _perform_lmm(y, M, QS, G, verbose):
     lmm = LMM(y, M.values, QS)
 
     lmm.fit(verbose=verbose)
+    sys.stdout.flush()
 
     null_lml = lmm.lml()
 
@@ -174,6 +181,7 @@ def _perform_glmm(y, lik, M, K, QS, G, verbose):
 
     glmm = GLMMExpFam(y, lik, M.values, QS)
     glmm.fit(verbose=verbose)
+    sys.stdout.flush()
 
     eta = glmm.site.eta
     tau = glmm.site.tau

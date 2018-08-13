@@ -13,7 +13,6 @@ Public interface
 """
 
 from . import npy_dask
-from ._session_text import session_text
 from .set_utils import annotate_sets, sets_from_bim
 from .timer import Timer
 from .tmpdir import TmpDir
@@ -25,7 +24,6 @@ __all__ = [
     "annotate_sets",
     "log2pi",
     "npy_dask",
-    "session_text",
     "sets_from_bim",
     "Timer",
     "TmpDir",

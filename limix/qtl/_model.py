@@ -1,8 +1,15 @@
 from __future__ import division
 
+import sys
+
 from pandas import DataFrame, Series
 
 from limix.stats import effsizes_se, lrt_pvalues
+
+if sys.version_info < (3, 0):
+    PY2 = True
+else:
+    PY2 = False
 
 
 class QTLModel(object):
@@ -85,7 +92,7 @@ class QTLModel(object):
         """
         return self._null_covariate_effsizes
 
-    def __str__(self):
+    def __repr__(self):
         data = dict(
             effsizes=self.variant_effsizes,
             effsizes_se=self.variant_effsizes_se,
@@ -102,11 +109,17 @@ class QTLModel(object):
         covariate_msg = str(df)
         covariate_msg = "\n".join([x[2:] for x in covariate_msg.split("\n")])
 
-        msg = "Variants\n" + variant_msg
-        msg += "\n\nCovariate effect sizes for the"
-        msg += " null model\n" + covariate_msg
+        msg = "Variants\n--------\n" + variant_msg
+        msg += "\n\nCovariate effect sizes for H0\n"
+        msg += "-----------------------------\n"
+        msg += covariate_msg
 
         return msg
 
-    def __repr__(self):
-        return self.__str__()
+    def __str__(self):
+        if PY2:
+            return self.__unicode__().encode("utf-8")
+        return self.__repr__()
+
+    def __unicode__(self):
+        return self.__repr__()

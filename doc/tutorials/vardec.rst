@@ -149,7 +149,7 @@ based variance components.
     ...     glmm.covariance_matrices.append(K_cis)
     ...     glmm.covariance_matrices.append(K_trans)
     ...     glmm.covariance_matrices.append_iid_noise()
-    ...     glmm.fit(verbose=False, progress=False)
+    ...     glmm.fit(verbose=False)
     ...
     ...     cis_scale = glmm.covariance_matrices[0].scale
     ...     trans_scale = glmm.covariance_matrices[1].scale

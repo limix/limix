@@ -223,6 +223,7 @@ This data frame can be readily used to perform association scan.
     >>> qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
     >>> print(qtl) # doctest: +FLOAT_CMP
     Variants
+    --------
             effsizes  effsizes_se    pvalues
     count 2956.00000   2956.00000 2956.00000
     mean     0.12974      0.58919    0.56056
@@ -233,7 +234,8 @@ This data frame can be readily used to perform association scan.
     75%      0.44985      0.61117    0.80070
     max      4.19842      0.96306    0.99967
     <BLANKLINE>
-    Covariate effect sizes for the null model
+    Covariate effect sizes for H0
+    -----------------------------
      covariate0
         0.01207
 
