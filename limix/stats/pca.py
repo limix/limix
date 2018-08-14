@@ -45,4 +45,5 @@ def pca(X, ncomp):
     return dict(
         components=pca.components_,
         explained_variance=pca.explained_variance_,
-        explained_variance_ratio=pca.explained_variance_ratio_)
+        explained_variance_ratio=pca.explained_variance_ratio_,
+    )

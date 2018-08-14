@@ -1,34 +1,33 @@
 from __future__ import division
 
-from joblib import Parallel, delayed
-from numpy import (ascontiguousarray, double, einsum, logical_not, newaxis,
-                   sqrt, zeros)
-from scipy.spatial import _distance_wrap
+from numpy import ascontiguousarray, double, einsum, logical_not, newaxis, sqrt, zeros
 from tqdm import tqdm
 
 
 def _row_norms(X):
-    norms = einsum('ij,ij->i', X, X, dtype=double)
+    norms = einsum("ij,ij->i", X, X, dtype=double)
     return sqrt(norms, out=norms)
 
 
 def _sq_pearson(X):
+    from scipy.spatial import _distance_wrap
+
     m = X.shape[0]
     dm = zeros((m * (m - 1)) // 2, dtype=double)
 
     X2 = X - X.mean(1)[:, newaxis]
     X2 = ascontiguousarray(X2)
-    if hasattr(_distance_wrap, 'pdist_cosine_wrap'):
+    if hasattr(_distance_wrap, "pdist_cosine_wrap"):
         norms = _row_norms(X2)
 
     X2 = X - X.mean(axis=1, keepdims=True)
 
-    if hasattr(_distance_wrap, 'pdist_cosine_wrap'):
+    if hasattr(_distance_wrap, "pdist_cosine_wrap"):
         _distance_wrap.pdist_cosine_wrap(X2, dm, norms)
     else:
         _distance_wrap.pdist_cosine_double_wrap(X2, dm)
 
-    return (-dm + 1)**2
+    return (-dm + 1) ** 2
 
 
 def _pdist_threshold(mark, dist, thr):
@@ -92,7 +91,9 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
                 True,  True,  True,  True,  True,  True,  True,  True,  True,
                 True,  True])
     """
+    from joblib import Parallel, delayed
     from .. import get_max_nthreads
+
     left = 0
     excls = zeros(X.shape[1], dtype=bool)
 
@@ -104,7 +105,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     steps = list(range(n))
     cc = get_max_nthreads()
 
-    with tqdm(total=n, desc='Indep. pairwise', disable=not verbose) as pbar:
+    with tqdm(total=n, desc="Indep. pairwise", disable=not verbose) as pbar:
 
         while len(steps) > 0:
             i = 0
@@ -122,20 +123,18 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
                 right = min(left + window_size, X.shape[1])
                 x = ascontiguousarray(X[:, left:right].T)
 
-                delayeds.append(
-                    delayed(_func)(x, excls[left:right], threshold))
+                delayeds.append(delayed(_func)(x, excls[left:right], threshold))
                 if len(delayeds) == cc:
-                    Parallel(
-                        n_jobs=min(len(delayeds), cc),
-                        backend='threading')(delayeds)
+                    Parallel(n_jobs=min(len(delayeds), cc), backend="threading")(
+                        delayeds
+                    )
                     pbar.update(len(delayeds))
                     delayeds = []
 
             if len(delayeds) == 0:
                 continue
 
-            Parallel(
-                n_jobs=min(len(delayeds), cc), backend='threading')(delayeds)
+            Parallel(n_jobs=min(len(delayeds), cc), backend="threading")(delayeds)
             pbar.update(len(delayeds))
 
     return logical_not(excls)

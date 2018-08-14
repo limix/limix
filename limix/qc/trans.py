@@ -63,7 +63,7 @@ def mean_standardize(X, axis=None, out=None):
         axis = 0
 
     shape = X.shape
-    nshape = shape[:axis] + (1, ) + shape[axis + 1:]
+    nshape = shape[:axis] + (1,) + shape[axis + 1 :]
 
     X = X - nanmean(X, axis=axis).reshape(nshape)
     d = nanstd(X, axis=axis).reshape(nshape)

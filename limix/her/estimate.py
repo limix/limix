@@ -6,10 +6,6 @@ from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
-from ..dataframe import normalise_dataset
-from ..likelihood import normalise_extreme_values
-from ..qc import normalise_covariance
-
 
 def estimate(y, lik, K, M=None, verbose=True):
     r"""Estimate the so-called narrow-sense heritability.
@@ -69,6 +65,10 @@ def estimate(y, lik, K, M=None, verbose=True):
     It will raise a ``ValueError`` exception if non-finite values are passed. Please,
     refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
+    from ..dataframe import normalise_dataset
+    from ..likelihood import normalise_extreme_values
+    from ..qc import normalise_covariance
+
     if verbose:
         lik_name = lik.lower()
         lik_name = lik_name[0].upper() + lik_name[1:]

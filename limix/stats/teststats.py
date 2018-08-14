@@ -1,4 +1,4 @@
-import scipy as sp
+from numpy import argsort, zeros
 
 
 def empirical_pvalues(xt, x0):
@@ -35,14 +35,14 @@ def empirical_pvalues(xt, x0):
         >>> empirical_pvalues(x0, x1) # doctest: +SKIP
         array([0.563 , 1.    , 0.839 , 0.7982, 0.5803])
     """
-    idxt = sp.argsort(xt)[::-1]
-    idx0 = sp.argsort(x0)[::-1]
+    idxt = argsort(xt)[::-1]
+    idx0 = argsort(x0)[::-1]
     xts = xt[idxt]
     x0s = x0[idx0]
     it = 0
     i0 = 0
     _count = 0
-    count = sp.zeros(xt.shape[0])
+    count = zeros(xt.shape[0])
     while True:
         if x0s[i0] > xts[it]:
             _count += 1

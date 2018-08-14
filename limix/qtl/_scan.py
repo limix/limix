@@ -1,7 +1,5 @@
 from __future__ import division
 
-from pandas import Series, DataFrame
-
 import sys
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
@@ -156,6 +154,8 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
 
 def _perform_lmm(y, M, QS, G, verbose):
+    from pandas import Series
+
     lmm = LMM(y, M.values, QS)
 
     lmm.fit(verbose=verbose)
@@ -178,6 +178,7 @@ def _perform_lmm(y, M, QS, G, verbose):
 
 
 def _perform_glmm(y, lik, M, K, QS, G, verbose):
+    from pandas import Series, DataFrame
 
     glmm = GLMMExpFam(y, lik, M.values, QS)
     glmm.fit(verbose=verbose)

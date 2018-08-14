@@ -1,10 +1,8 @@
 from multiprocessing.pool import ThreadPool
 
 import dask
-from joblib import cpu_count
 
-_max_nthreads = max(1, cpu_count())
-dask.config.set(pool=ThreadPool(_max_nthreads))
+_max_nthreads = None
 
 
 def set_max_nthreads(nthreads):

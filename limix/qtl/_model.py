@@ -2,8 +2,6 @@ from __future__ import division
 
 import sys
 
-from pandas import DataFrame, Series
-
 from limix.stats import effsizes_se, lrt_pvalues
 
 if sys.version_info < (3, 0):
@@ -66,6 +64,8 @@ class QTLModel(object):
         array_like
             Association significance between variant and phenotype.
         """
+        from pandas import Series
+
         pv = lrt_pvalues(self.null_lml, self.alt_lmls.values)
         return Series(pv, list(self.alt_lmls.keys()))
 
@@ -78,6 +78,8 @@ class QTLModel(object):
         array_like
             Estimated standard errors of the variant effect sizes.
         """
+        from pandas import Series
+
         ese = effsizes_se(self.variant_effsizes.values, self.variant_pvalues.values)
         return Series(ese, list(self.alt_lmls.keys()))
 
@@ -93,6 +95,8 @@ class QTLModel(object):
         return self._null_covariate_effsizes
 
     def __repr__(self):
+        from pandas import DataFrame
+
         data = dict(
             effsizes=self.variant_effsizes,
             effsizes_se=self.variant_effsizes_se,

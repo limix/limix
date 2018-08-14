@@ -2,7 +2,6 @@ from __future__ import division
 
 from numpy import abs as npy_abs
 from numpy import asarray, clip, inf, sqrt
-from scipy.stats import chi2
 
 from numpy_sugar import epsilon
 
@@ -26,6 +25,8 @@ def lrt_pvalues(null_lml, alt_lmls, dof=1):
     array_like
         P-values.
     """
+    from scipy.stats import chi2
+
     lrs = clip(-2 * null_lml + 2 * asarray(alt_lmls), epsilon.super_tiny, inf)
     pv = chi2(df=dof).sf(lrs)
     return clip(pv, epsilon.super_tiny, 1 - epsilon.tiny)
@@ -46,4 +47,6 @@ def effsizes_se(effsizes, pvalues):
     array_like
         Standard errors of the effect sizes.
     """
+    from scipy.stats import chi2
+
     return npy_abs(effsizes) / sqrt(chi2(1).isf(pvalues))

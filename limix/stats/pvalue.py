@@ -2,8 +2,8 @@ from __future__ import division
 
 
 # TODO: add test
-def multipletests(pvals, alpha=0.05, method='hs', is_sorted=False):
-    r'''Test results and p-value correction for multiple tests.
+def multipletests(pvals, alpha=0.05, method="hs", is_sorted=False):
+    r"""Test results and p-value correction for multiple tests.
 
     Parameters
     ----------
@@ -47,7 +47,8 @@ def multipletests(pvals, alpha=0.05, method='hs', is_sorted=False):
     This is a wrapper around a function from the `statsmodels`_ package.
 
     .. _statsmodels: http://www.statsmodels.org
-    '''
+    """
 
     from statsmodels.sandbox.stats.multicomp import multipletests as mt
+
     return mt(pvals, alpha=alpha, method=method, is_sorted=is_sorted)

@@ -7,7 +7,7 @@ def _dask_unique(x, return_index=True):
 
     np.testing.assert_(return_index)
 
-    name = 'unique-' + x.name
+    name = "unique-" + x.name
 
     def unique(x):
         return np.unique(x, return_index=return_index)
@@ -18,7 +18,7 @@ def _dask_unique(x, return_index=True):
     arrs = [a[0] for a in parts]
 
     chunks = x.chunks[0]
-    offset = np.cumsum((0, ) + chunks)[:-1]
+    offset = np.cumsum((0,) + chunks)[:-1]
 
     idxs = [parts[i][1] + offset[i] for i in range(len(parts))]
 

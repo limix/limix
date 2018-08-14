@@ -9,11 +9,11 @@ try:
     from numba import jit
 except ImportError:
 
-    def jit(x):
+    def jit(x, **kwargs):
         return x
 
 
-@jit
+@jit(cache=True)
 def first_occurrence(arr, v):
     for i in range(arr.shape[0]):
         if arr[i] == v:
@@ -21,20 +21,20 @@ def first_occurrence(arr, v):
     return None
 
 
-@jit
+@jit(cache=True)
 def _walk_left(pos, c, dist):
     step = 0
     middle = pos[c]
     i = c
     while i > 0 and step < dist:
         i -= 1
-        step = (middle - pos[i])
+        step = middle - pos[i]
     if step > dist:
         i += 1
     return i
 
 
-@jit
+@jit(cache=True)
 def _walk_right(pos, c, dist):
     step = 0
     middle = pos[c]
@@ -42,7 +42,7 @@ def _walk_right(pos, c, dist):
     n = len(pos)
     while i < n - 1 and step < dist:
         i += 1
-        step = (pos[i] - middle)
+        step = pos[i] - middle
     if step > dist:
         i -= 1
     return i
@@ -54,7 +54,7 @@ def roc_curve(multi_score, method, max_fpr=0.05):
     tprs = np.empty_like(fprs)
     tprs_stde = np.empty_like(fprs)
     for (i, fpr) in enumerate(fprs):
-        tprs_ = multi_score.get_tprs(method, fpr=fpr, approach='rank')
+        tprs_ = multi_score.get_tprs(method, fpr=fpr, approach="rank")
         tprs[i] = np.mean(tprs_)
         tprs_stde[i] = np.std(tprs_) / np.sqrt(len(tprs_))
     return (fprs, tprs, tprs_stde)
@@ -72,12 +72,12 @@ def confusion_matrix(df, wsize=50000):
     logger = logging.getLogger(__name__)
     wsize = int(wsize)
 
-    if 'chrom' not in df:
-        df = df.assign(chrom=['1'] * len(df))
+    if "chrom" not in df:
+        df = df.assign(chrom=["1"] * len(df))
 
-    df.sort_values(by=['chrom', 'pos'], inplace=True)
+    df.sort_values(by=["chrom", "pos"], inplace=True)
 
-    chromids = df['chrom'].unique()
+    chromids = df["chrom"].unique()
 
     offset = 0
     idx_offset = 0
@@ -87,12 +87,12 @@ def confusion_matrix(df, wsize=50000):
     for cid in sorted(chromids):
         df0 = df.query("chrom=='%s'" % cid)
 
-        pos.append(offset + asarray(df0['pos'], float))
-        pv.append(asarray(df0['pv'], float))
+        pos.append(offset + asarray(df0["pos"], float))
+        pv.append(asarray(df0["pv"], float))
         offset += pos[-1][-1] + wsize // 2 + 1
 
-        if df0['causal'].sum() > 0:
-            causal.append(idx_offset + where(df0['causal'])[0])
+        if df0["causal"].sum() > 0:
+            causal.append(idx_offset + where(df0["causal"])[0])
             idx_offset += len(df0)
 
     pos = concatenate(pos)
@@ -104,8 +104,8 @@ def confusion_matrix(df, wsize=50000):
     if wsize > 0.1 * total_size:
         perc = wsize // total_size * 100
         logger.warn(
-            'The window size is %d%% of the total candidate' + ' region.',
-            int(perc))
+            "The window size is %d%% of the total candidate" + " region.", int(perc)
+        )
 
     ld_causal_markers = set()
     for _, c in enumerate(causal):
@@ -156,8 +156,9 @@ class ConfusionMatrix(object):
         self._TP = np.empty(P + N + 1, dtype=int)
         self._FP = np.empty(P + N + 1, dtype=int)
         if len(idx_rank) != P + N:
-            raise ValueError("Rank indices array has to have length equal" +
-                             " to ``P + N``.")
+            raise ValueError(
+                "Rank indices array has to have length equal" + " to ``P + N``."
+            )
 
         true_set = np.asarray(true_set, int)
         true_set.sort()
@@ -165,8 +166,7 @@ class ConfusionMatrix(object):
         idx_rank = np.asarray(idx_rank, int)
 
         ins_pos = np.searchsorted(true_set, idx_rank)
-        _confusion_matrix_tp_fp(P + N, ins_pos, true_set, idx_rank, self._TP,
-                                self._FP)
+        _confusion_matrix_tp_fp(P + N, ins_pos, true_set, idx_rank, self._TP, self._FP)
         self._N = N
         self._P = P
 
@@ -244,8 +244,7 @@ class ConfusionMatrix(object):
     def accuracy(self):
         """ Accuracy.
         """
-        return getter(
-            lambda i: (self.TP[i] + self.TN[i]) / (self._N + self._P))
+        return getter(lambda i: (self.TP[i] + self.TN[i]) / (self._N + self._P))
 
     @property
     def f1score(self):

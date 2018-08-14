@@ -42,6 +42,12 @@ from .pvalue import multipletests
 from .teststats import empirical_pvalues
 
 __all__ = [
-    'pca', 'multipletests', 'empirical_pvalues', 'Chi2Mixture',
-    'linear_kinship', 'lrt_pvalues', 'effsizes_se', 'confusion_matrix'
+    "pca",
+    "multipletests",
+    "empirical_pvalues",
+    "Chi2Mixture",
+    "linear_kinship",
+    "lrt_pvalues",
+    "effsizes_se",
+    "confusion_matrix",
 ]

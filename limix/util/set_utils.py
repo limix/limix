@@ -1,14 +1,8 @@
 import numpy as np
-import pandas as pd
 
 
 # TODO: convert to numpy doc
-def sets_from_bim(bim,
-                  size=50000,
-                  step=None,
-                  chrom=None,
-                  minSnps=1,
-                  maxSnps=None):
+def sets_from_bim(bim, size=50000, step=None, chrom=None, minSnps=1, maxSnps=None):
     r"""
     Builds a dataframe of variant-sets from a bim considering
     a sliding window approach.
@@ -46,6 +40,8 @@ def sets_from_bim(bim,
             - `"end"`: end position
             - `"nsnps"`: number of variants in the region
     """
+    import pandas as pd
+
     if step is None:
         step = int(0.5 * size)
 
@@ -53,7 +49,7 @@ def sets_from_bim(bim,
         maxSnps = np.inf
 
     if chrom is None:
-        chroms = pd.unique(bim['chrom'])
+        chroms = pd.unique(bim["chrom"])
     else:
         chroms = [chrom]
 
@@ -61,7 +57,7 @@ def sets_from_bim(bim,
     for _c in chroms:
 
         # calc start and end of regions
-        pos = bim.query("chrom=='%s'" % _c)['pos'].values
+        pos = bim.query("chrom=='%s'" % _c)["pos"].values
         start = np.arange(pos.min(), pos.max(), step)
         end = start + size
 
@@ -74,10 +70,9 @@ def sets_from_bim(bim,
 
         # build array and append
         chrom = np.repeat(_c, start.shape[0])
-        setid = np.array([
-            '%s:%d-%d' % (_c, _s, _e)
-            for (_c, _s, _e) in zip(chrom, start, end)
-        ])
+        setid = np.array(
+            ["%s:%d-%d" % (_c, _s, _e) for (_c, _s, _e) in zip(chrom, start, end)]
+        )
         _out = np.array([setid, chrom, start, end, nsnps], dtype=object).T
         out.append(_out)
 
@@ -85,8 +80,7 @@ def sets_from_bim(bim,
     out = np.concatenate(out)
 
     # convert to pandas dataframe and export
-    out = pd.DataFrame(
-        out, columns=['setid', 'chrom', 'start', 'end', 'nsnps'])
+    out = pd.DataFrame(out, columns=["setid", "chrom", "start", "end", "nsnps"])
     return out
 
 
@@ -129,20 +123,22 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
             - `"end"`: end position
             - `"nsnps"`: number of variants in the region
     """
+    import pandas as pd
+
     if maxSnps is None:
         maxSnps = np.inf
 
     out = []
-    chrom = sets['chrom'].values
+    chrom = sets["chrom"].values
     uchroms = pd.unique(chrom)
     for _c in uchroms:
 
         # filter on chromosome
-        pos = bim.query("chrom=='%s'" % _c)['pos'].values
+        pos = bim.query("chrom=='%s'" % _c)["pos"].values
         Ichr = chrom == _c
-        setid = sets['setid'].values[Ichr]
-        start = sets['start'].values[Ichr]
-        end = sets['end'].values[Ichr]
+        setid = sets["setid"].values[Ichr]
+        start = sets["start"].values[Ichr]
+        end = sets["end"].values[Ichr]
 
         # filter based on minSnps
         nsnps = calc_nsnps(pos, start, end)
@@ -161,8 +157,7 @@ def annotate_sets(sets, bim, minSnps=1, maxSnps=None):
     out = np.concatenate(out)
 
     # convert to pandas dataframe and export
-    out = pd.DataFrame(
-        out, columns=['setid', 'chrom', 'start', 'end', 'nsnps'])
+    out = pd.DataFrame(out, columns=["setid", "chrom", "start", "end", "nsnps"])
     return out
 
 

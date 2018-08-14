@@ -4,8 +4,6 @@ import numpy as np
 from numpy import sqrt, zeros, asfortranarray, isfinite
 from tqdm import tqdm
 
-from scipy.linalg.blas import get_blas_funcs
-
 
 def linear_kinship(G, out=None, verbose=True):
     r"""Estimate Kinship matrix via linear kernel.
@@ -27,6 +25,8 @@ def linear_kinship(G, out=None, verbose=True):
          [-0.3413 -0.2356  0.9578 -0.3808]
          [-0.379  -0.4704 -0.3808  1.2302]]
     """
+    from scipy.linalg.blas import get_blas_funcs
+
     (n, p) = G.shape
     if out is None:
         out = zeros((n, n), order="F")

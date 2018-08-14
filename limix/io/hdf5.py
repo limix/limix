@@ -1,7 +1,3 @@
-import h5py
-from h5py import h5f
-from pandas import DataFrame
-
 import asciitree
 
 # TODO: refactor this entire file. There are too many things here
@@ -32,6 +28,8 @@ class h5data_fetcher(object):
         self._filename = filename
 
     def __enter__(self):
+        import h5py
+
         self._f = h5py.File(self._filename, "r")
         return self
 
@@ -68,6 +66,8 @@ def fetch(fp, path):
     :returns: An :class:`numpy.ndarray` representation of the corresponding
     hdf5 dataset.
     """
+    import h5py
+
     with h5py.File(fp, "r") as f:
         return f[path][:]
 
@@ -81,6 +81,8 @@ def see(f_or_filepath, root_name="/", ret=False, show_chunks=False):
     :param bool show_chunks: show the chunks.
     :returns str: String representation if is `ret=True`.
     """
+    import h5py
+
     if isinstance(f_or_filepath, str):
         with h5py.File(f_or_filepath, "r") as f:
             return _tree(f, root_name, ret, show_chunks)
@@ -96,6 +98,7 @@ def see_hdf5(filepath, show_chunks=False, verbose=True):
     :returns str: String representation if is `ret=True`.
     """
     from limix.util import Timer
+    import h5py
 
     with Timer(desc="Reading %s..." % filepath, disable=not verbose):
         with h5py.File(filepath, "r") as f:
@@ -127,6 +130,8 @@ def _visititems(root, func, level=0, prefix=""):
 
 
 def _tree(f, root_name="/", ret=False, show_chunks=False):
+    import h5py
+
     _names = []
 
     def get_names(name, obj):
@@ -181,6 +186,9 @@ def _tree(f, root_name="/", ret=False, show_chunks=False):
 
 
 def _read_attrs(filepath, path):
+    from pandas import DataFrame
+    import h5py
+
     with h5py.File(filepath, "r") as f:
 
         h = dict()

@@ -1,7 +1,5 @@
 from argparse import ArgumentParser
 
-from limix.io import possible_file_types
-
 
 def _do_see(filepath, filetype, options):
     import limix
@@ -74,6 +72,8 @@ def do_estimate_kinship(args):
 
 
 def estimate_kinship_parser(parser):
+    from limix.io import possible_file_types
+
     parser.add_argument("input-file", help="input file path")
     parser.add_argument(
         "--quiet", "-q", help="quiet", dest="verbose", action="store_false"
@@ -94,6 +94,8 @@ def estimate_kinship_parser(parser):
 
 
 def see_parser(parser):
+    from limix.io import possible_file_types
+
     parser.add_argument("file", help="file path")
     parser.add_argument(
         "--quiet", "-q", help="quiet", dest="verbose", action="store_false"
