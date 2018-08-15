@@ -2,7 +2,6 @@ from __future__ import division
 
 from numpy import ascontiguousarray, double, einsum, logical_not, newaxis, sqrt, zeros
 from tqdm import tqdm
-from scipy.spatial import _distance_wrap
 
 
 def _row_norms(X):
@@ -11,6 +10,7 @@ def _row_norms(X):
 
 
 def _sq_pearson(X):
+    from scipy.spatial import _distance_wrap
 
     m = X.shape[0]
     dm = zeros((m * (m - 1)) // 2, dtype=double)

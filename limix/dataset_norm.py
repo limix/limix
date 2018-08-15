@@ -1,115 +1,135 @@
-import xarray as xr
-from pprint import pprint
+from numpy import unique, asarray
 from xarray import DataArray
-from numpy import asarray
-from numpy_sugar import is_all_finite
-import collections
 
 
-def _normalise_outcome(y):
-    if hasattr(y, "ndim"):
-        if y.ndim == 1:
-            y = [y]
-        elif y.ndim == 2:
-            y = y.T
+def normalise_dataset(y, M, G=None, K=None):
+
+    y = DataArray(y, encoding={"dtype": "float64"})
+    y = y.rename({y.dims[0]: "sample"})
+
+    idx = y.coords["sample"].values
+    if len(unique(idx)) < len(idx):
+        raise ValueError("Non-unique sample ids are not allowed in the outcome.")
+
+    M = DataArray(M, encoding={"dtype": "float64"})
+    M = M.rename({M.dims[0]: "sample"})
+
+    if G is not None:
+        G = DataArray(G, encoding={"dtype": "float64"})
+        G = G.rename({G.dims[0]: "sample"})
+
+    if K is not None:
+        K = DataArray(K, encoding={"dtype": "float64"})
+        K = K.rename({K.dims[0]: "sample_0", K.dims[1]: "sample_1"})
+
+    arrs = [a for a in [y, G, M, G] if a is not None]
+
+    if K is not None:
+        arrs += [K, K.T]
+
+    M = M.sel(sample=y.coords["sample"].values)
+    K = K.sel(sample_0=y.coords["sample"].values)
+    K = K.sel(sample_1=y.coords["sample"].values)
+    if G is not None:
+        G = G.sel(sample=y.coords["sample"].values)
+
+    y = y.rename({y.dims[1]: "trait"})
+    M = M.rename({M.dims[1]: "covariate"})
+    if G is not None:
+        G = G.rename({G.dims[1]: "candidate"})
+
+    return dict(y=y, M=M, G=G, K=K)
+
+
+def _get_empty_index():
+    a = asarray([], object)
+    b = asarray([], object)
+    return DataArray(a, dims=["sample"], coords={"sample": b})
+
+
+def _create_index(vals):
+    a = asarray(vals, object)
+    b = asarray(vals, object)
+    return DataArray(a, dims=["sample"], coords={"sample": b})
+
+
+def _infer_samples_index(arrs):
+    ok = _check_samples_arrays_compatibility(arrs)
+    if not ok:
+        msg = "The provided arrays are sample-wise incompatible."
+        msg += " Please, check the number of rows."
+        raise ValueError(msg)
+
+    if len(arrs) == 0:
+        return _get_empty_index()
+
+    iarrs = [a for a in arrs if _has_sample_index(a)]
+    if len(iarrs) == 0:
+        return _create_index(range(arrs[0].shape[0]))
+
+    index_set = _index_set_intersection(iarrs)
+
+    return _create_index(_same_order_if_possible(index_set, iarrs))
+
+
+def _check_samples_arrays_compatibility(arrs):
+    """Check index and number of rows.
+
+    The arrays are compatible if they have the same number of rows or
+    if every array is indexed. If they have the same number of rows but some
+    arrays are indexed and some not, the indexed arrays need to show the same
+    index order as to be compatible to the non-indexed ones.
+    """
+    s = set([len(a) for a in arrs])
+    if len(s) == 0:
+        return True
+
+    iarrs = [a for a in arrs if _has_sample_index(a)]
+    if len(arrs) == len(iarrs):
+        return True
+
+    if len(s) == 1:
+        if len(iarrs) == 0:
+            return True
+        # Make sure index have the same order.
+        index = _get_sample_index(iarrs[0])
+        return all([all(index == a.index) for a in iarrs])
+
+    return False
+
+
+def _has_sample_index(x):
+    if hasattr(x, "index"):
+        return True
+    return hasattr(x, "coords") and "sample" in x.dims
+
+
+def _get_sample_index(x):
+    if hasattr(x, "index"):
+        return x.index.values
+    return x.coords["sample"].values
+
+
+def _index_set_intersection(arrs):
+    """Indices that are present in every indexed DataFrame/Series."""
+    index_set = None
+    for a in arrs:
+        i = set(asarray(_get_sample_index(a)))
+
+        if index_set is None:
+            index_set = i
         else:
-            raise ValueError("Unrecognized number of dimensions of the outcome array.")
-    else:
-        if isinstance(y, collections.Sequence):
-            if not hasattr(y[0], "ndim") and not isinstance(y[0], collections.Sequence):
-                y = [asarray(y, float)]
-        else:
-            y = [y]
-    y = [DataArray(yi, encoding={"dtype": "float64"}) for yi in y]
-    if not all(is_all_finite(yi) for yi in y):
-        raise ValueError("There are non-finite values in the outcome.")
+            index_set = index_set.intersection(i)
 
-    return y
+    if index_set is None:
+        return set()
+
+    return index_set
 
 
-def normalise_dataset(y, lik, M=None, G=None, K=None):
-    if K is None:
-        K = []
-
-    # if isinstance(y, (tuple, list)):
-    #     y = asarray(y, float).T
-
-    y = _normalise_outcome(y)
-    return (y,)
-    # if M is None:
-    #     M = ones((y.shape[0], 1))
-    #     if _isindexed(y):
-    #         M = DataFrame(M, index=y.index)
-
-    # arrs = [a for a in [y, G, M, K] if a is not None]
-
-    # # Exit early if all the indices are the same.
-    # if all([_isindexed(a) for a in arrs]):
-    #     a0 = arrs[0]
-    #     if all([len(_getindex(a)) == len(_getindex(a0)) for a in arrs[1:]]):
-    #         if all([all(_getindex(a) == _getindex(a0)) for a in arrs[1:]]):
-    #             return dict(y=y, M=M, G=G, K=K)
-
-    # samples_index = _infer_samples_index(arrs)
-    # arrs0 = [a for a in [G, M, K] if a is not None and _isindexed(a)]
-    # ok = _check_duplicity(samples_index, arrs0)
-
-    # if not ok:
-    #     msg = "Duplicated indices are allowed only on the"
-    #     msg += " outcome variable when the indices differ."
-    #     raise ValueError(msg)
-
-    # if len(samples_index) == 0:
-    #     raise ValueError(
-    #         "Could not infer an index for samples."
-    #         " Please, check if the passed arrays are in order."
-    #     )
-
-    # y = _make_sure_phenotype_dataframe(y, samples_index)
-    # samples_index = y.index
-
-    # if G is not None:
-    #     G = _make_sure_candidates_dataframe(G, samples_index)
-    #     if not isinstance(G, (da.DataFrame, xr.DataArray)) and not npall(isfinite(G)):
-    #         raise ValueError("Candidate values must be finite.")
-
-    # M = _make_sure_covariates_dataframe(M, samples_index)
-
-    # if K is not None:
-    #     K = _make_sure_kinship_dataframe(K, samples_index)
-    #     if not isinstance(K, da.DataFrame) and not npall(isfinite(K)):
-    #         raise ValueError("Covariance values must be finite.")
-
-    # y = normalise_extreme_values(y, lik)
-
-    # return dict(y=y, M=M, G=G, K=K)
-
-
-if __name__ == "__main__":
-    import numpy as np
-    import pandas as pd
-    import xarray as xr
-
-    sample_ids_0 = ["sample_{}".format(i) for i in range(5)]
-
-    y = np.random.randn(5)
-    pprint(normalise_dataset(y, "normal")[0])
-    print()
-
-    y = np.random.randn(5, 1)
-    pprint(normalise_dataset(y, "normal")[0])
-    print()
-
-    y = np.random.randn(5, 2)
-    pprint(normalise_dataset(y, "normal")[0])
-    print()
-
-    y = np.random.randn(5)
-    y = pd.Series(y, index=sample_ids_0)
-    pprint(normalise_dataset(y, "normal")[0])
-    print()
-
-    y = np.random.randn(5)
-    y = pd.Series(y, index=sample_ids_0)
-    pprint(normalise_dataset(y, "normal")[0])
-    print()
+def _same_order_if_possible(index_set, arrs):
+    for a in arrs:
+        i = _get_sample_index(a)
+        if len(index_set) == len(i) and index_set == set(i):
+            return i.copy()
+    return _get_empty_index()
