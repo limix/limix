@@ -1,10 +1,11 @@
 from __future__ import division
 
-from numpy import pi, var
+from numpy import pi, var, ones
 
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
+from ..dataset_norm import normalise_dataset
 
 
 def estimate(y, lik, K, M=None, verbose=True):
@@ -65,23 +66,29 @@ def estimate(y, lik, K, M=None, verbose=True):
     It will raise a ``ValueError`` exception if non-finite values are passed. Please,
     refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
-    from ..dataframe import normalise_dataset
     from ..likelihood import normalise_extreme_values
     from ..qc import normalise_covariance
 
+    if not isinstance(lik, (tuple, list)):
+        lik = (lik,)
+
+    lik_name = lik[0].lower()
+
     if verbose:
-        lik_name = lik.lower()
         lik_name = lik_name[0].upper() + lik_name[1:]
         analysis_name = "Heritability estimation"
         print("*** {} using {}-GLMM ***".format(analysis_name, lik_name))
 
-    if K is not None:
-        K = normalise_covariance(K)
+    if M is None:
+        M = ones((len(y), 1))
 
-    data = normalise_dataset(y, lik, M=M, K=K)
+    data = normalise_dataset(y, M=M, K=K)
     y = data["y"]
     M = data["M"]
     K = data["K"]
+
+    if K is not None:
+        K = normalise_covariance(K)
 
     y = normalise_extreme_values(y, lik)
 
@@ -90,19 +97,19 @@ def estimate(y, lik, K, M=None, verbose=True):
     else:
         QS = None
 
-    if lik == "normal":
+    if lik_name == "normal":
         method = LMM(y.values, M.values, QS)
         method.fit(verbose=verbose)
     else:
-        method = GLMMExpFam(y.values, lik, M.values, QS, n_int=500)
+        method = GLMMExpFam(y, lik, M.values, QS, n_int=500)
         method.fit(verbose=verbose, factr=1e6, pgtol=1e-3)
 
     g = method.scale * (1 - method.delta)
     e = method.scale * method.delta
-    if lik == "bernoulli":
+    if lik_name == "bernoulli":
         e += pi * pi / 3
 
-    if lik == "normal":
+    if lik_name == "normal":
         v = method.fixed_effects_variance
     else:
         v = var(method.mean())

@@ -22,7 +22,9 @@ def normalise_dataset(y, M, G=None, K=None):
         K = DataArray(K, encoding={"dtype": "float64"})
         K = K.rename({K.dims[0]: "sample_0", K.dims[1]: "sample_1"})
 
-    arrs = [a for a in [y, G, M, G] if a is not None]
+    arrs = [a for a in [y, M, G] if a is not None]
+    if len(y.dims) == 1:
+        y = y.expand_dims("trait", 1)
 
     if K is not None:
         arrs += [K, K.T]
@@ -41,12 +43,6 @@ def normalise_dataset(y, M, G=None, K=None):
     return dict(y=y, M=M, G=G, K=K)
 
 
-def _get_empty_index():
-    a = asarray([], object)
-    b = asarray([], object)
-    return DataArray(a, dims=["sample"], coords={"sample": b})
-
-
 def _create_index(vals):
     a = asarray(vals, object)
     b = asarray(vals, object)
@@ -61,7 +57,7 @@ def _infer_samples_index(arrs):
         raise ValueError(msg)
 
     if len(arrs) == 0:
-        return _get_empty_index()
+        return _create_index([])
 
     iarrs = [a for a in arrs if _has_sample_index(a)]
     if len(iarrs) == 0:
@@ -132,4 +128,4 @@ def _same_order_if_possible(index_set, arrs):
         i = _get_sample_index(a)
         if len(index_set) == len(i) and index_set == set(i):
             return i.copy()
-    return _get_empty_index()
+    return _create_index([])

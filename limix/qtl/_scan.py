@@ -1,11 +1,12 @@
 from __future__ import division
 
 import sys
+from numpy import ones
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
 
-from ..dataframe import normalise_dataset
+from ..dataset_norm import normalise_dataset
 from ..util import Timer
 from .. import display
 from ._model import QTLModel
@@ -122,12 +123,18 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     It will raise a ``ValueError`` exception if non-finite values are passed. Please,
     refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
-    lik = lik.lower()
+    if not isinstance(lik, (tuple, list)):
+        lik = (lik,)
+
+    lik_name = lik[0].lower()
+
+    if M is None:
+        M = ones((len(y), 1))
 
     with session_text("qtl analysis", disable=not verbose):
 
         with Timer("Normalising input...", disable=not verbose):
-            data = normalise_dataset(y, lik, M=M, G=G, K=K)
+            data = normalise_dataset(y, M, G=G, K=K)
 
         y = data["y"]
         M = data["M"]
@@ -139,7 +146,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         else:
             QS = None
 
-        if lik == "normal":
+        if lik_name == "normal":
             model = _perform_lmm(y.values, M, QS, G, verbose)
         else:
             model = _perform_glmm(y.values, lik, M, K, QS, G, verbose)
@@ -165,14 +172,15 @@ def _perform_lmm(y, M, QS, G, verbose):
 
     beta = lmm.beta
 
-    keys = list(M.keys())
-    ncov_effsizes = Series(beta, keys)
+    covariates = list(M.coords["covariate"])
+    ncov_effsizes = Series(beta, covariates)
 
     flmm = lmm.get_fast_scanner()
     alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
 
-    alt_lmls = Series(alt_lmls, list(G.columns))
-    effsizes = Series(effsizes, list(G.columns))
+    candidates = list(G.coords["candidate"].values)
+    alt_lmls = Series(alt_lmls, candidates)
+    effsizes = Series(effsizes, candidates)
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
@@ -180,7 +188,7 @@ def _perform_lmm(y, M, QS, G, verbose):
 def _perform_glmm(y, lik, M, K, QS, G, verbose):
     from pandas import Series, DataFrame
 
-    glmm = GLMMExpFam(y, lik, M.values, QS)
+    glmm = GLMMExpFam(y.ravel(), lik, M.values, QS)
     glmm.fit(verbose=verbose)
     sys.stdout.flush()
 
@@ -192,24 +200,20 @@ def _perform_glmm(y, lik, M, K, QS, G, verbose):
 
     beta = gnormal.beta
 
-    keys = list(M.keys())
-    ncov_effsizes = Series(beta, keys)
+    covariates = list(M.coords["covariate"])
+    ncov_effsizes = Series(beta, covariates)
 
     flmm = gnormal.get_fast_scanner()
     flmm.set_scale(1.0)
     null_lml = flmm.null_lml()
-
-    if hasattr(G, "coords") and "snps" in G.coords:
-        columns = list(G.coords["snps"])
-    else:
-        columns = list(G.columns)
 
     if isinstance(G, DataFrame):
         alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
     else:
         alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
 
-    alt_lmls = Series(alt_lmls, columns)
-    effsizes = Series(effsizes, columns)
+    candidates = list(G.coords["candidate"].values)
+    alt_lmls = Series(alt_lmls, candidates)
+    effsizes = Series(effsizes, candidates)
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
