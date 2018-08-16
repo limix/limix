@@ -74,22 +74,22 @@ alternative hypotheses to be tested:
     >>>
     >>> model = scan(candidates, y, 'normal', kinship, verbose=False)
     >>> print(model.variant_pvalues) # doctest: +FLOAT_CMP
-    candidate0    0.74981
-    candidate1    0.00537
-    candidate2    0.07036
-    candidate3    0.97155
+    0    0.74981
+    1    0.00537
+    2    0.07036
+    3    0.97155
     dtype: float64
     >>> print(model.variant_effsizes) # doctest: +FLOAT_CMP
-    candidate0   -0.09660
-    candidate1   -1.02874
-    candidate2   -0.46314
-    candidate3   -0.01155
+    0   -0.09660
+    1   -1.02874
+    2   -0.46314
+    3   -0.01155
     dtype: float64
     >>> print(model.variant_effsizes_se) # doctest: +FLOAT_CMP
-    candidate0    0.30293
-    candidate1    0.36956
-    candidate2    0.25594
-    candidate3    0.32377
+    0    0.30293
+    1    0.36956
+    2    0.25594
+    3    0.32377
     dtype: float64
     >>> print(model) # doctest: +FLOAT_CMP
     Variants
@@ -106,8 +106,8 @@ alternative hypotheses to be tested:
     <BLANKLINE>
     Covariate effect sizes for H0
     -----------------------------
-     covariate0
-        0.04828
+     0
+    0.04828
 
 The above example prints the estimated p-value, effect size, and standard
 error of the effect size of each variant.
@@ -158,25 +158,25 @@ The matrix ``G`` defines both the five alternative hypotheses
     >>> model = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
     >>> print(model.variant_pvalues) # doctest: +FLOAT_CMP
-    candidate0    0.19819
-    candidate1    0.44134
-    candidate2    0.47341
-    candidate3    0.21548
-    candidate4    0.70666
+    0    0.19819
+    1    0.44134
+    2    0.47341
+    3    0.21548
+    4    0.70666
     dtype: float64
     >>> print(model.variant_effsizes) # doctest: +FLOAT_CMP
-    candidate0    1.69168
-    candidate1   -1.00863
-    candidate2   -1.24902
-    candidate3    2.04198
-    candidate4   -0.50974
+    0    1.69168
+    1   -1.00863
+    2   -1.24902
+    3    2.04198
+    4   -0.50974
     dtype: float64
     >>> print(model.variant_effsizes_se) # doctest: +FLOAT_CMP
-    candidate0    1.31470
-    candidate1    1.31003
-    candidate2    1.74216
-    candidate3    1.64859
-    candidate4    1.35444
+    0    1.31470
+    1    1.31003
+    2    1.74216
+    3    1.64859
+    4    1.35444
     dtype: float64
     >>> print(model) # doctest: +FLOAT_CMP
     Variants
@@ -193,7 +193,7 @@ The matrix ``G`` defines both the five alternative hypotheses
     <BLANKLINE>
     Covariate effect sizes for H0
     -----------------------------
-     covariate0
+     0
        -0.00042
 
 Interface

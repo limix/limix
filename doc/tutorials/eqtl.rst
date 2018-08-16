@@ -236,7 +236,7 @@ This data frame can be readily used to perform association scan.
     <BLANKLINE>
     Covariate effect sizes for H0
     -----------------------------
-     covariate0
+     0
         0.01207
 
 Inspecting the p-values and effect-sizes are now easier because candidate

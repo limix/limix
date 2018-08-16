@@ -43,7 +43,7 @@ def test_dataframe_samples_index_infer():
     with pytest.raises(ValueError):
         _infer_samples_index([y, K, Me])
 
-    candidates = Index(["candidate0", "candidate1", "candidate2"])
+    candidates = Index(["0", "1", "2"])
     assert_array_equal(_infer_samples_index(y), candidates)
     assert_array_equal(_infer_samples_index([y]), candidates)
     assert_array_equal(_infer_samples_index([y, K]), candidates)

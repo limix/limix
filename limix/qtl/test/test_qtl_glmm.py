@@ -23,9 +23,7 @@ def test_qtl_glmm_binomial():
         for _ in range(nt):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
-    y = (successes, ntrials)
-
-    lmm = scan(X, y, "binomial", K, verbose=False)
+    lmm = scan(X, successes, ("binomial", ntrials), K, verbose=False)
     pv = lmm.variant_pvalues
     assert_allclose(pv, [0.409114, 0.697728], atol=1e-6, rtol=1e-6)
 
@@ -45,11 +43,9 @@ def test_qtl_glmm_wrong_dimensions():
         for _ in range(nt):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
-    y = (successes, ntrials)
-
     M = random.randn(49, 2)
     with pytest.raises(ValueError):
-        scan(X, y, "binomial", K, M=M, verbose=False)
+        scan(X, successes, ("binomial", ntrials), K, M=M, verbose=False)
 
 
 def test_qtl_glmm_bernoulli():

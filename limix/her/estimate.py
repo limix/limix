@@ -5,6 +5,7 @@ from numpy import pi, var, ones
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
+from numpy_sugar import is_all_finite
 from ..dataset_norm import normalise_dataset
 
 
@@ -87,7 +88,16 @@ def estimate(y, lik, K, M=None, verbose=True):
     M = data["M"]
     K = data["K"]
 
+    if not is_all_finite(y):
+        raise ValueError("Outcome must have finite values only.")
+
+    if not is_all_finite(M):
+        raise ValueError("Covariates must have finite values only.")
+
     if K is not None:
+        if not is_all_finite(K):
+            raise ValueError("Covariate matrix must have finite values only.")
+
         K = normalise_covariance(K)
 
     y = normalise_extreme_values(y, lik)

@@ -5,6 +5,7 @@ from numpy import ones
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
 from numpy_sugar.linalg import economic_qs
+from numpy_sugar import is_all_finite
 
 from ..dataset_norm import normalise_dataset
 from ..util import Timer
@@ -141,7 +142,15 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         G = data["G"]
         K = data["K"]
 
+        if not is_all_finite(y):
+            raise ValueError("Outcome must have finite values only.")
+
+        if not is_all_finite(M):
+            raise ValueError("Covariates must have finite values only.")
+
         if K is not None:
+            if not is_all_finite(K):
+                raise ValueError("Covariate matrix must have finite values only.")
             QS = economic_qs(K)
         else:
             QS = None
@@ -172,7 +181,7 @@ def _perform_lmm(y, M, QS, G, verbose):
 
     beta = lmm.beta
 
-    covariates = list(M.coords["covariate"])
+    covariates = list(M.coords["covariate"].values)
     ncov_effsizes = Series(beta, covariates)
 
     flmm = lmm.get_fast_scanner()
@@ -200,7 +209,7 @@ def _perform_glmm(y, lik, M, K, QS, G, verbose):
 
     beta = gnormal.beta
 
-    covariates = list(M.coords["covariate"])
+    covariates = list(M.coords["covariate"].values)
     ncov_effsizes = Series(beta, covariates)
 
     flmm = gnormal.get_fast_scanner()

@@ -43,8 +43,8 @@ def test_nice_arrays_covariates():
     M += [DataFrame(data=v.copy())]
     samples = ['sample{}'.format(i) for i in range(5)]
     M += [DataFrame(data=v.copy(), index=samples)]
-    M += [DataFrame(data=v.copy(), columns=['covariate0'])]
-    M += [DataFrame(data=v.copy(), index=samples, columns=['covariate0'])]
+    M += [DataFrame(data=v.copy(), columns=['0'])]
+    M += [DataFrame(data=v.copy(), index=samples, columns=['0'])]
 
     for i, Mi in enumerate(M):
         df = normalise_covariates_matrix(Mi)

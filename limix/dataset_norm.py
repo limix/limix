@@ -7,20 +7,32 @@ def normalise_dataset(y, M, G=None, K=None):
     y = DataArray(y, encoding={"dtype": "float64"})
     y = y.rename({y.dims[0]: "sample"})
 
-    idx = y.coords["sample"].values
-    if len(unique(idx)) < len(idx):
-        raise ValueError("Non-unique sample ids are not allowed in the outcome.")
-
     M = DataArray(M, encoding={"dtype": "float64"})
     M = M.rename({M.dims[0]: "sample"})
+
+    idx = M.coords["sample"].values
+    if len(unique(idx)) < len(idx):
+        msg = "Non-unique sample ids are not allowed in the covariates array."
+        raise ValueError(msg)
 
     if G is not None:
         G = DataArray(G, encoding={"dtype": "float64"})
         G = G.rename({G.dims[0]: "sample"})
 
+        idx = G.coords["sample"].values
+        if len(unique(idx)) < len(idx):
+            msg = "Non-unique sample ids are not allowed in the candidates array."
+            raise ValueError(msg)
+
     if K is not None:
         K = DataArray(K, encoding={"dtype": "float64"})
         K = K.rename({K.dims[0]: "sample_0", K.dims[1]: "sample_1"})
+
+        idx0 = K.coords["sample_0"].values
+        idx1 = K.coords["sample_1"].values
+        if len(unique(idx0)) < len(idx0) or len(unique(idx1)) < len(idx1):
+            msg = "Non-unique sample ids are not allowed in the covariance matrix."
+            raise ValueError(msg)
 
     arrs = [a for a in [y, M, G] if a is not None]
     if len(y.dims) == 1:
@@ -29,16 +41,47 @@ def normalise_dataset(y, M, G=None, K=None):
     if K is not None:
         arrs += [K, K.T]
 
-    M = M.sel(sample=y.coords["sample"].values)
-    K = K.sel(sample_0=y.coords["sample"].values)
-    K = K.sel(sample_1=y.coords["sample"].values)
+    inc_msg = "The provided outcome and {} arrays are sample-wise incompatible."
+    try:
+        M = M.sel(sample=y.coords["sample"].values)
+    except IndexError as e:
+        msg = inc_msg.format("covariates")
+        raise ValueError(str(e) + "\n\n" + inc_msg)
+
+    if K is not None:
+        try:
+            K = K.sel(sample_0=y.coords["sample"].values)
+            K = K.sel(sample_1=y.coords["sample"].values)
+        except IndexError as e:
+            msg = inc_msg.format("covariance")
+            raise ValueError(str(e) + "\n\n" + inc_msg)
+
     if G is not None:
-        G = G.sel(sample=y.coords["sample"].values)
+        try:
+            G = G.sel(sample=y.coords["sample"].values)
+        except IndexError as e:
+            msg = inc_msg.format("candidates")
+            raise ValueError(str(e) + "\n\n" + inc_msg)
 
     y = y.rename({y.dims[1]: "trait"})
     M = M.rename({M.dims[1]: "covariate"})
     if G is not None:
         G = G.rename({G.dims[1]: "candidate"})
+
+    nsamples = len(y)
+    if nsamples != M.shape[0]:
+        msg = inc_msg.format("covariates")
+        raise ValueError(inc_msg)
+
+    if K is not None:
+        if nsamples != K.shape[0] or nsamples != K.shape[1]:
+            inc_msg = inc_msg.format("covariance")
+            raise ValueError(inc_msg)
+
+    if G is not None:
+        if nsamples != G.shape[0]:
+            inc_msg = inc_msg.format("candidates")
+            raise ValueError(inc_msg)
 
     return dict(y=y, M=M, G=G, K=K)
 

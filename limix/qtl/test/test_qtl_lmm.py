@@ -19,14 +19,14 @@ def test_qtl_lmm():
     M = G[:, :5]
     X = G[:, 68:70]
 
-    model = scan(X, y, 'normal', K, M=M, verbose=False)
+    model = scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
     ix_best_snp = pv.idxmin()
     pos_best_snp = pv.values.argmin()
 
     M = concatenate((M, X[:, [pos_best_snp]]), axis=1)
 
-    model = scan(X, y, 'normal', K, M=M, verbose=False)
+    model = scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
     assert_allclose(pv.loc[ix_best_snp], 1.0)
 
@@ -43,7 +43,7 @@ def test_qtl_lmm_nokinship():
     M = G[:, :5]
     X = G[:, 68:70]
 
-    model = scan(X, y, 'normal', K, M=M, verbose=False)
+    model = scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues.values
     assert_allclose(pv[:2], [8.159539103135342e-05, 0.10807353641893498])
 
@@ -51,7 +51,7 @@ def test_qtl_lmm_nokinship():
 def test_qtl_lmm_repeat_samples_by_index():
     random = RandomState(0)
     nsamples = 30
-    samples = ['sample{}'.format(i) for i in range(nsamples)]
+    samples = ["sample{}".format(i) for i in range(nsamples)]
 
     G = random.randn(nsamples, 100)
     G = DataFrame(data=G, index=samples)
@@ -69,7 +69,10 @@ def test_qtl_lmm_repeat_samples_by_index():
     M = DataFrame(data=M, index=samples)
     X = DataFrame(data=X, index=samples)
 
-    model = scan(X, y, 'normal', K, M=M, verbose=False)
+    import pdb
+
+    pdb.set_trace()
+    model = scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
     assert_allclose(pv.values[0], 0.9920306566395604)
     ix_best_snp = pv.idxmin()
@@ -78,7 +81,7 @@ def test_qtl_lmm_repeat_samples_by_index():
     M = concatenate((M, X.loc[:, [pos_best_snp]]), axis=1)
     M = DataFrame(data=M, index=samples)
 
-    model = scan(X, y, 'normal', K, M=M, verbose=False)
+    model = scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
     assert_allclose(pv.loc[ix_best_snp], 1.0)
     assert_allclose(pv.values[0], 0.6684700834450028)
