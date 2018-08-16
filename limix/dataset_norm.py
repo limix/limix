@@ -1,8 +1,8 @@
 from numpy import unique, asarray
-from xarray import DataArray
 
 
 def normalise_dataset(y, M, G=None, K=None):
+    from xarray import DataArray
 
     y = DataArray(y, encoding={"dtype": "float64"})
     y = y.rename({y.dims[0]: "sample"})
@@ -101,6 +101,8 @@ def normalise_dataset(y, M, G=None, K=None):
 
 
 def _create_index(vals):
+    from xarray import DataArray
+
     a = asarray(vals, object)
     b = asarray(vals, object)
     return DataArray(a, dims=["sample"], coords={"sample": b})

@@ -26,7 +26,7 @@ at https://limix.readthedocs.io/.
 """
 from __future__ import absolute_import
 
-from . import cmdlimix, io, her, qc, qtl, stats, util, plot, glmm, sh
+from . import cmdlimix, io, her, qc, qtl, stats, plot, glmm, sh
 
 from .cmd import call
 from .cmdlimix import main
@@ -46,7 +46,6 @@ __all__ = [
     "qc",
     "qtl",
     "stats",
-    "util",
     "her",
     "glmm",
     "cmdlimix",

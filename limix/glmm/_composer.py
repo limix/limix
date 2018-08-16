@@ -4,7 +4,6 @@ from numpy import arange, asarray, atleast_2d, isfinite
 from numpy import issubdtype, number
 from numpy import var as np_var
 from textwrap import TextWrapper
-from pandas import DataFrame
 
 import glimix_core
 from glimix_core.gp import GP
@@ -30,6 +29,7 @@ class GLMMComposer(object):
         self._glmm = None
 
     def plot(self):
+        from pandas import DataFrame
         from matplotlib.ticker import FormatStrFormatter
         import seaborn as sns
 
