@@ -1,3 +1,6 @@
+from limix.display import timer_text
+
+
 def read_csv(filename, sep=None, header=True):
     r"""Read a CSV file.
 
@@ -44,8 +47,8 @@ def read_csv(filename, sep=None, header=True):
         df = pandas_read_csv(filename, sep=sep, header=header)
 
     if len(df.columns) > 0:
-        if df.columns[0] == 'Unnamed: 0':
-            df = df.set_index('Unnamed: 0')
+        if df.columns[0] == "Unnamed: 0":
+            df = df.set_index("Unnamed: 0")
             df.index.name = None
 
     return df
@@ -69,14 +72,13 @@ def see(filepath, header, verbose):
         CSV representation.
     """
     from pandas import read_csv
-    from limix.util import Timer
 
     if header:
         header = 0
     else:
         header = None
 
-    with Timer(desc="Reading %s..." % filepath, disable=not verbose):
+    with timer_text(desc="Reading %s..." % filepath, disable=not verbose):
         sep = _infer_separator(filepath)
         msg = read_csv(filepath, sep=sep, header=header).head()
 
@@ -100,7 +102,7 @@ def _update(counter, c):
 def _infer_separator(fn):
     nmax = 9
 
-    with open(fn, 'r') as f:
+    with open(fn, "r") as f:
         line = _remove_repeat(f.readline())
         counter = _count(set(line), line)
 
@@ -113,7 +115,7 @@ def _infer_separator(fn):
             if len(counter) == 1:
                 return next(iter(counter.keys()))
 
-    for c in set([',', '\t', ' ']):
+    for c in set([",", "\t", " "]):
         if c in counter:
             return c
 
@@ -127,4 +129,6 @@ def _infer_separator(fn):
 
 def _remove_repeat(s):
     from re import sub
-    return sub(r'(.)\1+', r'\1', s)
+
+    return sub(r"(.)\1+", r"\1", s)
+

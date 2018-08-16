@@ -1,4 +1,5 @@
 import asciitree
+from limix.display import timer_text
 
 # TODO: refactor this entire file. There are too many things here
 
@@ -55,7 +56,7 @@ class h5data_fetcher(object):
             chunks = data.chunks
         return from_array(data, chunks=chunks)
 
-    def __exit__(self, *exc):
+    def __exit__(self, *args):
         self._f.close()
 
 
@@ -97,10 +98,9 @@ def see_hdf5(filepath, show_chunks=False, verbose=True):
     :param bool show_chunks: show the chunks.
     :returns str: String representation if is `ret=True`.
     """
-    from limix.util import Timer
     import h5py
 
-    with Timer(desc="Reading %s..." % filepath, disable=not verbose):
+    with timer_text(desc="Reading %s..." % filepath, disable=not verbose):
         with h5py.File(filepath, "r") as f:
             msg = _tree(f, "/", True, show_chunks)
     print(msg)

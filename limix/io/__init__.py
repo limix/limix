@@ -34,7 +34,17 @@ from .hdf5 import h5data_fetcher, read_hdf5_limix
 from .plink import read_plink
 
 __all__ = [
-    'read_plink', 'h5data_fetcher', 'read_csv', 'read_gen', 'examples',
-    'file_type', 'hdf5', 'csv', 'plink', 'npy', 'possible_file_types',
-    'read_hdf5_limix', 'bgen'
+    "read_plink",
+    "h5data_fetcher",
+    "read_csv",
+    "read_gen",
+    "examples",
+    "file_type",
+    "hdf5",
+    "csv",
+    "plink",
+    "npy",
+    "possible_file_types",
+    "read_hdf5_limix",
+    "bgen",
 ]

@@ -8,7 +8,7 @@ from numpy_sugar.linalg import economic_qs
 from numpy_sugar import is_all_finite
 
 from ..dataset_norm import normalise_dataset
-from ..util import Timer
+from limix.display import timer_text
 from .. import display
 from ._model import QTLModel
 from ..display import session_text
@@ -134,7 +134,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
     with session_text("qtl analysis", disable=not verbose):
 
-        with Timer("Normalising input...", disable=not verbose):
+        with timer_text("Normalising input...", disable=not verbose):
             data = normalise_dataset(y, M, G=G, K=K)
 
         y = data["y"]

@@ -2,9 +2,9 @@ from __future__ import division
 
 from numpy import inf
 
+import numpy as np
+import dask.array as da
 from brent_search import brent
-from limix.util.npy_dask import abs as ddabs
-from limix.util.npy_dask import asarray, clip, nanmean, nanstd
 from numpy_sugar import epsilon
 
 
@@ -55,8 +55,13 @@ def mean_standardize(X, axis=None, out=None):
          [ 0.7071  0.7071  0.7071]
          [ 1.4142  1.4142  1.4142]]
     """
+    if isinstance(X, da.Array):
+        return _mean_standardize(da, X, axis=axis, out=out)
+    return _mean_standardize(np, X, axis=axis, out=out)
 
-    X = asarray(X, dtype=float)
+
+def _mean_standardize(lib, X, axis=None, out=None):
+    X = lib.asarray(X).astype(float)
 
     if axis is None:
         X = X.ravel()
@@ -65,9 +70,9 @@ def mean_standardize(X, axis=None, out=None):
     shape = X.shape
     nshape = shape[:axis] + (1,) + shape[axis + 1 :]
 
-    X = X - nanmean(X, axis=axis).reshape(nshape)
-    d = nanstd(X, axis=axis).reshape(nshape)
-    d = clip(d, epsilon.tiny, inf)
+    X = X - lib.nanmean(X, axis=axis).reshape(nshape)
+    d = lib.nanstd(X, axis=axis).reshape(nshape)
+    d = lib.clip(d, epsilon.tiny, inf)
     X /= d
 
     return X
@@ -150,14 +155,20 @@ def boxcox(x):
         ax2 = fig.add_subplot(212)
         stats.probplot(y, dist=stats.norm, plot=ax2)
     """
+    if isinstance(x, da.Array):
+        return _boxcox(da, x)
+    return _boxcox(np, x)
+
+
+def _boxcox(lib, x):
     from scipy.stats import boxcox_llf
     from scipy.special import boxcox as bc
 
-    x = asarray(x, float)
+    x = lib.asarray(x).astype(float)
 
     m = x.min()
     if m <= 0:
-        m = max(ddabs(m), epsilon.small)
+        m = max(lib.abs(m), epsilon.small)
         x = x + m + m / 2
 
     lmb = brent(lambda lmb: -boxcox_llf(lmb, x), -5, +5)[0]

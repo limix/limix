@@ -5,7 +5,7 @@ import pytest
 import os
 
 
-def pytest_sessionstart(session):
+def pytest_sessionstart(*args, **kwargs):
     _pandas_format()
 
 

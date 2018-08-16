@@ -18,9 +18,6 @@ def test_dataset_norm_samples_index_infer():
     M = random.randn(3, 2)
     Me = random.randn(2, 2)
 
-    # with pytest.raises(ValueError):
-    #     _infer_samples_index([y, K, Me])
-
     candidates = [0, 1, 2]
     assert_array_equal(_infer_samples_index([y]), candidates)
     assert_array_equal(_infer_samples_index([y, K]), candidates)
