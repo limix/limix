@@ -60,8 +60,7 @@ def test_dataset_norm_normalise_dataset():
     assert_array_equal(y.values, data["y"].values)
 
     y = array([-1.2, 3.4, 0.1, 0.1, 0.0, -0.2])
-    with pytest.raises(ValueError):
-        data = normalise_dataset(DataFrame(data=y, index=samples + samples), M=M, K=K)
+    data = normalise_dataset(DataFrame(data=y, index=samples + samples), M=M, K=K)
 
     y = DataFrame(data=y[: len(samples)], index=samples)
     y = data["y"]
@@ -73,6 +72,7 @@ def test_dataset_norm_normalise_dataset():
     assert_equal(y.shape[0], K.shape[1])
 
     G = M.copy()
+
     data = normalise_dataset(y, M=M, K=K, G=G)
     y = data["y"]
     M = data["M"]

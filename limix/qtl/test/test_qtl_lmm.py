@@ -69,9 +69,6 @@ def test_qtl_lmm_repeat_samples_by_index():
     M = DataFrame(data=M, index=samples)
     X = DataFrame(data=X, index=samples)
 
-    import pdb
-
-    pdb.set_trace()
     model = scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
     assert_allclose(pv.values[0], 0.9920306566395604)

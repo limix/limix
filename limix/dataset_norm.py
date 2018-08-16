@@ -10,29 +10,13 @@ def normalise_dataset(y, M, G=None, K=None):
     M = DataArray(M, encoding={"dtype": "float64"})
     M = M.rename({M.dims[0]: "sample"})
 
-    idx = M.coords["sample"].values
-    if len(unique(idx)) < len(idx):
-        msg = "Non-unique sample ids are not allowed in the covariates array."
-        raise ValueError(msg)
-
     if G is not None:
         G = DataArray(G, encoding={"dtype": "float64"})
         G = G.rename({G.dims[0]: "sample"})
 
-        idx = G.coords["sample"].values
-        if len(unique(idx)) < len(idx):
-            msg = "Non-unique sample ids are not allowed in the candidates array."
-            raise ValueError(msg)
-
     if K is not None:
         K = DataArray(K, encoding={"dtype": "float64"})
         K = K.rename({K.dims[0]: "sample_0", K.dims[1]: "sample_1"})
-
-        idx0 = K.coords["sample_0"].values
-        idx1 = K.coords["sample_1"].values
-        if len(unique(idx0)) < len(idx0) or len(unique(idx1)) < len(idx1):
-            msg = "Non-unique sample ids are not allowed in the covariance matrix."
-            raise ValueError(msg)
 
     arrs = [a for a in [y, M, G] if a is not None]
     if len(y.dims) == 1:
@@ -40,6 +24,41 @@ def normalise_dataset(y, M, G=None, K=None):
 
     if K is not None:
         arrs += [K, K.T]
+
+    y = y.rename({y.dims[1]: "trait"})
+    M = M.rename({M.dims[1]: "covariate"})
+    if G is not None:
+        G = G.rename({G.dims[1]: "candidate"})
+
+    idx = y.coords["sample"]
+    for a in arrs:
+        dif = len(a.coords[a.dims[0]]) != len(idx)
+        if dif or not all(a.coords[a.dims[0]].values == idx.values):
+            break
+    else:
+        # Exit early.
+        return dict(y=y, M=M, G=G, K=K)
+
+    idx = M.coords["sample"].values
+    if len(unique(idx)) < len(idx):
+        msg = "Non-unique sample ids are not allowed in the covariates array"
+        msg += " if the sample ids are not equal nor in the same order."
+        raise ValueError(msg)
+
+    if G is not None:
+        idx = G.coords["sample"].values
+        if len(unique(idx)) < len(idx):
+            msg = "Non-unique sample ids are not allowed in the candidates array"
+            msg += " if the sample ids are not equal nor in the same order."
+            raise ValueError(msg)
+
+    if K is not None:
+        idx0 = K.coords["sample_0"].values
+        idx1 = K.coords["sample_1"].values
+        if len(unique(idx0)) < len(idx0) or len(unique(idx1)) < len(idx1):
+            msg = "Non-unique sample ids are not allowed in the covariate array"
+            msg += " if the sample ids are not equal nor in the same order."
+            raise ValueError(msg)
 
     inc_msg = "The provided outcome and {} arrays are sample-wise incompatible."
     try:
@@ -62,11 +81,6 @@ def normalise_dataset(y, M, G=None, K=None):
         except IndexError as e:
             msg = inc_msg.format("candidates")
             raise ValueError(str(e) + "\n\n" + inc_msg)
-
-    y = y.rename({y.dims[1]: "trait"})
-    M = M.rename({M.dims[1]: "covariate"})
-    if G is not None:
-        G = G.rename({G.dims[1]: "candidate"})
 
     nsamples = len(y)
     if nsamples != M.shape[0]:
