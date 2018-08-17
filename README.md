@@ -23,6 +23,15 @@ https://github.com/limix/limix-tutorials.
 These tutorials can also be viewed using the ipython notebook viewer:
 http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb.
 
+## ⚠️ Note
+
+Limix 2.0.0 is in the alpha stage but already functional.
+We thus recommend the user to first
+[give it a try](https://github.com/limix/limix/tree/2.0.0) before using the stable
+version 1.0.x.
+[Documentation and tutorials](https://limix.readthedocs.io/en/2.0.0) for 2.0.0 is
+already up and running.
+
 ## Highlights
 
 - **iSet**: an interaction set test with external context
