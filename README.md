@@ -1,6 +1,6 @@
 # limix
 
-[![Travis](https://img.shields.io/travis/limix/limix.svg?style=flat-square&label=linux%20%2F%20macos%20build)](https://travis-ci.org/limix/limix) [![AppVeyor](https://img.shields.io/appveyor/ci/Horta/limix.svg?style=flat-square&label=windows%20build)](https://ci.appveyor.com/project/Horta/limix) [![Documentation](https://img.shields.io/readthedocs/limix.svg?style=flat-square&version=stable)](https://limix.readthedocs.io/)
+[![Travis](https://img.shields.io/travis/limix/limix.svg?style=flat-square&label=linux%20%2F%20macos%20build)](https://travis-ci.org/limix/limix) [![AppVeyor](https://img.shields.io/appveyor/ci/Horta/limix.svg?style=flat-square&label=windows%20build)](https://ci.appveyor.com/project/Horta/limix) [![Documentation](https://readthedocs.org/projects/limix/badge/?version=2.0.0&style=flat-square)](https://limix.readthedocs.io/en/2.0.0)
 
 Genomic analyses require flexible models that can be adapted to the needs of the user.
 
