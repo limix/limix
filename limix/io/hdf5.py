@@ -1,5 +1,4 @@
 import asciitree
-from limix.display import timer_text
 
 # TODO: refactor this entire file. There are too many things here
 
@@ -99,6 +98,7 @@ def see_hdf5(filepath, show_chunks=False, verbose=True):
     :returns str: String representation if is `ret=True`.
     """
     import h5py
+    from ..display import timer_text
 
     with timer_text(desc="Reading %s..." % filepath, disable=not verbose):
         with h5py.File(filepath, "r") as f:

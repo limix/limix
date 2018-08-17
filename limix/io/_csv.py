@@ -1,5 +1,4 @@
 import os
-from limix.display import timer_text
 
 
 def read_csv(filename, sep=None, header=True):
@@ -72,6 +71,7 @@ def see(filepath, header, verbose):
         CSV representation.
     """
     from pandas import read_csv
+    from ..display import timer_text
 
     if header:
         header = 0

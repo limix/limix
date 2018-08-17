@@ -4,11 +4,9 @@ Acknowledgment
 --------------
 - Pandas Python package for providing code for such a functionality.
 """
-import io
 import re
 import sys
 import warnings
-from contextlib import redirect_stdout
 from time import time
 
 from ._config import config

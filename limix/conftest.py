@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 import pkg_resources
 import pytest
-import os
 
 
 def pytest_sessionstart(*args, **kwargs):
@@ -23,14 +22,14 @@ def pandas_format():
 def datadir(tmpdir, request):
     class DataDir(object):
         def __init__(self, tmpdir, module_path):
-            self._tmpdir = tmpdir
+            self._tmpdir = str(tmpdir)
             self._module_path = module_path
 
         def add(self, resource_path):
             resource_package = self._module_path
             name = resource_path.split("/")[-1]
             content = pkg_resources.resource_string(resource_package, resource_path)
-            with open(os.path.join(self._tmpdir, name), "wb") as f:
+            with open(self._tmpdir + "/" + name, "wb") as f:
                 f.write(content)
 
         @property
