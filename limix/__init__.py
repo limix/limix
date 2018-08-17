@@ -32,7 +32,7 @@ from ._config import config
 from ._testit import test
 from ._threads import get_max_nthreads, set_max_nthreads
 
-__version__ = "2.0.0a1"
+__version__ = "2.0.0a2"
 
 __all__ = [
     "__version__",
