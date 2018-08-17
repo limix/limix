@@ -4,12 +4,13 @@ Acknowledgment
 --------------
 - Pandas Python package for providing code for such a functionality.
 """
+import io
 import re
-from time import time
 import sys
 import warnings
 from contextlib import redirect_stdout
-import io
+from time import time
+
 from ._config import config
 
 _tags = ["bold", "green", "blue"]
@@ -17,6 +18,7 @@ _color = {"blue": "#0C68C7", "green": "#19CB00"}
 
 
 def pprint(txt):
+    """Print rich text."""
     try:
         from IPython.display import display
 
@@ -26,10 +28,12 @@ def pprint(txt):
 
 
 def format_richtext(txt):
+    """Format rich text."""
     return _RichText(txt)
 
 
 def display(objs):
+    """Frontend-aware object display."""
     try:
         from IPython.display import display
 
@@ -39,18 +43,22 @@ def display(objs):
 
 
 def bold(txt):
+    """Bold font."""
     return "[bold]" + txt + "[/bold]"
 
 
 def green(txt):
+    """Green color font."""
     return "[green]" + txt + "[/green]"
 
 
 def blue(txt):
+    """Blue color font."""
     return "[blue]" + txt + "[/blue]"
 
 
 def width():
+    """Display number of columns."""
     if _in_interactive_session():
         if _in_ipython_frontend():
             return config["display.fallback_width"]
@@ -64,20 +72,8 @@ def width():
     return config["display.fallback_width"]
 
 
-def pprint_capture(func):
-    def func_wrapper(*args, **kwargs):
-        f = io.StringIO()
-        with redirect_stdout(f):
-            r = func(*args, **kwargs)
-        pprint(f.getvalue())
-        return r
-
-    return func_wrapper
-
-
 class timer_text(object):
-    r"""Print the elapsed time after the execution of a block of code.
-    """
+    r"""Print the elapsed time after the execution of a block of code."""
 
     def __init__(self, desc="Running... ", disable=False):
         self._disable = disable
@@ -102,6 +98,8 @@ class timer_text(object):
 
 
 class session_text(object):
+    """Print session block: session start and session end."""
+
     def __init__(self, session_name, disable=False):
         self._session_name = session_name
         self._start = None
@@ -240,4 +238,3 @@ def _plain_format(txt):
         txt = r.sub("\\1", txt)
 
     return txt
-

@@ -1,5 +1,5 @@
 import pytest
-from limix.likelihood import assert_likelihood_name
+from limix._likelihood import assert_likelihood_name
 
 
 def test_likelihood_names():

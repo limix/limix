@@ -1,17 +1,22 @@
 import sys
-from numpy import all as npall
-from numpy import arange, asarray, atleast_2d, isfinite
-from numpy import issubdtype, number
-from numpy import var as np_var
 from textwrap import TextWrapper
 
 import glimix_core
 from glimix_core.gp import GP
+from numpy import (
+    all as npall,
+    arange,
+    asarray,
+    atleast_2d,
+    isfinite,
+    issubdtype,
+    number,
+    var as np_var,
+)
 
-from . import _cov as user_cov
-from . import _mean as user_mean
-from ..likelihood import assert_likelihood_name
+from . import _cov as user_cov, _mean as user_mean
 from .. import display
+from .._likelihood import assert_likelihood_name, normalise_extreme_values
 
 if sys.version_info < (3, 0):
     PY2 = True
@@ -99,7 +104,7 @@ class GLMMComposer(object):
         if not npall(isfinite(y)):
             raise ValueError("Phenotype values must be finite.")
         self._glmm = None
-        self._y = y
+        self._y = normalise_extreme_values(y, "normal")
 
     @property
     def fixed_effects(self):

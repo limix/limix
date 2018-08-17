@@ -1,5 +1,5 @@
 r"""Heritability estimation."""
 
-from .estimate import estimate
+from ._estimate import estimate
 
-__all__ = ['estimate']
+__all__ = ["estimate"]

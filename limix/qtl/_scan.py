@@ -1,17 +1,20 @@
 from __future__ import division
 
 import sys
-from numpy import ones
+
 from glimix_core.glmm import GLMMExpFam, GLMMNormal
 from glimix_core.lmm import LMM
-from numpy_sugar.linalg import economic_qs
+from numpy import ones
 from numpy_sugar import is_all_finite
+from numpy_sugar.linalg import economic_qs
 
-from ..dataset_norm import normalise_dataset
 from limix.display import timer_text
+
 from .. import display
-from ._model import QTLModel
+from .._dataset import normalise_dataset
 from ..display import session_text
+from .._likelihood import assert_likelihood_name, normalise_extreme_values
+from ._model import QTLModel
 
 
 def scan(G, y, lik, K=None, M=None, verbose=True):
@@ -128,6 +131,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         lik = (lik,)
 
     lik_name = lik[0].lower()
+    assert_likelihood_name(lik_name)
 
     if M is None:
         M = ones((len(y), 1))
@@ -137,7 +141,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         with timer_text("Normalising input...", disable=not verbose):
             data = normalise_dataset(y, M, G=G, K=K)
 
-        y = data["y"]
+        y = normalise_extreme_values(data["y"], lik)
         M = data["M"]
         G = data["G"]
         K = data["K"]

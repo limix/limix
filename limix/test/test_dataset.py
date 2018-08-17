@@ -4,10 +4,10 @@ from numpy.random import RandomState
 from numpy.testing import assert_array_equal, assert_equal
 from pandas import DataFrame
 
-from limix.dataset_norm import normalise_dataset, _infer_samples_index
+from limix._dataset import normalise_dataset, _infer_samples_index
 
 
-def test_dataset_norm_samples_index_infer():
+def test_dataset_samples_index_infer():
     y = array([-1.2, 3.4, 0.1])
 
     random = RandomState(0)
@@ -39,7 +39,7 @@ def test_dataset_norm_samples_index_infer():
         _infer_samples_index([df_y, df_K, M])
 
 
-def test_dataset_norm_normalise_dataset():
+def test_dataset_normalise_dataset():
     y = array([-1.2, 3.4, 0.1])
     samples = ["sample{}".format(i) for i in range(len(y))]
     y = DataFrame(data=y, index=samples)
@@ -79,8 +79,8 @@ def test_dataset_norm_normalise_dataset():
 
 
 def main():
-    test_dataset_norm_samples_index_infer()
-    test_dataset_norm_normalise_dataset()
+    test_dataset_samples_index_infer()
+    test_dataset_normalise_dataset()
 
 
 if __name__ == "__main__":

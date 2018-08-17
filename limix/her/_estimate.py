@@ -1,12 +1,15 @@
 from __future__ import division
 
-from numpy import pi, var, ones
-
 from glimix_core.glmm import GLMMExpFam
 from glimix_core.lmm import LMM
-from numpy_sugar.linalg import economic_qs
+from numpy import ones, pi, var
 from numpy_sugar import is_all_finite
-from ..dataset_norm import normalise_dataset
+from numpy_sugar.linalg import economic_qs
+
+from ..display import session_text, timer_text
+from .._dataset import normalise_dataset
+from .._likelihood import assert_likelihood_name, normalise_extreme_values
+from ..qc import normalise_covariance
 
 
 def estimate(y, lik, K, M=None, verbose=True):
@@ -67,61 +70,57 @@ def estimate(y, lik, K, M=None, verbose=True):
     It will raise a ``ValueError`` exception if non-finite values are passed. Please,
     refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
-    from ..likelihood import normalise_extreme_values
-    from ..qc import normalise_covariance
-
     if not isinstance(lik, (tuple, list)):
         lik = (lik,)
 
     lik_name = lik[0].lower()
+    assert_likelihood_name(lik_name)
 
-    if verbose:
-        lik_name = lik_name[0].upper() + lik_name[1:]
-        analysis_name = "Heritability estimation"
-        print("*** {} using {}-GLMM ***".format(analysis_name, lik_name))
+    with session_text("heritability analysis", disable=not verbose):
 
-    if M is None:
-        M = ones((len(y), 1))
+        if M is None:
+            M = ones((len(y), 1))
 
-    data = normalise_dataset(y, M=M, K=K)
-    y = data["y"]
-    M = data["M"]
-    K = data["K"]
+        with timer_text("Normalising input...", disable=not verbose):
+            data = normalise_dataset(y, M=M, K=K)
+        y = data["y"]
+        M = data["M"]
+        K = data["K"]
 
-    if not is_all_finite(y):
-        raise ValueError("Outcome must have finite values only.")
+        if not is_all_finite(y):
+            raise ValueError("Outcome must have finite values only.")
 
-    if not is_all_finite(M):
-        raise ValueError("Covariates must have finite values only.")
+        if not is_all_finite(M):
+            raise ValueError("Covariates must have finite values only.")
 
-    if K is not None:
-        if not is_all_finite(K):
-            raise ValueError("Covariate matrix must have finite values only.")
+        if K is not None:
+            if not is_all_finite(K):
+                raise ValueError("Covariate matrix must have finite values only.")
 
-        K = normalise_covariance(K)
+            K = normalise_covariance(K)
 
-    y = normalise_extreme_values(y, lik)
+        y = normalise_extreme_values(y, lik)
 
-    if K is not None:
-        QS = economic_qs(K)
-    else:
-        QS = None
+        if K is not None:
+            QS = economic_qs(K)
+        else:
+            QS = None
 
-    if lik_name == "normal":
-        method = LMM(y.values, M.values, QS)
-        method.fit(verbose=verbose)
-    else:
-        method = GLMMExpFam(y, lik, M.values, QS, n_int=500)
-        method.fit(verbose=verbose, factr=1e6, pgtol=1e-3)
+        if lik_name == "normal":
+            method = LMM(y.values, M.values, QS)
+            method.fit(verbose=verbose)
+        else:
+            method = GLMMExpFam(y, lik, M.values, QS, n_int=500)
+            method.fit(verbose=verbose, factr=1e6, pgtol=1e-3)
 
-    g = method.scale * (1 - method.delta)
-    e = method.scale * method.delta
-    if lik_name == "bernoulli":
-        e += pi * pi / 3
+        g = method.scale * (1 - method.delta)
+        e = method.scale * method.delta
+        if lik_name == "bernoulli":
+            e += pi * pi / 3
 
-    if lik_name == "normal":
-        v = method.fixed_effects_variance
-    else:
-        v = var(method.mean())
+        if lik_name == "normal":
+            v = method.fixed_effects_variance
+        else:
+            v = var(method.mean())
 
-    return g / (v + g + e)
+        return g / (v + g + e)
