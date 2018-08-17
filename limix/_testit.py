@@ -17,7 +17,6 @@ def test(verbose=True):
 
     args = [
         "--doctest-modules",
-        "-x",
         "--doctest-plus",
         "--doctest-plus-rtol=1e-04",
         "--doctest-plus-atol=1e-05",
