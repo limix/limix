@@ -26,15 +26,11 @@ at https://limix.readthedocs.io/.
 """
 from __future__ import absolute_import
 
-from . import cmdlimix, io, her, qc, qtl, stats, plot, glmm, sh
-
-from .cmd import call
-from .cmdlimix import main
-from .limits import is_large_file
-from ._testit import test
-from .threads import get_max_nthreads, set_max_nthreads
+from . import display, glmm, her, io, plot, qc, qtl, sh, stats
+from ._cmdlimix import main
 from ._config import config
-from . import display
+from ._testit import test
+from ._threads import get_max_nthreads, set_max_nthreads
 
 __version__ = "2.0.0a1"
 
@@ -48,11 +44,8 @@ __all__ = [
     "stats",
     "her",
     "glmm",
-    "cmdlimix",
     "set_max_nthreads",
     "get_max_nthreads",
-    "call",
-    "is_large_file",
     "normalise_phenotype",
     "main",
     "sh",

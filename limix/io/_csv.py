@@ -1,3 +1,4 @@
+import os
 from limix.display import timer_text
 
 
@@ -32,7 +33,6 @@ def read_csv(filename, sep=None, header=True):
         1   size   float    -3     b
         2  force     int     f     c
     """
-    from ..limits import is_large_file
     from dask.dataframe import read_csv as dask_read_csv
     from pandas import read_csv as pandas_read_csv
 
@@ -41,7 +41,7 @@ def read_csv(filename, sep=None, header=True):
 
     header = 0 if header else None
 
-    if is_large_file(filename):
+    if _is_large_file(filename):
         df = dask_read_csv(filename, sep=sep, header=header)
     else:
         df = pandas_read_csv(filename, sep=sep, header=header)
@@ -132,3 +132,7 @@ def _remove_repeat(s):
 
     return sub(r"(.)\1+", r"\1", s)
 
+
+def _is_large_file(filepath):
+    large = 1024 * 1024 * 100
+    return os.path.getsize(filepath) >= large
