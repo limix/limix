@@ -10,7 +10,6 @@ from numpy_sugar.linalg import economic_qs
 
 from limix.display import timer_text
 
-from .. import display
 from .._dataset import normalise_dataset
 from ..display import session_text
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
@@ -141,7 +140,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         with timer_text("Normalising input...", disable=not verbose):
             data = normalise_dataset(y, M, G=G, K=K)
 
-        y = normalise_extreme_values(data["y"], lik)
+        y = data["y"]
         M = data["M"]
         G = data["G"]
         K = data["K"]
@@ -159,16 +158,12 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         else:
             QS = None
 
+        y = normalise_extreme_values(data["y"], lik)
+
         if lik_name == "normal":
             model = _perform_lmm(y.values, M, QS, G, verbose)
         else:
             model = _perform_glmm(y.values, lik, M, K, QS, G, verbose)
-
-        if verbose:
-            sys.stdout.write("\n")
-            sys.stdout.flush()
-            txt = display.bold(str(model))
-            display.display(display.format_richtext(txt))
 
         return model
 

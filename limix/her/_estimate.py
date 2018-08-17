@@ -83,6 +83,7 @@ def estimate(y, lik, K, M=None, verbose=True):
 
         with timer_text("Normalising input...", disable=not verbose):
             data = normalise_dataset(y, M=M, K=K)
+
         y = data["y"]
         M = data["M"]
         K = data["K"]
