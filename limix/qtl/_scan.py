@@ -103,7 +103,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         rs1    0.256326
         rs2    0.242013
         dtype: float64
-        >>> model  # doctest: +FLOAT_CMP
+        >>> model  # doctest: +FLOAT_CMP +SKIP
         Variants
         --------
                effsizes  effsizes_se   pvalues
@@ -120,7 +120,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         -----------------------------
               age    offset
         -0.005568  0.395287
-    
+
     Notes
     -----
     It will raise a ``ValueError`` exception if non-finite values are passed. Please,
