@@ -11,9 +11,9 @@ def test(verbose=True):
     int
         Exit code: ``0`` for success.
     """
-    from .conftest import pytest_pandas_format
+    from .conftest import pandas_format
 
-    pytest_pandas_format()
+    pandas_format()
 
     args = [
         "--doctest-modules",
