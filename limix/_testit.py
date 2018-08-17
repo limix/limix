@@ -11,7 +11,7 @@ def test(verbose=True):
     int
         Exit code: ``0`` for success.
     """
-    from ._conftest import pytest_pandas_format
+    from .conftest import pytest_pandas_format
 
     pytest_pandas_format()
 
