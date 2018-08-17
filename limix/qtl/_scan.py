@@ -103,7 +103,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         rs1    0.256326
         rs2    0.242013
         dtype: float64
-        >>> model  # doctest: +FLOAT_CMP +SKIP
+        >>> model  # doctest: +FLOAT_CMP
         Variants
         --------
                effsizes  effsizes_se   pvalues

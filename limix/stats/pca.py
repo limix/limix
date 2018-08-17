@@ -32,9 +32,9 @@ def pca(X, ncomp):
         >>> round(r['components'], 2)
         array([[-0.75,  0.58, -0.08,  0.2 , -0.23],
                [ 0.49,  0.72,  0.02, -0.46, -0.16]])
-        >>> round(r['explained_variance'], 4) # doctest: +SKIP
+        >>> round(r['explained_variance'], 4) # doctest: +FLOAT_CMP
         array([ 6.4466,  0.5145])
-        >>> round(r['explained_variance_ratio'], 4) # doctest: +SKIP
+        >>> round(r['explained_variance_ratio'], 4) # doctest: +FLOAT_CMP
         array([ 0.9205,  0.0735])
     """
     from sklearn.decomposition import PCA

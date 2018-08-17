@@ -55,7 +55,7 @@ def unique_variants(X):
         >>> N = 4
         >>> X = kron(random.randn(N, 3) < 0, ones((1, 2)))
         >>>
-        >>> print(X) # doctest: +SKIP
+        >>> print(X)
         [[0. 0. 1. 1. 1. 1.]
          [1. 1. 0. 0. 1. 1.]
          [0. 0. 1. 1. 0. 0.]
@@ -63,7 +63,7 @@ def unique_variants(X):
         >>>
         >>> idx = unique_variants(X)
         >>>
-        >>> print(X[:, sort(idx)]) # doctest: +SKIP
+        >>> print(X[:, sort(idx)])
         [[0. 1. 1.]
          [1. 0. 1.]
          [0. 1. 0.]
