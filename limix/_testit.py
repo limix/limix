@@ -19,7 +19,7 @@ def test(verbose=True):
         "--doctest-modules",
         "--doctest-plus",
         "--doctest-plus-rtol=1e-04",
-        "--doctest-plus-atol=1e-05",
+        "--doctest-plus-atol=1e-04",
     ]
     if not verbose:
         args += ["--quiet"]
