@@ -1,8 +1,6 @@
 import sys
 from textwrap import TextWrapper
 
-import glimix_core
-from glimix_core.gp import GP
 from numpy import (
     all as npall,
     arange,
@@ -32,36 +30,6 @@ class GLMMComposer(object):
         self._fixed_effects = FixedEffects(nsamples)
         self._covariance_matrices = CovarianceMatrices(nsamples)
         self._glmm = None
-
-    def plot(self):
-        from pandas import DataFrame
-        from matplotlib.ticker import FormatStrFormatter
-        import seaborn as sns
-
-        fe_vars = []
-        fe_names = []
-        for fe in self.fixed_effects:
-            if hasattr(fe, "offset"):
-                continue
-            fe_vars.append(np_var(fe.value()))
-            fe_names.append(fe.name)
-
-        scales = [cm.scale for cm in self.covariance_matrices]
-        re_names = [re.name for re in self.covariance_matrices]
-
-        fe = DataFrame([fe_vars], columns=fe_names)
-        re = DataFrame([scales], columns=re_names)
-
-        fe = fe.div(fe.sum(axis=1), axis=0).mean(axis=0)
-        fe *= 100
-
-        re = re.div(re.sum(axis=1), axis=0).mean(axis=0)
-        re *= 100
-
-        ax = sns.barplot(x=re.index, y=re.values)
-        ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
-
-        return ax
 
     def decomp(self):
         decomp = dict(fixed_effects={}, random_effects={})
@@ -133,6 +101,8 @@ class GLMMComposer(object):
         return self._glmm.lml()
 
     def _build_glmm(self):
+        from glimix_core.gp import GP
+
         if self._y is None:
             raise ValueError("Phenotype has not been set.")
 
@@ -184,8 +154,10 @@ class FixedEffects(object):
         return self._fixed_effects["user"][i]
 
     def _setup_mean(self):
+        from glimix_core.mean import SumMean
+
         if self._mean is None:
-            mean = glimix_core.mean.SumMean(self._fixed_effects["impl"])
+            mean = SumMean(self._fixed_effects["impl"])
             self._mean = {"impl": mean, "user": user_mean.SumMean(mean)}
 
     @property
@@ -194,7 +166,9 @@ class FixedEffects(object):
         return self._mean["impl"]
 
     def append_offset(self):
-        mean = glimix_core.mean.OffsetMean()
+        from glimix_core.mean import OffsetMean
+
+        mean = OffsetMean()
         mean.set_data(self._sample_idx)
         self._fixed_effects["impl"].append(mean)
         self._fixed_effects["user"].append(user_mean.OffsetMean(mean))
@@ -202,6 +176,8 @@ class FixedEffects(object):
         self._mean = None
 
     def append(self, m, name=None):
+        from glimix_core.mean import LinearMean
+
         m = asarray(m, float)
         if m.ndim > 2:
             raise ValueError("Fixed-effect has to have between one and two dimensions.")
@@ -210,7 +186,7 @@ class FixedEffects(object):
             raise ValueError("Fixed-effect values must be finite.")
 
         m = atleast_2d(m.T).T
-        mean = glimix_core.mean.LinearMean(m.shape[1])
+        mean = LinearMean(m.shape[1])
         mean.set_data(m)
 
         n = len(self._fixed_effects["impl"])
@@ -249,8 +225,10 @@ class CovarianceMatrices(object):
         return self._covariance_matrices["user"][i]
 
     def _setup_cov(self):
+        from glimix_core.cov import SumCov
+
         if self._cov is None:
-            cov = glimix_core.cov.SumCov(self._covariance_matrices["impl"])
+            cov = SumCov(self._covariance_matrices["impl"])
             self._cov = {"impl": cov, "user": user_cov.SumCov(cov)}
 
     @property
@@ -259,7 +237,9 @@ class CovarianceMatrices(object):
         return self._cov["impl"]
 
     def append_iid_noise(self):
-        cov = glimix_core.cov.EyeCov()
+        from glimix_core.cov import EyeCov
+
+        cov = EyeCov()
         cov.set_data((self._sample_idx, self._sample_idx))
         self._covariance_matrices["impl"].append(cov)
         self._covariance_matrices["user"].append(user_cov.EyeCov(cov))
@@ -267,6 +247,8 @@ class CovarianceMatrices(object):
         self._cov = None
 
     def append(self, K, name=None):
+        from glimix_core.cov import GivenCov
+
         if not issubdtype(K.dtype, number):
             raise ValueError("covariance-matrix is not numeric.")
 
@@ -276,7 +258,7 @@ class CovarianceMatrices(object):
         if not npall(isfinite(K)):
             raise ValueError("Covariance-matrix values must be finite.")
 
-        cov = glimix_core.cov.GivenCov(K)
+        cov = GivenCov(K)
         cov.set_data((self._sample_idx, self._sample_idx))
 
         n = len(self._covariance_matrices["impl"])

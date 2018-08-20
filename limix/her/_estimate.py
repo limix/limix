@@ -1,10 +1,6 @@
 from __future__ import division
 
-from glimix_core.glmm import GLMMExpFam
-from glimix_core.lmm import LMM
 from numpy import ones, pi, var
-from numpy_sugar import is_all_finite
-from numpy_sugar.linalg import economic_qs
 
 from ..display import session_text, timer_text
 from .._dataset import normalise_dataset
@@ -70,6 +66,11 @@ def estimate(y, lik, K, M=None, verbose=True):
     It will raise a ``ValueError`` exception if non-finite values are passed. Please,
     refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
+    from numpy_sugar import is_all_finite
+    from numpy_sugar.linalg import economic_qs
+    from glimix_core.glmm import GLMMExpFam
+    from glimix_core.lmm import LMM
+
     if not isinstance(lik, (tuple, list)):
         lik = (lik,)
 

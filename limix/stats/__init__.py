@@ -34,7 +34,7 @@ Likelihood-ratio test
 """
 
 from .chi2mixture import Chi2Mixture
-from .confusion import confusion_matrix
+from ._confusion import confusion_matrix
 from .kinship import linear_kinship
 from .lrt import effsizes_se, lrt_pvalues
 from .pca import pca

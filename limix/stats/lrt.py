@@ -3,8 +3,6 @@ from __future__ import division
 from numpy import abs as npy_abs
 from numpy import asarray, clip, inf, sqrt
 
-from numpy_sugar import epsilon
-
 
 def lrt_pvalues(null_lml, alt_lmls, dof=1):
     r"""Compute p-values from likelihood ratios.
@@ -26,6 +24,7 @@ def lrt_pvalues(null_lml, alt_lmls, dof=1):
         P-values.
     """
     from scipy.stats import chi2
+    from numpy_sugar import epsilon
 
     lrs = clip(-2 * null_lml + 2 * asarray(alt_lmls), epsilon.super_tiny, inf)
     pv = chi2(df=dof).sf(lrs)

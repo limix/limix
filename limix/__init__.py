@@ -30,7 +30,7 @@ from . import display, glmm, her, io, plot, qc, qtl, sh, stats
 from ._cmdlimix import main
 from ._config import config
 from ._testit import test
-from ._threads import get_max_nthreads, set_max_nthreads
+from ._threads import set_max_nthreads, get_max_nthreads
 
 __version__ = "2.0.0a2"
 
@@ -45,7 +45,6 @@ __all__ = [
     "her",
     "glmm",
     "set_max_nthreads",
-    "get_max_nthreads",
     "normalise_phenotype",
     "main",
     "sh",

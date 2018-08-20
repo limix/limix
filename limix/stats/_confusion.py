@@ -5,47 +5,53 @@ import logging
 import numpy as np
 from numpy import argsort, asarray, concatenate, nan, where
 
-try:
-    from numba import jit
-except ImportError:
 
-    def jit(x, **kwargs):
-        return x
+def _get_jit():
+    try:
+        from numba import jit
+    except ImportError:
 
+        def jit(x, *args, **kwargs):
+            return x
 
-@jit(cache=True)
-def first_occurrence(arr, v):
-    for i in range(arr.shape[0]):
-        if arr[i] == v:
-            return i
-    return None
+    return jit
 
 
-@jit(cache=True)
-def _walk_left(pos, c, dist):
-    step = 0
-    middle = pos[c]
-    i = c
-    while i > 0 and step < dist:
-        i -= 1
-        step = middle - pos[i]
-    if step > dist:
-        i += 1
-    return i
+def _get_walk_left():
+    jit = _get_jit()
+
+    @jit(cache=True)
+    def _walk_left(pos, c, dist):
+        step = 0
+        middle = pos[c]
+        i = c
+        while i > 0 and step < dist:
+            i -= 1
+            step = middle - pos[i]
+        if step > dist:
+            i += 1
+        return i
+
+    return _walk_left
 
 
-@jit(cache=True)
-def _walk_right(pos, c, dist):
-    step = 0
-    middle = pos[c]
-    i = c
-    n = len(pos)
-    while i < n - 1 and step < dist:
-        i += 1
-        step = pos[i] - middle
-    if step > dist:
-        i -= 1
-    return i
+def _get_walk_right():
+    jit = _get_jit()
+
+    @jit(cache=True)
+    def _walk_right(pos, c, dist):
+        step = 0
+        middle = pos[c]
+        i = c
+        n = len(pos)
+        while i < n - 1 and step < dist:
+            i += 1
+            step = pos[i] - middle
+        if step > dist:
+            i -= 1
+        return i
+
+    return _walk_right
 
 
 def roc_curve(multi_score, method, max_fpr=0.05):
@@ -112,8 +118,8 @@ def confusion_matrix(df, wsize=50000):
         if wsize == 1:
             right = left = pos[c]
         else:
-            left = _walk_left(pos, c, wsize // 2)
-            right = _walk_right(pos, c, wsize // 2)
+            left = _get_walk_left()(pos, c, wsize // 2)
+            right = _get_walk_right()(pos, c, wsize // 2)
         for i in range(left, right + 1):
             ld_causal_markers.add(i)
 

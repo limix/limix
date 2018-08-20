@@ -2,11 +2,7 @@ from __future__ import division
 
 import sys
 
-from glimix_core.glmm import GLMMExpFam, GLMMNormal
-from glimix_core.lmm import LMM
 from numpy import ones
-from numpy_sugar import is_all_finite
-from numpy_sugar.linalg import economic_qs
 
 from limix.display import timer_text
 
@@ -126,6 +122,9 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     It will raise a ``ValueError`` exception if non-finite values are passed. Please,
     refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
+    from numpy_sugar import is_all_finite
+    from numpy_sugar.linalg import economic_qs
+
     if not isinstance(lik, (tuple, list)):
         lik = (lik,)
 
@@ -169,6 +168,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
 
 def _perform_lmm(y, M, QS, G, verbose):
+    from glimix_core.lmm import LMM
     from pandas import Series
 
     lmm = LMM(y, M.values, QS)
@@ -194,6 +194,7 @@ def _perform_lmm(y, M, QS, G, verbose):
 
 
 def _perform_glmm(y, lik, M, K, QS, G, verbose):
+    from glimix_core.glmm import GLMMExpFam, GLMMNormal
     from pandas import Series, DataFrame
 
     glmm = GLMMExpFam(y.ravel(), lik, M.values, QS)
