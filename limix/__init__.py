@@ -26,13 +26,14 @@ at https://limix.readthedocs.io/.
 """
 from __future__ import absolute_import
 
+__version__ = "2.0.0a3"
+
 from . import display, glmm, her, io, plot, qc, qtl, sh, stats
-from ._cmdlimix import main
+from ._cli import cli
 from ._config import config
 from ._testit import test
 from ._threads import set_max_nthreads, get_max_nthreads
 
-__version__ = "2.0.0a2"
 
 __all__ = [
     "__version__",
@@ -50,4 +51,6 @@ __all__ = [
     "sh",
     "config",
     "display",
+    "cli",
+    "get_max_nthreads",
 ]

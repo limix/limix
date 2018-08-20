@@ -1,6 +1,7 @@
 import os
 import sys
 import warnings
+from ..display import timer_text
 
 PY2 = sys.version_info < (3,)
 
@@ -24,8 +25,8 @@ def download(url, dest=None, verbose=True, force=False):
         return
 
     if verbose:
-        print("Downloading {}...".format(url))
-    urlretrieve(url, filepath)
+        with timer_text("Downloading {}... ".format(url)):
+            urlretrieve(url, filepath)
 
 
 def _filename(url):
