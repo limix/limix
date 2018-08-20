@@ -7,7 +7,7 @@ def _get_version():
     return limix.__version__
 
 
-@click.group()
+@click.group(name="limix")
 @click.pass_context
 @click.option("--verbose/--quiet", help="Enable or disable verbose mode.", default=True)
 @click.version_option(version=_get_version())

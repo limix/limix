@@ -12,14 +12,22 @@ Limix now provides a couple of its functionalities via command line.
     :hide:
 
     >>> import limix
-    >>> limix.main(['--help'])
-    usage: limix [-h] {see,download,remove,extract,estimate-kinship} ...
+    >>> from click.testing import CliRunner
+    >>> result = CliRunner().invoke(limix.cli, ["--help"])
+    >>> print(result.output)
+    Usage: limix [OPTIONS] COMMAND [ARGS]...
     <BLANKLINE>
-    optional arguments:
-      -h, --help            show this help message and exit
+    Options:
+    --verbose / --quiet  Enable or disable verbose mode.
+    --version            Show the version and exit.
+    --help               Show this message and exit.
     <BLANKLINE>
-    subcommands:
-      {see,download,remove,extract,estimate-kinship}
+    Commands:
+    download          Download file from the specified URL.
+    estimate_kinship  Estimate a kinship matrix.
+    extract           Extract a file.
+    remove            Remove a file.
+    see               Show an overview of multiple file types.
 
 Quickly explore files
 ^^^^^^^^^^^^^^^^^^^^^

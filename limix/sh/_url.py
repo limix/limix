@@ -24,9 +24,8 @@ def download(url, dest=None, verbose=True, force=False):
         print("Set `force` to `True` in order to overwrite the existing file.")
         return
 
-    if verbose:
-        with timer_text("Downloading {}... ".format(url)):
-            urlretrieve(url, filepath)
+    with timer_text("Downloading {}... ".format(url), disable=not verbose):
+        urlretrieve(url, filepath)
 
 
 def _filename(url):
