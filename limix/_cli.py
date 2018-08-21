@@ -1,4 +1,5 @@
 import click
+from limix.io._detect import detect_file_type
 
 
 def _get_version():
@@ -7,9 +8,11 @@ def _get_version():
     return limix.__version__
 
 
-@click.group(name="limix")
+@click.group(name="limix", context_settings=dict(help_option_names=["-h", "--help"]))
 @click.pass_context
-@click.option("--verbose/--quiet", help="Enable or disable verbose mode.", default=True)
+@click.option(
+    "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
+)
 @click.version_option(version=_get_version())
 def cli(ctx, verbose):
     ctx.obj = {}
@@ -31,10 +34,11 @@ def cli(ctx, verbose):
 def see(ctx, filepath, filetype, show_chunks, header):
     """Show an overview of multiple file types."""
     from limix import io, plot
+
     from matplotlib import pyplot as plt
 
     if filetype == "guess":
-        filetype = io.detect_file_type(filepath)
+        filetype = detect_file_type(filepath)
 
     if filetype == "hdf5":
         io.hdf5.see(filepath, show_chunks=show_chunks)
@@ -86,7 +90,7 @@ def estimate_kinship(ctx, input_file, output_file, filetype):
     from limix import io, stats
 
     if filetype == "guess":
-        filetype = io.detect_file_type(input_file)
+        filetype = detect_file_type(input_file)
 
     if ctx.obj["verbose"]:
         print("Detected file type: {}".format(filetype))
@@ -103,7 +107,7 @@ def estimate_kinship(ctx, input_file, output_file, filetype):
     if output_file is None:
         output_file = input_file + ".npy"
 
-    oft = io.detect_file_type(output_file)
+    oft = detect_file_type(output_file)
 
     if oft == "npy":
         io.npy.save_kinship(output_file, K, verbose=ctx.obj["verbose"])

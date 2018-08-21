@@ -1,6 +1,6 @@
-**********************
-Single-variant testing
-**********************
+************************
+Quantitative trait locus
+************************
 
 
 Introduction

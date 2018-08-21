@@ -1,1 +1,5 @@
+**********
+Statistics
+**********
+
 .. automodule:: limix.stats

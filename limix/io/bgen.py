@@ -36,7 +36,7 @@ def read(filepath, size=50, verbose=True, metadata_file=True, sample_file=None):
     Metadata files can speed up subsequent reads tremendously. But often the user does
     not have write permission for the default metadata file location
     ``filepath + ".metadata"``. We thus provide the
-    :function:`bgen_reader.create_metadata_file` function for creating one at the
+    :func:`bgen_reader.create_metadata_file` function for creating one at the
     given path.
     """
     import bgen_reader

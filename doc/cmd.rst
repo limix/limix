@@ -2,75 +2,81 @@
 Command line interface
 **********************
 
+Introduction
+============
+
 Limix now provides a couple of its functionalities via command line.
 
 .. code-block:: bash
 
-    limix --help
+    $ limix --help
 
-.. doctest::
+.. testcode::
     :hide:
 
-    >>> import limix
-    >>> from click.testing import CliRunner
-    >>> result = CliRunner().invoke(limix.cli, ["--help"])
-    >>> print(result.output)
+    import limix
+    from click.testing import CliRunner
+    result = CliRunner().invoke(limix.cli, ["--help"])
+    print(result.output)
+
+.. testoutput::
+
     Usage: limix [OPTIONS] COMMAND [ARGS]...
-    <BLANKLINE>
+
     Options:
-    --verbose / --quiet  Enable or disable verbose mode.
-    --version            Show the version and exit.
-    --help               Show this message and exit.
-    <BLANKLINE>
+      --verbose / --quiet  Enable or disable verbose mode.
+      --version            Show the version and exit.
+      --help               Show this message and exit.
+
     Commands:
-    download          Download file from the specified URL.
-    estimate_kinship  Estimate a kinship matrix.
-    extract           Extract a file.
-    remove            Remove a file.
-    see               Show an overview of multiple file types.
+      download          Download file from the specified URL.
+      estimate_kinship  Estimate a kinship matrix.
+      extract           Extract a file.
+      remove            Remove a file.
+      see               Show an overview of multiple file types.
 
-Quickly explore files
-^^^^^^^^^^^^^^^^^^^^^
+You can quickly explore common file types used in genetics, as examples given bellow
+will demonstrate.
 
-Limix provides a handy-way to quickly explore the following type of
-files: plink_ kinship matrix, plink_ files in bed format, hdf5_ file,
-csv file, and image files.
-Some examples are given bellow.
 
 Kinship
--------
+=======
 
 Heatmap representing a plink_ kinship matrix:
 
 .. code-block:: bash
 
-    limix download http://rest.s3for.me/limix/small_example.grm.raw.bz2 -q
-    limix extract small_example.grm.raw.bz2
-    limix see small_example.grm.raw
+    $ limix download http://rest.s3for.me/limix/small_example.grm.raw.bz2 -q
+    $ limix extract small_example.grm.raw.bz2
+    $ limix see small_example.grm.raw
 
 .. image:: imgs/example.grm.raw.png
    :width: 400px
 
+
 Plink BED format
-----------------
+================
 
 A preview of Plink files in BED format can be done via
 
 .. code-block:: bash
 
-    limix download http://rest.s3for.me/limix/plink_example.tar.gz -q
-    limix extract plink_example.tar.gz -q
-    limix see plink_example -q
+    $ limix download http://rest.s3for.me/limix/plink_example.tar.gz -q
+    $ limix extract plink_example.tar.gz -q
+    $ limix see plink_example -q
 
-.. doctest::
+.. testcode::
     :hide:
 
-    >>> import  limix
-    >>>
-    >>> url = "http://rest.s3for.me/limix/plink_example.tar.gz"
-    >>> limix.sh.download(url, verbose=False)
-    >>> limix.sh.extract("plink_example.tar.gz", verbose=False)
-    >>> limix.io.plink.see_bed("plink_example", verbose=False)
+    import  limix
+
+    url = "http://rest.s3for.me/limix/plink_example.tar.gz"
+    limix.sh.download(url, verbose=False)
+    limix.sh.extract("plink_example.tar.gz", verbose=False)
+    limix.io.plink.see_bed("plink_example", verbose=False)
+
+.. testoutput::
+
         ----------------------------------- Samples -----------------------------------
        chrom                    snp       cm       pos    a0                 a1   i
     0     22        snp_22_18958209  0.00000  18958209     A                  G   0
@@ -134,7 +140,7 @@ A preview of Plink files in BED format can be done via
     97    22        snp_22_49473688  0.00000  49473688     T                  C  97
     98    22        snp_22_49568955  0.00000  49568955     G                  A  98
     99    22        snp_22_50837415  0.00000  50837415     A                  G  99
-    <BLANKLINE>
+
         [100 rows x 7 columns]
     ------------------- Genotype -------------------
         fid      iid father mother gender trait    i
@@ -199,7 +205,7 @@ A preview of Plink files in BED format can be done via
     462   0  NA20819      0      0      0    -9  462
     463   0  NA20826      0      0      0    -9  463
     464   0  NA20828      0      0      0    -9  464
-    <BLANKLINE>
+
     [465 rows x 7 columns]
 
 .. testcleanup::
@@ -209,24 +215,28 @@ A preview of Plink files in BED format can be done via
     for f in glob("some_plink_files*"):
         os.unlink(f)
 
+
 HDF5
-----
+====
 
 The following command shows the hierarchy of a HDF5 file:
 
 .. code-block:: bash
 
-    limix download http://rest.s3for.me/limix/small_example.hdf5 -q
-    limix see small_example.hdf5 -q
+    $ limix download http://rest.s3for.me/limix/small_example.hdf5 -q
+    $ limix see small_example.hdf5 -q
 
-.. doctest::
+.. testcode::
     :hide:
 
-    >>> import limix
-    >>>
-    >>> url = "http://rest.s3for.me/limix/small_example.hdf5"
-    >>> limix.sh.download(url, verbose=False)
-    >>> limix.io.hdf5.see("small_example.hdf5")
+    import limix
+
+    url = "http://rest.s3for.me/limix/small_example.hdf5"
+    limix.sh.download(url, verbose=False)
+    limix.io.hdf5.see("small_example.hdf5")
+
+.. testoutput::
+
     /
       +--genotype
          +--col_header
@@ -236,7 +246,6 @@ The following command shows the hierarchy of a HDF5 file:
          +--row_header
             +--sample_ID [|S7, (183,)]
 
-
 .. testcleanup::
 
     import os
@@ -245,66 +254,69 @@ The following command shows the hierarchy of a HDF5 file:
         os.unlink(f)
 
 CSV
----
+===
 
 CSV files have their delimiter automatically detected and a preview can be
 shown as
 
 .. code-block:: bash
 
-    limix download http://rest.s3for.me/limix/small_example.csv.bz2 -q
-    limix extract small_example.csv.bz2 -q
-    limix see small_example.csv -q --header no
+    $ limix download http://rest.s3for.me/limix/small_example.csv.bz2 -q
+    $ limix extract small_example.csv.bz2 -q
+    $ limix see small_example.csv -q --header no
 
-.. doctest::
+.. testcode::
     :hide:
 
-    >>> import limix
-    >>>
-    >>> url = "http://rest.s3for.me/limix/small_example.csv.bz2"
-    >>> limix.sh.download(url, verbose=False)
-    >>> limix.sh.extract("small_example.csv.bz2", verbose=False)
-    >>> limix.io.csv.see("small_example.csv", verbose=False, header=False)
+    import limix
+
+    url = "http://rest.s3for.me/limix/small_example.csv.bz2"
+    limix.sh.download(url, verbose=False)
+    limix.sh.extract("small_example.csv.bz2", verbose=False)
+    limix.io.csv.see("small_example.csv", verbose=False, header=False)
+
+.. testoutput::
+
                        0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16   \
     0  snp_22_16050408   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
     1  snp_22_16050612   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
     2  snp_22_16050678   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
     3  snp_22_16051107   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
     4  snp_22_16051249   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
-    <BLANKLINE>
+
       17  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37   \
     0   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
     1   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
     2   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
     3   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
     4   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   A   
-    <BLANKLINE>
+
       38  ... 427 428 429 430 431 432 433 434 435 436 437 438 439 440 441 442 443 444 445  \
     0   A ...   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   
     1   A ...   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   
     2   A ...   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   
     3   A ...   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   
     4   A ...   B   B   B   B   B   B   B   B   B   B   C   B   B   B   B   B   B   C   B   
-    <BLANKLINE>
+
       446 447 448 449 450 451 452 453 454 455 456 457 458 459 460 461 462 463 464 465  
     0   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B  
     1   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B  
     2   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B  
     3   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B   B  
     4   B   B   B   B   B   B   C   C   B   B   B   B   B   B   B   B   C   C   B   B  
-    <BLANKLINE>
+
     [5 rows x 466 columns]
 
 Image
------
+=====
 
 Finally, an image can be seen via
 
 .. code-block:: bash
 
-    limix download http://rest.s3for.me/limix/dali.jpg.bz2 -q
-    limix extract dali.jpg.bz2 -q
-    limix see dali.jpg -q
+    $ limix download http://rest.s3for.me/limix/dali.jpg.bz2 -q
+    $ limix extract dali.jpg.bz2 -q
+    $ limix see dali.jpg -q
 
 .. image:: imgs/dali.jpg
    :width: 400px
@@ -313,19 +325,15 @@ Finally, an image can be seen via
 .. _hdf5: https://support.hdfgroup.org/HDF5/
 
 Cleanup files
--------------
+=============
 
 .. code-block:: bash
 
-    limix remove small_example.grm.raw.bz2
-    limix remove small_example.grm.raw
-
-    limix remove plink_example.tar.gz
-
-    limix remove small_example.hdf5
-
-    limix remove small_example.csv.bz2
-    limix remove small_example.csv
-
-    limix remove dali.jpg.bz2
-    limix remove dali.jpg
+    $ limix remove small_example.grm.raw.bz2
+    $ limix remove small_example.grm.raw
+    $ limix remove plink_example.tar.gz
+    $ limix remove small_example.hdf5
+    $ limix remove small_example.csv.bz2
+    $ limix remove small_example.csv
+    $ limix remove dali.jpg.bz2
+    $ limix remove dali.jpg

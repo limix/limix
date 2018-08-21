@@ -1,6 +1,6 @@
-*******
-Install
-*******
+************
+Installation
+************
 
 The development version of limix can be installed on MacOS and Linux via
 

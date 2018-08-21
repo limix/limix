@@ -1,6 +1,6 @@
-=====================
+#####################
 Limix's documentation
-=====================
+#####################
 
 :Date: |today|
 :Version: |version|
@@ -10,20 +10,19 @@ Limix's documentation
    :name: mastertoc
    :maxdepth: 2
 
+   installation
    cmd
    her
-   install
    io
    plot
    qc
    qtl
+   sh
    stats
    tutorials/index
-   util
 
-*****************
 Comments and bugs
-*****************
+=================
 
 You can get the source and open issues `on Github.`_
 
