@@ -26,7 +26,7 @@ _genotype_doc_output = r"""
 """
 
 
-def read_gen(prefix):
+def read(prefix):
     r"""
     Read GEN files into Pandas data frames.
 
@@ -52,21 +52,23 @@ def read_gen(prefix):
         {}
         >>> print(data['genotype'].head())
         {}
-    """.format(_sample_doc_output, _genotype_doc_output)
+    """.format(
+        _sample_doc_output, _genotype_doc_output
+    )
 
     from pandas import read_csv, MultiIndex
 
-    df_sample = read_csv(prefix + '.sample', header=0, sep=' ', skiprows=[1])
+    df_sample = read_csv(prefix + ".sample", header=0, sep=" ", skiprows=[1])
 
-    col_level0_names = ['snp_id', 'rs_id', 'pos', 'alleleA', 'alleleB']
-    col_level1_names = [''] * 5
+    col_level0_names = ["snp_id", "rs_id", "pos", "alleleA", "alleleB"]
+    col_level1_names = [""] * 5
     for s in df_sample.iloc[:, 0]:
         col_level0_names += [s] * 3
-        col_level1_names += ['AA', 'AB', 'BB']
+        col_level1_names += ["AA", "AB", "BB"]
 
     tuples = list(zip(col_level0_names, col_level1_names))
-    index = MultiIndex.from_tuples(tuples, names=['first', 'second'])
+    index = MultiIndex.from_tuples(tuples, names=["first", "second"])
 
-    df_gen = read_csv(prefix + '.gen', names=index, sep=' ')
+    df_gen = read_csv(prefix + ".gen", names=index, sep=" ")
 
     return dict(sample=df_sample, genotype=df_gen)

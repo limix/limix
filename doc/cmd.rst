@@ -226,7 +226,7 @@ The following command shows the hierarchy of a HDF5 file:
     >>>
     >>> url = "http://rest.s3for.me/limix/small_example.hdf5"
     >>> limix.sh.download(url, verbose=False)
-    >>> limix.io.hdf5.see_hdf5("small_example.hdf5", verbose=False)
+    >>> limix.io.hdf5.see("small_example.hdf5")
     /
       +--genotype
          +--col_header

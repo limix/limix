@@ -37,7 +37,7 @@ def see(ctx, filepath, filetype, show_chunks, header):
         filetype = io.file_type(filepath)
 
     if filetype == "hdf5":
-        io.hdf5.see_hdf5(filepath, show_chunks=show_chunks, verbose=ctx.obj["verbose"])
+        io.hdf5.see(filepath, show_chunks=show_chunks)
 
     elif filetype == "csv":
         io.csv.see(filepath, verbose=ctx.obj["verbose"], header=header)

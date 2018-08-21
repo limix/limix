@@ -34,7 +34,7 @@ However, feel free to use whatever method you prefer.
     >>> print(limix.sh.filehash("smith08.hdf5.bz2"))
     aecd5ebabd13ed2e38419c11d116e8d582077212efb37871a50c3a08fadb2ee1
     >>> limix.sh.extract("smith08.hdf5.bz2", verbose=False)
-    >>> limix.io.hdf5.see_hdf5("smith08.hdf5", verbose=False)
+    >>> limix.io.hdf5.see("smith08.hdf5")
     /
       +--genotype
       |  +--col_header
@@ -56,7 +56,7 @@ However, feel free to use whatever method you prefer.
          +--matrix [float64, (109, 10986)]
          +--row_header
             +--sample_ID [int64, (109,)]
-    >>> data = limix.io.read_hdf5_limix("smith08.hdf5")
+    >>> data = limix.io.hdf5.read_limix("smith08.hdf5")
     >>> print(data['phenotype']['row_header'].head())
        sample_ID  i
     0          0  0

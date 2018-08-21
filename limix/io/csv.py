@@ -1,7 +1,7 @@
 import os
 
 
-def read_csv(filename, sep=None, header=True):
+def read(filename, sep=None, header=True):
     r"""Read a CSV file.
 
     Parameters
@@ -22,11 +22,11 @@ def read_csv(filename, sep=None, header=True):
     --------
     .. doctest::
 
-        >>> from limix.io import read_csv
+        >>> from limix.io.csv import read
         >>> from limix.io.examples import csv_file_example
         >>>
-        >>> df = read_csv(csv_file_example())
-        >>> print(df) #doctest: +FLOAT_CMP
+        >>> df = read(csv_file_example())
+        >>> print(df)  # doctest: +FLOAT_CMP
            pheno   attr1 attr2 attr3
         0    sex  string    10     a
         1   size   float    -3     b
@@ -53,7 +53,7 @@ def read_csv(filename, sep=None, header=True):
     return df
 
 
-def see(filepath, header, verbose):
+def see(filepath, header, verbose=True):
     """Shows a human-friendly representation of a CSV file.
 
     Parameters

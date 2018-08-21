@@ -1,7 +1,7 @@
 from numpy import loadtxt
 
 
-def read_plink(prefix, verbose=True):
+def read(prefix, verbose=True):
     r"""
     Read PLINK files into Pandas data frames.
 
@@ -22,10 +22,10 @@ def read_plink(prefix, verbose=True):
     --------
     .. doctest::
 
-        >>> from limix.io import read_plink
+        >>> from limix.io import plink
         >>> from pandas_plink import example_file_prefix
         >>>
-        >>> (bim, fam, bed) = read_plink(example_file_prefix(), verbose=False)
+        >>> (bim, fam, bed) = plink.read(example_file_prefix(), verbose=False)
         >>> print(bim.head())
           chrom         snp       cm    pos a0 a1  i
         0     1  rs10399749  0.00000  45162  G  C  0
@@ -55,10 +55,10 @@ def read_plink(prefix, verbose=True):
 
     .. doctest::
 
-        >>> from limix.io import read_plink
+        >>> from limix.io import plink
         >>> from pandas_plink import example_file_prefix
         >>>
-        >>> (bim, fam, bed) = read_plink(example_file_prefix(), verbose=False)
+        >>> (bim, fam, bed) = plink.read(example_file_prefix(), verbose=False)
         >>> chrom1 = bim.query("chrom=='1'")
         >>> X = bed[chrom1.i.values, :].compute()
         >>> print(X)
@@ -114,7 +114,7 @@ def _print_title(title, msg):
 
 def see_bed(filepath, verbose):
     # TODO: document
-    (bim, fam, _) = read_plink(filepath, verbose=verbose)
+    (bim, fam, _) = read(filepath, verbose=verbose)
 
     _print_title("Samples", repr(bim))
     _print_title("Genotype", repr(fam))
