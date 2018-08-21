@@ -60,26 +60,6 @@ def mean_standardize(X, axis=None, out=None):
     return _mean_standardize(np, X, axis=axis, out=out)
 
 
-def _mean_standardize(lib, X, axis=None, out=None):
-    from numpy_sugar import epsilon
-
-    X = lib.asarray(X).astype(float)
-
-    if axis is None:
-        X = X.ravel()
-        axis = 0
-
-    shape = X.shape
-    nshape = shape[:axis] + (1,) + shape[axis + 1 :]
-
-    X = X - lib.nanmean(X, axis=axis).reshape(nshape)
-    d = lib.nanstd(X, axis=axis).reshape(nshape)
-    d = lib.clip(d, epsilon.tiny, inf)
-    X /= d
-
-    return X
-
-
 def quantile_gaussianize(x):
     r"""Normalize a sequence of values via rank and Normal c.d.f.
 
@@ -178,3 +158,23 @@ def _boxcox(lib, x):
 
     lmb = brent(lambda lmb: -boxcox_llf(lmb, x), -5, +5)[0]
     return bc(x, lmb)
+
+
+def _mean_standardize(lib, X, axis=None, out=None):
+    from numpy_sugar import epsilon
+
+    X = lib.asarray(X).astype(float)
+
+    if axis is None:
+        X = X.ravel()
+        axis = 0
+
+    shape = X.shape
+    nshape = shape[:axis] + (1,) + shape[axis + 1 :]
+
+    X = X - lib.nanmean(X, axis=axis).reshape(nshape)
+    d = lib.nanstd(X, axis=axis).reshape(nshape)
+    d = lib.clip(d, epsilon.tiny, inf)
+    X /= d
+
+    return X

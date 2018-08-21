@@ -3,22 +3,6 @@ from __future__ import division
 from numpy import isnan, nanmean
 
 
-def _get_imputer(m):
-    def impute(X):
-        A = X.copy()
-
-        isn = isnan(A)
-        A[:] = 0
-        A[isn] = 1
-
-        X[isn] = 0
-        X += A * m
-
-        return X
-
-    return impute
-
-
 def mean_impute(X):
     r"""Column-wise impute ``NaN`` values by column mean.
 
@@ -74,3 +58,19 @@ def mean_impute(X):
             X[isnan(X[:, i]), i] = mi
 
     return X
+
+
+def _get_imputer(m):
+    def impute(X):
+        A = X.copy()
+
+        isn = isnan(A)
+        A[:] = 0
+        A[isn] = 1
+
+        X[isn] = 0
+        X += A * m
+
+        return X
+
+    return impute

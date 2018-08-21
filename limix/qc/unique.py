@@ -1,32 +1,5 @@
 import numpy as np
-
-
-def _dask_unique(x, return_index=True):
-    from dask.array.core import Array
-    from dask import sharedict
-
-    np.testing.assert_(return_index)
-
-    name = "unique-" + x.name
-
-    def unique(x):
-        return np.unique(x, return_index=return_index)
-
-    dsk = dict(((name, i), (unique, key)) for i, key in enumerate(x._keys()))
-    parts = Array._get(sharedict.merge((name, dsk), x.dask), list(dsk.keys()))
-
-    arrs = [a[0] for a in parts]
-
-    chunks = x.chunks[0]
-    offset = np.cumsum((0,) + chunks)[:-1]
-
-    idxs = [parts[i][1] + offset[i] for i in range(len(parts))]
-
-    arr = np.concatenate(arrs)
-    idx = np.concatenate(idxs)
-
-    u, i = np.unique(arr, return_index=True)
-    return u, idx[i]
+from numpy import cumsum, concatenate
 
 
 def unique_variants(X):
@@ -80,3 +53,31 @@ def unique_variants(X):
 
     u = np.random.rand(X.shape[0])
     return unique(dot(u, X), return_index=True)[1]
+
+
+def _dask_unique(x, return_index=True):
+    from dask.array.core import Array
+    from dask import sharedict
+
+    np.testing.assert_(return_index)
+
+    name = "unique-" + x.name
+
+    def unique(x):
+        return np.unique(x, return_index=return_index)
+
+    dsk = dict(((name, i), (unique, key)) for i, key in enumerate(x._keys()))
+    parts = Array._get(sharedict.merge((name, dsk), x.dask), list(dsk.keys()))
+
+    arrs = [a[0] for a in parts]
+
+    chunks = x.chunks[0]
+    offset = cumsum((0,) + chunks)[:-1]
+
+    idxs = [parts[i][1] + offset[i] for i in range(len(parts))]
+
+    arr = concatenate(arrs)
+    idx = concatenate(idxs)
+
+    u, i = np.unique(arr, return_index=True)
+    return u, idx[i]

@@ -4,55 +4,6 @@ from numpy import ascontiguousarray, double, einsum, logical_not, newaxis, sqrt,
 from tqdm import tqdm
 
 
-def _row_norms(X):
-    norms = einsum("ij,ij->i", X, X, dtype=double)
-    return sqrt(norms, out=norms)
-
-
-def _sq_pearson(X):
-    from scipy.spatial import _distance_wrap
-
-    m = X.shape[0]
-    dm = zeros((m * (m - 1)) // 2, dtype=double)
-
-    X2 = X - X.mean(1)[:, newaxis]
-    X2 = ascontiguousarray(X2)
-    if hasattr(_distance_wrap, "pdist_cosine_wrap"):
-        norms = _row_norms(X2)
-
-    X2 = X - X.mean(axis=1, keepdims=True)
-
-    if hasattr(_distance_wrap, "pdist_cosine_wrap"):
-        _distance_wrap.pdist_cosine_wrap(X2, dm, norms)
-    else:
-        _distance_wrap.pdist_cosine_double_wrap(X2, dm)
-
-    return (-dm + 1) ** 2
-
-
-def _pdist_threshold(mark, dist, thr):
-    mark[:] = False
-    size = len(mark)
-
-    m = 0
-    for i in range(0, size - 1):
-        if mark[i]:
-            m += size - (i + 1)
-            continue
-
-        for j in range(i + 1, size):
-            if dist[m] > thr:
-                mark[j] = True
-            m += 1
-
-
-def _func(x, excls, threshold):
-    dist = _sq_pearson(x)
-    e = zeros(x.shape[0], dtype=bool)
-    _pdist_threshold(e, dist, threshold)
-    excls |= e
-
-
 def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     r"""Determine pair-wise independent variants.
 
@@ -138,3 +89,52 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
             pbar.update(len(delayeds))
 
     return logical_not(excls)
+
+
+def _row_norms(X):
+    norms = einsum("ij,ij->i", X, X, dtype=double)
+    return sqrt(norms, out=norms)
+
+
+def _sq_pearson(X):
+    from scipy.spatial import _distance_wrap
+
+    m = X.shape[0]
+    dm = zeros((m * (m - 1)) // 2, dtype=double)
+
+    X2 = X - X.mean(1)[:, newaxis]
+    X2 = ascontiguousarray(X2)
+    if hasattr(_distance_wrap, "pdist_cosine_wrap"):
+        norms = _row_norms(X2)
+
+    X2 = X - X.mean(axis=1, keepdims=True)
+
+    if hasattr(_distance_wrap, "pdist_cosine_wrap"):
+        _distance_wrap.pdist_cosine_wrap(X2, dm, norms)
+    else:
+        _distance_wrap.pdist_cosine_double_wrap(X2, dm)
+
+    return (-dm + 1) ** 2
+
+
+def _pdist_threshold(mark, dist, thr):
+    mark[:] = False
+    size = len(mark)
+
+    m = 0
+    for i in range(0, size - 1):
+        if mark[i]:
+            m += size - (i + 1)
+            continue
+
+        for j in range(i + 1, size):
+            if dist[m] > thr:
+                mark[j] = True
+            m += 1
+
+
+def _func(x, excls, threshold):
+    dist = _sq_pearson(x)
+    e = zeros(x.shape[0], dtype=bool)
+    _pdist_threshold(e, dist, threshold)
+    excls |= e
