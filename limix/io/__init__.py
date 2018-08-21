@@ -26,17 +26,17 @@ GEN reader
 """
 from __future__ import absolute_import
 
-from . import bgen, examples, hdf5, npy, plink, gen, csv
+from . import bgen, csv, examples, gen, hdf5, npy, plink
 from .detect import file_type, possible_file_types
 
 __all__ = [
+    "bgen",
+    "csv",
     "examples",
     "file_type",
-    "hdf5",
-    "csv",
-    "plink",
-    "npy",
-    "possible_file_types",
-    "bgen",
     "gen",
+    "hdf5",
+    "npy",
+    "plink",
+    "possible_file_types",
 ]
