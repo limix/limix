@@ -1,12 +1,7 @@
 from os.path import exists
 
 
-def possible_file_types():
-    # TODO: document
-    return ["hdf5", "csv", "grm.raw", "bed", "image"]
-
-
-def file_type(filepath):
+def detect_file_type(filepath):
     # TODO document
     imexts = [".png", ".bmp", ".jpg", "jpeg"]
     if filepath.endswith(".hdf5") or filepath.endswith(".h5"):

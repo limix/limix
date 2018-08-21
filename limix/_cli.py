@@ -34,7 +34,7 @@ def see(ctx, filepath, filetype, show_chunks, header):
     from matplotlib import pyplot as plt
 
     if filetype == "guess":
-        filetype = io.file_type(filepath)
+        filetype = io.detect_file_type(filepath)
 
     if filetype == "hdf5":
         io.hdf5.see(filepath, show_chunks=show_chunks)
@@ -86,7 +86,7 @@ def estimate_kinship(ctx, input_file, output_file, filetype):
     from limix import io, stats
 
     if filetype == "guess":
-        filetype = io.file_type(input_file)
+        filetype = io.detect_file_type(input_file)
 
     if ctx.obj["verbose"]:
         print("Detected file type: {}".format(filetype))
@@ -103,7 +103,7 @@ def estimate_kinship(ctx, input_file, output_file, filetype):
     if output_file is None:
         output_file = input_file + ".npy"
 
-    oft = io.file_type(output_file)
+    oft = io.detect_file_type(output_file)
 
     if oft == "npy":
         io.npy.save_kinship(output_file, K, verbose=ctx.obj["verbose"])
