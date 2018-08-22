@@ -27,14 +27,13 @@ Limix now provides a couple of its functionalities via command line.
       -v, --verbose / -q, --quiet  Enable or disable verbose mode.
       --version                    Show the version and exit.
       -h, --help                   Show this message and exit.
-    <BLANKLINE>
+
     Commands:
       download          Download file from the specified URL.
       estimate_kinship  Estimate a kinship matrix.
       extract           Extract a file.
       remove            Remove a file.
       see               Show an overview of multiple file types.
-    <BLANKLINE>
 
 You can quickly explore common file types used in genetics, as examples given bellow
 will demonstrate.

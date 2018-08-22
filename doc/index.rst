@@ -12,8 +12,8 @@ Limix's documentation
 
    installation
    cmd
-   her
    io
+   her
    plot
    qc
    qtl

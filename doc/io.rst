@@ -6,9 +6,9 @@ I/O module
 BGEN reader
 ===========
 
-.. autofunction:: limix.io.bgen.convert_to_dosage
 .. autofunction:: limix.io.bgen.read
-
+.. autofunction:: limix.io.bgen.create_metadata_file
+.. autofunction:: limix.io.bgen.convert_to_dosage
 
 CSV reader
 ==========

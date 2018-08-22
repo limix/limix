@@ -5,11 +5,11 @@ def read(filepath, size=50, verbose=True, metadata_file=True, sample_file=None):
     ----------
     filepath : str
         A BGEN file path.
-    size : float
+    size : float, optional
         Chunk size in megabytes. Defaults to ``50``.
-    verbose : bool
+    verbose : bool, optional
         ``True`` to show progress; ``False`` otherwise.
-    metadata_file : bool, str
+    metadata_file : bool, str, optional
         If ``True``, it will try to read the variants metadata from the
         metadata file ``filepath + ".metadata"``. If this is not possible,
         the variants metadata will be read from the BGEN file itself. If
@@ -26,22 +26,26 @@ def read(filepath, size=50, verbose=True, metadata_file=True, sample_file=None):
 
     Returns
     -------
-    dict
-        variants : Variant position, chromossomes, RSIDs, etc.
-        samples : Sample identifications.
-        genotype : Array of genotype references.
+    variants : :class:`pandas.DataFrame`
+        Variant position, chromossomes, RSIDs, etc.
+    samples : :class:`pandas.DataFrame`
+        Sample identifications.
+    genotype : :class:`dask.array.Array`
+        Array of genotype references.
+    X : :class:`dask.array.Array`
+        Allele probabilities.
 
-    Notes
-    -----
+    Note
+    ----
     Metadata files can speed up subsequent reads tremendously. But often the user does
     not have write permission for the default metadata file location
     ``filepath + ".metadata"``. We thus provide the
-    :func:`bgen_reader.create_metadata_file` function for creating one at the
+    :func:`limix.io.bgen.create_metadata_file` function for creating one at the
     given path.
     """
-    import bgen_reader
+    from bgen_reader import read_bgen
 
-    return bgen_reader.read_bgen(
+    return read_bgen(
         filepath,
         size=size,
         verbose=verbose,
@@ -51,6 +55,46 @@ def read(filepath, size=50, verbose=True, metadata_file=True, sample_file=None):
 
 
 def convert_to_dosage(p, nalleles, ploidy):
-    import bgen_reader
+    r"""Convert probabilities to dosage.
 
-    return bgen_reader.convert_to_dosage(p, nalleles, ploidy)
+    Parameters
+    ----------
+    p : array_like
+        Allele probabilities.
+    nalleles : int
+        Number of alleles.
+    ploidy : int
+        Number of complete sets of chromosomes.
+
+    Returns
+    -------
+    :class:`numpy.ndarray`
+        Dosage matrix.
+
+    Warning
+    -------
+    This is a new function that needs more testing. Please, report any problem.
+    """
+    from bgen_reader import convert_to_dosage
+
+    return convert_to_dosage(p, nalleles, ploidy)
+
+
+def create_metadata_file(bgen_filepath, metadata_filepath, verbose=True):
+    r"""Create variants metadata file.
+
+    Variants metadata file helps speed up subsequent reads of the associated
+    BGEN file.
+
+    Parameters
+    ----------
+    bgen_filepath : str
+        BGEN file path.
+    metadata_file : str
+        Metadata file path.
+    verbose : bool, optional
+        ``True`` to show progress; ``False`` otherwise.
+    """
+    from bgen_reader import create_metadata_file
+
+    create_metadata_file(bgen_filepath, metadata_filepath, verbose=True)
