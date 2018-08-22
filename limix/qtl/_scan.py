@@ -124,6 +124,8 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     """
     from numpy_sugar import is_all_finite
     from numpy_sugar.linalg import economic_qs
+    from xarray import DataArray
+    from pandas import Series
 
     if not isinstance(lik, (tuple, list)):
         lik = (lik,)
@@ -133,10 +135,17 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
     if M is None:
         M = ones((len(y), 1))
+        if isinstance(y, (DataArray, Series)):
+            M = DataArray(M, encoding={"dtype": "float64"})
+            M = M.rename({M.dims[0]: "sample"})
+            if hasattr(y, "index"):
+                M.coords["sample"] = y.index.values
+            else:
+                M.coords["sample"] = y.coords["sample"].values
 
     with session_text("qtl analysis", disable=not verbose):
 
-        with timer_text("Normalising input...", disable=not verbose):
+        with timer_text("Normalising input... ", disable=not verbose):
             data = normalise_dataset(y, M, G=G, K=K)
 
         y = data["y"]
@@ -169,7 +178,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
 def _perform_lmm(y, M, QS, G, verbose):
     from glimix_core.lmm import LMM
-    from pandas import Series
+    from pandas import Series, DataFrame
 
     lmm = LMM(y, M.values, QS)
 
@@ -184,7 +193,10 @@ def _perform_lmm(y, M, QS, G, verbose):
     ncov_effsizes = Series(beta, covariates)
 
     flmm = lmm.get_fast_scanner()
-    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+    if isinstance(G, DataFrame):
+        alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+    else:
+        alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
 
     candidates = list(G.coords["candidate"].values)
     alt_lmls = Series(alt_lmls, candidates)

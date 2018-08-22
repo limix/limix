@@ -11,7 +11,8 @@ def normalise_dataset(y, M, G=None, K=None):
     M = M.rename({M.dims[0]: "sample"})
 
     if G is not None:
-        G = DataArray(G, encoding={"dtype": "float64"})
+        if not isinstance(G, DataArray):
+            G = DataArray(G, encoding={"dtype": "float64"})
         G = G.rename({G.dims[0]: "sample"})
 
     if K is not None:
