@@ -28,7 +28,7 @@ from __future__ import absolute_import
 
 __version__ = "2.0.0a3"
 
-from . import display, glmm, her, io, plot, qc, qtl, sh, stats
+from . import display, glmm, her, io, plot, qc, qtl, sh, stats, example
 from ._cli import cli
 from ._config import config
 from ._testit import test
@@ -53,4 +53,5 @@ __all__ = [
     "display",
     "cli",
     "get_max_nthreads",
+    "example",
 ]

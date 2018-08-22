@@ -2,33 +2,54 @@ from os.path import dirname, realpath, join
 import tempfile
 import shutil
 
-_filenames = ["data.csv", "data.h5.bz2", "example", "pheno.csv"]
+_filenames = [
+    "data.csv",
+    "data.h5.bz2",
+    "example.gen",
+    "example.sample",
+    "pheno.csv",
+    "xarr.hdf5.bz2",
+]
 
 
 class file_example(object):
-    def __init__(self, filename):
-        if filename not in _filenames:
-            raise ValueError(
-                "Unrecognized file name. Choose one of these: {}".format(_filenames)
-            )
+    def __init__(self, filenames):
+        self._unlist = False
+        if not isinstance(filenames, (tuple, list)):
+            filenames = [filenames]
+            self._unlist = True
+
+        for fn in filenames:
+            if fn not in _filenames:
+                raise ValueError(
+                    "Unrecognized file name {}. Choose one of these: {}".format(
+                        fn, _filenames
+                    )
+                )
+
         self._dirpath = tempfile.mkdtemp()
-        self._filename = filename
+        self._filenames = filenames
 
     def __enter__(self):
         import pkg_resources
 
-        filepath = join(self._dirpath, self._filename)
+        filepaths = [join(self._dirpath, fn) for fn in self._filenames]
 
-        if __name__ == "__main__":
-            shutil.copy(join(dirname(realpath(__file__)), self._filename), filepath)
-        else:
-            resource_path = "example/{}".format(self._filename)
-            content = pkg_resources.resource_string(__name__, resource_path)
+        for fn, fp in zip(self._filenames, filepaths):
+            if __name__ == "__main__":
+                shutil.copy(join(dirname(realpath(__file__)), fn), fp)
+            else:
+                resource_path = "example/{}".format(fn)
+                content = pkg_resources.resource_string(
+                    __name__.split(".")[0], resource_path
+                )
 
-            with open(filepath, "wb") as f:
-                f.write(content)
+                with open(fp, "wb") as f:
+                    f.write(content)
 
-        return filepath
+        if self._unlist:
+            return filepaths[0]
+        return filepaths
 
     def __exit__(self, *_):
         shutil.rmtree(self._dirpath)

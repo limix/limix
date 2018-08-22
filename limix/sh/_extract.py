@@ -12,8 +12,9 @@ def extract(filepath, verbose=True):
         try:
             tar = tarfile.open(filepath)
             tar.extractall()
+            filepath = tar.getnames()[0]
             tar.close()
-            return
+            return filepath
         except tarfile.ReadError:
             pass
 
@@ -29,3 +30,5 @@ def extract(filepath, verbose=True):
 
         with open(filename, "wb") as f:
             f.write(o)
+
+        return filename

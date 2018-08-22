@@ -33,7 +33,7 @@ However, feel free to use whatever method you prefer.
     >>> limix.sh.download(url, verbose=False)
     >>> print(limix.sh.filehash("smith08.hdf5.bz2"))
     aecd5ebabd13ed2e38419c11d116e8d582077212efb37871a50c3a08fadb2ee1
-    >>> limix.sh.extract("smith08.hdf5.bz2", verbose=False)
+    >>> _ = limix.sh.extract("smith08.hdf5.bz2", verbose=False)
     >>> limix.io.hdf5.see("smith08.hdf5")
     /
       +--genotype

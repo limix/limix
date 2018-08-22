@@ -4,5 +4,6 @@ include limix/example/data.h5.bz2
 include limix/example/example.gen
 include limix/example/example.sample
 include limix/example/pheno.csv
+include limix/example/xarr.hdf5.bz2
 include README.md
 include version.py

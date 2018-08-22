@@ -50,10 +50,14 @@ class fetcher(object):
     .. doctest::
 
         >>> from limix.io import hdf5
-        >>> from limix.io.examples import hdf5_file_example
-        >>> with hdf5.fetcher(hdf5_file_example()) as df:
-        ...     X = df.fetch('/group/dataset')
-        ...     print('%.4f' % X[0, 0].compute())
+        >>> from limix.example import file_example
+        >>> from limix.sh import extract
+        >>>
+        >>> with file_example("data.h5.bz2") as filepath:
+        ...     filepath = extract(filepath, verbose=False)
+        ...     with hdf5.fetcher(filepath) as df:
+        ...         X = df.fetch('/group/dataset')
+        ...         print('%.4f' % X[0, 0].compute())
         -0.0453
     """
 

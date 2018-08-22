@@ -23,10 +23,11 @@ def read(filename, sep=None, header=True):
     .. doctest::
 
         >>> from limix.io.csv import read
-        >>> from limix.io.examples import csv_file_example
+        >>> from limix.example import file_example
         >>>
-        >>> df = read(csv_file_example())
-        >>> print(df)  # doctest: +FLOAT_CMP
+        >>> with file_example("data.csv") as filepath:
+        ...     df = read(filepath)
+        ...     print(df)  # doctest: +FLOAT_CMP
            pheno   attr1 attr2 attr3
         0    sex  string    10     a
         1   size   float    -3     b

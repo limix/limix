@@ -87,7 +87,7 @@ based variance components.
     >>>
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
     >>> limix.sh.download(url, verbose=False)
-    >>> limix.sh.extract("smith08.hdf5.bz2", verbose=False)
+    >>> _ = limix.sh.extract("smith08.hdf5.bz2", verbose=False)
     >>> data = limix.io.hdf5.read_limix("smith08.hdf5")
     >>> print(data['phenotype']['col_header'].head())
        environment  gene_ID gene_chrom  gene_end  gene_start gene_strand phenotype_ID  i
