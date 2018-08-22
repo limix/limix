@@ -24,16 +24,17 @@ Limix now provides a couple of its functionalities via command line.
     Usage: limix [OPTIONS] COMMAND [ARGS]...
 
     Options:
-      --verbose / --quiet  Enable or disable verbose mode.
-      --version            Show the version and exit.
-      --help               Show this message and exit.
-
+      -v, --verbose / -q, --quiet  Enable or disable verbose mode.
+      --version                    Show the version and exit.
+      -h, --help                   Show this message and exit.
+    <BLANKLINE>
     Commands:
       download          Download file from the specified URL.
       estimate_kinship  Estimate a kinship matrix.
       extract           Extract a file.
       remove            Remove a file.
       see               Show an overview of multiple file types.
+    <BLANKLINE>
 
 You can quickly explore common file types used in genetics, as examples given bellow
 will demonstrate.
@@ -46,9 +47,9 @@ Heatmap representing a plink_ kinship matrix:
 
 .. code-block:: bash
 
-    $ limix download http://rest.s3for.me/limix/small_example.grm.raw.bz2 -q
-    $ limix extract small_example.grm.raw.bz2
-    $ limix see small_example.grm.raw
+    $ limix -q download http://rest.s3for.me/limix/small_example.grm.raw.bz2
+    $ limix -q extract small_example.grm.raw.bz2
+    $ limix -q see small_example.grm.raw
 
 .. image:: imgs/example.grm.raw.png
    :width: 400px
@@ -61,9 +62,9 @@ A preview of Plink files in BED format can be done via
 
 .. code-block:: bash
 
-    $ limix download http://rest.s3for.me/limix/plink_example.tar.gz -q
-    $ limix extract plink_example.tar.gz -q
-    $ limix see plink_example -q
+    $ limix -q download http://rest.s3for.me/limix/plink_example.tar.gz
+    $ limix -q extract plink_example.tar.gz
+    $ limix -q see plink_example
 
 .. testcode::
     :hide:
@@ -223,8 +224,8 @@ The following command shows the hierarchy of a HDF5 file:
 
 .. code-block:: bash
 
-    $ limix download http://rest.s3for.me/limix/small_example.hdf5 -q
-    $ limix see small_example.hdf5 -q
+    $ limix -q download http://rest.s3for.me/limix/small_example.hdf5
+    $ limix -q see small_example.hdf5
 
 .. testcode::
     :hide:
@@ -261,9 +262,9 @@ shown as
 
 .. code-block:: bash
 
-    $ limix download http://rest.s3for.me/limix/small_example.csv.bz2 -q
-    $ limix extract small_example.csv.bz2 -q
-    $ limix see small_example.csv -q --header no
+    $ limix -q download http://rest.s3for.me/limix/small_example.csv.bz2
+    $ limix -q extract small_example.csv.bz2
+    $ limix -q see small_example.csv
 
 .. testcode::
     :hide:
@@ -314,9 +315,9 @@ Finally, an image can be seen via
 
 .. code-block:: bash
 
-    $ limix download http://rest.s3for.me/limix/dali.jpg.bz2 -q
-    $ limix extract dali.jpg.bz2 -q
-    $ limix see dali.jpg -q
+    $ limix -q download http://rest.s3for.me/limix/dali.jpg.bz2
+    $ limix -q extract dali.jpg.bz2
+    $ limix -q see dali.jpg
 
 .. image:: imgs/dali.jpg
    :width: 400px

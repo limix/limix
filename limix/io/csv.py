@@ -78,7 +78,7 @@ def see(filepath, header, verbose=True):
     else:
         header = None
 
-    with timer_text(desc="Reading %s..." % filepath, disable=not verbose):
+    with timer_text(desc="Reading %s... " % filepath, disable=not verbose):
         sep = _infer_separator(filepath)
         msg = read_csv(filepath, sep=sep, header=header).head()
 

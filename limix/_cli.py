@@ -30,7 +30,11 @@ def cli(ctx, verbose):
     help="Chunks if datasets will be displayed, if available.",
     default="guess",
 )
-@click.option("--header", help="Parse header from CSV file.", is_flag=True)
+@click.option(
+    "--header / --no-header",
+    help="Parse header from CSV file. Defaults to false.",
+    default=False,
+)
 def see(ctx, filepath, filetype, show_chunks, header):
     """Show an overview of multiple file types."""
     from limix import io, plot

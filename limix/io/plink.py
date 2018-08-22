@@ -1,4 +1,6 @@
 from numpy import loadtxt
+from ..display import timer_text
+from .. import plot
 
 
 def read(prefix, verbose=True):
@@ -80,17 +82,16 @@ def read(prefix, verbose=True):
 
 def see_kinship(filepath, verbose):
     # TODO: document
-    import limix
     from matplotlib import pyplot as plt
 
     if filepath.endswith(".grm.raw"):
-        with limix.util.Timer(desc="Reading %s..." % filepath, disable=not verbose):
+        with timer_text("Reading {}... ".format(filepath), disable=not verbose):
             K = _read_grm_raw(filepath)
     else:
         print("File %s not found." % filepath)
         return
 
-    limix.plot.kinship(K)
+    plot.kinship(K)
     plt.show()
 
 
