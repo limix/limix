@@ -1,16 +1,5 @@
-from os.path import dirname, realpath, join
+from __future__ import absolute_import
 
+from ._example import file_example
 
-def hdf5_file_example():
-    dir_path = dirname(realpath(__file__))
-    return join(dir_path, 'data', 'hdf5', 'data.h5')
-
-
-def csv_file_example():
-    dir_path = dirname(realpath(__file__))
-    return join(dir_path, 'data', 'csv', 'data.csv')
-
-
-def gen_file_example():
-    dir_path = dirname(realpath(__file__))
-    return join(dir_path, 'data', 'gen', 'example')
+__all__ = ["file_example"]

@@ -1,8 +1,8 @@
 include LICENSE.md
-include limix/data/data.csv
-include limix/data/data.h5.bz2
-include limix/data/example.gen
-include limix/data/example.sample
-include limix/data/pheno.csv
+include limix/example/data.csv
+include limix/example/data.h5.bz2
+include limix/example/example.gen
+include limix/example/example.sample
+include limix/example/pheno.csv
 include README.md
 include version.py
