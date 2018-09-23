@@ -1,4 +1,5 @@
 import limix
+import pytest
 from numpy.random import RandomState
 import xarray as xr
 from numpy.testing import assert_allclose
@@ -28,6 +29,7 @@ def test_qtl_xarr():
         G = xr.concat(G, dim="snps")
 
         K = limix.stats.linear_kinship(G)
+
     k = [
         [4.316150754626438, -0.12182214897716158],
         [-0.12182214897716158, 0.25268948339191105],
@@ -36,7 +38,8 @@ def test_qtl_xarr():
     random = RandomState(0)
     y = random.randn(10)
 
-    # import pdb
+    with pytest.raises(ValueError):
+        limix.qtl.scan(G, y, "normal", K)
 
-    # pdb.set_trace()
-    # limix.qtl.scan(G, y, "normal", K)
+    G = G.rename({"samples": "sample"})
+    limix.qtl.scan(G, y, "normal", K)

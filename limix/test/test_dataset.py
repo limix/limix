@@ -1,42 +1,11 @@
 import pytest
-from numpy import array
+from numpy import array, asarray, dtype
 from numpy.random import RandomState
-from numpy.testing import assert_array_equal, assert_equal
-from pandas import DataFrame
+from numpy.testing import assert_, assert_array_equal, assert_equal
 
-from limix._dataset import normalise_dataset, _infer_samples_index
-
-
-def test_dataset_samples_index_infer():
-    y = array([-1.2, 3.4, 0.1])
-
-    random = RandomState(0)
-
-    K = random.randn(3, 4)
-    K = K.dot(K.T)
-
-    M = random.randn(3, 2)
-    Me = random.randn(2, 2)
-
-    candidates = [0, 1, 2]
-    assert_array_equal(_infer_samples_index([y]), candidates)
-    assert_array_equal(_infer_samples_index([y, K]), candidates)
-    assert_array_equal(_infer_samples_index([y, K, M]), candidates)
-
-    df_y = DataFrame(y, index=["c0", "c1", "c2"])
-    df_K = DataFrame(K, index=["c0", "c1", "c2"])
-    df_Me = DataFrame(Me, index=["c0", "c1"])
-    c = ["c0", "c1"]
-
-    assert_array_equal(_infer_samples_index([df_y, df_K, df_Me]), c)
-
-    cindex = ["c0", "c1", "c2"]
-    assert_array_equal(_infer_samples_index([df_y, df_K]), cindex)
-    assert_array_equal(_infer_samples_index([df_y, df_K, M]), cindex)
-
-    df_K = DataFrame(K, index=["c2", "c0", "c1"])
-    with pytest.raises(ValueError):
-        _infer_samples_index([df_y, df_K, M])
+from limix._dataset import _infer_samples_index, normalise_dataset, _dataarray_upcast
+from pandas import DataFrame, Series
+from xarray import DataArray
 
 
 def test_dataset_normalise_dataset():
@@ -53,35 +22,98 @@ def test_dataset_normalise_dataset():
     M = random.randn(3, 2)
     M = DataFrame(data=M, index=samples)
 
+    G = random.randn(2, 4)
+    G = DataFrame(data=G, index=samples[:2])
+
     data = normalise_dataset(y, M=M, K=K)
+
     assert_array_equal(y.values, data["y"].values)
 
     y = array([-1.2, 3.4, 0.1, 0.1, 0.0, -0.2])
-    data = normalise_dataset(DataFrame(data=y, index=samples + samples), M=M, K=K)
 
-    y = DataFrame(data=y[: len(samples)], index=samples)
-    y = data["y"]
-    M = data["M"]
-    K = data["K"]
+    data = normalise_dataset(DataFrame(data=y, index=samples + samples), M=M, G=G, K=K)
 
-    assert_equal(y.shape[0], M.shape[0])
-    assert_equal(y.shape[0], K.shape[0])
-    assert_equal(y.shape[0], K.shape[1])
+    assert_equal(data["y"].shape, (4, 1))
+    assert_equal(data["M"].shape, (4, 2))
+    assert_equal(data["G"].shape, (4, 4))
+    assert_equal(data["K"].shape, (4, 4))
 
-    G = M.copy()
+    samples = ["sample0", "sample1", "sample0", "sample1"]
+    assert_array_equal(data["y"].sample, samples)
+    assert_array_equal(data["M"].sample, samples)
+    assert_array_equal(data["G"].sample, samples)
+    assert_array_equal(data["K"].sample_0, samples)
+    assert_array_equal(data["K"].sample_1, samples)
 
-    data = normalise_dataset(y, M=M, K=K, G=G)
-    y = data["y"]
-    M = data["M"]
-    K = data["K"]
-    G = data["G"]
-    assert_equal(y.shape[0], G.shape[0])
+    assert_array_equal(data["M"].covariate, [0, 1])
+    assert_array_equal(data["G"].candidate, [0, 1, 2, 3])
 
 
-def main():
-    test_dataset_samples_index_infer()
-    test_dataset_normalise_dataset()
+def test_dataset_pandas_xarray_dask():
+    import numpy as np
+    import dask.array as da
+    import dask.dataframe as dd
+    import pandas as pd
 
+    x = []
 
-if __name__ == "__main__":
-    main()
+    x.append([1.0, 2.0, 3.0])
+    x.append(np.asarray([1.0, 2.0, 3.0]))
+    x.append(np.asarray([[1.0], [2.0], [3.0]]))
+    x.append(np.asarray([[1], [2], [3]], dtype=int))
+    x.append(da.from_array(x[0], 2))
+    x.append(da.from_array(x[1], 2))
+    x.append(da.from_array(x[2], 2))
+    x.append(da.from_array(x[3], 2))
+
+    n = len(x)
+    for i in range(n):
+        if isinstance(x[i], da.Array):
+            tmp = np.asarray(x[i])
+            if tmp.ndim == 2:
+                tmp = tmp.ravel()
+                x.append(dd.from_array(tmp))
+            else:
+                x.append(dd.from_array(x[i]))
+        else:
+            tmp = np.asarray(x[i])
+            if tmp.ndim == 2:
+                tmp = tmp.ravel()
+                x.append(pd.Series(tmp))
+            else:
+                x.append(pd.Series(x[i]))
+
+    for i in range(n):
+        if isinstance(x[i], da.Array):
+            x.append(dd.from_array(x[i]))
+        elif isinstance(x[i], np.ndarray):
+            x.append(pd.DataFrame(x[i]))
+
+    n = len(x)
+
+    for i in range(n):
+        x.append(DataArray(x[i]))
+        x.append(x[-1].chunk(2))
+
+    print()
+    for xi in x:
+        y = _dataarray_upcast(xi)
+        assert_equal(y.dtype, dtype("float64"))
+        assert_array_equal(y.shape, (3, 1))
+        assert_(isinstance(y, DataArray))
+        if isinstance(xi, Series):
+            assert_array_equal(list(xi.index), list(y.coords["dim_0"].values))
+        if isinstance(xi, DataFrame):
+            assert_array_equal(list(xi.columns), list(y.coords["dim_1"].values))
+
+        is_dask = (
+            hasattr(xi, "chunks")
+            and xi.chunks is not None
+            or hasattr(xi, "values")
+            and hasattr(xi, "values")
+            and hasattr(xi.values, "chunks")
+            and xi.values.chunks is not None
+        )
+
+        assert_equal(is_dask, y.chunks is not None)
+        assert_array_equal(asarray(xi).ravel(), asarray(y).ravel())
