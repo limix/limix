@@ -1,5 +1,5 @@
 import dask.array as da
-from numpy import asarray, all, isfinite, any, isnan
+from numpy import asarray, any, isnan
 
 
 def _get_shape_helper(a):
