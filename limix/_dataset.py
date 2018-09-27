@@ -33,7 +33,7 @@ def normalise_dataset(y, M, G=None, K=None):
     valid_samples, invalid_samples = _infer_samples_index(arrs)
 
     if "sample" not in y.coords:
-        y = y.assign_coords(sample=valid_samples)
+        y = y.assign_coords(sample=list(valid_samples))
     else:
         # idx = y.get_index("sample")
         # dup_idx = set(idx[idx.duplicated()].unique())
@@ -46,20 +46,20 @@ def normalise_dataset(y, M, G=None, K=None):
         y = y.loc[{"sample": y.get_index("sample").isin(valid_samples)}]
 
     if "sample" not in M.coords:
-        M = M.assign_coords(sample=valid_samples)
+        M = M.assign_coords(sample=list(valid_samples))
     else:
         M = M.loc[{"sample": M.get_index("sample").isin(valid_samples)}]
 
     if G is not None:
         if "sample" not in G.coords:
-            G = G.assign_coords(sample=valid_samples)
+            G = G.assign_coords(sample=list(valid_samples))
         else:
             G = G.loc[{"sample": G.get_index("sample").isin(valid_samples)}]
 
     if K is not None:
         for k in ["sample_0", "sample_1"]:
             if k not in K.coords:
-                K = K.assign_coords(**{k: valid_samples})
+                K = K.assign_coords(**{k: list(valid_samples)})
             else:
                 K = K.loc[{k: K.get_index(k).isin(valid_samples)}]
 
