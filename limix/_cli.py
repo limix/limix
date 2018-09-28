@@ -222,8 +222,8 @@ def scan(ctx, genotype_file, output_dir):
         # of interest.
         limix phenotypes.csv genotype.bgen --kinship-file=kinship.raw \
             --output-dir=results \
-            --filter="phenotype[:, 'height']" \
-            --filter="genotype[:, (chrom=='3') & (pos > 100000) & (pos < 200000)]"
+            --filter="phenotype: col == 'height'" \
+            --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
     # scan(G, y, lik, K=None, M=None, verbose=True)
     pass
