@@ -38,8 +38,7 @@ def test_qtl_xarr():
     random = RandomState(0)
     y = random.randn(10)
 
-    with pytest.raises(ValueError):
-        limix.qtl.scan(G, y, "normal", K)
+    limix.qtl.scan(G, y, "normal", K)
 
     G = G.rename({"samples": "sample"})
     limix.qtl.scan(G, y, "normal", K)

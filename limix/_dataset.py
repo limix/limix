@@ -1,11 +1,9 @@
 from collections import Counter
-from numpy import unique, asarray
+from numpy import unique, asarray, array_equal
 import dask.dataframe as dd
 import dask.array as da
 import xarray as xr
-from xarray import DataArray
 import numpy as np
-from numpy import array
 from ._dask import array_shape_reveal
 
 
@@ -29,7 +27,11 @@ def normalise_dataset(y, M, G=None, K=None):
         K = K.rename({K.dims[0]: "sample_0"})
         K = K.rename({K.dims[1]: "sample_1"})
 
-    arrs = [a for a in [y, M, G, K] if a is not None]
+    arrs = [(a, 0) for a in [y, M, G] if a is not None]
+    if K is not None:
+        arrs += [(K, 0), (K, 1)]
+
+    _assign_samples_index_to_nonindexed(arrs)
     valid_samples, invalid_samples = _infer_samples_index(arrs)
 
     if "sample" not in y.coords:
@@ -64,12 +66,10 @@ def normalise_dataset(y, M, G=None, K=None):
                 K = K.loc[{k: K.get_index(k).isin(valid_samples)}]
 
     arrs = [a for a in [y, M, G] if a is not None]
-
     if K is not None:
         arrs += [K, K.T]
 
     idx = y.coords["sample"]
-
     for a in arrs:
         if len(a.coords[a.dims[0]]) != len(idx):
             break
@@ -147,6 +147,41 @@ def normalise_dataset(y, M, G=None, K=None):
     return dict(y=y, M=M, G=G, K=K)
 
 
+def _assign_samples_index_to_nonindexed(arrs):
+    indexed = []
+    nonindexed = []
+
+    for a in arrs:
+        v, i = a
+        if v.dims[i] not in v.coords:
+            nonindexed.append(a)
+        else:
+            indexed.append(a)
+
+    if len(nonindexed) == 0:
+        return
+
+    if len(indexed) == 0:
+        for a in arrs:
+            v, i = a
+            n = v.shape[i]
+            v.coords[v.dims[i]] = ["sample{}".format(j) for j in range(n)]
+        return
+
+    v, i = indexed[0]
+    index = v.coords[v.dims[i]]
+    for a in indexed[1:]:
+        v, i = a
+        if not array_equal(index, v.coords[v.dims[i]]):
+            msg = "Please, check the provided sample labels in your arrays."
+            msg = " There are some inconsistences in them."
+            raise ValueError(msg)
+
+    for a in nonindexed:
+        v, i = a
+        v.coords[v.dims[i]] = index.values
+
+
 def _dataarray_upcast(x):
     if isinstance(x, (dd.Series, dd.DataFrame)):
         xidx = x.index.compute()
@@ -179,16 +214,16 @@ def _dataarray_upcast(x):
 
 def _infer_samples_index(arrs):
 
-    samples = arrs[0].coords[arrs[0].dims[0]].values
+    v, i = arrs[0]
+    samples = v.coords[v.dims[i]].values
     for a in arrs[1:]:
-        if len(a.coords[a.dims[0]].values) != len(samples):
-            break
-        if any(a.coords[a.dims[0]].values != samples):
+        v, i = a
+        if not array_equal(v.coords[v.dims[i]].values, samples):
             break
     else:
         return Counter(samples), []
 
-    samples_sets = [Counter(a.coords[a.dims[0]].values) for a in arrs]
+    samples_sets = [Counter(a[0].coords[a[0].dims[a[1]]].values) for a in arrs]
 
     set_intersection = samples_sets[0]
     for ss in samples_sets[1:]:
@@ -253,8 +288,7 @@ def _infer_samples_index(arrs):
 
 #     if len(s) == 1:
 #         if len(iarrs) == 0:
-#             return True
-#         # Make sure index have the same order.
+#             r#  {turn True:        # Make sure index have the same order.}
 #         index = _get_sample_index(iarrs[0])
 #         return all([all(index == _get_sample_index(a)) for a in iarrs])
 
