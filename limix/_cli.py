@@ -69,6 +69,9 @@ def see(ctx, filepath, filetype, show_chunks, header):
     elif filetype == "bed":
         io.plink.see_bed(filepath, verbose=ctx.obj["verbose"])
 
+    elif filetype == "bimbam-pheno":
+        io.bimbam.see_phenotype(filepath)
+
     elif filetype == "image":
         r = plot.image(filepath)
         _show_plot()
