@@ -1,8 +1,5 @@
 from collections import Counter
 from numpy import unique, asarray, array_equal
-import dask.dataframe as dd
-import dask.array as da
-import xarray as xr
 import numpy as np
 from ._dask import array_shape_reveal
 
@@ -183,6 +180,10 @@ def _assign_samples_index_to_nonindexed(arrs):
 
 
 def _dataarray_upcast(x):
+    import dask.dataframe as dd
+    import dask.array as da
+    import xarray as xr
+
     if isinstance(x, (dd.Series, dd.DataFrame)):
         xidx = x.index.compute()
         x = da.asarray(x)
@@ -202,14 +203,6 @@ def _dataarray_upcast(x):
     if x.ndim < 2:
         x = x.expand_dims("dim_1", 1)
     return x
-
-
-# def _create_index(vals):
-#     from xarray import DataArray
-
-#     a = asarray(vals, object)
-#     b = asarray(vals, object)
-#     return DataArray(a, dims=["sample"], coords={"sample": b})
 
 
 def _infer_samples_index(arrs):

@@ -1,4 +1,3 @@
-import dask.array as da
 from numpy import asarray, any, isnan
 
 
@@ -31,6 +30,8 @@ def _get_chunks(a):
 
 
 def array_shape_reveal(a):
+    import dask.array as da
+
     if any(isnan(a.shape)):
         # Rebuild Dask Array with known chunks
         return da.Array(a.__dask_graph__(), a.name, _get_chunks(a), a.dtype)
