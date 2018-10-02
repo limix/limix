@@ -32,6 +32,7 @@ from limix_plot import (
     power,
     qqplot,
     image,
+    get_pyplot,
 )
 
 __all__ = [
@@ -46,4 +47,5 @@ __all__ = [
     "power",
     "qqplot",
     "image",
+    "get_pyplot",
 ]
