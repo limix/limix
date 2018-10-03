@@ -1,7 +1,6 @@
 import limix
-import pytest
-from numpy.random import RandomState
 import xarray as xr
+from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
 

@@ -14,7 +14,8 @@ deprecated.
 Importing limix
 ---------------
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> import limix
 
@@ -27,7 +28,8 @@ Limix provides some handy utilities to perform common command line tasks,
 like as downloading and extracting files.
 However, feel free to use whatever method you prefer.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
     >>> limix.sh.download(url, verbose=False)
@@ -78,7 +80,8 @@ Selecting gene YBR115C under the glucose condition
 Query for a specific phenotype, select the phenotype itself, and plot it.
 The glucose condition is given by the environment ``0``.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> header = data['phenotype']['col_header']
     >>> query = "gene_ID=='YBR115C' and environment==0"
@@ -92,7 +95,8 @@ Genetic relatedness matrix
 The genetic relatedness will be determined by the inner-product of SNP
 readings between individuals, and the result will be visualised via heatmap.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> G = data['genotype']['matrix']
     >>> K = limix.stats.linear_kinship(G, verbose=False)
@@ -111,7 +115,8 @@ name and base-pair position.
 However, it is often the case that SNP IDs are provided along with the
 data, which can naturally be used for naming those candidates.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> from pandas import DataFrame
     >>> import numpy as np
@@ -218,7 +223,8 @@ As you can see, we now have a pandas data frame ``G`` that keeps the candidate
 identifications together with the actual allele read.
 This data frame can be readily used to perform association scan.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
     >>> print(qtl) # doctest: +FLOAT_CMP
@@ -242,7 +248,8 @@ This data frame can be readily used to perform association scan.
 Inspecting the p-values and effect-sizes are now easier because candidate
 names are kept together with their corresponding statistics.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> pv = qtl.variant_pvalues.sort_values()
     >>> print(np.log(pv.head())) # doctest: +FLOAT_CMP
@@ -262,7 +269,8 @@ names are kept together with their corresponding statistics.
 
 A Manhattan plot can help understand the result.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> pv = qtl.variant_pvalues
     >>> chrom = [i.split('_')[0][1:] for i, _ in pv.iteritems()]
@@ -272,7 +280,8 @@ A Manhattan plot can help understand the result.
 
 We then remove the temporary files.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> limix.sh.remove("smith08.hdf5.bz2")
     >>> limix.sh.remove("smith08.hdf5")

@@ -8,6 +8,19 @@ def _get_version():
     return limix.__version__
 
 
+def _show_plot():
+    return
+    import matplotlib as mpl
+
+    if mpl.get_backend().lower() == "agg":
+        return
+
+    from limix import plot
+
+    plt = plot.get_pyplot()
+    plt.show()
+
+
 @click.group(name="limix", context_settings=dict(help_option_names=["-h", "--help"]))
 @click.pass_context
 @click.option(
@@ -39,8 +52,6 @@ def see(ctx, filepath, filetype, show_chunks, header):
     """Show an overview of multiple file types."""
     from limix import io, plot
 
-    from matplotlib import pyplot as plt
-
     if filetype == "guess":
         filetype = detect_file_type(filepath)
 
@@ -51,14 +62,17 @@ def see(ctx, filepath, filetype, show_chunks, header):
         io.csv.see(filepath, verbose=ctx.obj["verbose"], header=header)
 
     elif filetype == "grm.raw":
-        io.plink.see_kinship(filepath, verbose=ctx.obj["verbose"])
+        r = io.plink.see_kinship(filepath, verbose=ctx.obj["verbose"])
+        _show_plot()
+        return r
 
     elif filetype == "bed":
         io.plink.see_bed(filepath, verbose=ctx.obj["verbose"])
 
     elif filetype == "image":
-        plot.image(filepath)
-        plt.show()
+        r = plot.image(filepath)
+        _show_plot()
+        return r
     else:
         print("Unknown file type: %s" % filepath)
 

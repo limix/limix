@@ -25,10 +25,10 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
+    "sphinxcontrib.programoutput",
     "matplotlib.sphinxext.plot_directive",
     "IPython.sphinxext.ipython_directive",
     "IPython.sphinxext.ipython_console_highlighting",
-    "nb2plots",
     "sphinx.ext.autosummary",
 ]
 
@@ -72,3 +72,5 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "dask": ("http://dask.pydata.org/en/latest/", None),
 }
+
+plot_working_directory = "_build"

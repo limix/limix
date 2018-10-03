@@ -10,7 +10,8 @@ usage of variance component models fit to single genes. It is based on the
 Importing limix
 ---------------
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> import limix
 
@@ -77,7 +78,8 @@ The gene-model is fitted to gene expression in environment 0 for all genes in th
 Biosynthesis pathway and variance components are averaged thereafter to obtain pathway
 based variance components.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> from numpy import dot
     >>> import seaborn as sns
@@ -170,7 +172,8 @@ based variance components.
 
 We then remove the temporary files.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> limix.sh.remove("smith08.hdf5.bz2")
     >>> limix.sh.remove("smith08.hdf5")

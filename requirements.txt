@@ -6,3 +6,4 @@ seaborn>=0.9.0
 setuptools>=40.0.0
 sphinx_rtd_theme>=0.4.1
 sphinx>=1.7.6
+sphinxcontrib-programoutput>=0.11
