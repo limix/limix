@@ -1,8 +1,25 @@
-from os.path import exists
+from os.path import exists, basename
+
+recognized_file_types = [
+    "image",
+    "hdf5",
+    "csv",
+    "npy",
+    "grm.raw",
+    "bed",
+    "bgen",
+    "bimbam-pheno",
+]
 
 
 def detect_file_type(filepath):
     # TODO document
+
+    spec = _get_file_type_spec(filepath)
+    if spec is not None:
+        if spec in recognized_file_types:
+            return spec
+
     imexts = [".png", ".bmp", ".jpg", "jpeg"]
     if filepath.endswith(".hdf5") or filepath.endswith(".h5"):
         return "hdf5"
@@ -33,3 +50,11 @@ def _is_bed(filepath):
         return False
 
     return all(ok)
+
+
+def _get_file_type_spec(filepath):
+    filename = basename(filepath)
+    if ":" not in filename:
+        return None
+
+    return filename.split(":")[-1]

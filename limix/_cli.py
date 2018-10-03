@@ -187,7 +187,16 @@ def remove(ctx, filepath):
     default="normal",
 )
 @click.option("--output-dir", help="Specify the output directory path.", default=None)
-def scan(ctx, genotype_file, output_dir):
+def scan(
+    ctx,
+    phenotypes_file,
+    genotype_file,
+    covariates_file,
+    kinship_file,
+    likelihood,
+    filter,
+    output_dir,
+):
     """Perform genome-wide association scan.
 
     This analysis requires minimally the specification of one phenotype
@@ -228,5 +237,8 @@ def scan(ctx, genotype_file, output_dir):
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
+    pheno_type = detect_file_type(phenotypes_file)
+    print(pheno_type)
+    # limix scan ex0/phenotype.gemma:bimbam-pheno genotype:be
     # scan(G, y, lik, K=None, M=None, verbose=True)
     pass
