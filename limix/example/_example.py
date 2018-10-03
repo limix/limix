@@ -1,3 +1,5 @@
+import sys
+import os
 from os.path import dirname, realpath, join
 import tempfile
 import shutil
@@ -9,6 +11,7 @@ _filenames = [
     "example.sample",
     "pheno.csv",
     "xarr.hdf5.bz2",
+    "ex0/phenotype.gemma",
 ]
 
 
@@ -44,6 +47,7 @@ class file_example(object):
                     __name__.split(".")[0], resource_path
                 )
 
+                makedirs(dirname(fp))
                 with open(fp, "wb") as f:
                     f.write(content)
 
@@ -53,3 +57,13 @@ class file_example(object):
 
     def __exit__(self, *_):
         shutil.rmtree(self._dirpath)
+
+
+def makedirs(dirpath):
+    if sys.version_info >= (3,):
+        os.makedirs(dirpath, exist_ok=True)
+    else:
+        try:
+            os.makedirs(dirpath)
+        except OSError:
+            pass
