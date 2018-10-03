@@ -240,7 +240,11 @@ def _terminal_format(txt):
 
     for tag in _tags:
         r = _compile(tag)
-        txt = r.sub(getattr(term, tag)("\\1"), txt)
+        if term is None:
+            by = r"\1"
+        else:
+            by = getattr(term, tag)(r"\1")
+        txt = r.sub(by, txt)
 
     return txt
 
