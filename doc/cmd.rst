@@ -16,11 +16,12 @@ Command line interface
     >>> call(["download", "http://rest.s3for.me/limix/dali.jpg.bz2"])
     >>> call(["extract", "dali.jpg.bz2"])
 
-.. command-output:: limix download http://rest.s3for.me/limix/plink_example.tar.gz && \
+.. command-output:: limix download http://rest.s3for.me/limix/plink_example.tar.gz &&\
       limix extract plink_example.tar.gz &&\
       limix download http://rest.s3for.me/limix/small_example.hdf5 &&\
       limix download http://rest.s3for.me/limix/small_example.csv.bz2 &&\
-      limix extract small_example.csv.bz2
+      limix extract small_example.csv.bz2 &&\
+      limix download http://rest.s3for.me/limix/ex0/phenotype.gemma
     :shell:
     :cwd: _build
 
@@ -60,7 +61,15 @@ Plink BED format
 
 A preview of Plink files in BED format can be done via
 
-.. command-output:: limix -q see plink_example
+.. command-output:: limix see plink_example
+    :cwd: _build
+
+BIMBAM file formats
+===================
+
+Phenotype:
+
+.. command-output:: limix see phenotype.gemma --filetype=bimbam-pheno
     :cwd: _build
 
 HDF5
