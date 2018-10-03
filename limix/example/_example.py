@@ -56,7 +56,10 @@ class file_example(object):
         return filepaths
 
     def __exit__(self, *_):
-        shutil.rmtree(self._dirpath)
+        try:
+            shutil.rmtree(self._dirpath)
+        except PermissionError:
+            pass
 
 
 def makedirs(dirpath):
