@@ -1,9 +1,8 @@
-import pytest
 from numpy import array, asarray, dtype
 from numpy.random import RandomState
 from numpy.testing import assert_, assert_array_equal, assert_equal
 
-from limix._dataset import _infer_samples_index, normalise_dataset, _dataarray_upcast
+from limix._dataset import normalise_dataset, _dataarray_upcast
 from pandas import DataFrame, Series
 from xarray import DataArray
 
@@ -117,3 +116,32 @@ def test_dataset_pandas_xarray_dask():
 
         assert_equal(is_dask, y.chunks is not None)
         assert_array_equal(asarray(xi).ravel(), asarray(y).ravel())
+
+
+def test_dataset_different_size():
+    random = RandomState(0)
+    n0 = 5
+    n1 = 3
+    y = random.randn(n0)
+    samples = ["sample{}".format(i) for i in range(len(y))]
+    y = DataFrame(data=y, index=samples)
+
+    G = random.randn(n1, 10)
+
+    data = normalise_dataset(y, G=G)
+
+    assert_array_equal(data["y"].values, y[:n1])
+    assert_array_equal(data["G"].values, G[:n1, :])
+
+    n0 = 3
+    n1 = 5
+    y = random.randn(n0)
+    samples = ["sample{}".format(i) for i in range(len(y))]
+    y = DataFrame(data=y, index=samples)
+
+    G = random.randn(n1, 10)
+
+    data = normalise_dataset(y, G=G)
+
+    assert_array_equal(data["y"].values, y[:n0])
+    assert_array_equal(data["G"].values, G[:n0, :])

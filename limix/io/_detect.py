@@ -15,29 +15,29 @@ recognized_file_types = [
 def detect_file_type(filepath):
     # TODO document
 
-    spec = _get_file_type_spec(filepath)
+    filepath, spec = _get_file_type_spec(filepath)
     if spec is not None:
         if spec in recognized_file_types:
-            return spec
+            return filepath, spec
 
     imexts = [".png", ".bmp", ".jpg", "jpeg"]
     if filepath.endswith(".hdf5") or filepath.endswith(".h5"):
-        return "hdf5"
+        return filepath, "hdf5"
     if filepath.endswith(".csv"):
-        return "csv"
+        return filepath, "csv"
     if filepath.endswith(".npy"):
-        return "npy"
+        return filepath, "npy"
     if filepath.endswith(".grm.raw"):
-        return "grm.raw"
+        return filepath, "grm.raw"
     if _is_bed(filepath):
-        return "bed"
+        return filepath, "bed"
     if any([filepath.endswith(ext) for ext in imexts]):
-        return "image"
+        return filepath, "image"
     if filepath.endswith(".txt"):
-        return "csv"
+        return filepath, "csv"
     if filepath.endswith(".bgen"):
-        return "bgen"
-    return "unknown"
+        return filepath, "bgen"
+    return filepath, "unknown"
 
 
 def _is_bed(filepath):
@@ -55,6 +55,7 @@ def _is_bed(filepath):
 def _get_file_type_spec(filepath):
     filename = basename(filepath)
     if ":" not in filename:
-        return None
+        return filepath, None
 
-    return filename.split(":")[-1]
+    spec = filename.split(":")[-1]
+    return filepath[: -len(spec) - 1], spec
