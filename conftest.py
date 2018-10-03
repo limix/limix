@@ -20,7 +20,7 @@ def _docdir(request):
     if isinstance(request.node, doctest_plugin.DoctestItem):
 
         # Get the fixture dynamically by its name.
-        tmpdir = request.getfuncargvalue("tmpdir")
+        tmpdir = request.getfixturevalue("tmpdir")
 
         # Chdir only for the duration of the test.
         olddir = os.getcwd()

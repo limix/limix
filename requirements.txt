@@ -1,5 +1,4 @@
 git+https://github.com/horta/pytest-doctestplus.git@precision
-nb2plots>=0.6
 pip>=18.0
 pytest>=3.7.0
 seaborn>=0.9.0
