@@ -192,7 +192,10 @@ def _in_interactive_session():
 
 
 def _get_terminal():
-    from blessings import Terminal
+    try:
+        from blessings import Terminal
+    except ImportError:
+        return None
 
     try:
         term = Terminal()
