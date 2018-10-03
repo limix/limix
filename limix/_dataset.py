@@ -4,7 +4,6 @@ import numpy as np
 from ._dask import array_shape_reveal
 
 
-# def normalise_dataset(y, M=None, G=None, K=None):
 def normalise_dataset(y, M=None, G=None, K=None):
 
     y = _dataarray_upcast(y)
@@ -28,13 +27,11 @@ def normalise_dataset(y, M=None, G=None, K=None):
 
     data = {"y": y, "M": M, "G": G, "K": K}
     datas = {k: (data[k], 0) for k in ["y", "M", "G"] if data[k] is not None}
-    # arrs = [(a, 0) for a in [y, M, G] if a is not None]
     if data["K"] is not None:
         # arrs += [(K, 0), (K, 1)
         datas["K0"] = (K, 0)
         datas["K1"] = (K, 1)
 
-    # arrs = _assign_samples_index_to_nonindexed(arrs)
     datas = _assign_samples_index_to_nonindexed(datas)
     valid_samples, invalid_samples = _infer_samples_index(list(datas.values()))
 

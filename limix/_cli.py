@@ -1,4 +1,6 @@
 import click
+import traceback
+import sys
 from limix.io._detect import detect_file_type
 from limix.io import fetch_phenotype, fetch_genotype
 
@@ -254,6 +256,7 @@ def scan(
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
     import limix
+    from ._exception import print_exc
 
     pheno_filepath, pheno_type = detect_file_type(phenotypes_file)
 
@@ -264,17 +267,16 @@ def scan(
 
     data = {"phenotype": y, "genotype": G}
 
-    import pdb
-
     for filt in filter:
         target = _get_filter_target(filt)
         data[target] = _dispath_process_filter[target](data[target], filt)
 
-    pdb.set_trace()
-
-    r = limix.qtl.scan(data["genotype"], data["phenotype"], lik)
-    # limix scan ex0/phenotype.gemma:bimbam-pheno genotype:be
-    # scan(G, y, lik, K=None, M=None, verbose=True)
+    try:
+        r = limix.qtl.scan(data["genotype"], data["phenotype"], lik)
+    except Exception as e:
+        print_exc(traceback.format_stack(), e)
+        sys.exit(1)
+    print(r)
 
 
 def _get_filter_target(flt):

@@ -11,8 +11,8 @@ from time import time
 
 from ._config import config
 
-_tags = ["bold", "green", "blue"]
-_color = {"blue": "#0C68C7", "green": "#19CB00"}
+_tags = ["bold", "green", "blue", "red"]
+_color = {"blue": "#0C68C7", "green": "#19CB00", "red": "#FF3534"}
 
 
 def pprint(txt):
@@ -53,6 +53,11 @@ def green(txt):
 def blue(txt):
     """Blue color font."""
     return "[blue]" + txt + "[/blue]"
+
+
+def red(txt):
+    """Red color font."""
+    return "[red]" + txt + "[/red]"
 
 
 def width():
@@ -110,13 +115,21 @@ class session_text(object):
             msg = _msg_wrap(msg, width())
             pprint(bold(blue(msg)))
 
-    def __exit__(self, *_):
+    def __exit__(self, exception_type, exception_value, traceback):
         elapsed = time() - self._start
-        msg = " {} session ends in {:.2f} seconds "
+        fail = exception_type is not None
+
+        if fail:
+            msg = " {} session fails in {:.2f} seconds "
+            color = red
+        else:
+            msg = " {} session ends in {:.2f} seconds "
+            color = blue
+
         msg = msg.format(self._session_name, elapsed)
         if not self._disable:
             msg = _msg_wrap(msg, width())
-            pprint(bold(blue(msg)))
+            pprint(bold(color(msg)))
 
 
 def _msg_wrap(msg, width, sym="="):
