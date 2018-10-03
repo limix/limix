@@ -83,7 +83,7 @@ shown as
 Image
 =====
 
-Finally, an image can be seen via
+An image can be seen via
 
 .. command-output:: limix -q see dali.jpg
     :cwd: _build
@@ -94,6 +94,12 @@ Finally, an image can be seen via
 
     >>> call(["see", "dali.jpg"])
     >>> plt.show()  # doctest: +SKIP
+
+GWAS
+====
+
+.. command-output:: limix scan --help
+    :cwd: _build
 
 .. _plink: https://www.cog-genomics.org/plink2
 .. _hdf5: https://support.hdfgroup.org/HDF5/
