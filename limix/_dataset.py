@@ -8,196 +8,154 @@ from ._dask import array_shape_reveal
 
 def normalise_dataset(y, M=None, G=None, K=None):
 
-    y = _dataarray_upcast(y)
-    y = y.rename({y.dims[0]: "sample"})
-    y = y.rename({y.dims[1]: "trait"})
+    y = _rename_dims(_dataarray_upcast(y), "sample", "trait")
+    M = _rename_dims(_dataarray_upcast(M), "sample", "covariate")
+    G = _rename_dims(_dataarray_upcast(G), "sample", "candidate")
+    K = _rename_dims(_dataarray_upcast(K), "sample_0", "sample_1")
 
-    if M is not None:
-        M = _dataarray_upcast(M)
-        M = M.rename({M.dims[0]: "sample"})
-        M = M.rename({M.dims[1]: "covariate"})
+    data = {"y": y, "M": M, "G": G, "K0": K, "K1": K}
+    dim = {"y": 0, "M": 0, "G": 0, "K0": 0, "K1": 1}
 
-    if G is not None:
-        G = _dataarray_upcast(G)
-        G = G.rename({G.dims[0]: "sample"})
-        G = G.rename({G.dims[1]: "candidate"})
+    data = _assign_index_to_nonindexed(
+        {k: v for (k, v) in data.items() if v is not None}, dim
+    )
+    for k in dim.keys():
+        if k not in data:
+            data[k] = None
 
-    if K is not None:
-        K = _dataarray_upcast(K)
-        K = K.rename({K.dims[0]: "sample_0"})
-        K = K.rename({K.dims[1]: "sample_1"})
+    valid_samples, invalid_samples = _infer_samples_index(
+        {k: v for (k, v) in data.items() if v is not None}, dim
+    )
 
-    data = {"y": y, "M": M, "G": G, "K": K}
-    datas = {k: (data[k], 0) for k in ["y", "M", "G"] if data[k] is not None}
-    if data["K"] is not None:
-        datas["K0"] = (K, 0)
-        datas["K1"] = (K, 1)
+    data["y"] = _assign_coords(data["y"], "sample", valid_samples)
+    data["M"] = _assign_coords(data["M"], "sample", valid_samples)
+    data["G"] = _assign_coords(data["G"], "sample", valid_samples)
+    data["K0"] = _assign_coords(data["K0"], "sample_0", valid_samples)
+    data["K0"] = _assign_coords(data["K0"], "sample_1", valid_samples)
+    data["K1"] = data["K0"]
 
-    datas = _assign_samples_index_to_nonindexed(datas)
-    valid_samples, invalid_samples = _infer_samples_index(list(datas.values()))
+    n = len(data["y"].coords["sample"])
+    if data["y"].name is None:
+        data["y"].name = "outcome"
 
-    y = datas["y"][0]
+    names = {
+        "M": "covariates",
+        "G": "candidates",
+        "K0": "variance-covariance",
+        "K1": "variance-covariance",
+    }
+    for k, name in names.items():
+        v = data[k]
+        if v is None:
+            continue
+        if v.name is None:
+            v.name = name
 
-    if "M" in datas:
-        M = datas["M"][0]
+    o = [len(v.coords[v.dims[dim[k]]]) == n for (k, v) in data.items() if v is not None]
 
-    if "G" in datas:
-        G = datas["G"][0]
+    if all(o):
+        del data["K1"]
+        data["K"] = data["K0"]
+        del data["K0"]
+        return data
 
-    if "K0" in datas:
-        K = datas["K0"][0]
+    msg = "Non-unique sample ids are not allowed in the {} array"
+    msg += " if the sample ids are not equal nor in the same order."
 
-    if "sample" not in y.coords:
-        y = y.assign_coords(sample=list(valid_samples))
-    else:
-        y = y.loc[{"sample": y.get_index("sample").isin(valid_samples)}]
+    for k, name in names.items():
+        v = data[k]
+        if v is None:
+            continue
 
-    if M is not None:
-        if "sample" not in M.coords:
-            M = M.assign_coords(sample=list(valid_samples))
-        else:
-            M = M.loc[{"sample": M.get_index("sample").isin(valid_samples)}]
+        idx = v.coords[v.dims[dim[k]]].values
 
-    if G is not None:
-        if "sample" not in G.coords:
-            G = G.assign_coords(sample=list(valid_samples))
-        else:
-            G = G.loc[{"sample": G.get_index("sample").isin(valid_samples)}]
-
-    if K is not None:
-        for k in ["sample_0", "sample_1"]:
-            if k not in K.coords:
-                K = K.assign_coords(**{k: list(valid_samples)})
-            else:
-                K = K.loc[{k: K.get_index(k).isin(valid_samples)}]
-
-    arrs = [a for a in [y, M, G] if a is not None]
-    if K is not None:
-        arrs += [K, K.T]
-
-    idx = y.coords["sample"]
-    for a in arrs:
-        if len(a.coords[a.dims[0]]) != len(idx):
-            break
-    else:
-        return dict(y=y, M=M, G=G, K=K)
-
-    if M is not None:
-        idx = M.coords["sample"].values
         if len(unique(idx)) < len(idx):
-            msg = "Non-unique sample ids are not allowed in the covariates array"
-            msg += " if the sample ids are not equal nor in the same order."
-            raise ValueError(msg)
-
-    if y.name is None:
-        y.name = "outcome"
-
-    if G is not None:
-        idx = G.coords["sample"].values
-        if len(unique(idx)) < len(idx):
-            msg = "Non-unique sample ids are not allowed in the candidates array"
-            msg += " if the sample ids are not equal nor in the same order."
-            raise ValueError(msg)
-        if G.name is None:
-            G.name = "candidates"
-
-    if K is not None:
-        idx0 = K.coords["sample_0"].values
-        idx1 = K.coords["sample_1"].values
-        if len(unique(idx0)) < len(idx0) or len(unique(idx1)) < len(idx1):
-            msg = "Non-unique sample ids are not allowed in the covariate array"
-            msg += " if the sample ids are not equal nor in the same order."
-            raise ValueError(msg)
-        if K.name is None:
-            K.name = "variance-covariance"
+            raise ValueError(msg.format(name))
 
     inc_msg = "The provided outcome and {} arrays are sample-wise incompatible."
-    if M is not None:
-        try:
-            M = M.sel(sample=y.coords["sample"].values)
-        except IndexError as e:
-            msg = inc_msg.format("covariates")
-            raise ValueError(str(e) + "\n\n" + inc_msg)
 
-        if M.name is None:
-            M.name = "covariates"
+    dimn = {"sample": ["y", "M", "G"], "sample_0": ["K"], "sample_1": ["K"]}
+    del data["K1"]
+    data["K"] = data["K0"]
+    del data["K0"]
 
-    if K is not None:
-        try:
-            K = K.sel(sample_0=y.coords["sample"].values)
-            K = K.sel(sample_1=y.coords["sample"].values)
-        except IndexError as e:
-            msg = inc_msg.format("covariance")
-            raise ValueError(str(e) + "\n\n" + inc_msg)
+    for lab, li in dimn.items():
+        for k in li:
+            if k == "y":
+                continue
+            v = data[k]
+            if v is None:
+                continue
+            try:
+                data[k] = v.sel(**{lab: data["y"].coords["sample"].values})
+            except IndexError as e:
+                raise ValueError(str(e) + "\n\n" + inc_msg.format(name))
 
-    if G is not None:
-        try:
-            G = G.sel(sample=y.coords["sample"].values)
-        except IndexError as e:
-            msg = inc_msg.format("candidates")
-            raise ValueError(str(e) + "\n\n" + inc_msg)
-
-    return dict(y=y, M=M, G=G, K=K)
+    return data
 
 
-def _assign_samples_index_to_nonindexed(datas):
-    indexed = []
-    nonindexed = []
+def _assign_index_to_nonindexed(data, dim):
+    indexed = {}
+    nonindexed = {}
 
-    for a in datas.values():
-        v, i = a
-        if v.dims[i] not in v.coords:
-            nonindexed.append(a)
+    for k, v in data.items():
+        if v.dims[dim[k]] not in v.coords:
+            nonindexed[k] = v
         else:
-            indexed.append(a)
+            indexed[k] = v
 
     if len(nonindexed) == 0:
-        return datas
+        return data
 
     if len(indexed) == 0:
-        for a in datas.values():
-            v, i = a
-            n = v.shape[i]
-            v.coords[v.dims[i]] = ["sample{}".format(j) for j in range(n)]
-        return datas
+        for k, v in data.items():
+            n = v.shape[dim[k]]
+            v.coords[v.dims[dim[k]]] = ["sample{}".format(j) for j in range(n)]
+        return data
 
-    v, i = indexed[0]
-    index = v.coords[v.dims[i]]
-    for a in indexed[1:]:
-        v, i = a
-        if not array_equal(index, v.coords[v.dims[i]]):
+    k, v = next(iter(indexed.items()))
+    index = v.coords[v.dims[dim[k]]]
+    for k, v in indexed.items():
+        if not array_equal(index, v.coords[v.dims[dim[k]]]):
             msg = "Please, check the provided sample labels in your arrays."
             msg = " There are some inconsistences in them."
             raise ValueError(msg)
 
-    # n = min(v.coords[v.dims[i]].size for (v, i) in arrs)
-    n = min(v.coords[v.dims[i]].size for (v, i) in datas.values())
+    n = min(v.coords[v.dims[dim[k]]].size for (k, v) in data.items())
     index = index[:n]
 
-    for (k, (v, i)) in datas.items():
+    for k, v in data.items():
         sl = [slice(None)] * v.ndim
-        sl[i] = slice(0, n)
+        sl[dim[k]] = slice(0, n)
         v = v[tuple(sl)]
-        datas[k] = (v, i)
+        data[k] = v
 
-    indexed = []
-    nonindexed = []
-    for (v, i) in datas.values():
-        if v.dims[i] not in v.coords:
-            nonindexed.append((v, i))
-        else:
-            indexed.append((v, i))
+    nonindexed = {}
+    for k, v in data.items():
+        if v.dims[dim[k]] not in v.coords:
+            nonindexed[k] = v
 
-    for (v, i) in nonindexed:
-        v.coords[v.dims[i]] = index.values
+    for k, v in nonindexed.items():
+        v.coords[v.dims[dim[k]]] = index.values
 
-    return datas
+    return data
+
+
+def _rename_dims(x, dim_0, dim_1):
+    if x is None:
+        return None
+    x = x.rename({x.dims[0]: dim_0})
+    x = x.rename({x.dims[1]: dim_1})
+    return x
 
 
 def _dataarray_upcast(x):
     import dask.dataframe as dd
     import dask.array as da
     import xarray as xr
+
+    if x is None:
+        return None
 
     if isinstance(x, (dd.Series, dd.DataFrame)):
         xidx = x.index.compute()
@@ -220,18 +178,27 @@ def _dataarray_upcast(x):
     return x
 
 
-def _infer_samples_index(arrs):
+def _assign_coords(x, dim_name, samples):
+    if x is None:
+        return None
+    if dim_name not in x.coords:
+        x = x.assign_coords(**{dim_name: list(samples)})
+    else:
+        x = x.loc[{dim_name: x.get_index(dim_name).isin(samples)}]
+    return x
 
-    v, i = arrs[0]
-    samples = v.coords[v.dims[i]].values
-    for a in arrs[1:]:
-        v, i = a
-        if not array_equal(v.coords[v.dims[i]].values, samples):
+
+def _infer_samples_index(data, dim):
+
+    k, v = next(iter(data.items()))
+    samples = v.coords[v.dims[dim[k]]].values
+    for k, v in data.items():
+        if not array_equal(v.coords[v.dims[dim[k]]].values, samples):
             break
     else:
         return Counter(samples), []
 
-    samples_sets = [Counter(a[0].coords[a[0].dims[a[1]]].values) for a in arrs]
+    samples_sets = [Counter(v.coords[v.dims[dim[k]]].values) for (k, v) in data.items()]
 
     set_intersection = samples_sets[0]
     for ss in samples_sets[1:]:
