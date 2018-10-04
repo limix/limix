@@ -1,5 +1,8 @@
 import click
+import traceback
+import sys
 from limix.io._detect import detect_file_type
+from limix.io import fetch_phenotype, fetch_genotype
 
 
 def _get_version():
@@ -53,7 +56,7 @@ def see(ctx, filepath, filetype, show_chunks, header):
     from limix import io, plot
 
     if filetype == "guess":
-        filetype = detect_file_type(filepath)
+        filepath, filetype = detect_file_type(filepath)
 
     if filetype == "hdf5":
         io.hdf5.see(filepath, show_chunks=show_chunks)
@@ -128,7 +131,7 @@ def estimate_kinship(ctx, input_file, output_file, filetype):
     if output_file is None:
         output_file = input_file + ".npy"
 
-    oft = detect_file_type(output_file)
+    output_file, oft = detect_file_type(output_file)
 
     if oft == "npy":
         io.npy.save_kinship(output_file, K, verbose=ctx.obj["verbose"])
@@ -156,6 +159,21 @@ def remove(ctx, filepath):
     limix.sh.remove(filepath)
 
 
+def _process_phenotype_filter(df, flt):
+    import re
+
+    flt = flt.strip()
+    r = flt.replace("phenotype", "", 1).strip()
+    m = re.match(r"^(\[.*\])+", r)
+    if m is not None:
+        slic = m.groups(0)[0]
+        df = eval("df{}".format(slic))
+    return df
+
+
+_dispath_process_filter = {"phenotype": _process_phenotype_filter}
+
+
 @cli.command()
 @click.pass_context
 @click.argument("phenotypes-file")
@@ -171,7 +189,7 @@ def remove(ctx, filepath):
     default=None,
 )
 @click.option(
-    "--likelihood",
+    "--lik",
     help=(
         "Specify the type of likelihood that will described"
         " the residual error distribution."
@@ -184,10 +202,19 @@ def remove(ctx, filepath):
         "Filtering expression to select which phenotype, genotype loci, and covariates"
         " to use in the analysis."
     ),
-    default="normal",
+    multiple=True,
 )
 @click.option("--output-dir", help="Specify the output directory path.", default=None)
-def scan(ctx, genotype_file, output_dir):
+def scan(
+    ctx,
+    phenotypes_file,
+    genotype_file,
+    covariates_file,
+    kinship_file,
+    lik,
+    filter,
+    output_dir,
+):
     """Perform genome-wide association scan.
 
     This analysis requires minimally the specification of one phenotype
@@ -228,5 +255,41 @@ def scan(ctx, genotype_file, output_dir):
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
-    # scan(G, y, lik, K=None, M=None, verbose=True)
-    pass
+    import limix
+    from ._exception import print_exc
+
+    pheno_filepath, pheno_type = detect_file_type(phenotypes_file)
+
+    geno_filepath, geno_type = detect_file_type(genotype_file)
+
+    y = fetch_phenotype(pheno_filepath, pheno_type)
+    G = fetch_genotype(geno_filepath, geno_type)
+
+    data = {"phenotype": y, "genotype": G}
+
+    for filt in filter:
+        target = _get_filter_target(filt)
+        data[target] = _dispath_process_filter[target](data[target], filt)
+
+    try:
+        r = limix.qtl.scan(data["genotype"], data["phenotype"], lik)
+    except Exception as e:
+        print_exc(traceback.format_stack(), e)
+        sys.exit(1)
+    print(r)
+
+
+def _get_filter_target(flt):
+    flt = flt.strip()
+    a, b = flt.find("["), flt.find(":")
+    s = _sign(a) * _sign(b)
+    i = s * min(s * a, s * b)
+    return flt[: i + 1][:-1].strip().lower()
+
+
+def _sign(v):
+    if v > 0:
+        return 1
+    if v < 0:
+        return -1
+    return 0

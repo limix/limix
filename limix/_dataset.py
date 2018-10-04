@@ -4,15 +4,16 @@ import numpy as np
 from ._dask import array_shape_reveal
 
 
-def normalise_dataset(y, M, G=None, K=None):
+def normalise_dataset(y, M=None, G=None, K=None):
 
     y = _dataarray_upcast(y)
     y = y.rename({y.dims[0]: "sample"})
     y = y.rename({y.dims[1]: "trait"})
 
-    M = _dataarray_upcast(M)
-    M = M.rename({M.dims[0]: "sample"})
-    M = M.rename({M.dims[1]: "covariate"})
+    if M is not None:
+        M = _dataarray_upcast(M)
+        M = M.rename({M.dims[0]: "sample"})
+        M = M.rename({M.dims[1]: "covariate"})
 
     if G is not None:
         G = _dataarray_upcast(G)
@@ -24,30 +25,37 @@ def normalise_dataset(y, M, G=None, K=None):
         K = K.rename({K.dims[0]: "sample_0"})
         K = K.rename({K.dims[1]: "sample_1"})
 
-    arrs = [(a, 0) for a in [y, M, G] if a is not None]
-    if K is not None:
-        arrs += [(K, 0), (K, 1)]
+    data = {"y": y, "M": M, "G": G, "K": K}
+    datas = {k: (data[k], 0) for k in ["y", "M", "G"] if data[k] is not None}
+    if data["K"] is not None:
+        # arrs += [(K, 0), (K, 1)
+        datas["K0"] = (K, 0)
+        datas["K1"] = (K, 1)
 
-    _assign_samples_index_to_nonindexed(arrs)
-    valid_samples, invalid_samples = _infer_samples_index(arrs)
+    datas = _assign_samples_index_to_nonindexed(datas)
+    valid_samples, invalid_samples = _infer_samples_index(list(datas.values()))
+
+    y = datas["y"][0]
+
+    if "M" in datas:
+        M = datas["M"][0]
+
+    if "G" in datas:
+        G = datas["G"][0]
+
+    if "K0" in datas:
+        K = datas["K0"][0]
 
     if "sample" not in y.coords:
         y = y.assign_coords(sample=list(valid_samples))
     else:
-        # idx = y.get_index("sample")
-        # dup_idx = set(idx[idx.duplicated()].unique())
-        # uni_idx = set(idx) - dup_idx
-        # R0 = idx.isin(dup_idx)
-        # uni_idx & valid_samples
-        # Index(uni_idx).sel(Counter(uni_idx & set(valid_samples)))
-        # idx.isin(dup_idx & idx)
-        # valid_samples
         y = y.loc[{"sample": y.get_index("sample").isin(valid_samples)}]
 
-    if "sample" not in M.coords:
-        M = M.assign_coords(sample=list(valid_samples))
-    else:
-        M = M.loc[{"sample": M.get_index("sample").isin(valid_samples)}]
+    if M is not None:
+        if "sample" not in M.coords:
+            M = M.assign_coords(sample=list(valid_samples))
+        else:
+            M = M.loc[{"sample": M.get_index("sample").isin(valid_samples)}]
 
     if G is not None:
         if "sample" not in G.coords:
@@ -73,11 +81,12 @@ def normalise_dataset(y, M, G=None, K=None):
     else:
         return dict(y=y, M=M, G=G, K=K)
 
-    idx = M.coords["sample"].values
-    if len(unique(idx)) < len(idx):
-        msg = "Non-unique sample ids are not allowed in the covariates array"
-        msg += " if the sample ids are not equal nor in the same order."
-        raise ValueError(msg)
+    if M is not None:
+        idx = M.coords["sample"].values
+        if len(unique(idx)) < len(idx):
+            msg = "Non-unique sample ids are not allowed in the covariates array"
+            msg += " if the sample ids are not equal nor in the same order."
+            raise ValueError(msg)
 
     if y.name is None:
         y.name = "outcome"
@@ -102,14 +111,15 @@ def normalise_dataset(y, M, G=None, K=None):
             K.name = "variance-covariance"
 
     inc_msg = "The provided outcome and {} arrays are sample-wise incompatible."
-    try:
-        M = M.sel(sample=y.coords["sample"].values)
-    except IndexError as e:
-        msg = inc_msg.format("covariates")
-        raise ValueError(str(e) + "\n\n" + inc_msg)
+    if M is not None:
+        try:
+            M = M.sel(sample=y.coords["sample"].values)
+        except IndexError as e:
+            msg = inc_msg.format("covariates")
+            raise ValueError(str(e) + "\n\n" + inc_msg)
 
-    if M.name is None:
-        M.name = "covariates"
+        if M.name is None:
+            M.name = "covariates"
 
     if K is not None:
         try:
@@ -126,29 +136,14 @@ def normalise_dataset(y, M, G=None, K=None):
             msg = inc_msg.format("candidates")
             raise ValueError(str(e) + "\n\n" + inc_msg)
 
-    # nsamples = len(y)
-    # if nsamples != M.shape[0]:
-    #     msg = inc_msg.format("covariates")
-    #     raise ValueError(inc_msg)
-
-    # if K is not None:
-    #     if nsamples != K.shape[0] or nsamples != K.shape[1]:
-    #         inc_msg = inc_msg.format("covariance")
-    #         raise ValueError(inc_msg)
-
-    # if G is not None:
-    #     if nsamples != G.shape[0]:
-    #         inc_msg = inc_msg.format("candidates")
-    #         raise ValueError(inc_msg)
-
     return dict(y=y, M=M, G=G, K=K)
 
 
-def _assign_samples_index_to_nonindexed(arrs):
+def _assign_samples_index_to_nonindexed(datas):
     indexed = []
     nonindexed = []
 
-    for a in arrs:
+    for a in datas.values():
         v, i = a
         if v.dims[i] not in v.coords:
             nonindexed.append(a)
@@ -156,14 +151,14 @@ def _assign_samples_index_to_nonindexed(arrs):
             indexed.append(a)
 
     if len(nonindexed) == 0:
-        return
+        return datas
 
     if len(indexed) == 0:
-        for a in arrs:
+        for a in datas.values():
             v, i = a
             n = v.shape[i]
             v.coords[v.dims[i]] = ["sample{}".format(j) for j in range(n)]
-        return
+        return datas
 
     v, i = indexed[0]
     index = v.coords[v.dims[i]]
@@ -174,9 +169,28 @@ def _assign_samples_index_to_nonindexed(arrs):
             msg = " There are some inconsistences in them."
             raise ValueError(msg)
 
-    for a in nonindexed:
-        v, i = a
+    # n = min(v.coords[v.dims[i]].size for (v, i) in arrs)
+    n = min(v.coords[v.dims[i]].size for (v, i) in datas.values())
+    index = index[:n]
+
+    for (k, (v, i)) in datas.items():
+        sl = [slice(None)] * v.ndim
+        sl[i] = slice(0, n)
+        v = v[tuple(sl)]
+        datas[k] = (v, i)
+
+    indexed = []
+    nonindexed = []
+    for (v, i) in datas.values():
+        if v.dims[i] not in v.coords:
+            nonindexed.append((v, i))
+        else:
+            indexed.append((v, i))
+
+    for (v, i) in nonindexed:
         v.coords[v.dims[i]] = index.values
+
+    return datas
 
 
 def _dataarray_upcast(x):
