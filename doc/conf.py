@@ -78,3 +78,4 @@ plot_working_directory = "_build"
 
 shutil.copy2("matplotlibrc", "_build/")
 
+plot_formats = [("png", 80)]

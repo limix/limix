@@ -16,12 +16,15 @@ Command line interface
     >>> call(["download", "http://rest.s3for.me/limix/dali.jpg.bz2"])
     >>> call(["extract", "dali.jpg.bz2"])
 
-.. command-output:: limix download http://rest.s3for.me/limix/plink_example.tar.gz &&\
-      limix extract plink_example.tar.gz &&\
-      limix download http://rest.s3for.me/limix/small_example.hdf5 &&\
-      limix download http://rest.s3for.me/limix/small_example.csv.bz2 &&\
-      limix extract small_example.csv.bz2 &&\
-      limix download http://rest.s3for.me/limix/ex0/phenotype.gemma
+.. command-output:: limix -q download http://rest.s3for.me/limix/plink_example.tar.gz &\
+      limix -q download http://rest.s3for.me/limix/small_example.hdf5 &\
+      limix -q download http://rest.s3for.me/limix/small_example.csv.bz2 &\
+      limix -q download http://rest.s3for.me/limix/ex0/phenotype.gemma
+    :shell:
+    :cwd: _build
+
+.. command-output:: limix -q extract plink_example.tar.gz &\
+      limix -q extract small_example.csv.bz2
     :shell:
     :cwd: _build
 
@@ -53,7 +56,7 @@ Command::
     :include-source: False
     
     >>> call(["see", "small_example.grm.raw"])
-    >>> plt.show()  # doctest: +SKIP
+    >>> plt.show()
 
 
 Plink BED format
