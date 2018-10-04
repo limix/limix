@@ -85,8 +85,6 @@ def scan(
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
-    from ._exception import print_exc
-
     pheno_filepath, pheno_type = limix.io.detect_file_type(phenotypes_file)
 
     geno_filepath, geno_type = limix.io.detect_file_type(genotype_file)
@@ -103,7 +101,7 @@ def scan(
     try:
         r = limix.qtl.scan(data["genotype"], data["phenotype"], lik)
     except Exception as e:
-        print_exc(traceback.format_stack(), e)
+        limix._exception.print_exc(traceback.format_stack(), e)
         sys.exit(1)
     print(r)
 
