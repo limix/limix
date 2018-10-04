@@ -1,6 +1,8 @@
 from collections import Counter
-from numpy import unique, asarray, array_equal
+
 import numpy as np
+from numpy import array_equal, asarray, unique
+
 from ._dask import array_shape_reveal
 
 
@@ -28,7 +30,6 @@ def normalise_dataset(y, M=None, G=None, K=None):
     data = {"y": y, "M": M, "G": G, "K": K}
     datas = {k: (data[k], 0) for k in ["y", "M", "G"] if data[k] is not None}
     if data["K"] is not None:
-        # arrs += [(K, 0), (K, 1)
         datas["K0"] = (K, 0)
         datas["K1"] = (K, 1)
 
@@ -251,55 +252,8 @@ def _infer_samples_index(arrs):
 
     valid_samples = valid_samples
     invalid_samples = invalid_samples
-    # if len(valid_samples) > len(invalid_samples):
-    #     invalid_samples = invalid_samples.astype(valid_samples.dtype)
-    # else:
-    #     valid_samples = valid_samples.astype(invalid_samples.dtype)
 
     return (valid_samples, invalid_samples)
-
-
-#     ok = _check_samples_arrays_compatibility(arrs)
-#     if not ok:
-#         msg = "The provided arrays are sample-wise incompatible."
-#         msg += " Please, check the number of rows."
-#         raise ValueError(msg)
-
-#     if len(arrs) == 0:
-#         return asarray([], int)
-
-#     iarrs = [a for a in arrs if _has_sample_index(a)]
-#     if len(iarrs) == 0:
-#         return asarray(range(arrs[0].shape[0]))
-
-#     index_set = _index_set_intersection(iarrs)
-
-#     return asarray(asarray(_same_order_if_possible(index_set, iarrs)))
-
-
-# def _check_samples_arrays_compatibility(arrs):
-#     """Check index and number of rows.
-
-#     The arrays are compatible if they have the same number of rows or
-#     if every array is indexed. If they have the same number of rows but some
-#     arrays are indexed and some not, the indexed arrays need to show the same
-#     index order as to be compatible to the non-indexed ones.
-#     """
-#     s = set([len(a) for a in arrs])
-#     if len(s) == 0:
-#         return True
-
-#     iarrs = [a for a in arrs if _has_sample_index(a)]
-#     if len(arrs) == len(iarrs):
-#         return True
-
-#     if len(s) == 1:
-#         if len(iarrs) == 0:
-#             r#  {turn True:        # Make sure index have the same order.}
-#         index = _get_sample_index(iarrs[0])
-#         return all([all(index == _get_sample_index(a)) for a in iarrs])
-
-#     return False
 
 
 def _has_sample_index(x):
