@@ -87,7 +87,8 @@ The glucose condition is given by the environment ``0``.
     >>> query = "gene_ID=='YBR115C' and environment==0"
     >>> idx = header.query(query).i.values
     >>> y = data['phenotype']['matrix'][:, idx].ravel()
-    >>> limix.plot.normal(y) # doctest: +SKIP
+    >>> _ = limix.plot.normal(y)
+    >>> limix.plot.show()
 
 Genetic relatedness matrix
 --------------------------
@@ -100,7 +101,8 @@ readings between individuals, and the result will be visualised via heatmap.
 
     >>> G = data['genotype']['matrix']
     >>> K = limix.stats.linear_kinship(G, verbose=False)
-    >>> limix.plot.kinship(K) # doctest: +SKIP
+    >>> ax = limix.plot.kinship(K)
+    >>> limix.plot.show()
 
 Univariate association test with linear mixed model
 ---------------------------------------------------
@@ -276,7 +278,8 @@ A Manhattan plot can help understand the result.
     >>> chrom = [i.split('_')[0][1:] for i, _ in pv.iteritems()]
     >>> pos = [int(i.split('_')[1][1:]) for i, _ in pv.iteritems()]
     >>> df = DataFrame(data=dict(pv=pv, chr=chrom, pos=pos))
-    >>> limix.plot.manhattan(df) # doctest: +SKIP
+    >>> _ = limix.plot.manhattan(df)
+    >>> limix.plot.show()
 
 We then remove the temporary files.
 

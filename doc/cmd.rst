@@ -5,7 +5,7 @@ Command line interface
 .. plot::
     :context:
 
-    >>> from matplotlib import pyplot as plt
+    >>> from limix.plot import show
     >>> from limix._cli import cli
     >>> from click.testing import CliRunner
     >>> def call(args):
@@ -56,7 +56,7 @@ Command::
     :include-source: False
     
     >>> call(["see", "small_example.grm.raw"])
-    >>> plt.show()
+    >>> show()
 
 
 Plink BED format
@@ -105,7 +105,7 @@ An image can be seen via
     :context: close-figs
 
     >>> call(["see", "dali.jpg"])
-    >>> plt.show()  # doctest: +SKIP
+    >>> show()
 
 GWAS
 ====

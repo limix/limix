@@ -3,7 +3,10 @@ import pytest
 
 
 def pytest_sessionstart(session):
+    import matplotlib as mpl
     import pandas as pd
+
+    mpl.use("agg")
 
     pd.set_option("display.width", 88)
     pd.set_option("display.max_columns", 79)

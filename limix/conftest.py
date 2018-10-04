@@ -2,6 +2,10 @@ from __future__ import unicode_literals
 
 
 def pytest_sessionstart(*args, **kwargs):
+    import matplotlib as mpl
+
+    mpl.use("agg")
+
     pandas_format()
 
 
