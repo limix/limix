@@ -1,3 +1,4 @@
+import limix
 import click
 import traceback
 import sys
@@ -5,31 +6,12 @@ from limix.io._detect import detect_file_type
 from limix.io import fetch_phenotype, fetch_genotype
 
 
-def _get_version():
-    import limix
-
-    return limix.__version__
-
-
-def _show_plot():
-    return
-    import matplotlib as mpl
-
-    if mpl.get_backend().lower() == "agg":
-        return
-
-    from limix import plot
-
-    plt = plot.get_pyplot()
-    plt.show()
-
-
 @click.group(name="limix", context_settings=dict(help_option_names=["-h", "--help"]))
 @click.pass_context
 @click.option(
     "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
 )
-@click.version_option(version=_get_version())
+@click.version_option(version=limix.__version__)
 def cli(ctx, verbose):
     ctx.obj = {}
     ctx.obj["verbose"] = verbose
@@ -66,7 +48,7 @@ def see(ctx, filepath, filetype, show_chunks, header):
 
     elif filetype == "grm.raw":
         r = io.plink.see_kinship(filepath, verbose=ctx.obj["verbose"])
-        _show_plot()
+        plot.show()
         return r
 
     elif filetype == "bed":
@@ -77,7 +59,7 @@ def see(ctx, filepath, filetype, show_chunks, header):
 
     elif filetype == "image":
         r = plot.image(filepath)
-        _show_plot()
+        plot.show()
         return r
     else:
         print("Unknown file type: %s" % filepath)

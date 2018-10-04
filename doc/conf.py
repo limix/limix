@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 
 import sphinx_rtd_theme
 
@@ -74,3 +75,6 @@ intersphinx_mapping = {
 }
 
 plot_working_directory = "_build"
+
+shutil.copy2("matplotlibrc", "_build/")
+
