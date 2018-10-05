@@ -7,6 +7,80 @@ from ._dask import array_shape_reveal
 
 
 def normalise_dataset(y, M=None, G=None, K=None):
+    r"""Convert data types to DataArray.
+
+    This is a fundamental function for :mod:`limix` as it standardise outcome,
+    covariates, candidates, and kinship arrays into :class:`xarray.DataArray` data type.
+    Data arrays are :mod:`numpy`/:mod:`dask` arrays with indexed coordinates,
+    therefore generalising data frames from :mod:`pandas`. It allows for lazy loading of
+    data via dask arrays. It also supports arrays with different dimensionality and
+    types, mixture of indexed and non-indexed arrays, and repeated sample labels.
+
+    Examples
+    --------
+
+    .. doctest::
+
+        >>> import pytest
+        >>> from numpy.random import RandomState
+        >>> from pandas import DataFrame
+        >>> from xarray import DataArray
+        >>> from limix._dataset import normalise_dataset
+        >>>
+        >>> random = RandomState(0)
+        >>>
+        >>> y = random.randn(4)
+        >>> y = DataFrame(y, index=["sample0", "sample0", "sample1", "sample2"])
+        >>>
+        >>> G = random.randn(5, 6)
+        >>>
+        >>> data = normalise_dataset(y, G=G)
+        >>> print(data["y"])
+        <xarray.DataArray 'outcome' (sample: 4, trait: 1)>
+        array([[1.764052],
+               [0.400157],
+               [0.978738],
+               [2.240893]])
+        Coordinates:
+          * sample   (sample) object 'sample0' 'sample0' 'sample1' 'sample2'
+          * trait    (trait) int64 0
+        >>> print(data["G"])
+        <xarray.DataArray 'candidates' (sample: 4, candidate: 6)>
+        array([[ 1.867558, -0.977278,  0.950088, -0.151357, -0.103219,  0.410599],
+               [ 0.144044,  1.454274,  0.761038,  0.121675,  0.443863,  0.333674],
+               [ 1.494079, -0.205158,  0.313068, -0.854096, -2.55299 ,  0.653619],
+               [ 0.864436, -0.742165,  2.269755, -1.454366,  0.045759, -0.187184]])
+        Coordinates:
+          * sample   (sample) object 'sample0' 'sample0' 'sample1' 'sample2'
+        Dimensions without coordinates: candidate
+        >>> K = random.randn(3, 3)
+        >>> K = K.dot(K.T)
+        >>> K = DataArray(K)
+        >>> K.coords["dim_0"] = ["sample0", "sample1", "sample2"]
+        >>> K.coords["dim_1"] = ["sample0", "sample1", "sample2"]
+        >>>
+        >>> data = normalise_dataset(y, K=K)
+        >>> print(data["y"])
+        <xarray.DataArray 'outcome' (sample: 4, trait: 1)>
+        array([[1.764052],
+               [0.400157],
+               [0.978738],
+               [2.240893]])
+        Coordinates:
+          * sample   (sample) object 'sample0' 'sample0' 'sample1' 'sample2'
+          * trait    (trait) int64 0
+        >>> print(data["K"])
+        <xarray.DataArray 'variance-covariance' (sample_0: 4, sample_1: 4)>
+        array([[ 1.659103,  1.659103, -0.850801, -1.956422],
+               [ 1.659103,  1.659103, -0.850801, -1.956422],
+               [-0.850801, -0.850801,  1.687126, -0.194938],
+               [-1.956422, -1.956422, -0.194938,  6.027272]])
+        Coordinates:
+          * sample_0  (sample_0) <U7 'sample0' 'sample0' 'sample1' 'sample2'
+          * sample_1  (sample_1) <U7 'sample0' 'sample0' 'sample1' 'sample2'
+        >>> with pytest.raises(ValueError):
+        ...     normalise_dataset(y, G=G, K=K)
+    """
 
     y = _rename_dims(_dataarray_upcast(y), "sample", "trait")
     M = _rename_dims(_dataarray_upcast(M), "sample", "covariate")

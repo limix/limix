@@ -72,6 +72,7 @@ intersphinx_mapping = {
     "limix-plot": ("https://limix-plot.readthedocs.io/en/stable/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "dask": ("http://dask.pydata.org/en/latest/", None),
+    "xarray": ("http://xarray.pydata.org/en/latest/", None),
 }
 
 plot_working_directory = "_build"
