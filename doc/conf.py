@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import errno
 
 import sphinx_rtd_theme
 
@@ -77,6 +78,18 @@ intersphinx_mapping = {
 
 plot_working_directory = "_build"
 
+
+def makedirs(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
+
+
+makedirs("_build/")
 shutil.copy2("matplotlibrc", "_build/")
 
 plot_formats = [("png", 80)]
