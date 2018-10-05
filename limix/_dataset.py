@@ -21,6 +21,7 @@ def normalise_dataset(y, M=None, G=None, K=None):
 
     .. doctest::
 
+        >>> from __future__ import unicode_literals
         >>> import pytest
         >>> from numpy.random import RandomState
         >>> from pandas import DataFrame
