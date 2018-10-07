@@ -82,7 +82,6 @@ def normalise_dataset(y, M=None, G=None, K=None):
         >>> with pytest.raises(ValueError):
         ...     normalise_dataset(y, G=G, K=K)
     """
-
     y = _rename_dims(_dataarray_upcast(y), "sample", "trait")
     M = _rename_dims(_dataarray_upcast(M), "sample", "covariate")
     G = _rename_dims(_dataarray_upcast(G), "sample", "candidate")

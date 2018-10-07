@@ -16,25 +16,23 @@ def read_limix(filepath):
     dict
         Phenotype and genotype.
     """
-    p = dict()
-    p["matrix"] = fetch(filepath, "phenotype/matrix")
+    from xarray import DataArray
 
-    p["row_header"] = _read_attrs(filepath, "phenotype/row_header")
-    p["row_header"]["i"] = range(p["matrix"].shape[0])
+    Y = fetch(filepath, "phenotype/matrix")
+    rows = _read_attrs(filepath, "phenotype/row_header")
+    cols = _read_attrs(filepath, "phenotype/col_header")
+    Y = _convert_headers(Y, rows, cols, "outcome")
+    Y = Y.rename(sample_ID="sample")
+    Y.name = "phenotype"
 
-    p["col_header"] = _read_attrs(filepath, "phenotype/col_header")
-    p["col_header"]["i"] = range(p["matrix"].shape[1])
+    G = fetch(filepath, "genotype/matrix")
+    rows = _read_attrs(filepath, "genotype/row_header")
+    cols = _read_attrs(filepath, "genotype/col_header")
+    G = _convert_headers(G, rows, cols, "candidate")
+    G = G.rename(sample_ID="sample")
+    G.name = "genotype"
 
-    g = dict()
-    g["matrix"] = fetch(filepath, "genotype/matrix")
-
-    g["row_header"] = _read_attrs(filepath, "genotype/row_header")
-    g["row_header"]["i"] = range(g["matrix"].shape[0])
-
-    g["col_header"] = _read_attrs(filepath, "genotype/col_header")
-    g["col_header"]["i"] = range(g["matrix"].shape[1])
-
-    return {"phenotype": p, "genotype": g}
+    return {"phenotype": Y, "genotype": G}
 
 
 class fetcher(object):
@@ -234,3 +232,11 @@ def _read_attrs(filepath, path):
                 h[attr] = h[attr].astype("U")
 
         return DataFrame.from_dict(h)
+
+
+def _convert_headers(X, rows, cols, colname):
+    from xarray import DataArray
+
+    coords = {k: ("sample", rows[k]) for k in rows.keys()}
+    coords.update({k: (colname, cols[k]) for k in cols.keys()})
+    return DataArray(X, dims=["sample", colname], coords=coords)
