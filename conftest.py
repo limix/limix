@@ -4,6 +4,8 @@ import pytest
 
 def pytest_sessionstart(session):
     import matplotlib as mpl
+
+    _compatibility()
     import pandas as pd
 
     mpl.use("agg")
@@ -34,3 +36,10 @@ def _docdir(request):
     else:
         # For normal tests, we have to yield, since this is a yield-fixture.
         yield
+
+
+def _compatibility():
+    import warnings
+
+    warnings.filterwarnings("ignore", message="numpy.dtype size changed")
+    warnings.filterwarnings("ignore", message="numpy.ufunc size changed")

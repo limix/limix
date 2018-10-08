@@ -1,4 +1,4 @@
-
+from __future__ import unicode_literals
 
 # TODO: refactor this entire file. There are too many things here
 
@@ -16,8 +16,6 @@ def read_limix(filepath):
     dict
         Phenotype and genotype.
     """
-    from xarray import DataArray
-
     Y = fetch(filepath, "phenotype/matrix")
     rows = _read_attrs(filepath, "phenotype/row_header")
     cols = _read_attrs(filepath, "phenotype/col_header")

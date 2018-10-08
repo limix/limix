@@ -17,6 +17,7 @@ Importing limix
 .. plot::
     :context:
 
+    >>> from __future__ import unicode_literals
     >>> import limix
 
 Downloading data
@@ -61,7 +62,7 @@ However, feel free to use whatever method you prefer.
     >>> data = limix.io.hdf5.read_limix("smith08.hdf5")
     >>> Y = data['phenotype']
     >>> G = data['genotype']
-    >>> print(Y)
+    >>> print(Y)  # doctest: +ALLOW_UNICODE
     <xarray.DataArray 'phenotype' (sample: 109, outcome: 10986)>
     array([[-0.037339, -0.078165,  0.042936, ...,  0.095596, -0.132385, -0.274954],
            [-0.301376,  0.066055,  0.338624, ..., -0.142661, -0.238349,  0.732752],
