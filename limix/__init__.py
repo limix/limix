@@ -51,7 +51,6 @@ __all__ = [
     "her",
     "glmm",
     "set_max_nthreads",
-    "normalise_phenotype",
     "main",
     "sh",
     "config",

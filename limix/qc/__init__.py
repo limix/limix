@@ -1,4 +1,4 @@
-from .allele import compute_maf
+from ._allele import compute_maf
 from .impute import mean_impute
 from .kinship import normalise_covariance
 from .ld import indep_pairwise

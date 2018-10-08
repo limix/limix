@@ -206,8 +206,10 @@ Interface
 ^^^^^^^^^
 
 .. autofunction:: limix.qtl.scan
+        :noindex:
 .. autoclass:: limix.qtl.QTLModel
     :members:
+    :noindex:
 
 .. rubric:: References
 

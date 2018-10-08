@@ -5,4 +5,4 @@ Developers
 Data type
 =========
 
-.. autofunction:: limix._dataset.normalise_dataset
+.. autofunction:: limix._dataset._normalise_dataset

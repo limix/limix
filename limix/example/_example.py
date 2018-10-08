@@ -16,6 +16,8 @@ _filenames = [
 
 
 class file_example(object):
+    r"""Example."""
+
     def __init__(self, filenames):
         self._unlist = False
         if not isinstance(filenames, (tuple, list)):
@@ -47,7 +49,7 @@ class file_example(object):
                     __name__.split(".")[0], resource_path
                 )
 
-                makedirs(dirname(fp))
+                _makedirs(dirname(fp))
                 with open(fp, "wb") as f:
                     f.write(content)
 
@@ -62,7 +64,7 @@ class file_example(object):
             pass
 
 
-def makedirs(dirpath):
+def _makedirs(dirpath):
     if sys.version_info >= (3,):
         os.makedirs(dirpath, exist_ok=True)
     else:

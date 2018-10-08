@@ -1,4 +1,5 @@
-git+https://github.com/horta/pytest-doctestplus.git@0.1.4
+--process-dependency-links
+https://github.com/horta/pytest-doctestplus/tarball/0.1.4#egg=pytest-doctestplus
 pip>=18.0
 pytest>=3.7.0
 seaborn>=0.9.0
