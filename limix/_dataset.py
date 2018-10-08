@@ -1,7 +1,7 @@
+from __future__ import unicode_literals
 from collections import Counter
 
-import numpy as np
-from numpy import array_equal, asarray, unique
+from numpy import array_equal, asarray, unique, dtype
 
 from ._dask import array_shape_reveal
 
@@ -202,7 +202,7 @@ def _dataarray_upcast(x):
     if not isinstance(x, xr.DataArray):
         x = xr.DataArray(x, encoding={"dtype": "float64"})
 
-    if x.dtype != np.dtype("float64"):
+    if x.dtype != dtype("float64"):
         x = x.astype("float64")
 
     if x.ndim < 2:
