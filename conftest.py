@@ -21,8 +21,8 @@ def pytest_sessionstart(session):
 def _docdir(request):
 
     # Trigger ONLY for the doctests.
-    doctest_plugin = request.config.pluginmanager.getplugin("doctest")
-    if isinstance(request.node, doctest_plugin.DoctestItem):
+    plug = request.config.pluginmanager.getplugin("doctest")
+    if plug is not None and isinstance(request.node, plug.DoctestItem):
 
         # Get the fixture dynamically by its name.
         tmpdir = request.getfixturevalue("tmpdir")

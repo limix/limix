@@ -7,10 +7,31 @@ def pytest_sessionstart(*args, **kwargs):
     mpl.use("agg")
 
     _compatibility()
-    _pandas_format()
+    pandas_format()
 
 
-def _pandas_format():
+@pytest.fixture(autouse=True)
+def _docdir(request):
+
+    # Trigger ONLY for the doctests.
+    plug = request.config.pluginmanager.getplugin("doctest")
+    if plug is not None and isinstance(request.node, plug.DoctestItem):
+
+        # Get the fixture dynamically by its name.
+        tmpdir = request.getfixturevalue("tmpdir")
+
+        # Chdir only for the duration of the test.
+        olddir = os.getcwd()
+        tmpdir.chdir()
+        yield
+        os.chdir(olddir)
+
+    else:
+        # For normal tests, we have to yield, since this is a yield-fixture.
+        yield
+
+
+def pandas_format():
     import pandas as pd
 
     pd.set_option("display.width", 88)
