@@ -3,7 +3,12 @@ import pytest
 
 
 def pytest_sessionstart(session):
+    import matplotlib as mpl
+
+    _compatibility()
     import pandas as pd
+
+    mpl.use("agg")
 
     pd.set_option("display.width", 88)
     pd.set_option("display.max_columns", 79)
@@ -16,8 +21,8 @@ def pytest_sessionstart(session):
 def _docdir(request):
 
     # Trigger ONLY for the doctests.
-    doctest_plugin = request.config.pluginmanager.getplugin("doctest")
-    if isinstance(request.node, doctest_plugin.DoctestItem):
+    plug = request.config.pluginmanager.getplugin("doctest")
+    if plug is not None and isinstance(request.node, plug.DoctestItem):
 
         # Get the fixture dynamically by its name.
         tmpdir = request.getfixturevalue("tmpdir")
@@ -31,3 +36,10 @@ def _docdir(request):
     else:
         # For normal tests, we have to yield, since this is a yield-fixture.
         yield
+
+
+def _compatibility():
+    import warnings
+
+    warnings.filterwarnings("ignore", message="numpy.dtype size changed")
+    warnings.filterwarnings("ignore", message="numpy.ufunc size changed")

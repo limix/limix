@@ -10,6 +10,7 @@ from xarray import DataArray
 def test_dataset_normalise_dataset():
     y = array([-1.2, 3.4, 0.1])
     samples = ["sample{}".format(i) for i in range(len(y))]
+
     y = DataFrame(data=y, index=samples)
 
     random = RandomState(0)

@@ -20,6 +20,7 @@ Limix's documentation
    sh
    stats
    tutorials/index
+   dev
 
 Comments and bugs
 =================

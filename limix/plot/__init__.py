@@ -33,6 +33,7 @@ from limix_plot import (
     qqplot,
     image,
     get_pyplot,
+    show,
 )
 
 __all__ = [
@@ -48,4 +49,5 @@ __all__ = [
     "qqplot",
     "image",
     "get_pyplot",
+    "show",
 ]

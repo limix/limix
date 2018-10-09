@@ -107,7 +107,11 @@ class GLMMComposer(object):
             raise ValueError("Phenotype has not been set.")
 
         if self._likname == "normal" and self._glmm is None:
-            gp = GP(self._y, self._fixed_effects.impl, self._covariance_matrices.impl)
+            gp = GP(
+                asarray(self._y, float).ravel(),
+                self._fixed_effects.impl,
+                self._covariance_matrices.impl,
+            )
             self._glmm = gp
             return
 
