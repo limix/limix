@@ -44,7 +44,7 @@ from ._chi2mixture import Chi2Mixture
 from ._confusion import confusion_matrix
 from ._kinship import linear_kinship
 from ._lrt import effsizes_se, lrt_pvalues
-from ._dosage import convert_to_dosage
+from ._allele import allele_frequency, compute_dosage, allele_expectation
 from ._pvalue import multipletests, empirical_pvalues
 from ._pca import pca
 
@@ -57,5 +57,7 @@ __all__ = [
     "lrt_pvalues",
     "effsizes_se",
     "confusion_matrix",
-    "convert_to_dosage",
+    "allele_frequency",
+    "compute_dosage",
+    "allele_expectation",
 ]

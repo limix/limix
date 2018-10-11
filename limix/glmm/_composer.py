@@ -23,8 +23,11 @@ else:
 
 
 class GLMMComposer(object):
+    """ Construct GLMMs with any number of fixed and random effects.
+    """
+
     def __init__(self, nsamples):
-        """ Construct GLMMs with any number of fixed and random effecsts.
+        """ Build a stub GLMM with a given number of samples.
 
         Parameters
         ----------

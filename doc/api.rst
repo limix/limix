@@ -1,25 +1,66 @@
-.. currentmodule:: limix
-
 *************
 API reference
 *************
 
-Example files
-=============
+I/O module
+==========
 
 .. autosummary::
     :toctree: _generated/
 
-    example.file_example
+    limix.io.bgen.read
+    limix.io.bimbam.read_phenotype
+    limix.io.bimbam.see_phenotype
+    limix.io.csv.read
+    limix.io.csv.see
+    limix.io.gen.read
+    limix.io.hdf5.fetch
+    limix.io.hdf5.fetcher
+    limix.io.hdf5.read_limix
+    limix.io.hdf5.see
+    limix.io.npy.read
+    limix.io.npy.save
+    limix.io.npy.see
+    limix.io.plink.read
+    limix.io.plink.see_bed
+    limix.io.plink.see_kinship
+    limix.io.plink.fetch_dosage
 
-Generalised Linear Mixed Models
-===============================
+Quality control
+===============
 
 .. autosummary::
     :toctree: _generated/
 
-    glmm
-    glmm.GLMMComposer
+    limix.qc.boxcox
+    limix.qc.compute_maf
+    limix.qc.count_missingness
+    limix.qc.indep_pairwise
+    limix.qc.mean_impute
+    limix.qc.mean_standardize
+    limix.qc.normalise_covariance
+    limix.qc.quantile_gaussianize
+    limix.qc.regress_out
+    limix.qc.remove_dependent_cols
+    limix.qc.unique_variants
+
+Statistics
+==========
+
+.. autosummary::
+    :toctree: _generated/
+
+    limix.stats.allele_expectation
+    limix.stats.allele_frequency
+    limix.stats.Chi2Mixture
+    limix.stats.compute_dosage
+    limix.stats.confusion_matrix
+    limix.stats.effsizes_se
+    limix.stats.empirical_pvalues
+    limix.stats.linear_kinship
+    limix.stats.lrt_pvalues
+    limix.stats.multipletests
+    limix.stats.pca
 
 Heritability estimation
 =======================
@@ -29,74 +70,14 @@ Heritability estimation
 
     limix.her.estimate
 
-I/O module
-==========
-
-limix.io.bgen
--------------
+Quantitative trait loci
+=======================
 
 .. autosummary::
     :toctree: _generated/
 
-    limix.io.bgen.read
-
-limix.io.bimbam
----------------
-
-.. autosummary::
-    :toctree: _generated/
-
-    limix.io.bimbam.read_phenotype
-    limix.io.bimbam.see_phenotype
-
-limix.io.csv
-------------
-
-.. autosummary::
-    :toctree: _generated/
-
-    limix.io.csv.read
-    limix.io.csv.see
-
-limix.io.gen
-------------
-
-.. autosummary::
-    :toctree: _generated/
-
-    limix.io.gen.read
-
-limix.io.hdf5
--------------
-
-.. autosummary::
-    :toctree: _generated/
-
-    limix.io.hdf5.fetch
-    limix.io.hdf5.fetcher
-    limix.io.hdf5.read_limix
-    limix.io.hdf5.see
-
-limix.io.npy
-------------
-
-.. autosummary::
-    :toctree: _generated/
-
-    limix.io.npy.read
-    limix.io.npy.save
-    limix.io.npy.see
-
-limix.io.plink
---------------
-
-.. autosummary::
-    :toctree: _generated/
-
-    limix.io.plink.read
-    limix.io.plink.see_bed
-    limix.io.plink.see_kinship
-    limix.io.plink.fetch_dosage
+    limix.qtl.scan
+    limix.qtl.QTLModel
 
 Plotting & Graphics
 ===================
@@ -118,34 +99,19 @@ Plotting & Graphics
     limix.plot.get_pyplot
     limix.plot.show
 
-
-Quanlity control
-================
-
-.. autosummary::
-    :toctree: _generated/
-
-    limix.qc.compute_maf
-    limix.qc.boxcox
-    limix.qc.mean_standardize
-    limix.qc.quantile_gaussianize
-    limix.qc.regress_out
-    limix.qc.remove_dependent_cols
-    limix.qc.mean_impute
-    limix.qc.indep_pairwise
-    limix.qc.count_missingness
-    limix.qc.compute_maf
-    limix.qc.normalise_covariance
-    limix.qc.unique_variants
-
-Quantitative trait loci
-=======================
+Generalised Linear Mixed Models
+===============================
 
 .. autosummary::
     :toctree: _generated/
 
-    limix.qtl.scan
-    limix.qtl.QTLModel
+    limix.glmm.GLMMComposer.covariance_matrices
+    limix.glmm.GLMMComposer.decomp
+    limix.glmm.GLMMComposer.fit
+    limix.glmm.GLMMComposer.fixed_effects
+    limix.glmm.GLMMComposer.likname
+    limix.glmm.GLMMComposer.lml
+    limix.glmm.GLMMComposer.y
 
 Shell utilities
 ===============
@@ -157,20 +123,3 @@ Shell utilities
     limix.sh.download
     limix.sh.extract
     limix.sh.remove
-
-
-Statistics
-==========
-
-.. autosummary::
-    :toctree: _generated/
-
-    limix.stats.pca
-    limix.stats.multipletests
-    limix.stats.empirical_pvalues
-    limix.stats.Chi2Mixture
-    limix.stats.linear_kinship
-    limix.stats.lrt_pvalues
-    limix.stats.effsizes_se
-    limix.stats.confusion_matrix
-    limix.stats.convert_to_dosage
