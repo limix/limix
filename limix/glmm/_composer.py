@@ -24,6 +24,13 @@ else:
 
 class GLMMComposer(object):
     def __init__(self, nsamples):
+        """ Construct GLMMs with any number of fixed and random effecsts.
+
+        Parameters
+        ----------
+        nsamples : int
+            Number of samples.
+        """
         self._nsamples = nsamples
         self._likname = "normal"
         self._y = None
@@ -32,6 +39,13 @@ class GLMMComposer(object):
         self._glmm = None
 
     def decomp(self):
+        r""" Get the fixed and random effects.
+
+        Returns
+        -------
+        fixed_effects : Fixed effects.
+        random_effects : Random effects.
+        """
         decomp = dict(fixed_effects={}, random_effects={})
 
         for fe in self.fixed_effects:
@@ -55,20 +69,48 @@ class GLMMComposer(object):
 
     @property
     def likname(self):
+        """ Get likelihood name.
+
+        Returns
+        -------
+        str
+            Likelihood name.
+        """
         return self._likname
 
     @likname.setter
     def likname(self, likname):
+        """ Set likelihood name.
+
+        Parameters
+        ----------
+        likname : str
+            Likelihood name.
+        """
         assert_likelihood_name(likname)
         self._likname = likname.lower()
         self._glmm = None
 
     @property
     def y(self):
+        """ Get the outcome array.
+
+        Returns
+        -------
+        DataArray
+            Outcome array.
+        """
         return self._y
 
     @y.setter
     def y(self, y):
+        """ Set the outcome array.
+
+        Parameters
+        ----------
+        y : array_like
+            Outcome array.
+        """
         if not npall(isfinite(y)):
             raise ValueError("Phenotype values must be finite.")
         self._glmm = None
@@ -76,13 +118,34 @@ class GLMMComposer(object):
 
     @property
     def fixed_effects(self):
+        """ Get the fixed effects.
+
+        Returns
+        -------
+        dict
+            Fixed effects.
+        """
         return self._fixed_effects
 
     @property
     def covariance_matrices(self):
+        """ Get the covariance matrices.
+
+        Returns
+        -------
+        dict
+            Covariance matrices.
+        """
         return self._covariance_matrices
 
     def fit(self, verbose=True):
+        """ Fit the model.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            Set ``False`` to silence it. Defaults to ``True``.
+        """
         if self._likname == "normal":
             session_name = "composed lmm"
         else:
@@ -97,6 +160,13 @@ class GLMMComposer(object):
                 display.display(display.format_richtext(txt))
 
     def lml(self):
+        """ Get the log of the marginal likelihood.
+
+        Returns
+        -------
+        float
+            Log of the marginal likelihood.
+        """
         self._build_glmm()
         return self._glmm.lml()
 

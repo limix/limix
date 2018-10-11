@@ -8,7 +8,7 @@ Example files
 =============
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     example.file_example
 
@@ -16,15 +16,16 @@ Generalised Linear Mixed Models
 ===============================
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
-    limix.glmm.GLMMComposer
+    glmm
+    glmm.GLMMComposer
 
 Heritability estimation
 =======================
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.her.estimate
 
@@ -35,7 +36,7 @@ limix.io.bgen
 -------------
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.io.bgen.read
 
@@ -43,7 +44,7 @@ limix.io.bimbam
 ---------------
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.io.bimbam.read_phenotype
     limix.io.bimbam.see_phenotype
@@ -52,7 +53,7 @@ limix.io.csv
 ------------
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.io.csv.read
     limix.io.csv.see
@@ -61,7 +62,7 @@ limix.io.gen
 ------------
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.io.gen.read
 
@@ -69,7 +70,7 @@ limix.io.hdf5
 -------------
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.io.hdf5.fetch
     limix.io.hdf5.fetcher
@@ -80,7 +81,7 @@ limix.io.npy
 ------------
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.io.npy.read
     limix.io.npy.save
@@ -90,7 +91,7 @@ limix.io.plink
 --------------
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.io.plink.read
     limix.io.plink.see_bed
@@ -101,7 +102,7 @@ Plotting & Graphics
 ===================
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.plot.box_aspect
     limix.plot.ConsensusCurve
@@ -122,7 +123,7 @@ Quanlity control
 ================
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.qc.compute_maf
     limix.qc.boxcox
@@ -141,7 +142,7 @@ Quantitative trait loci
 =======================
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.qtl.scan
     limix.qtl.QTLModel
@@ -150,7 +151,7 @@ Shell utilities
 ===============
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.sh.filehash
     limix.sh.download
@@ -162,7 +163,7 @@ Statistics
 ==========
 
 .. autosummary::
-    :toctree: generated/
+    :toctree: _generated/
 
     limix.stats.pca
     limix.stats.multipletests
