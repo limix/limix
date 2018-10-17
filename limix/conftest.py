@@ -4,12 +4,14 @@ import pytest
 
 
 def pytest_sessionstart(*args, **kwargs):
+    import doctest
     import matplotlib as mpl
 
     mpl.use("agg")
 
     _compatibility()
     pandas_format()
+    doctest.ELLIPSIS_MARKER = "-ignore-"
 
 
 @pytest.fixture(autouse=True)

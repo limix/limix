@@ -3,6 +3,8 @@ import sys
 import shutil
 import errno
 
+from os.path import join
+
 import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath(".."))
@@ -88,8 +90,9 @@ def makedirs(path):
         else:
             raise
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
-makedirs("_build/")
-shutil.copy2("matplotlibrc", "_build/")
+makedirs(join(dir_path, "_build/"))
+shutil.copy2(join(dir_path, "matplotlibrc"), join(dir_path, "_build/"))
 
 plot_formats = [("png", 80)]

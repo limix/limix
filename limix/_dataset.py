@@ -6,7 +6,7 @@ from numpy import array_equal, asarray, unique, dtype
 from ._dask import array_shape_reveal
 
 
-def normalise_dataset(y, M=None, G=None, K=None):
+def _normalise_dataset(y, M=None, G=None, K=None):
     r"""Convert data types to DataArray.
 
     This is a fundamental function for :mod:`limix` as it standardise outcome,
@@ -26,7 +26,7 @@ def normalise_dataset(y, M=None, G=None, K=None):
         >>> from numpy.random import RandomState
         >>> from pandas import DataFrame
         >>> from xarray import DataArray
-        >>> from limix._dataset import normalise_dataset
+        >>> from limix._dataset import _normalise_dataset
         >>>
         >>> random = RandomState(0)
         >>>
@@ -35,7 +35,7 @@ def normalise_dataset(y, M=None, G=None, K=None):
         >>>
         >>> G = random.randn(5, 6)
         >>>
-        >>> data = normalise_dataset(y, G=G)
+        >>> data = _normalise_dataset(y, G=G)
         >>> print(data["y"])
         <xarray.DataArray 'outcome' (sample: 4, trait: 1)>
         array([[1.764052],
@@ -60,7 +60,7 @@ def normalise_dataset(y, M=None, G=None, K=None):
         >>> K.coords["dim_0"] = ["sample0", "sample1", "sample2"]
         >>> K.coords["dim_1"] = ["sample0", "sample1", "sample2"]
         >>>
-        >>> data = normalise_dataset(y, K=K)
+        >>> data = _normalise_dataset(y, K=K)
         >>> print(data["y"])
         <xarray.DataArray 'outcome' (sample: 4, trait: 1)>
         array([[1.764052],
@@ -80,7 +80,7 @@ def normalise_dataset(y, M=None, G=None, K=None):
           * sample_0  (sample_0) <U7 'sample0' 'sample0' 'sample1' 'sample2'
           * sample_1  (sample_1) <U7 'sample0' 'sample0' 'sample1' 'sample2'
         >>> with pytest.raises(ValueError):
-        ...     normalise_dataset(y, G=G, K=K)
+        ...     _normalise_dataset(y, G=G, K=K)
     """
     y = _rename_dims(_dataarray_upcast(y), "sample", "trait")
     M = _rename_dims(_dataarray_upcast(M), "sample", "covariate")

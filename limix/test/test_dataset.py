@@ -2,12 +2,12 @@ from numpy import array, asarray, dtype
 from numpy.random import RandomState
 from numpy.testing import assert_, assert_array_equal, assert_equal
 
-from limix._dataset import normalise_dataset, _dataarray_upcast
+from limix._dataset import _normalise_dataset, _dataarray_upcast
 from pandas import DataFrame, Series
 from xarray import DataArray
 
 
-def test_dataset_normalise_dataset():
+def test_dataset__normalise_dataset():
     y = array([-1.2, 3.4, 0.1])
     samples = ["sample{}".format(i) for i in range(len(y))]
 
@@ -25,13 +25,13 @@ def test_dataset_normalise_dataset():
     G = random.randn(2, 4)
     G = DataFrame(data=G, index=samples[:2])
 
-    data = normalise_dataset(y, M=M, K=K)
+    data = _normalise_dataset(y, M=M, K=K)
 
     assert_array_equal(y.values, data["y"].values)
 
     y = array([-1.2, 3.4, 0.1, 0.1, 0.0, -0.2])
 
-    data = normalise_dataset(DataFrame(data=y, index=samples + samples), M=M, G=G, K=K)
+    data = _normalise_dataset(DataFrame(data=y, index=samples + samples), M=M, G=G, K=K)
 
     assert_equal(data["y"].shape, (4, 1))
     assert_equal(data["M"].shape, (4, 2))
@@ -129,7 +129,7 @@ def test_dataset_different_size():
 
     G = random.randn(n1, 10)
 
-    data = normalise_dataset(y, G=G)
+    data = _normalise_dataset(y, G=G)
 
     assert_array_equal(data["y"].values, y[:n1])
     assert_array_equal(data["G"].values, G[:n1, :])
@@ -142,7 +142,7 @@ def test_dataset_different_size():
 
     G = random.randn(n1, 10)
 
-    data = normalise_dataset(y, G=G)
+    data = _normalise_dataset(y, G=G)
 
     assert_array_equal(data["y"].values, y[:n0])
     assert_array_equal(data["G"].values, G[:n0, :])

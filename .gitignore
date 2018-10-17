@@ -1,3 +1,5 @@
+*.jpg
+*.raw
 *.swp
 .pytest_cache/
 *.csv

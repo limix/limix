@@ -14,12 +14,12 @@ Limix's documentation
    cmd
    io
    her
-   plot
    qc
    qtl
    sh
    stats
    tutorials/index
+   api
    dev
 
 Comments and bugs

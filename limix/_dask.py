@@ -1,7 +1,6 @@
-from numpy import asarray, any, isnan
-
-
 def _get_shape_helper(a):
+    from numpy import asarray
+
     s = asarray(a.shape, dtype=int)
     return s[len(s) * (None,) + (slice(None),)]
 
@@ -30,6 +29,7 @@ def _get_chunks(a):
 
 
 def array_shape_reveal(a):
+    from numpy import any, isnan
     import dask.array as da
 
     if any(isnan(a.shape)):

@@ -15,7 +15,7 @@ def mean_standardize(X, axis=None, out=None):
     over the specified axis.
     Missing values represented by ``NaN`` are ignored.
 
-    It works well with `Dask`_ array.
+    It works well with Dask array.
 
     Parameters
     ----------

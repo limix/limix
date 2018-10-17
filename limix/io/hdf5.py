@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+from __future__ import unicode_literals as _
 
 # TODO: refactor this entire file. There are too many things here
 
