@@ -82,6 +82,9 @@ def _normalise_dataset(y, M=None, G=None, K=None):
         >>> with pytest.raises(ValueError):
         ...     _normalise_dataset(y, G=G, K=K)
     """
+    if M is None:
+        M = _create_default_covariates(y)
+
     y = _rename_dims(_dataarray_upcast(y), "sample", "trait")
     M = _rename_dims(_dataarray_upcast(M), "sample", "covariate")
     G = _rename_dims(_dataarray_upcast(G), "sample", "candidate")
@@ -150,7 +153,7 @@ def _assign_index_to_nonindexed(data, dim_name):
         for dn in dim_name[k]:
             if not array_equal(index, v.coords[dn]):
                 msg = "Please, check the provided sample labels in your arrays."
-                msg = " There are some inconsistences in them."
+                msg += " There are some inconsistences in them."
                 raise ValueError(msg)
 
     n = min(v.coords[dn].size for (k, v) in data.items() for dn in dim_name[k])
@@ -329,3 +332,20 @@ def _check_sample_compatibility(data, dim_name, arrname):
                 data[k] = data[k].sel(**{dn: data["y"].coords["sample"].values})
             except IndexError as e:
                 raise ValueError(str(e) + "\n\n" + inc_msg.format(arrname[k]))
+
+
+def _create_default_covariates(y):
+    from numpy import ones
+    from xarray import DataArray
+    from pandas import Series
+
+    M = ones((len(y), 1))
+    if isinstance(y, (DataArray, Series)):
+        M = DataArray(M, encoding={"dtype": "float64"})
+        M = M.rename({M.dims[0]: "sample"})
+        if hasattr(y, "index"):
+            M.coords["sample"] = y.index.values
+        else:
+            M.coords["sample"] = y.coords["sample"].values
+
+    return M

@@ -2,8 +2,6 @@ from __future__ import division
 
 import sys
 
-from numpy import ones
-
 from limix.display import timer_text
 
 from .._dataset import _normalise_dataset
@@ -127,24 +125,12 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     """
     from numpy_sugar import is_all_finite
     from numpy_sugar.linalg import economic_qs
-    from xarray import DataArray
-    from pandas import Series
 
     if not isinstance(lik, (tuple, list)):
         lik = (lik,)
 
     lik_name = lik[0].lower()
     assert_likelihood_name(lik_name)
-
-    if M is None:
-        M = ones((len(y), 1))
-        if isinstance(y, (DataArray, Series)):
-            M = DataArray(M, encoding={"dtype": "float64"})
-            M = M.rename({M.dims[0]: "sample"})
-            if hasattr(y, "index"):
-                M.coords["sample"] = y.index.values
-            else:
-                M.coords["sample"] = y.coords["sample"].values
 
     with session_text("qtl analysis", disable=not verbose):
 
