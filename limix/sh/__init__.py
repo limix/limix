@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import as _
 
 from ._hash import filehash
 from ._url import download

@@ -10,7 +10,8 @@ usage of variance component models fit to single genes. It is based on the
 Importing limix
 ---------------
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> import limix
 
@@ -77,30 +78,40 @@ The gene-model is fitted to gene expression in environment 0 for all genes in th
 Biosynthesis pathway and variance components are averaged thereafter to obtain pathway
 based variance components.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> from numpy import dot
     >>> import seaborn as sns
-    >>> from matplotlib import pyplot as plt
     >>> from matplotlib.ticker import FormatStrFormatter
     >>> from pandas import DataFrame
     >>>
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
     >>> limix.sh.download(url, verbose=False)
-    >>> _ = limix.sh.extract("smith08.hdf5.bz2", verbose=False)
-    >>> data = limix.io.hdf5.read_limix("smith08.hdf5")
-    >>> print(data['phenotype']['col_header'].head())
-       environment  gene_ID gene_chrom  gene_end  gene_start gene_strand phenotype_ID  i
-    0      0.00000  YOL161C         15     11548       11910           C    YOL161C:0  0
-    1      0.00000  YJR107W         10    628319      627333           W    YJR107W:0  1
-    2      0.00000  YPL270W         16     32803       30482           W    YPL270W:0  2
-    3      0.00000  YGR256W          7   1006108     1004630           W    YGR256W:0  3
-    4      0.00000  YDR518W          4   1480153     1478600           W    YDR518W:0  4
-    >>> G_all = data["genotype"]["matrix"]
-    >>> geno_metadata = data["genotype"]["col_header"]
+    >>> filename = limix.sh.extract("smith08.hdf5.bz2", verbose=False)
+    >>> data = limix.io.hdf5.read_limix(filename)
+    >>> Y = data['phenotype']
+    >>> G_all = data['genotype']
+    >>> print(Y)
+    <xarray.DataArray 'phenotype' (sample: 109, outcome: 10986)>
+    array([[-0.037339, -0.078165,  0.042936, ...,  0.095596, -0.132385, -0.274954],
+           [-0.301376,  0.066055,  0.338624, ..., -0.142661, -0.238349,  0.732752],
+           [ 0.002661,  0.121835, -0.137064, ..., -0.144404,  0.257615,  0.015046],
+           ...,
+           [-0.287339,  0.351835,  0.072936, ...,  0.097339, -0.038349,  0.162752],
+           [-0.577339,  0.011835, -0.007064, ...,  0.135596,  0.107615,  0.245046],
+           [-0.277339,  0.061835,  0.132936, ...,  0.015596, -0.142385, -0.124954]])
+    Coordinates:
+      * sample        (sample) int64 0 1 2 3 4 5 6 7 ... 102 103 104 105 106 107 108
+        environment   (outcome) float64 0.0 0.0 0.0 0.0 0.0 ... 1.0 1.0 1.0 1.0 1.0
+        gene_ID       (outcome) object 'YOL161C' 'YJR107W' ... 'YLR118C' 'YBR242W'
+        gene_chrom    (outcome) object '15' '10' '16' '7' '4' ... '3' '10' '12' '2'
+        gene_end      (outcome) int64 11548 628319 32803 ... 315049 384726 705381
+        gene_start    (outcome) int64 11910 627333 30482 ... 315552 385409 704665
+        gene_strand   (outcome) object 'C' 'W' 'W' 'W' 'W' ... 'W' 'W' 'C' 'C' 'W'
+        phenotype_ID  (outcome) object 'YOL161C:0' 'YJR107W:0' ... 'YBR242W:1'
+    Dimensions without coordinates: outcome
     >>> K_all = dot(G_all, G_all.T)
-    >>> phenotype = data["phenotype"]["matrix"]
-    >>> pheno_metadata = data["phenotype"]["col_header"]
     >>>
     >>> # Genes from lysine biosynthesis pathway.
     >>> lysine_group = [
@@ -123,20 +134,18 @@ based variance components.
     >>> for gene in lysine_group[:2]:
     ...     # Select the row corresponding to gene of interest on environment 0.0.
     ...     query = "(gene_ID == '{}') & (environment == 0.0)".format(gene)
-    ...     df = pheno_metadata.query(query)
+    ...     df = Y[:, (Y["gene_ID"] == gene) & (Y["environment"] == 0.0)]
     ...
-    ...     pheno_idx = df.i.item()
-    ...     gene_pos = df[["gene_chrom", "gene_end", "gene_start"]]
     ...     # Estimated middle point of the gene.
-    ...     midpoint = (gene_pos["gene_end"].item() - gene_pos["gene_start"].item()) / 2
+    ...     midpoint = (df["gene_end"].item() - df["gene_start"].item()) / 2
     ...
     ...     # Window definition.
     ...     start = midpoint - window_size // 2
     ...     end = midpoint + window_size // 2
-    ...     geno = geno_metadata.query("(pos >= {}) & (pos <= {})".format(start, end))
+    ...     geno = G_all[:, (G_all["pos"] >= start) & (G_all["pos"] <= end)]
     ...
-    ...     y = phenotype[:, pheno_idx]
-    ...     G_cis = G_all[:, geno.i.values]
+    ...     y = df
+    ...     G_cis = G_all[:, geno.candidate]
     ...     K_cis = dot(G_cis, G_cis.T)
     ...     K_trans = limix.qc.normalise_covariance(K_all - K_cis)
     ...     K_cis = limix.qc.normalise_covariance(K_cis)
@@ -162,15 +171,16 @@ based variance components.
     >>> res = res.div(res.sum(axis=1), axis=0).mean(axis=0)
     >>> res *= 100
     >>>
-    >>> ax = sns.barplot(x=res.index, y=res.values)  # doctest: +SKIP
-    >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))  # doctest: +SKIP
+    >>> ax = sns.barplot(x=res.index, y=res.values)
+    >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
     >>>
-    >>> plt.show()  # doctest: +SKIP
+    >>> limix.plot.show()
 
 
 We then remove the temporary files.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> limix.sh.remove("smith08.hdf5.bz2")
     >>> limix.sh.remove("smith08.hdf5")

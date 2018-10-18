@@ -1,8 +1,3 @@
-from numpy import loadtxt
-from ..display import timer_text
-from .. import plot
-
-
 def read(prefix, verbose=True):
     r"""
     Read PLINK files into Pandas data frames.
@@ -81,8 +76,10 @@ def read(prefix, verbose=True):
 
 
 def see_kinship(filepath, verbose):
+    from .. import plot
+    from ..display import timer_text
+
     # TODO: document
-    from matplotlib import pyplot as plt
 
     if filepath.endswith(".grm.raw"):
         with timer_text("Reading {}... ".format(filepath), disable=not verbose):
@@ -91,8 +88,7 @@ def see_kinship(filepath, verbose):
         print("File %s not found." % filepath)
         return
 
-    plot.kinship(K)
-    plt.show()
+    return plot.kinship(K)
 
 
 def fetch_dosage(prefix, verbose):
@@ -118,4 +114,6 @@ def _print_title(title, msg):
 
 
 def _read_grm_raw(filepath):
+    from numpy import loadtxt
+
     return loadtxt(filepath)

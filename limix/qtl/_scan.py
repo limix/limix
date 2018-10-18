@@ -6,7 +6,7 @@ from numpy import ones
 
 from limix.display import timer_text
 
-from .._dataset import normalise_dataset
+from .._dataset import _normalise_dataset
 from ..display import session_text
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
 from ._model import QTLModel
@@ -84,21 +84,24 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>>
         >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
-        >>> model.variant_pvalues  # doctest: +FLOAT_CMP
-        rs0    0.554443
-        rs1    0.218996
-        rs2    0.552200
-        dtype: float64
-        >>> model.variant_effsizes  # doctest: +FLOAT_CMP
-        rs0   -0.130866
-        rs1   -0.315077
-        rs2   -0.143869
-        dtype: float64
-        >>> model.variant_effsizes_se  # doctest: +FLOAT_CMP
-        rs0    0.221389
-        rs1    0.256326
-        rs2    0.242013
-        dtype: float64
+        >>> model.variant_pvalues.to_dataframe()  # doctest: +FLOAT_CMP
+                         pv
+        candidate
+        rs0        0.554444
+        rs1        0.218996
+        rs2        0.552200
+        >>> model.variant_effsizes.to_dataframe()  # doctest: +FLOAT_CMP
+                   effsizes
+        candidate
+        rs0       -0.130867
+        rs1       -0.315078
+        rs2       -0.143869
+        >>> model.variant_effsizes_se.to_dataframe()  # doctest: +FLOAT_CMP
+                   effsizes std
+        candidate
+        rs0            0.221390
+        rs1            0.256327
+        rs2            0.242013
         >>> model  # doctest: +FLOAT_CMP
         Variants
         --------
@@ -146,7 +149,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     with session_text("qtl analysis", disable=not verbose):
 
         with timer_text("Normalising input... ", disable=not verbose):
-            data = normalise_dataset(y, M, G=G, K=K)
+            data = _normalise_dataset(y, M, G=G, K=K)
 
         y = data["y"]
         M = data["M"]
@@ -179,6 +182,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 def _perform_lmm(y, M, QS, G, verbose):
     from glimix_core.lmm import LMM
     from pandas import Series, DataFrame
+    from xarray import DataArray
 
     lmm = LMM(y, M.values, QS)
 
@@ -198,9 +202,14 @@ def _perform_lmm(y, M, QS, G, verbose):
     else:
         alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
 
-    candidates = list(G.coords["candidate"].values)
-    alt_lmls = Series(alt_lmls, candidates)
-    effsizes = Series(effsizes, candidates)
+    coords = {
+        k: ("candidate", G.coords[k].values)
+        for k in G.coords.keys()
+        if G.coords[k].dims[0] == "candidate"
+    }
+
+    alt_lmls = DataArray(alt_lmls, dims=["candidate"], coords=coords)
+    effsizes = DataArray(effsizes, dims=["candidate"], coords=coords)
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
@@ -208,6 +217,7 @@ def _perform_lmm(y, M, QS, G, verbose):
 def _perform_glmm(y, lik, M, K, QS, G, verbose):
     from glimix_core.glmm import GLMMExpFam, GLMMNormal
     from pandas import Series, DataFrame
+    from xarray import DataArray
 
     glmm = GLMMExpFam(y.ravel(), lik, M.values, QS)
     glmm.fit(verbose=verbose)
@@ -233,8 +243,13 @@ def _perform_glmm(y, lik, M, K, QS, G, verbose):
     else:
         alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
 
-    candidates = list(G.coords["candidate"].values)
-    alt_lmls = Series(alt_lmls, candidates)
-    effsizes = Series(effsizes, candidates)
+    coords = {
+        k: ("candidate", G.coords[k].values)
+        for k in G.coords.keys()
+        if G.coords[k].dims[0] == "candidate"
+    }
+
+    alt_lmls = DataArray(alt_lmls, dims=["candidate"], coords=coords)
+    effsizes = DataArray(effsizes, dims=["candidate"], coords=coords)
 
     return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)

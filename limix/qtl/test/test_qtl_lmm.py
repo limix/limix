@@ -21,14 +21,14 @@ def test_qtl_lmm():
 
     model = scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
-    ix_best_snp = pv.idxmin()
-    pos_best_snp = pv.values.argmin()
 
-    M = concatenate((M, X[:, [pos_best_snp]]), axis=1)
+    ix_best_snp = pv.argmin().item()
+
+    M = concatenate((M, X[:, [ix_best_snp]]), axis=1)
 
     model = scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
-    assert_allclose(pv.loc[ix_best_snp], 1.0)
+    assert_allclose(pv[ix_best_snp], 1.0)
 
 
 def test_qtl_lmm_nokinship():
@@ -72,13 +72,13 @@ def test_qtl_lmm_repeat_samples_by_index():
     model = scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
     assert_allclose(pv.values[0], 0.9920306566395604)
-    ix_best_snp = pv.idxmin()
-    pos_best_snp = pv.values.argmin()
 
-    M = concatenate((M, X.loc[:, [pos_best_snp]]), axis=1)
+    ix_best_snp = pv.argmin().item()
+
+    M = concatenate((M, X.loc[:, [ix_best_snp]]), axis=1)
     M = DataFrame(data=M, index=samples)
 
     model = scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
-    assert_allclose(pv.loc[ix_best_snp], 1.0)
+    assert_allclose(pv[ix_best_snp], 1.0)
     assert_allclose(pv.values[0], 0.6684700834450028)

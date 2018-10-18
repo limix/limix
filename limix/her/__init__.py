@@ -1,4 +1,9 @@
-r"""Heritability estimation."""
+r"""Heritability estimation module.
+
+Functions
+---------
+- estimate
+"""
 
 from ._estimate import estimate
 

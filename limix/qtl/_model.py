@@ -1,7 +1,6 @@
 from __future__ import division
 
 import sys
-
 from limix.stats import effsizes_se, lrt_pvalues
 
 if sys.version_info < (3, 0):
@@ -21,6 +20,8 @@ class QTLModel(object):
         self._alt_lmls = alt_lmls
         self._effsizes = effsizes
         self._null_covariate_effsizes = null_covariate_effsizes
+        alt_lmls.name = "alt lmls"
+        effsizes.name = "effsizes"
 
     @property
     def null_lml(self):
@@ -64,10 +65,13 @@ class QTLModel(object):
         array_like
             Association significance between variant and phenotype.
         """
-        from pandas import Series
+        from xarray import zeros_like
 
-        pv = lrt_pvalues(self.null_lml, self.alt_lmls.values)
-        return Series(pv, list(self.alt_lmls.keys()))
+        pv = zeros_like(self._alt_lmls)
+        pv[:] = lrt_pvalues(self.null_lml, self._alt_lmls.values)
+        pv.name = "pv"
+
+        return pv
 
     @property
     def variant_effsizes_se(self):
@@ -78,10 +82,14 @@ class QTLModel(object):
         array_like
             Estimated standard errors of the variant effect sizes.
         """
-        from pandas import Series
+        from xarray import zeros_like
 
-        ese = effsizes_se(self.variant_effsizes.values, self.variant_pvalues.values)
-        return Series(ese, list(self.alt_lmls.keys()))
+        ese = zeros_like(self._alt_lmls)
+        ese[:] = effsizes_se(
+            self.variant_effsizes.values.ravel(), self.variant_pvalues.values.ravel()
+        )
+        ese.name = "effsizes std"
+        return ese
 
     @property
     def null_covariate_effsizes(self):
@@ -98,9 +106,9 @@ class QTLModel(object):
         from pandas import DataFrame
 
         data = dict(
-            effsizes=self.variant_effsizes,
-            effsizes_se=self.variant_effsizes_se,
-            pvalues=self.variant_pvalues,
+            effsizes=self.variant_effsizes.values.ravel(),
+            effsizes_se=self.variant_effsizes_se.values.ravel(),
+            pvalues=self.variant_pvalues.values.ravel(),
         )
 
         variant_msg = str(DataFrame(data=data).describe())

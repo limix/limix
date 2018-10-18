@@ -1,5 +1,9 @@
 import os
 import sys
+import shutil
+import errno
+
+from os.path import join
 
 import sphinx_rtd_theme
 
@@ -25,10 +29,10 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
+    "sphinxcontrib.programoutput",
     "matplotlib.sphinxext.plot_directive",
     "IPython.sphinxext.ipython_directive",
     "IPython.sphinxext.ipython_console_highlighting",
-    "nb2plots",
     "sphinx.ext.autosummary",
 ]
 
@@ -71,4 +75,24 @@ intersphinx_mapping = {
     "limix-plot": ("https://limix-plot.readthedocs.io/en/stable/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "dask": ("http://dask.pydata.org/en/latest/", None),
+    "xarray": ("http://xarray.pydata.org/en/latest/", None),
 }
+
+plot_working_directory = "_build"
+
+
+def makedirs(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
+makedirs(join(dir_path, "_build/"))
+shutil.copy2(join(dir_path, "matplotlibrc"), join(dir_path, "_build/"))
+
+plot_formats = [("png", 80)]

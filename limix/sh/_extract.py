@@ -7,7 +7,7 @@ from ..display import timer_text
 # TODO: document
 def extract(filepath, verbose=True):
 
-    with timer_text("Extracting {}...".format(filepath), disable=not verbose):
+    with timer_text("Extracting {}... ".format(filepath), disable=not verbose):
 
         try:
             tar = tarfile.open(filepath)

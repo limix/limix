@@ -11,11 +11,18 @@ deprecated.
 
 .. _eQTL basics tutorial: https://github.com/limix/limix-tutorials/blob/master/eQTL/eQTL_basics.ipynb
 
+.. testsetup:: *
+
+   import doctest
+   doctest.ELLIPSIS_MARKER = "-ignore-"
+
 Importing limix
 ---------------
 
-.. nbplot::
+.. plot::
+    :context:
 
+    >>> from __future__ import unicode_literals
     >>> import limix
 
 Downloading data
@@ -27,7 +34,8 @@ Limix provides some handy utilities to perform common command line tasks,
 like as downloading and extracting files.
 However, feel free to use whatever method you prefer.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
     >>> limix.sh.download(url, verbose=False)
@@ -57,20 +65,27 @@ However, feel free to use whatever method you prefer.
          +--row_header
             +--sample_ID [int64, (109,)]
     >>> data = limix.io.hdf5.read_limix("smith08.hdf5")
-    >>> print(data['phenotype']['row_header'].head())
-       sample_ID  i
-    0          0  0
-    1          1  1
-    2          2  2
-    3          3  3
-    4          4  4
-    >>> print(data['phenotype']['col_header'].head())
-       environment  gene_ID gene_chrom  gene_end  gene_start gene_strand phenotype_ID  i
-    0      0.00000  YOL161C         15     11548       11910           C    YOL161C:0  0
-    1      0.00000  YJR107W         10    628319      627333           W    YJR107W:0  1
-    2      0.00000  YPL270W         16     32803       30482           W    YPL270W:0  2
-    3      0.00000  YGR256W          7   1006108     1004630           W    YGR256W:0  3
-    4      0.00000  YDR518W          4   1480153     1478600           W    YDR518W:0  4
+    >>> Y = data['phenotype']
+    >>> G = data['genotype']
+    >>> print(Y)
+    <xarray.DataArray 'phenotype' (sample: 109, outcome: 10986)>
+    array([[-0.037339, -0.078165,  0.042936, ...,  0.095596, -0.132385, -0.274954],
+           [-0.301376,  0.066055,  0.338624, ..., -0.142661, -0.238349,  0.732752],
+           [ 0.002661,  0.121835, -0.137064, ..., -0.144404,  0.257615,  0.015046],
+           ...,
+           [-0.287339,  0.351835,  0.072936, ...,  0.097339, -0.038349,  0.162752],
+           [-0.577339,  0.011835, -0.007064, ...,  0.135596,  0.107615,  0.245046],
+           [-0.277339,  0.061835,  0.132936, ...,  0.015596, -0.142385, -0.124954]])
+    Coordinates:
+      * sample        (sample) int64 0 1 2 3 4 5 6 7 ... 102 103 104 105 106 107 108
+        environment   (outcome) float64 0.0 0.0 0.0 0.0 0.0 ... 1.0 1.0 1.0 1.0 1.0
+        gene_ID       (outcome) object 'YOL161C' 'YJR107W' ... 'YLR118C' 'YBR242W'
+        gene_chrom    (outcome) object '15' '10' '16' '7' '4' ... '3' '10' '12' '2'
+        gene_end      (outcome) int64 11548 628319 32803 ... 315049 384726 705381
+        gene_start    (outcome) int64 11910 627333 30482 ... 315552 385409 704665
+        gene_strand   (outcome) object 'C' 'W' 'W' 'W' 'W' ... 'W' 'W' 'C' 'C' 'W'
+        phenotype_ID  (outcome) object 'YOL161C:0' 'YJR107W:0' ... 'YBR242W:1'
+    Dimensions without coordinates: outcome
 
 Selecting gene YBR115C under the glucose condition
 --------------------------------------------------
@@ -78,13 +93,19 @@ Selecting gene YBR115C under the glucose condition
 Query for a specific phenotype, select the phenotype itself, and plot it.
 The glucose condition is given by the environment ``0``.
 
-.. nbplot::
+header = data['phenotype']['col_header']
+query = "gene_ID=='YBR115C' and environment==0"
+idx = header.query(query).i.values
+y = data['phenotype']['matrix'][:, idx].ravel()
 
-    >>> header = data['phenotype']['col_header']
-    >>> query = "gene_ID=='YBR115C' and environment==0"
-    >>> idx = header.query(query).i.values
-    >>> y = data['phenotype']['matrix'][:, idx].ravel()
-    >>> limix.plot.normal(y) # doctest: +SKIP
+.. plot::
+    :context:
+
+    >>> y = Y[:, (Y.gene_ID == "YBR115C") & (Y.environment==0)]
+    >>> y = y.stack(z=('sample', 'outcome')).reset_index('z')
+    >>> y = y.rename(z="sample")
+    >>> _ = limix.plot.normal(y)
+    >>> limix.plot.show()
 
 Genetic relatedness matrix
 --------------------------
@@ -92,11 +113,12 @@ Genetic relatedness matrix
 The genetic relatedness will be determined by the inner-product of SNP
 readings between individuals, and the result will be visualised via heatmap.
 
-.. nbplot::
+.. plot::
+    :context:
 
-    >>> G = data['genotype']['matrix']
-    >>> K = limix.stats.linear_kinship(G, verbose=False)
-    >>> limix.plot.kinship(K) # doctest: +SKIP
+    >>> K = limix.stats.linear_kinship(G.values, verbose=False)
+    >>> _ = limix.plot.kinship(K)
+    >>> limix.plot.show()
 
 Univariate association test with linear mixed model
 ---------------------------------------------------
@@ -111,115 +133,81 @@ name and base-pair position.
 However, it is often the case that SNP IDs are provided along with the
 data, which can naturally be used for naming those candidates.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> from pandas import DataFrame
     >>> import numpy as np
     >>>
-    >>> print(data['genotype']['col_header'].head())
-    chrom   pos  pos_cum  i
-    0      1   483      483  0
-    1      1   484      484  1
-    2      1  3220     3220  2
-    3      1  3223     3223  3
-    4      1  3232     3232  4
-    >>> chrom = data['genotype']['col_header']['chrom']
-    >>> pos = data['genotype']['col_header']['pos']
-    >>> candidate_ids = ["c{}_p{}".format(c, p) for c, p in zip(chrom, pos)]
-    >>> G = DataFrame(G, columns=candidate_ids)
-    >>> print(G.head())
-       c1_p483  c1_p484  c1_p3220  c1_p3223  c1_p3232  c1_p3235  c1_p3244  c1_p3247  \
-    0  1.00000  1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
-    1  1.00000  0.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
-    2  0.00000  0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
-    3  0.00000  0.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
-    4  0.00000  0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
-    <BLANKLINE>
-       c1_p3250  c1_p3274  c1_p3280  c1_p3283  c1_p7292  c1_p7298  c1_p7358  c1_p7400  \
-    0   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
-    1   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
-    2   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
-    3   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
-    4   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
-    <BLANKLINE>
-       c1_p7472  c1_p7478  c1_p7490  c1_p7532  c1_p7544  c1_p7574  c1_p7640  c1_p7652  \
-    0   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
-    1   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
-    2   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
-    3   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
-    4   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
-    <BLANKLINE>
-       c1_p7712  c1_p10131  c1_p10134  c1_p10143  c1_p10146  c1_p10152  c1_p10236  \
-    0   1.00000    1.00000    1.00000    1.00000    1.00000    1.00000    1.00000
-    1   1.00000    1.00000    1.00000    1.00000    1.00000    1.00000    1.00000
-    2   0.00000    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
-    3   1.00000    1.00000    1.00000    1.00000    1.00000    1.00000    1.00000
-    4   0.00000    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
-    <BLANKLINE>
-       c1_p10239  c1_p10284  c1_p10296  c1_p10302  c1_p10386  c1_p11582  c1_p11586  \
-    0    1.00000    1.00000    1.00000    1.00000    1.00000    1.00000    1.00000
-    1    1.00000    1.00000    1.00000    1.00000    1.00000    1.00000    1.00000
-    2    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
-    3    1.00000    1.00000    1.00000    1.00000    1.00000    1.00000    1.00000
-    4    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000    0.00000
-    <BLANKLINE>
-       c1_p11588     ...       c16_p533282  c16_p535973  c16_p535979  c16_p542295  \
-    0    1.00000     ...           1.00000      1.00000      1.00000      1.00000
-    1    1.00000     ...           1.00000      1.00000      1.00000      1.00000
-    2    0.00000     ...           1.00000      1.00000      1.00000      1.00000
-    3    1.00000     ...           0.00000      0.00000      0.00000      0.00000
-    4    0.00000     ...           0.00000      0.00000      0.00000      0.00000
-    <BLANKLINE>
-       c16_p542307  c16_p547618  c16_p555416  c16_p590622  c16_p600658  c16_p600664  \
-    0      1.00000      1.00000      1.00000      0.00000      0.00000      0.00000
-    1      1.00000      1.00000      1.00000      1.00000      1.00000      1.00000
-    2      1.00000      1.00000      1.00000      1.00000      1.00000      1.00000
-    3      0.00000      0.00000      0.00000      0.00000      0.00000      0.00000
-    4      0.00000      0.00000      0.00000      0.00000      0.00000      0.00000
-    <BLANKLINE>
-       c16_p604010  c16_p618575  c16_p618581  c16_p620596  c16_p695782  c16_p700280  \
-    0      0.00000      0.00000      0.00000      0.00000      0.00000      0.00000
-    1      1.00000      1.00000      1.00000      1.00000      1.00000      1.00000
-    2      1.00000      1.00000      1.00000      1.00000      1.00000      1.00000
-    3      0.00000      0.00000      0.00000      0.00000      0.00000      1.00000
-    4      0.00000      0.00000      0.00000      0.00000      0.00000      0.00000
-    <BLANKLINE>
-       c16_p704388  c16_p711614  c16_p718892  c16_p718893  c16_p744530  c16_p744590  \
-    0      0.00000      0.00000      0.00000      0.00000      0.00000      0.00000
-    1      1.00000      1.00000      1.00000      1.00000      1.00000      1.00000
-    2      1.00000      1.00000      1.00000      1.00000      1.00000      1.00000
-    3      1.00000      1.00000      1.00000      1.00000      0.00000      0.00000
-    4      0.00000      0.00000      1.00000      1.00000      1.00000      1.00000
-    <BLANKLINE>
-       c16_p744599  c16_p748158  c16_p787283  c16_p819247  c16_p819249  c16_p819251  \
-    0      0.00000      0.00000      0.00000      0.00000      0.00000      0.00000
-    1      1.00000      1.00000      1.00000      0.00000      0.00000      0.00000
-    2      1.00000      1.00000      1.00000      1.00000      1.00000      1.00000
-    3      0.00000      0.00000      0.00000      1.00000      1.00000      1.00000
-    4      1.00000      1.00000      1.00000      1.00000      1.00000      1.00000
-    <BLANKLINE>
-       c16_p825431  c16_p890898  c16_p890904  c16_p896709  c16_p897526  c16_p927500  \
-    0      0.00000      0.00000      0.00000      0.00000      0.00000      0.00000
-    1      0.00000      0.00000      0.00000      0.00000      0.00000      1.00000
-    2      0.00000      0.00000      0.00000      0.00000      0.00000      0.00000
-    3      1.00000      0.00000      0.00000      0.00000      0.00000      0.00000
-    4      1.00000      1.00000      1.00000      1.00000      1.00000      0.00000
-    <BLANKLINE>
-       c16_p927502  c16_p927506  c16_p932310  c16_p932535  c16_p932538
-    0      0.00000      0.00000      0.00000      0.00000      0.00000
-    1      1.00000      1.00000      1.00000      1.00000      1.00000
-    2      0.00000      0.00000      0.00000      0.00000      0.00000
-    3      0.00000      0.00000      0.00000      1.00000      1.00000
-    4      0.00000      0.00000      0.00000      0.00000      0.00000
-    <BLANKLINE>
-    [5 rows x 2956 columns]
+    >>> print(G)
+    <xarray.DataArray 'genotype' (sample: 109, candidate: 2956)>
+    array([[1., 1., 1., ..., 0., 0., 0.],
+           [1., 0., 1., ..., 1., 1., 1.],
+           [0., 0., 0., ..., 0., 0., 0.],
+           ...,
+           [0., 0., 0., ..., 0., 1., 1.],
+           [0., 0., 0., ..., 1., 1., 1.],
+           [1., 1., 1., ..., 1., 1., 1.]])
+    Coordinates:
+      * sample   (sample) int64 0 1 2 3 4 5 6 7 ... 101 102 103 104 105 106 107 108
+        chrom    (candidate) int64 1 1 1 1 1 1 1 1 1 ... 16 16 16 16 16 16 16 16 16
+        pos      (candidate) int64 483 484 3220 3223 ... 927506 932310 932535 932538
+        pos_cum  (candidate) int64 483 484 3220 3223 ... 12055570 12055795 12055798
+    Dimensions without coordinates: candidate
 
 As you can see, we now have a pandas data frame ``G`` that keeps the candidate
 identifications together with the actual allele read.
 This data frame can be readily used to perform association scan.
 
-.. nbplot::
+.. plot::
+    :context:
 
+    >>> print(y)
+    <xarray.DataArray 'phenotype' (sample: 109)>
+    array([ 3.504479,  1.914585,  3.434479, -2.075521,  1.654585,  3.304479,
+            2.044585, -4.125415,  2.024585,  0.732574, -0.80732 ,  3.464479,
+           -2.385521,  3.644479, -4.785415, -2.895521,  0.732574, -3.155521,
+           -0.80732 , -0.80732 ,  0.732574, -2.695521, -2.835521, -4.635415,
+            0.732574,  1.804585, -0.80732 ,  1.964585,  2.304585,  2.484585,
+            2.424585,  2.534585,  3.254479, -0.80732 , -4.555415, -1.815521,
+            1.934585, -2.065521,  1.754585,  2.014585,  0.732574, -2.835521,
+           -2.715521, -3.115521,  1.854585,  3.544479, -0.80732 ,  2.594585,
+            3.574479, -3.175521,  0.732574, -2.395521,  1.824585,  2.134585,
+           -0.80732 , -2.775521, -2.255521, -0.80732 ,  3.544479,  1.894585,
+            3.364479, -2.775521, -0.80732 ,  2.034585, -4.695415, -0.80732 ,
+            1.864585,  2.174585, -3.815521,  1.674585, -2.725521, -2.685521,
+           -1.345521, -2.405521, -4.035415, -0.80732 , -0.80732 , -2.255521,
+           -2.765521,  3.314479, -0.80732 ,  3.594479, -2.815521,  3.954479,
+            1.794585,  1.904585,  2.064585, -0.80732 ,  3.864479,  3.604479,
+           -2.505521, -0.80732 ,  1.804585, -2.345521, -0.80732 , -3.135521,
+            3.704479,  3.714479, -4.565415,  0.732574, -0.80732 ,  0.732574,
+            2.244585, -2.385521,  3.304479, -2.895521, -2.475521, -2.625521,
+            3.314479])
+    Coordinates:
+        environment   (sample) float64 0.0 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0 0.0
+        gene_ID       (sample) object 'YBR115C' 'YBR115C' ... 'YBR115C' 'YBR115C'
+        gene_chrom    (sample) object '2' '2' '2' '2' '2' ... '2' '2' '2' '2' '2'
+        gene_end      (sample) int64 469742 469742 469742 ... 469742 469742 469742
+        gene_start    (sample) int64 473920 473920 473920 ... 473920 473920 473920
+        gene_strand   (sample) object 'C' 'C' 'C' 'C' 'C' ... 'C' 'C' 'C' 'C' 'C'
+        phenotype_ID  (sample) object 'YBR115C:0' 'YBR115C:0' ... 'YBR115C:0'
+      * sample        (sample) int64 0 1 2 3 4 5 6 7 ... 102 103 104 105 106 107 108
+        outcome       (sample) int64 0 0 0 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0 0 0 0
+    >>> print(G)
+    <xarray.DataArray 'genotype' (sample: 109, candidate: 2956)>
+    array([[1., 1., 1., ..., 0., 0., 0.],
+           [1., 0., 1., ..., 1., 1., 1.],
+           [0., 0., 0., ..., 0., 0., 0.],
+           ...,
+           [0., 0., 0., ..., 0., 1., 1.],
+           [0., 0., 0., ..., 1., 1., 1.],
+           [1., 1., 1., ..., 1., 1., 1.]])
+    Coordinates:
+      * sample   (sample) int64 0 1 2 3 4 5 6 7 ... 101 102 103 104 105 106 107 108
+        chrom    (candidate) int64 1 1 1 1 1 1 1 1 1 ... 16 16 16 16 16 16 16 16 16
+        pos      (candidate) int64 483 484 3220 3223 ... 927506 932310 932535 932538
+        pos_cum  (candidate) int64 483 484 3220 3223 ... 12055570 12055795 12055798
+    Dimensions without coordinates: candidate
     >>> qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
     >>> print(qtl) # doctest: +FLOAT_CMP
     Variants
@@ -242,37 +230,41 @@ This data frame can be readily used to perform association scan.
 Inspecting the p-values and effect-sizes are now easier because candidate
 names are kept together with their corresponding statistics.
 
-.. nbplot::
+.. plot::
+    :context:
 
-    >>> pv = qtl.variant_pvalues.sort_values()
-    >>> print(np.log(pv.head())) # doctest: +FLOAT_CMP
-    c2_p477206   -45.10263
-    c2_p479161   -29.71027
-    c2_p479164   -29.71027
-    c2_p479166   -29.71027
-    c2_p480009   -27.72686
-    dtype: float64
-    >>> print(qtl.variant_effsizes.loc[pv.index].head()) # doctest: +FLOAT_CMP
-    c2_p477206    4.19842
-    c2_p479161    3.83939
-    c2_p479164    3.83939
-    c2_p479166    3.83939
-    c2_p480009    3.85703
-    dtype: float64
+    >>> pv = qtl.variant_pvalues
+    >>> pv = pv.sortby(pv).to_dataframe()
+    >>> pv["-log10(pv)"] = -np.log10(pv["pv"])
+    >>> print(pv.head()) # doctest: +FLOAT_CMP
+               chrom     pos  pos_cum       pv  -log10(pv)
+    candidate
+    0              2  477206   707424  0.00000    19.58782
+    1              2  479161   709379  0.00000    12.90301
+    2              2  479164   709382  0.00000    12.90301
+    3              2  479166   709384  0.00000    12.90301
+    4              2  480009   710227  0.00000    12.04162
+    >>> print(qtl.variant_effsizes.sel(candidate=pv.index).to_dataframe().head()) # doctest: +FLOAT_CMP -ELLIPSIS
+               chrom   pos  pos_cum  effsizes
+    candidate
+    0              1   483      483   0.58018
+    1              1   484      484   0.26697
+    2              1  3220     3220   0.46157
+    3              1  3223     3223   0.46157
+    4              1  3232     3232   0.46157
 
 A Manhattan plot can help understand the result.
 
-.. nbplot::
+.. plot::
+    :context:
 
-    >>> pv = qtl.variant_pvalues
-    >>> chrom = [i.split('_')[0][1:] for i, _ in pv.iteritems()]
-    >>> pos = [int(i.split('_')[1][1:]) for i, _ in pv.iteritems()]
-    >>> df = DataFrame(data=dict(pv=pv, chr=chrom, pos=pos))
-    >>> limix.plot.manhattan(df) # doctest: +SKIP
+    >>> _ = limix.plot.manhattan(qtl.variant_pvalues)
+    >>> limix.plot.show()
 
 We then remove the temporary files.
 
-.. nbplot::
+.. plot::
+    :context:
 
     >>> limix.sh.remove("smith08.hdf5.bz2")
     >>> limix.sh.remove("smith08.hdf5")
