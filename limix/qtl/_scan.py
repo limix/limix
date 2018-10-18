@@ -142,11 +142,16 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         G = data["G"]
         K = data["K"]
 
-        if not is_all_finite(y):
-            raise ValueError("Outcome must have finite values only.")
+        try:
+            if not is_all_finite(y):
+                raise ValueError("Outcome must have finite values only.")
 
-        if not is_all_finite(M):
-            raise ValueError("Covariates must have finite values only.")
+            if not is_all_finite(M):
+                raise ValueError("Covariates must have finite values only.")
+        except TypeError:
+            import pdb
+
+            pdb.set_trace()
 
         if K is not None:
             if not is_all_finite(K):

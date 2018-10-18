@@ -109,7 +109,7 @@ alternative hypotheses to be tested:
     <BLANKLINE>
     Covariate effect sizes for H0
     -----------------------------
-     0
+     offset
     0.04828
 
 The above example prints the estimated p-value, effect size, and standard
@@ -199,8 +199,8 @@ The matrix ``G`` defines both the five alternative hypotheses
     <BLANKLINE>
     Covariate effect sizes for H0
     -----------------------------
-     0
-       -0.00042
+      offset
+    -0.00042
 
 Interface
 ^^^^^^^^^
