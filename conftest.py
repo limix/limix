@@ -22,10 +22,18 @@ def pytest_sessionstart(session):
 @pytest.fixture(autouse=True)
 def _docdir(request):
 
-    # Trigger ONLY for the doctests.
+    # Trigger ONLY for the doctests or doctestplus.
     plug = request.config.pluginmanager.getplugin("doctest")
-    if plug is not None and isinstance(request.node, plug.DoctestItem):
+    if plug is None:
+        plug = request.config.pluginmanager.getplugin("doctestplus")
+        if plug is None:
+            item = None
+        else:
+            item = plug._doctest_textfile_item_cls
+    else:
+        item = plug.DoctestItem
 
+    if isinstance(request.node, item):
         # Get the fixture dynamically by its name.
         tmpdir = request.getfixturevalue("tmpdir")
 

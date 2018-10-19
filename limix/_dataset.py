@@ -6,7 +6,7 @@ from numpy import array_equal, asarray, unique, dtype
 from ._dask import array_shape_reveal
 
 
-def _normalise_dataset(y, M=None, G=None, K=None):
+def _normalise_dataset(y, M=None, G=None, K=None, X=None):
     r"""Convert data types to DataArray.
 
     This is a fundamental function for :mod:`limix` as it standardise outcome,
@@ -77,33 +77,44 @@ def _normalise_dataset(y, M=None, G=None, K=None):
                [-0.850801, -0.850801,  1.687126, -0.194938],
                [-1.956422, -1.956422, -0.194938,  6.027272]])
         Coordinates:
-          * sample_0  (sample_0) <U7 'sample0' 'sample0' 'sample1' 'sample2'
-          * sample_1  (sample_1) <U7 'sample0' 'sample0' 'sample1' 'sample2'
+          * sample_0  (sample_0) object 'sample0' 'sample0' 'sample1' 'sample2'
+          * sample_1  (sample_1) object 'sample0' 'sample0' 'sample1' 'sample2'
         >>> with pytest.raises(ValueError):
         ...     _normalise_dataset(y, G=G, K=K)
     """
+    if X is None:
+        X = []
+
     y = _rename_dims(_dataarray_upcast(y), "sample", "trait")
     M = _rename_dims(_dataarray_upcast(M), "sample", "covariate")
     G = _rename_dims(_dataarray_upcast(G), "sample", "candidate")
     K = _rename_dims(_dataarray_upcast(K), "sample_0", "sample_1")
 
+    X = [(_rename_dims(_dataarray_upcast(x), "sample", n1), n0, n1) for x, n0, n1 in X]
+
     data = {"y": y, "M": M, "G": G, "K": K}
+    data.update({"X{}".format(i): x[0] for i, x in enumerate(X)})
+
     dim_name = {
         "y": ["sample"],
         "M": ["sample"],
         "G": ["sample"],
         "K": ["sample_0", "sample_1"],
     }
+    dim_name.update({"X{}".format(i): ["sample"] for i in range(len(X))})
+
     arrname = {
         "y": "outcome",
         "M": "covariates",
         "G": "candidates",
         "K": "variance-covariance",
     }
+    arrname.update({"X{}".format(i): x[1] for i, x in enumerate(X)})
 
     data.update(_assign_index_to_nonindexed(_fout(data), dim_name))
 
     valid_samples = _infer_samples_index(_fout(data), dim_name)
+
     for k, v in data.items():
         for dn in dim_name[k]:
             data[k] = _assign_coords(v, dn, valid_samples)
@@ -114,8 +125,14 @@ def _normalise_dataset(y, M=None, G=None, K=None):
 
     n = len(data["y"].coords["sample"])
     o = [v.coords[dn].size == n for k, v in _fout(data).items() for dn in dim_name[k]]
+
     if all(o):
+        if data["M"] is None:
+            data["M"] = _create_default_covariates(y, unique_samples=False)
         return data
+
+    if data["M"] is None:
+        data["M"] = _create_default_covariates(y, unique_samples=True)
 
     _check_uniqueness(data, dim_name, arrname)
     _check_sample_compatibility(data, dim_name, arrname)
@@ -150,7 +167,7 @@ def _assign_index_to_nonindexed(data, dim_name):
         for dn in dim_name[k]:
             if not array_equal(index, v.coords[dn]):
                 msg = "Please, check the provided sample labels in your arrays."
-                msg = " There are some inconsistences in them."
+                msg += " There are some inconsistences in them."
                 raise ValueError(msg)
 
     n = min(v.coords[dn].size for (k, v) in data.items() for dn in dim_name[k])
@@ -207,6 +224,10 @@ def _dataarray_upcast(x):
 
     if x.ndim < 2:
         x = x.expand_dims("dim_1", 1)
+
+    for dim in x.dims:
+        if x.coords[dim].dtype.kind in {"U", "S"}:
+            x.coords[dim] = x.coords[dim].values.astype(object)
     return x
 
 
@@ -329,3 +350,33 @@ def _check_sample_compatibility(data, dim_name, arrname):
                 data[k] = data[k].sel(**{dn: data["y"].coords["sample"].values})
             except IndexError as e:
                 raise ValueError(str(e) + "\n\n" + inc_msg.format(arrname[k]))
+
+
+def _create_default_covariates(y, unique_samples):
+    from numpy import ones, asarray
+    from xarray import DataArray
+    from pandas import unique
+
+    def extract_samples(samples):
+        if unique_samples:
+            return unique(samples)
+        return samples
+
+    # if isinstance(y, (DataArray, Series)):
+    if hasattr(y, "index"):
+        # Pandas unique preserve the original order
+        samples = extract_samples(y.index.values)
+    else:
+        samples = extract_samples(y.coords["sample"].values)
+
+    M = ones((samples.size, 1))
+    M = DataArray(
+        M,
+        encoding={"dtype": "float64"},
+        dims=["sample", "covariate"],
+        coords={"sample": samples, "covariate": asarray(["offset"], dtype=object)},
+    )
+    # else:
+    # M = ones((len(y), 1))
+
+    return M

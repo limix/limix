@@ -11,11 +11,6 @@ deprecated.
 
 .. _eQTL basics tutorial: https://github.com/limix/limix-tutorials/blob/master/eQTL/eQTL_basics.ipynb
 
-.. testsetup:: *
-
-   import doctest
-   doctest.ELLIPSIS_MARKER = "-ignore-"
-
 Importing limix
 ---------------
 
@@ -224,8 +219,8 @@ This data frame can be readily used to perform association scan.
     <BLANKLINE>
     Covariate effect sizes for H0
     -----------------------------
-     0
-        0.01207
+     offset
+    0.01207
 
 Inspecting the p-values and effect-sizes are now easier because candidate
 names are kept together with their corresponding statistics.

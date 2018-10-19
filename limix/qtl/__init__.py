@@ -11,6 +11,7 @@ Classes
 
 
 from ._scan import scan
+from ._iscan import iscan
 from ._model import QTLModel
 
-__all__ = ["scan", "QTLModel"]
+__all__ = ["scan", "iscan", "QTLModel"]

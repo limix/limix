@@ -26,8 +26,6 @@ at https://limix.readthedocs.io/.
 """
 from __future__ import absolute_import
 
-import warnings
-
 __version__ = "2.0.0a3"
 
 from . import display, glmm, her, io, plot, qc, qtl, sh, stats, example
@@ -35,9 +33,6 @@ from ._cli import cli
 from ._config import config
 from ._testit import test
 from ._threads import set_max_nthreads, get_max_nthreads
-
-warnings.filterwarnings("ignore", message="numpy.dtype size changed")
-warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 
 
 __all__ = [
