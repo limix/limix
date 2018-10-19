@@ -142,16 +142,11 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         G = data["G"]
         K = data["K"]
 
-        try:
-            if not is_all_finite(y):
-                raise ValueError("Outcome must have finite values only.")
+        if not is_all_finite(y):
+            raise ValueError("Outcome must have finite values only.")
 
-            if not is_all_finite(M):
-                raise ValueError("Covariates must have finite values only.")
-        except TypeError:
-            import pdb
-
-            pdb.set_trace()
+        if not is_all_finite(M):
+            raise ValueError("Covariates must have finite values only.")
 
         if K is not None:
             if not is_all_finite(K):
@@ -188,10 +183,7 @@ def _perform_lmm(y, M, QS, G, verbose):
     ncov_effsizes = Series(beta, covariates)
 
     flmm = lmm.get_fast_scanner()
-    if isinstance(G, DataFrame):
-        alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
-    else:
-        alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
+    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
 
     coords = {
         k: ("candidate", G.coords[k].values)
@@ -229,10 +221,7 @@ def _perform_glmm(y, lik, M, K, QS, G, verbose):
     flmm.set_scale(1.0)
     null_lml = flmm.null_lml()
 
-    if isinstance(G, DataFrame):
-        alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
-    else:
-        alt_lmls, effsizes = flmm.fast_scan(G, verbose=verbose)
+    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
 
     coords = {
         k: ("candidate", G.coords[k].values)

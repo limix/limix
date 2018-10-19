@@ -6,7 +6,7 @@ from numpy import array_equal, asarray, unique, dtype
 from ._dask import array_shape_reveal
 
 
-def _normalise_dataset(y, M=None, G=None, K=None):
+def _normalise_dataset(y, M=None, G=None, K=None, X=None):
     r"""Convert data types to DataArray.
 
     This is a fundamental function for :mod:`limix` as it standardise outcome,
@@ -82,25 +82,34 @@ def _normalise_dataset(y, M=None, G=None, K=None):
         >>> with pytest.raises(ValueError):
         ...     _normalise_dataset(y, G=G, K=K)
     """
-    y = _rename_dims(_dataarray_upcast(y), "sample", "trait")
+    if X is None:
+        X = []
 
+    y = _rename_dims(_dataarray_upcast(y), "sample", "trait")
     M = _rename_dims(_dataarray_upcast(M), "sample", "covariate")
     G = _rename_dims(_dataarray_upcast(G), "sample", "candidate")
     K = _rename_dims(_dataarray_upcast(K), "sample_0", "sample_1")
 
+    X = [(_rename_dims(_dataarray_upcast(x), "sample", n1), n0, n1) for x, n0, n1 in X]
+
     data = {"y": y, "M": M, "G": G, "K": K}
+    data.update({"X{}".format(i): x[0] for i, x in enumerate(X)})
+
     dim_name = {
         "y": ["sample"],
         "M": ["sample"],
         "G": ["sample"],
         "K": ["sample_0", "sample_1"],
     }
+    dim_name.update({"X{}".format(i): ["sample"] for i in range(len(X))})
+
     arrname = {
         "y": "outcome",
         "M": "covariates",
         "G": "candidates",
         "K": "variance-covariance",
     }
+    arrname.update({"X{}".format(i): x[1] for i, x in enumerate(X)})
 
     data.update(_assign_index_to_nonindexed(_fout(data), dim_name))
 
