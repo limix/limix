@@ -11,11 +11,6 @@ deprecated.
 
 .. _eQTL basics tutorial: https://github.com/limix/limix-tutorials/blob/master/eQTL/eQTL_basics.ipynb
 
-.. testsetup:: *
-
-   import doctest
-   doctest.ELLIPSIS_MARKER = "-ignore-"
-
 Importing limix
 ---------------
 
