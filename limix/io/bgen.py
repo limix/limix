@@ -45,6 +45,7 @@ def read(filepath, size=50, verbose=True, metadata_file=True, sample_file=None):
     """
     from bgen_reader import read_bgen
 
+    print("Reading {}...".format(filepath))
     return read_bgen(
         filepath,
         size=size,

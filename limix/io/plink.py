@@ -72,6 +72,8 @@ def read(prefix, verbose=True):
     """
     from pandas_plink import read_plink
 
+    if verbose:
+        print("Reading `{}`...".format(prefix))
     return read_plink(prefix, verbose=verbose)
 
 

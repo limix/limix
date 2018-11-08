@@ -1,8 +1,8 @@
-def fetch_bed_genotype(filepath):
+def fetch_bed_genotype(filepath, verbose=True):
     from .plink import read
     from limix._dataset import _dataarray_upcast
 
-    candidate, samples, G = read(filepath)
+    candidate, samples, G = read(filepath, verbose=verbose)
 
     G = _dataarray_upcast(G)
     G = G.rename(dim_0="candidate", dim_1="sample").T
@@ -19,11 +19,11 @@ def fetch_bed_genotype(filepath):
 _dispatch = {"bed": fetch_bed_genotype}
 
 
-def fetch_genotype(fetch_spec):
+def fetch_genotype(fetch_spec, verbose=True):
     from ast import literal_eval
 
     filetype = fetch_spec["filetype"]
-    X = _dispatch[filetype](fetch_spec["filepath"])
+    X = _dispatch[filetype](fetch_spec["filepath"], verbose=verbose)
 
     spec = fetch_spec["matrix_spec"]
     if spec is not None:

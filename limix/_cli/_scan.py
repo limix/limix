@@ -52,6 +52,9 @@ import click
     multiple=True,
 )
 @click.option("--output-dir", help="Specify the output directory path.", default=None)
+@click.option(
+    "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
+)
 def scan(
     ctx,
     phenotypes_file,
@@ -64,6 +67,7 @@ def scan(
     filter_maf,
     impute,
     output_dir,
+    verbose
 ):
     """Perform genome-wide association scan.
 
@@ -108,8 +112,8 @@ def scan(
     pheno_fetch = limix.io.get_fetch_specification(phenotypes_file)
     geno_fetch = limix.io.get_fetch_specification(genotype_file)
 
-    y = limix.io.fetch_phenotype(pheno_fetch)
-    G = limix.io.fetch_genotype(geno_fetch)
+    y = limix.io.fetch_phenotype(pheno_fetch, verbose=verbose)
+    G = limix.io.fetch_genotype(geno_fetch, verbose=verbose)
 
     data = {"phenotype": y, "genotype": G}
 
@@ -126,12 +130,13 @@ def scan(
         _process_impute(imp, data)
 
     try:
-        r = limix.qtl.scan(data["genotype"], data["phenotype"], lik)
+        r = limix.qtl.scan(data["genotype"], data["phenotype"], lik, verbose=verbose)
     except Exception as e:
         limix._exception.print_exc(traceback.format_stack(), e)
         sys.exit(1)
 
-    print(r)
+    if verbose:
+        print(r)
 
 
 def _process_filter(expr, data):
@@ -188,62 +193,3 @@ def _process_impute(expr, data):
         raise ValueError("Unrecognized imputation method: {}.".format(method))
 
     data[target] = X
-
-def _process_phenotype_filter(df, flt):
-    import re
-
-    def query_patch(self, expr):
-        if "self" in expr:
-            return self[eval(expr)]
-        else:
-            return self.query(expr)
-
-    df.query_patch = query_patch
-
-    flt = flt.strip()
-    r = flt.replace("phenotype", "", 1).strip()
-    if r[0] != ":":
-        ValueError("There should be a `:` after the filter target.")
-    r = r[1:]
-    r = r.strip()
-    m = re.match(r"^(.*)+$", r)
-    if m is not None:
-        df = df.query_patch(m.group())
-    return df
-
-
-def _process_genotype_filter(G, flt):
-    import re
-
-    flt = flt.strip()
-    r = flt.replace("genotype", "", 1).strip()
-    if r[0] != ":":
-        ValueError("There should be a `:` after the filter target.")
-    r = r[1:]
-    r = r.strip()
-    m = re.match(r"^(.*)+$", r)
-    if m is not None:
-        G = eval("G." + m.group())
-    return G
-
-
-_dispath_process_filter = {
-    "phenotype": _process_phenotype_filter,
-    "genotype": _process_genotype_filter,
-}
-
-
-def _get_filter_target(flt):
-    flt = flt.strip()
-    a, b = flt.find("["), flt.find(":")
-    s = _sign(a) * _sign(b)
-    i = s * min(s * a, s * b)
-    return flt[: i + 1][:-1].strip().lower()
-
-
-def _sign(v):
-    if v > 0:
-        return 1
-    if v < 0:
-        return -1
-    return 0
