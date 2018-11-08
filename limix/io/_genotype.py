@@ -19,5 +19,16 @@ def fetch_bed_genotype(filepath):
 _dispatch = {"bed": fetch_bed_genotype}
 
 
-def fetch_genotype(filepath, filetype):
-    return _dispatch[filetype](filepath)
+def fetch_genotype(fetch_spec):
+    filetype = fetch_spec["filetype"]
+    df = _dispatch[filetype](fetch_spec["filepath"])
+
+    cols = fetch_spec["matrix_spec"]["cols"]
+    if cols != None:
+        df = eval("df[" + cols + "]")
+
+    rows = fetch_spec["matrix_spec"]["rows"]
+    if rows != None:
+        df = eval("df.loc[" + rows + "]")
+
+    return df

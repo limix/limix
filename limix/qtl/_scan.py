@@ -167,7 +167,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
 
 def _perform_lmm(y, M, QS, G, verbose):
     from glimix_core.lmm import LMM
-    from pandas import Series, DataFrame
+    from pandas import Series
     from xarray import DataArray
 
     lmm = LMM(y, M.values, QS)
@@ -199,7 +199,7 @@ def _perform_lmm(y, M, QS, G, verbose):
 
 def _perform_glmm(y, lik, M, K, QS, G, verbose):
     from glimix_core.glmm import GLMMExpFam, GLMMNormal
-    from pandas import Series, DataFrame
+    from pandas import Series
     from xarray import DataArray
 
     glmm = GLMMExpFam(y.ravel(), lik, M.values, QS)

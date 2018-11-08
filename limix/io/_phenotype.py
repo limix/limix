@@ -4,8 +4,25 @@ def fetch_bimbam_phenotype(filepath):
     return read_phenotype(filepath)
 
 
-_dispatch = {"bimbam-pheno": fetch_bimbam_phenotype}
+def fetch_csv_phenotype(filepath):
+    from .csv import read
+
+    return read(filepath)
 
 
-def fetch_phenotype(filepath, filetype):
-    return _dispatch[filetype](filepath)
+_dispatch = {"bimbam-pheno": fetch_bimbam_phenotype, "csv": fetch_csv_phenotype}
+
+
+def fetch_phenotype(fetch_spec):
+    filetype = fetch_spec["filetype"]
+    df = _dispatch[filetype](fetch_spec["filepath"])
+
+    cols = fetch_spec["matrix_spec"]["cols"]
+    if cols != None:
+        df = eval("df[" + cols + "]")
+
+    rows = fetch_spec["matrix_spec"]["rows"]
+    if rows != None:
+        df = eval("df.loc[" + rows + "]")
+
+    return df

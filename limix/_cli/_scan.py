@@ -34,6 +34,11 @@ import click
     ),
     multiple=True,
 )
+@click.option(
+    "--impute",
+    help=("Impute missing values for phenotype, genotype, and covariate."),
+    multiple=True,
+)
 @click.option("--output-dir", help="Specify the output directory path.", default=None)
 def scan(
     ctx,
@@ -43,6 +48,7 @@ def scan(
     kinship_file,
     lik,
     filter,
+    impute,
     output_dir,
 ):
     """Perform genome-wide association scan.
@@ -85,18 +91,21 @@ def scan(
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
-    pheno_filepath, pheno_type = limix.io.detect_file_type(phenotypes_file)
+    pheno_fetch = limix.io.get_fetch_specification(phenotypes_file)
+    geno_fetch = limix.io.get_fetch_specification(genotype_file)
 
-    geno_filepath, geno_type = limix.io.detect_file_type(genotype_file)
-
-    y = limix.io.fetch_phenotype(pheno_filepath, pheno_type)
-    G = limix.io.fetch_genotype(geno_filepath, geno_type)
+    y = limix.io.fetch_phenotype(pheno_fetch)
+    G = limix.io.fetch_genotype(geno_fetch)
 
     data = {"phenotype": y, "genotype": G}
 
     for filt in filter:
         target = _get_filter_target(filt)
         data[target] = _dispath_process_filter[target](data[target], filt)
+
+    for imp in impute:
+        target = _get_filter_target(filt)
+        data[target] = _impute(data[target], imp)
 
     try:
         r = limix.qtl.scan(data["genotype"], data["phenotype"], lik)
@@ -109,16 +118,45 @@ def scan(
 def _process_phenotype_filter(df, flt):
     import re
 
+    def query_patch(self, expr):
+        if "self" in expr:
+            return self[eval(expr)]
+        else:
+            return self.query(expr)
+
+    df.query_patch = query_patch
+
     flt = flt.strip()
     r = flt.replace("phenotype", "", 1).strip()
-    m = re.match(r"^(\[.*\])+", r)
+    if r[0] != ":":
+        ValueError("There should be a `:` after the filter target.")
+    r = r[1:]
+    r = r.strip()
+    m = re.match(r"^(.*)+$", r)
     if m is not None:
-        slic = m.groups(0)[0]
-        df = eval("df{}".format(slic))
+        df = df.query_patch(m.group())
     return df
 
 
-_dispath_process_filter = {"phenotype": _process_phenotype_filter}
+def _process_genotype_filter(G, flt):
+    import re
+
+    flt = flt.strip()
+    r = flt.replace("genotype", "", 1).strip()
+    if r[0] != ":":
+        ValueError("There should be a `:` after the filter target.")
+    r = r[1:]
+    r = r.strip()
+    m = re.match(r"^(.*)+$", r)
+    if m is not None:
+        G = eval("G." + m.group())
+    return G
+
+
+_dispath_process_filter = {
+    "phenotype": _process_phenotype_filter,
+    "genotype": _process_genotype_filter,
+}
 
 
 def _get_filter_target(flt):
@@ -135,3 +173,14 @@ def _sign(v):
     if v < 0:
         return -1
     return 0
+
+def _impute(X, imp):
+    import re
+
+    imp = "".join(imp.split(":")[1:]).strip()
+    if imp == "mean":
+        X = limix.qc.impute.mean_impute(X)
+    else:
+        raise ValueError("Unrecognized imput method: {}.".format(imp))
+
+    return X

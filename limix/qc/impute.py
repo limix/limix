@@ -40,6 +40,7 @@ def mean_impute(X):
     .. _Dask: https://dask.pydata.org/
     """
     import dask.array as da
+    import xarray as xr
 
     if isinstance(X, da.Array):
         m = da.nanmean(X, axis=0).compute()
@@ -52,6 +53,19 @@ def mean_impute(X):
             arrs.append(X[:, start:end].map_blocks(impute, dtype=float))
             start = end
         X = da.concatenate(arrs, axis=1)
+    elif isinstance(X, xr.DataArray):
+        data = X.data
+        m = da.nanmean(data, axis=0).compute()
+        start = 0
+
+        arrs = []
+        for i in range(len(data.chunks[1])):
+            end = start + data.chunks[1][i]
+            impute = _get_imputer(m[start:end])
+            arrs.append(data[:, start:end].map_blocks(impute, dtype=float))
+            start = end
+        data = da.concatenate(arrs, axis=1)
+        X.data = data
     else:
         if hasattr(X, "values"):
             x = X.values

@@ -37,7 +37,31 @@ def detect_file_type(filepath):
         return filepath, "csv"
     if filepath.endswith(".bgen"):
         return filepath, "bgen"
+    if filepath.endswith(".gemma"):
+        return filepath, "bimbam-pheno"
     return filepath, "unknown"
+
+
+def get_fetch_specification(filepath_spec):
+    import re
+
+    filepath, filetype = detect_file_type(filepath_spec)
+    rest = filepath_spec[len(filepath) + len(filetype) + 1 :]
+    if len(rest) == 0:
+        rest = ":"
+
+    if ":" != rest[0]:
+        raise ValueError("Invalid fetch specification syntax.")
+
+    rows = None
+    cols = None
+    rest = rest[1:].strip()
+    col_match = re.match(r"^col\[(.+)\]$", rest)
+    if col_match is not None:
+        cols = col_match.groups(1)[0]
+
+    matrix_spec = {"cols": cols, "rows": rows}
+    return {"filepath": filepath, "filetype": filetype, "matrix_spec": matrix_spec}
 
 
 def _is_bed(filepath):
@@ -57,5 +81,5 @@ def _get_file_type_spec(filepath):
     if ":" not in filename:
         return filepath, None
 
-    spec = filename.split(":")[-1]
-    return filepath[: -len(spec) - 1], spec
+    split = filename.split(":")
+    return split[0], split[1]
