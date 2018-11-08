@@ -35,6 +35,18 @@ import click
     multiple=True,
 )
 @click.option(
+    "--filter-missing",
+    help=("Drop out samples, candidates, or covariates with missing values."),
+    multiple=True,
+)
+@click.option(
+    "--filter-maf",
+    help=(
+        "Drop out candidates having a minor allele frequency below the provided threshold."
+    ),
+    multiple=True,
+)
+@click.option(
     "--impute",
     help=("Impute missing values for phenotype, genotype, and covariate."),
     multiple=True,
@@ -48,6 +60,8 @@ def scan(
     kinship_file,
     lik,
     filter,
+    filter_missing,
+    filter_maf,
     impute,
     output_dir,
 ):
@@ -99,21 +113,81 @@ def scan(
 
     data = {"phenotype": y, "genotype": G}
 
-    for filt in filter:
-        target = _get_filter_target(filt)
-        data[target] = _dispath_process_filter[target](data[target], filt)
+    for f in filter:
+        _process_filter(f, data)
+
+    for f in filter_missing:
+        _process_filter_missing(f, data)
+
+    for f in filter_maf:
+        _process_filter_maf(f, data)
 
     for imp in impute:
-        target = _get_filter_target(filt)
-        data[target] = _impute(data[target], imp)
+        _process_impute(imp, data)
 
     try:
         r = limix.qtl.scan(data["genotype"], data["phenotype"], lik)
     except Exception as e:
         limix._exception.print_exc(traceback.format_stack(), e)
         sys.exit(1)
+
     print(r)
 
+
+def _process_filter(expr, data):
+    elems = [e.strip() for e in expr.strip().split(":")]
+    if len(elems) < 2 or len(elems) > 3:
+        raise ValueError("Filter syntax error.")
+
+
+def _process_filter_missing(expr, data):
+    elems = [e.strip() for e in expr.strip().split(":")]
+    if len(elems) < 2 or len(elems) > 3:
+        raise ValueError("Missing filter syntax error.")
+
+    target = elems[0]
+    dim = elems[1]
+
+    if len(elems) == 3:
+        how = elems[2]
+    else:
+        how = "any"
+
+    data[target] = data[target].dropna(dim, how)
+
+
+def _process_filter_maf(expr, data):
+    maf = float(expr)
+    G = data["genotype"]
+    data["genotype"] = G
+
+
+def _process_impute(expr, data):
+    elems = [e.strip() for e in expr.strip().split(":")]
+    if len(elems) < 2 or len(elems) > 3:
+        raise ValueError("Missing filter syntax error.")
+
+    target = elems[0]
+    dim = elems[1]
+
+    if len(elems) == 3:
+        method = elems[2]
+    else:
+        method = "mean"
+
+    X = data[target]
+    if dim not in X.dims:
+        raise ValueError("Unrecognized dimension: {}.".format(dim))
+
+    if method == "mean":
+        if X.dims[0] == dim:
+            X = limix.qc.impute.mean_impute(X.T).T
+        else:
+            X = limix.qc.impute.mean_impute(X)
+    else:
+        raise ValueError("Unrecognized imputation method: {}.".format(method))
+
+    data[target] = X
 
 def _process_phenotype_filter(df, flt):
     import re
@@ -173,14 +247,3 @@ def _sign(v):
     if v < 0:
         return -1
     return 0
-
-def _impute(X, imp):
-    import re
-
-    imp = "".join(imp.split(":")[1:]).strip()
-    if imp == "mean":
-        X = limix.qc.impute.mean_impute(X)
-    else:
-        raise ValueError("Unrecognized imput method: {}.".format(imp))
-
-    return X

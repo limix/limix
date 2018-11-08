@@ -20,15 +20,17 @@ _dispatch = {"bed": fetch_bed_genotype}
 
 
 def fetch_genotype(fetch_spec):
+    from ast import literal_eval
+
     filetype = fetch_spec["filetype"]
-    df = _dispatch[filetype](fetch_spec["filepath"])
+    X = _dispatch[filetype](fetch_spec["filepath"])
 
-    cols = fetch_spec["matrix_spec"]["cols"]
-    if cols != None:
-        df = eval("df[" + cols + "]")
+    spec = fetch_spec["matrix_spec"]
+    if spec is not None:
+        spec = spec.replace("trait", "trait=").replace("genotype", "genotype=")
+        spec = dict(
+            (k, literal_eval(v)) for k, v in (pair.split("=") for pair in spec.split())
+        )
+        X = X.sel(**spec)
 
-    rows = fetch_spec["matrix_spec"]["rows"]
-    if rows != None:
-        df = eval("df.loc[" + rows + "]")
-
-    return df
+    return X

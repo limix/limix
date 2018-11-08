@@ -49,18 +49,18 @@ def get_fetch_specification(filepath_spec):
     rest = filepath_spec[len(filepath) + len(filetype) + 1 :]
     if len(rest) == 0:
         rest = ":"
+        matrix_spec = None
+    else:
+        if ":" != rest[0]:
+            raise ValueError("Invalid fetch specification syntax.")
 
-    if ":" != rest[0]:
-        raise ValueError("Invalid fetch specification syntax.")
+        rest = rest[1:].strip()
+        match = re.match(r"^trait\[(.+)\]$", rest)
+        if match is None:
+            raise ValueError("Invalid fetch specification syntax.")
+        else:
+            matrix_spec = match.group(0)
 
-    rows = None
-    cols = None
-    rest = rest[1:].strip()
-    col_match = re.match(r"^col\[(.+)\]$", rest)
-    if col_match is not None:
-        cols = col_match.groups(1)[0]
-
-    matrix_spec = {"cols": cols, "rows": rows}
     return {"filepath": filepath, "filetype": filetype, "matrix_spec": matrix_spec}
 
 
