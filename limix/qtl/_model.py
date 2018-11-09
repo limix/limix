@@ -23,6 +23,19 @@ class QTLModel(object):
         alt_lmls.name = "alt lmls"
         effsizes.name = "effsizes"
 
+    def _get_null_series(self):
+        from pandas import concat, Series
+
+        a = self._null_covariate_effsizes
+        b = Series(data=[self._null_lml], index=["null_lml"])
+        return concat([a, b])
+
+    def _get_alt_dataframe(self):
+        from pandas import DataFrame
+
+        df = DataFrame({"alt_lmls": self._alt_lmls, "effsizes": self._effsizes})
+        return df
+
     @property
     def null_lml(self):
         r"""Log of the marginal likelihood under the null hypothesis.
@@ -101,6 +114,14 @@ class QTLModel(object):
             Estimated covariant effect sizes under the null hypothesis.
         """
         return self._null_covariate_effsizes
+
+    def to_csv(self, path_or_buf_null, path_or_buf_alt):
+
+        null = self._get_null_series()
+        alt = self._get_alt_dataframe()
+
+        null.to_csv(path_or_buf_null)
+        alt.to_csv(path_or_buf_alt)
 
     def __repr__(self):
         from pandas import DataFrame

@@ -2,6 +2,7 @@ import traceback
 import sys
 import limix
 import click
+import os
 
 
 @click.command()
@@ -51,7 +52,9 @@ import click
     help=("Impute missing values for phenotype, genotype, and covariate."),
     multiple=True,
 )
-@click.option("--output-dir", help="Specify the output directory path.", default=None)
+@click.option(
+    "--output-dir", help="Specify the output directory path.", default="output"
+)
 @click.option(
     "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
 )
@@ -67,7 +70,7 @@ def scan(
     filter_maf,
     impute,
     output_dir,
-    verbose
+    verbose,
 ):
     """Perform genome-wide association scan.
 
@@ -109,6 +112,10 @@ def scan(
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     pheno_fetch = limix.io.get_fetch_specification(phenotypes_file)
     geno_fetch = limix.io.get_fetch_specification(genotype_file)
 
@@ -130,13 +137,19 @@ def scan(
         _process_impute(imp, data)
 
     try:
-        r = limix.qtl.scan(data["genotype"], data["phenotype"], lik, verbose=verbose)
+        model = limix.qtl.scan(
+            data["genotype"], data["phenotype"], lik, verbose=verbose
+        )
     except Exception as e:
         limix._exception.print_exc(traceback.format_stack(), e)
         sys.exit(1)
 
     if verbose:
-        print(r)
+        print(model)
+
+    model.to_csv(
+        os.path.join(output_dir, "null.csv"), os.path.join(output_dir, "alt.csv")
+    )
 
 
 def _process_filter(expr, data):
