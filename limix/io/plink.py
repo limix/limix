@@ -74,7 +74,16 @@ def read(prefix, verbose=True):
 
     if verbose:
         print("Reading `{}`...".format(prefix))
-    return read_plink(prefix, verbose=verbose)
+
+    data = read_plink(prefix, verbose=verbose)
+    data[1].index = data[1]["iid"]
+    data[1].index.name = "sample"
+    data[0].index = (
+        data[0]["chrom"].astype(str).values + "_" + data[0]["snp"].astype(str).values
+    )
+    data[0].index.name = "candidate"
+
+    return data
 
 
 def see_kinship(filepath, verbose):
@@ -101,18 +110,12 @@ def fetch_dosage(prefix, verbose):
 
 def see_bed(filepath, verbose):
     # TODO: document
+    from ..display import dataframe_repr
+
     (bim, fam, _) = read(filepath, verbose=verbose)
 
-    _print_title("Samples", repr(bim))
-    _print_title("Genotype", repr(fam))
-
-
-def _print_title(title, msg):
-    k = msg.find("\n") - len(title) - 2
-    left = ("-" * (k // 2)) + " "
-    right = " " + ("-" * (k // 2 + k % 2))
-    print(left + title + right)
-    print(msg)
+    print(dataframe_repr("Samples", bim))
+    print(dataframe_repr("Genotype", fam))
 
 
 def _read_grm_raw(filepath):

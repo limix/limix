@@ -15,6 +15,13 @@ _tags = ["bold", "green", "blue", "red"]
 _color = {"blue": "#0C68C7", "green": "#19CB00", "red": "#FF3534"}
 
 
+def banner():
+    from limix import __version__
+
+    pyver = sys.version.split("\n")[0].strip()
+    return "Running Limix {} using Python {}.".format(__version__, pyver)
+
+
 def pprint(txt):
     """Print rich text."""
     try:
@@ -23,6 +30,16 @@ def pprint(txt):
         display(_RichText(txt))
     except Exception:
         print(_RichText(txt))
+
+
+def dataframe_repr(title, df):
+    msg = repr(df)
+    k = msg.find("\n") - len(title) - 2
+    left = ("-" * (k // 2)) + " "
+    right = " " + ("-" * (k // 2 + k % 2))
+    out = left + title + right + "\n"
+    out += msg
+    return out
 
 
 def format_richtext(txt):

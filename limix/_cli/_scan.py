@@ -3,6 +3,7 @@ import sys
 import limix
 import click
 import os
+from collections import namedtuple
 
 
 @click.command()
@@ -112,36 +113,36 @@ def scan(
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
+    from limix.display import session_text, banner
 
+    print(banner())
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    pheno_fetch = limix.io.get_fetch_specification(phenotypes_file)
-    geno_fetch = limix.io.get_fetch_specification(genotype_file)
+    pheno_fetch = limix.io.get_fetch_spec(phenotypes_file)
+    geno_fetch = limix.io.get_fetch_spec(genotype_file)
 
     y = limix.io.fetch_phenotype(pheno_fetch, verbose=verbose)
+    if verbose:
+        print(y)
+        print()
+
     G = limix.io.fetch_genotype(geno_fetch, verbose=verbose)
+    if verbose:
+        print(G)
+        print()
 
-    data = {"phenotype": y, "genotype": G}
+    data = {"y": y, "G": G}
 
-    for f in filter:
-        _process_filter(f, data)
-
-    for f in filter_missing:
-        _process_filter_missing(f, data)
-
-    for f in filter_maf:
-        _process_filter_maf(f, data)
-
-    for imp in impute:
-        _process_impute(imp, data)
+    with session_text("preprocessing", disable=not verbose):
+        _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose)
 
     try:
-        model = limix.qtl.scan(
-            data["genotype"], data["phenotype"], lik, verbose=verbose
-        )
+        model = limix.qtl.scan(data["G"], data["y"], lik, verbose=verbose)
     except Exception as e:
-        limix._exception.print_exc(traceback.format_stack(), e)
+        from limix import _exception
+
+        _exception.print_exc(traceback.format_stack(), e)
         sys.exit(1)
 
     if verbose:
@@ -150,6 +151,53 @@ def scan(
     model.to_csv(
         os.path.join(output_dir, "null.csv"), os.path.join(output_dir, "alt.csv")
     )
+
+
+def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
+    from limix._dataset import _normalise_dataset
+
+    layout = _LayoutChange()
+
+    for target in data.keys():
+        layout.append(target, "initial", data[target].shape)
+
+    data = _normalise_dataset(data["y"], G=data["G"])
+    data = {k: v for k, v in data.items() if v is not None}
+
+    for target in data.keys():
+        layout.append(target, "sample match", data[target].shape)
+
+    if data["y"].sample.size == 0:
+        print(layout.to_string())
+        raise RuntimeError(
+            "Exiting early because there is no sample left."
+            + " Please, check your sample ids."
+        )
+
+    for i, f in enumerate(filter):
+        _process_filter(f, data)
+        for target in data.keys():
+            layout.append(target, "filter {}".format(i), data[target].shape)
+            if data["y"].sample.size == 0:
+                print(layout.to_string())
+                raise RuntimeError("Exiting early because there is no sample left.")
+
+    for f in filter_missing:
+        _process_filter_missing(f, data)
+        if data["y"].sample.size == 0:
+            print(layout.to_string())
+            raise RuntimeError("Exiting early because there is no sample left.")
+
+    for f in filter_maf:
+        _process_filter_maf(f, data)
+        if data["y"].sample.size == 0:
+            print(layout.to_string())
+            raise RuntimeError("Exiting early because there is no sample left.")
+
+    for imp in impute:
+        _process_impute(imp, data)
+
+    print(layout.to_string())
 
 
 def _process_filter(expr, data):
@@ -176,8 +224,8 @@ def _process_filter_missing(expr, data):
 
 def _process_filter_maf(expr, data):
     maf = float(expr)
-    G = data["genotype"]
-    data["genotype"] = G
+    G = data["G"]
+    data["G"] = G
 
 
 def _process_impute(expr, data):
@@ -206,3 +254,56 @@ def _process_impute(expr, data):
         raise ValueError("Unrecognized imputation method: {}.".format(method))
 
     data[target] = X
+
+
+def _print_data_stats(data):
+    for k in sorted(data.keys()):
+        print(k)
+        print(data[k].shape)
+
+
+class _LayoutChange(object):
+    def __init__(self):
+        self._targets = {}
+        self._steps = ["sentinel"]
+
+    def append(self, target, step, shape):
+        if target not in self._targets:
+            self._targets[target] = {}
+
+        self._targets[target][step] = shape
+        if step != self._steps[-1]:
+            self._steps.append(step)
+
+    def to_string(self):
+        from texttable import Texttable
+
+        table = Texttable()
+        header = [""]
+        shapes = {k: [k] for k in self._targets.keys()}
+
+        for step in self._steps[1:]:
+            header.append(step)
+            for target in self._targets.keys():
+                v = str(self._targets[target].get(step, ""))
+                shapes[target].append(v)
+
+        table.header(header)
+
+        table.set_cols_dtype(["t"] * len(header))
+        table.set_cols_align(["l"] * len(header))
+        table.set_deco(Texttable.HEADER)
+
+        for target in self._targets.keys():
+            table.add_row(shapes[target])
+
+        msg = table.draw()
+
+        msg = self._add_caption(msg, "-", "Table: Data layout transformation.")
+        return msg + "\n"
+
+    def _add_caption(self, msg, c, caption):
+        n = len(msg.split("\n")[-1])
+        msg += "\n" + (c * n)
+        msg += "\n" + caption
+        return msg

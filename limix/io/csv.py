@@ -77,14 +77,14 @@ def see(filepath, header, verbose=True):
         CSV representation.
     """
     from pandas import read_csv
-    from ..display import session_time
+    from ..display import timer_text
 
     if header:
         header = 0
     else:
         header = None
 
-    with session_time(desc="Reading %s... " % filepath, disable=not verbose):
+    with timer_text(desc="Reading %s... " % filepath, disable=not verbose):
         sep = _infer_separator(filepath)
         msg = read_csv(filepath, sep=sep, header=header).head()
 

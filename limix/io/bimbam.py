@@ -35,10 +35,13 @@ def read_phenotype(filepath, verbose=True):
     with timer_text("Reading `{}`... ".format(filepath), disable=not verbose):
         df = read_csv(filepath, sep=r"\s+", header=None)
 
+    df.index = ["sample_{}".format(i) for i in range(len(df))]
+    df.index.name = "sample"
+
     return df
 
 
-def see_phenotype(filepath):
+def see_phenotype(filepath, verbose=True):
     """Shows a summary of a BIMBAM phenotype file.
 
     Parameters
@@ -51,7 +54,8 @@ def see_phenotype(filepath):
     str
         File representation.
     """
-    from pandas import read_csv
+    from ..display import dataframe_repr
 
-    df = read_csv(filepath, sep=r"\s+", header=None)
-    print(df.head().to_string(show_dimensions=True))
+    df = read_phenotype(filepath, verbose)
+
+    print(dataframe_repr("Phenotypes", df))

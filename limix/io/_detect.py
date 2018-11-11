@@ -12,56 +12,114 @@ recognized_file_types = [
 ]
 
 
-def detect_file_type(filepath):
-    # TODO document
-
-    filepath, spec = _get_file_type_spec(filepath)
-    if spec is not None:
-        if spec in recognized_file_types:
-            return filepath, spec
-
+def infer_filetype(filepath):
     imexts = [".png", ".bmp", ".jpg", "jpeg"]
     if filepath.endswith(".hdf5") or filepath.endswith(".h5"):
-        return filepath, "hdf5"
+        return "hdf5"
     if filepath.endswith(".csv"):
-        return filepath, "csv"
+        return "csv"
     if filepath.endswith(".npy"):
-        return filepath, "npy"
+        return "npy"
     if filepath.endswith(".grm.raw"):
-        return filepath, "grm.raw"
+        return "grm.raw"
     if _is_bed(filepath):
-        return filepath, "bed"
+        return "bed"
     if any([filepath.endswith(ext) for ext in imexts]):
-        return filepath, "image"
+        return "image"
     if filepath.endswith(".txt"):
-        return filepath, "csv"
+        return "csv"
     if filepath.endswith(".bgen"):
-        return filepath, "bgen"
+        return "bgen"
     if filepath.endswith(".gemma"):
-        return filepath, "bimbam-pheno"
-    return filepath, "unknown"
+        return "bimbam-pheno"
+    return "unknown"
 
 
-def get_fetch_specification(filepath_spec):
+def detect_filetype(fetch_spec):
+    spec = _split_fetch_spec(fetch_spec)
+    if spec["filetype"] != "":
+        if spec["filetype"] in recognized_file_types:
+            return spec["filetype"]
+    return infer_filetype(spec["filepath"])
+
+
+def get_fetch_spec(fetch_spec):
+    spec = _split_fetch_spec(fetch_spec)
+    if spec["filetype"] == "":
+        spec["filetype"] = infer_filetype(spec["filepath"])
+    spec["matrix_spec"] = _parse_matrix_spec(spec["matrix_spec"])
+    return spec
+
+
+def _parse_matrix_spec(txt):
     import re
 
-    filepath, filetype = detect_file_type(filepath_spec)
-    rest = filepath_spec[len(filepath) + len(filetype) + 1 :]
-    if len(rest) == 0:
-        rest = ":"
-        matrix_spec = None
-    else:
-        if ":" != rest[0]:
-            raise ValueError("Invalid fetch specification syntax.")
-
-        rest = rest[1:].strip()
-        match = re.match(r"^trait\[(.+)\]$", rest)
-        if match is None:
-            raise ValueError("Invalid fetch specification syntax.")
+    parts = _split_matrix_spec(txt)
+    data = {"sel": {}}
+    for p in parts:
+        p = p.strip()
+        if p.startswith("row"):
+            data["row"] = p.split("=")[1]
+        elif p.startswith("col"):
+            data["col"] = p.split("=")[1]
         else:
-            matrix_spec = match.group(0)
+            match = re.match(r"(^[^\[]+)\[(.+)\]$", p)
+            if match is None:
+                raise ValueError("Invalid fetch specification syntax.")
+            data["sel"].update({match.group(1): match.group(2)})
 
-    return {"filepath": filepath, "filetype": filetype, "matrix_spec": matrix_spec}
+    return data
+
+
+def _split_matrix_spec(txt):
+
+    brackets = 0
+    parts = []
+    j = 0
+    for i in range(len(txt)):
+        if txt[i] == "[":
+            brackets += 1
+        elif txt[i] == "]":
+            brackets -= 1
+        elif txt[i] == "," and brackets == 0:
+            if j == i:
+                raise ValueError("Invalid fetch specification syntax.")
+            parts.append(txt[j:i])
+            j = i + 1
+        if brackets < 0:
+            raise ValueError("Invalid fetch specification syntax.")
+
+    if len(txt[j:]) > 0:
+        parts.append(txt[j:])
+
+    return parts
+
+
+def _split_fetch_spec(txt):
+    parts = []
+    j = 0
+    for i in range(len(txt)):
+        if len(parts) == 2:
+            parts.append(txt[i:])
+        if txt[i] == ":":
+            if j == i:
+                raise ValueError("Invalid fetch specification syntax.")
+            parts.append(txt[j:i])
+            j = i + 1
+
+    if len(txt[j:]) > 0:
+        parts.append(txt[j:])
+
+    if len(parts) == 0:
+        raise ValueError("Invalid fetch specification syntax.")
+
+    data = {"filepath": "", "filetype": "", "matrix_spec": ""}
+    data["filepath"] = parts[0]
+    if len(parts) > 1:
+        data["filetype"] = parts[1]
+    if len(parts) > 2:
+        data["matrix_spec"] = parts[2]
+    return data
 
 
 def _is_bed(filepath):
@@ -75,11 +133,3 @@ def _is_bed(filepath):
 
     return all(ok)
 
-
-def _get_file_type_spec(filepath):
-    filename = basename(filepath)
-    if ":" not in filename:
-        return filepath, None
-
-    split = filename.split(":")
-    return split[0], split[1]

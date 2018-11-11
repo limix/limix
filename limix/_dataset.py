@@ -191,10 +191,20 @@ def _assign_index_to_nonindexed(data, dim_name):
 
 
 def _rename_dims(x, dim_0, dim_1):
+    from numpy import atleast_1d
+
     if x is None:
         return None
-    x = x.rename({x.dims[0]: dim_0})
-    x = x.rename({x.dims[1]: dim_1})
+    dims = [dim_0, dim_1]
+    for i, dim in enumerate(dims):
+        if x.dims[i] != dim:
+            coords = None
+            if dim in x.coords:
+                coords = x.coords[dim]
+                x = x.drop([dim])
+            x = x.rename({x.dims[i]: dim})
+            if coords is not None:
+                x = x.assign_coords(**{dim: atleast_1d(coords)})
     return x
 
 
