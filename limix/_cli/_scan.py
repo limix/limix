@@ -6,6 +6,23 @@ import os
 from collections import namedtuple
 
 
+_synonym = {"y": "trait", "trait": "y", "G": "genotype", "genotype": "G"}
+
+
+def short_name(name):
+    alt = _synonym[name]
+    if len(alt) < len(name):
+        return alt
+    return name
+
+
+def long_name(name):
+    alt = _synonym[name]
+    if len(alt) < len(name):
+        return name
+    return alt
+
+
 @click.command()
 @click.pass_context
 @click.argument("phenotypes-file")
@@ -46,7 +63,6 @@ from collections import namedtuple
     help=(
         "Drop out candidates having a minor allele frequency below the provided threshold."
     ),
-    multiple=True,
 )
 @click.option(
     "--impute",
@@ -194,11 +210,15 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
             print(layout.to_string())
             raise RuntimeError("Exiting early because there is no sample left.")
 
-    for f in filter_maf:
-        _process_filter_maf(f, data)
-        if data["y"].sample.size == 0:
+    if filter_maf is not None:
+        data["G"] = _process_filter_maf(float(filter_maf), data["G"])
+
+        for target in data.keys():
+            layout.append(target, "maf filter", data[target].shape)
+
+        if data["G"].candidate.size == 0:
             print(layout.to_string())
-            raise RuntimeError("Exiting early because there is no sample left.")
+            raise RuntimeError("Exiting early because there is no candidate left.")
 
     for imp in impute:
         _process_impute(imp, data)
@@ -228,18 +248,21 @@ def _process_filter_missing(expr, data):
     data[target] = data[target].dropna(dim, how)
 
 
-def _process_filter_maf(expr, data):
-    maf = float(expr)
-    G = data["G"]
-    data["G"] = G
+def _process_filter_maf(maf, G):
+    import limix
+
+    mafs = limix.qc.compute_maf(G)
+    ok = mafs >= maf
+    return G.isel(candidate=ok)
 
 
 def _process_impute(expr, data):
+    breakpoint()
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
         raise ValueError("Missing filter syntax error.")
 
-    target = elems[0]
+    target = short_name(elems[0])
     dim = elems[1]
 
     if len(elems) == 3:
