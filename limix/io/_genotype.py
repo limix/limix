@@ -24,13 +24,27 @@ _dispatch = {"bed": fetch_bed_genotype}
 
 
 def fetch_genotype(fetch_spec, verbose=True):
+    from xarray import DataArray
+
     filetype = fetch_spec["filetype"]
+
     spec = fetch_spec["matrix_spec"]
+    dims = {d: spec[d] for d in ["row", "col"] if d in spec}
 
     X = _dispatch[filetype](fetch_spec["filepath"], verbose=verbose)
+    X = DataArray(X, dims=_read_dims_into(dims, "sample", "candidate"))
 
     if len(spec["sel"]) > 0:
         X = X.sel(**spec["sel"])
 
     X.name = "genotype"
+
     return X
+
+
+def _read_dims_into(dims, row, col):
+    default = {"row": row, "col": col}
+    for dim in default.keys():
+        if dim in dims:
+            default[dim] = dims[dim]
+    return [default["row"], default["col"]]

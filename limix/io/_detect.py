@@ -1,4 +1,4 @@
-from os.path import exists, basename
+from os.path import exists
 
 recognized_file_types = [
     "image",
@@ -12,41 +12,18 @@ recognized_file_types = [
 ]
 
 
-def infer_filetype(filepath):
-    imexts = [".png", ".bmp", ".jpg", "jpeg"]
-    if filepath.endswith(".hdf5") or filepath.endswith(".h5"):
-        return "hdf5"
-    if filepath.endswith(".csv"):
-        return "csv"
-    if filepath.endswith(".npy"):
-        return "npy"
-    if filepath.endswith(".grm.raw"):
-        return "grm.raw"
-    if _is_bed(filepath):
-        return "bed"
-    if any([filepath.endswith(ext) for ext in imexts]):
-        return "image"
-    if filepath.endswith(".txt"):
-        return "csv"
-    if filepath.endswith(".bgen"):
-        return "bgen"
-    if filepath.endswith(".gemma"):
-        return "bimbam-pheno"
-    return "unknown"
-
-
 def detect_filetype(fetch_spec):
     spec = _split_fetch_spec(fetch_spec)
     if spec["filetype"] != "":
         if spec["filetype"] in recognized_file_types:
             return spec["filetype"]
-    return infer_filetype(spec["filepath"])
+    return _infer_filetype(spec["filepath"])
 
 
 def get_fetch_spec(fetch_spec):
     spec = _split_fetch_spec(fetch_spec)
     if spec["filetype"] == "":
-        spec["filetype"] = infer_filetype(spec["filepath"])
+        spec["filetype"] = _infer_filetype(spec["filepath"])
     spec["matrix_spec"] = _parse_matrix_spec(spec["matrix_spec"])
     return spec
 
@@ -133,3 +110,25 @@ def _is_bed(filepath):
 
     return all(ok)
 
+
+def _infer_filetype(filepath):
+    imexts = [".png", ".bmp", ".jpg", "jpeg"]
+    if filepath.endswith(".hdf5") or filepath.endswith(".h5"):
+        return "hdf5"
+    if filepath.endswith(".csv"):
+        return "csv"
+    if filepath.endswith(".npy"):
+        return "npy"
+    if filepath.endswith(".grm.raw"):
+        return "grm.raw"
+    if _is_bed(filepath):
+        return "bed"
+    if any([filepath.endswith(ext) for ext in imexts]):
+        return "image"
+    if filepath.endswith(".txt"):
+        return "csv"
+    if filepath.endswith(".bgen"):
+        return "bgen"
+    if filepath.endswith(".gemma"):
+        return "bimbam-pheno"
+    return "unknown"

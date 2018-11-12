@@ -122,13 +122,19 @@ def scan(
     pheno_fetch = limix.io.get_fetch_spec(phenotypes_file)
     geno_fetch = limix.io.get_fetch_spec(genotype_file)
 
+    if verbose:
+        print("Phenotype file type: {}".format(pheno_fetch["filetype"]))
+        print("Genotype file type: {}".format(geno_fetch["filetype"]))
+
     y = limix.io.fetch_phenotype(pheno_fetch, verbose=verbose)
     if verbose:
+        print()
         print(y)
         print()
 
     G = limix.io.fetch_genotype(geno_fetch, verbose=verbose)
     if verbose:
+        print()
         print(G)
         print()
 
@@ -161,6 +167,7 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
     for target in data.keys():
         layout.append(target, "initial", data[target].shape)
 
+    breakpoint()
     data = _normalise_dataset(data["y"], G=data["G"])
     data = {k: v for k, v in data.items() if v is not None}
 
