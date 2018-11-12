@@ -176,14 +176,14 @@ def scan(
 
 
 def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
-    from limix._dataset import _normalise_dataset
+    from limix._dataset import conform_dataset
 
     layout = _LayoutChange()
 
     for target in data.keys():
         layout.append(target, "initial", data[target].shape)
 
-    data = _normalise_dataset(data["y"], G=data["G"])
+    data = conform_dataset(data["y"], G=data["G"])
     data = {k: v for k, v in data.items() if v is not None}
 
     for target in data.keys():

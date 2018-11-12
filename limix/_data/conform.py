@@ -3,10 +3,10 @@ from collections import Counter
 
 from numpy import array_equal, asarray, unique, dtype
 
-from ._dask import array_shape_reveal
+from .._bits.dask import array_shape_reveal
 
 
-def _normalise_dataset(y, M=None, G=None, K=None, X=None):
+def conform_dataset(y, M=None, G=None, K=None, X=None):
     r"""Convert data types to DataArray.
 
     This is a fundamental function for :mod:`limix` as it standardise outcome,
@@ -26,7 +26,7 @@ def _normalise_dataset(y, M=None, G=None, K=None, X=None):
         >>> from numpy.random import RandomState
         >>> from pandas import DataFrame
         >>> from xarray import DataArray
-        >>> from limix._dataset import _normalise_dataset
+        >>> from limix._dataset import conform_dataset
         >>>
         >>> random = RandomState(0)
         >>>
@@ -35,7 +35,7 @@ def _normalise_dataset(y, M=None, G=None, K=None, X=None):
         >>>
         >>> G = random.randn(5, 6)
         >>>
-        >>> data = _normalise_dataset(y, G=G)
+        >>> data = conform_dataset(y, G=G)
         >>> print(data["y"])
         <xarray.DataArray 'outcome' (sample: 4, trait: 1)>
         array([[1.764052],
@@ -60,7 +60,7 @@ def _normalise_dataset(y, M=None, G=None, K=None, X=None):
         >>> K.coords["dim_0"] = ["sample0", "sample1", "sample2"]
         >>> K.coords["dim_1"] = ["sample0", "sample1", "sample2"]
         >>>
-        >>> data = _normalise_dataset(y, K=K)
+        >>> data = conform_dataset(y, K=K)
         >>> print(data["y"])
         <xarray.DataArray 'outcome' (sample: 4, trait: 1)>
         array([[1.764052],
@@ -80,17 +80,17 @@ def _normalise_dataset(y, M=None, G=None, K=None, X=None):
           * sample_0  (sample_0) object 'sample0' 'sample0' 'sample1' 'sample2'
           * sample_1  (sample_1) object 'sample0' 'sample0' 'sample1' 'sample2'
         >>> with pytest.raises(ValueError):
-        ...     _normalise_dataset(y, G=G, K=K)
+        ...     conform_dataset(y, G=G, K=K)
     """
     if X is None:
         X = []
 
-    y = _rename_dims(_dataarray_upcast(y), "sample", "trait")
-    M = _rename_dims(_dataarray_upcast(M), "sample", "covariate")
-    G = _rename_dims(_dataarray_upcast(G), "sample", "candidate")
-    K = _rename_dims(_dataarray_upcast(K), "sample_0", "sample_1")
+    y = _rename_dims(to_dataarray(y), "sample", "trait")
+    M = _rename_dims(to_dataarray(M), "sample", "covariate")
+    G = _rename_dims(to_dataarray(G), "sample", "candidate")
+    K = _rename_dims(to_dataarray(K), "sample_0", "sample_1")
 
-    X = [(_rename_dims(_dataarray_upcast(x), "sample", n1), n0, n1) for x, n0, n1 in X]
+    X = [(_rename_dims(to_dataarray(x), "sample", n1), n0, n1) for x, n0, n1 in X]
 
     data = {"y": y, "M": M, "G": G, "K": K}
     data.update({"X{}".format(i): x[0] for i, x in enumerate(X)})
@@ -138,6 +138,39 @@ def _normalise_dataset(y, M=None, G=None, K=None, X=None):
     _check_sample_compatibility(data, dim_name, arrname)
 
     return data
+
+
+def to_dataarray(x):
+    import dask.dataframe as dd
+    import dask.array as da
+    import xarray as xr
+
+    if x is None:
+        return None
+
+    if isinstance(x, (dd.Series, dd.DataFrame)):
+        xidx = x.index.compute()
+        x = da.asarray(x)
+        x = array_shape_reveal(x)
+        x0 = xr.DataArray(x)
+        x0.coords[x0.dims[0]] = xidx
+        if isinstance(x, dd.DataFrame):
+            x0.coords[x0.dims[1]] = x.columns
+        x = x0
+
+    if not isinstance(x, xr.DataArray):
+        x = xr.DataArray(x, encoding={"dtype": "float64"})
+
+    if x.dtype != dtype("float64"):
+        x = x.astype("float64")
+
+    if x.ndim < 2:
+        x = x.expand_dims("dim_1", 1)
+
+    for dim in x.dims:
+        if x.coords[dim].dtype.kind in {"U", "S"}:
+            x.coords[dim] = x.coords[dim].values.astype(object)
+    return x
 
 
 def _assign_index_to_nonindexed(data, dim_name):
@@ -239,39 +272,6 @@ def _reorder_dims_if_hint(x, dims):
     return x
 
 
-def _dataarray_upcast(x):
-    import dask.dataframe as dd
-    import dask.array as da
-    import xarray as xr
-
-    if x is None:
-        return None
-
-    if isinstance(x, (dd.Series, dd.DataFrame)):
-        xidx = x.index.compute()
-        x = da.asarray(x)
-        x = array_shape_reveal(x)
-        x0 = xr.DataArray(x)
-        x0.coords[x0.dims[0]] = xidx
-        if isinstance(x, dd.DataFrame):
-            x0.coords[x0.dims[1]] = x.columns
-        x = x0
-
-    if not isinstance(x, xr.DataArray):
-        x = xr.DataArray(x, encoding={"dtype": "float64"})
-
-    if x.dtype != dtype("float64"):
-        x = x.astype("float64")
-
-    if x.ndim < 2:
-        x = x.expand_dims("dim_1", 1)
-
-    for dim in x.dims:
-        if x.coords[dim].dtype.kind in {"U", "S"}:
-            x.coords[dim] = x.coords[dim].values.astype(object)
-    return x
-
-
 def _assign_coords(x, dim_name, samples):
     if x is None:
         return None
@@ -317,33 +317,10 @@ def _infer_samples_index(data, dim_name):
     return valid_samples
 
 
-def _has_sample_index(x):
-    if hasattr(x, "index"):
-        return True
-    return hasattr(x, "coords") and "sample" == x.dims[0]
-
-
 def _get_sample_index(x):
     if hasattr(x, "index"):
         return asarray(x.index.values)
     return asarray(x.coords["sample"].values)
-
-
-def _index_set_intersection(arrs):
-    """Indices that are present in every indexed DataFrame/Series."""
-    index_set = None
-    for a in arrs:
-        i = set(asarray(_get_sample_index(a)))
-
-        if index_set is None:
-            index_set = i
-        else:
-            index_set = index_set.intersection(i)
-
-    if index_set is None:
-        return set()
-
-    return index_set
 
 
 def _same_order_if_possible(index_set, arrs):

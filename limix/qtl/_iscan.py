@@ -3,7 +3,7 @@ from tqdm import tqdm
 
 from limix.display import timer_text
 
-from .._dataset import _normalise_dataset
+from .._dataset import conform_dataset
 from ..display import session_text
 
 from glimix_core.lmm import LMM
@@ -124,7 +124,7 @@ def iscan(G, y, lik, inter, Ginter=None, K=None, M=None, verbose=True):
     with session_text("interaction qtl analysis", disable=not verbose):
 
         with timer_text("Normalising input... ", disable=not verbose):
-            data = _normalise_dataset(
+            data = conform_dataset(
                 y,
                 M,
                 G=G,
