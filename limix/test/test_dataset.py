@@ -2,7 +2,7 @@ from numpy import array, asarray, dtype
 from numpy.random import RandomState
 from numpy.testing import assert_, assert_array_equal, assert_equal
 
-from limix._dataset import _normalise_dataset, _dataarray_upcast
+from limix._dataset import _normalise_dataset, _dataarray_upcast, _rename_dims
 from pandas import DataFrame, Series
 from xarray import DataArray
 
@@ -268,6 +268,58 @@ def test_dataset_underline_prefix():
 
     G = DataArray.from_dict(data)
 
-    breakpoint()
     data = _normalise_dataset(y, G=G)
+    assert_equal(
+        data["y"].coords["sample"][:3].values, ["HG00111", "HG00112", "HG00116"]
+    )
+    assert_equal(data["y"].shape, (6, 1))
+    assert_equal(data["y"].dims, ("sample", "trait"))
 
+    data = {
+        "coords": {
+            "trait": {"data": "gene1", "dims": (), "attrs": {}},
+            "sample": {
+                "data": ["0", "1", "2", "3", "4", "5"],
+                "dims": ("sample",),
+                "attrs": {},
+            },
+        },
+        "attrs": {},
+        "dims": ("sample",),
+        "data": [
+            -3.7523451473100002,
+            -0.421128991488,
+            -0.536290093143,
+            -0.9076827328799999,
+            -0.251889685747,
+            -0.602998035829,
+        ],
+        "name": "phenotype",
+    }
+
+    y = DataArray.from_dict(data)
+    data = _normalise_dataset(y, G=G)
+    assert_equal(data["y"].shape, (0, 1))
+    assert_equal(data["y"].dims, ("sample", "trait"))
+
+    data = {
+        "coords": {"trait": {"data": "gene1", "dims": (), "attrs": {}}},
+        "attrs": {},
+        "dims": ("sample",),
+        "data": [
+            -3.7523451473100002,
+            -0.421128991488,
+            -0.536290093143,
+            -0.9076827328799999,
+            -0.251889685747,
+            -0.602998035829,
+        ],
+        "name": "phenotype",
+    }
+    y = DataArray.from_dict(data)
+    data = _normalise_dataset(y, G=G)
+    assert_equal(
+        data["y"].coords["sample"][:3].values, ["HG00111", "HG00112", "HG00116"]
+    )
+    assert_equal(data["y"].shape, (6, 1))
+    assert_equal(data["y"].dims, ("sample", "trait"))
