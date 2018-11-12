@@ -167,7 +167,6 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
     for target in data.keys():
         layout.append(target, "initial", data[target].shape)
 
-    breakpoint()
     data = _normalise_dataset(data["y"], G=data["G"])
     data = {k: v for k, v in data.items() if v is not None}
 
@@ -292,7 +291,7 @@ class _LayoutChange(object):
         for step in self._steps[1:]:
             header.append(step)
             for target in self._targets.keys():
-                v = str(self._targets[target].get(step, ""))
+                v = str(self._targets[target].get(step, "n/a"))
                 shapes[target].append(v)
 
         table.header(header)
