@@ -26,7 +26,7 @@ def conform_dataset(y, M=None, G=None, K=None, X=None):
         >>> from numpy.random import RandomState
         >>> from pandas import DataFrame
         >>> from xarray import DataArray
-        >>> from limix._dataset import conform_dataset
+        >>> from limix._data import conform_dataset
         >>>
         >>> random = RandomState(0)
         >>>
