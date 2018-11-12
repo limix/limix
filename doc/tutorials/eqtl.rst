@@ -208,7 +208,7 @@ This data frame can be readily used to perform association scan.
     Variants
     --------
             effsizes  effsizes_se    pvalues
-    count 2956.00000   2956.00000 2956.00000
+    count       2956         2956       2956
     mean     0.12974      0.58919    0.56056
     std      0.55063      0.11409    0.27785
     min     -1.26712      0.41405    0.00000

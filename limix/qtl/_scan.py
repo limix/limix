@@ -104,7 +104,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         Variants
         --------
                effsizes  effsizes_se   pvalues
-        count  3.000000     3.000000  3.000000
+        count         3            3         3
         mean  -0.196604     0.239910  0.441880
         std    0.102807     0.017563  0.193027
         min   -0.315077     0.221389  0.218996
