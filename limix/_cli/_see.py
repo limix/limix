@@ -6,9 +6,6 @@ import click
 @click.pass_context
 @click.argument("filepath")
 @click.option(
-    "--filetype", help="Specify the file type instead of guessing.", default="guess"
-)
-@click.option(
     "--show_chunks",
     help="Chunks if datasets will be displayed, if available.",
     default="guess",
@@ -18,8 +15,18 @@ import click
     help="Parse header from CSV file. Defaults to false.",
     default=False,
 )
-def see(ctx, filepath, filetype, show_chunks, header):
+@click.option(
+    "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
+)
+def see(ctx, filepath, show_chunks, header, verbose):
     """Show an overview of multiple file types."""
+    spec = limix.io.get_fetch_specification(filepath)
+    filetype = spec["filetype"]
+    filepath = spec["filepath"]
+
+    if filetype == "unknown":
+        print("Unknown file type or file path not reachable: `%s`." % filepath)
+
     if filetype == "guess":
         filepath, filetype = limix.io.detect_file_type(filepath)
 
@@ -27,22 +34,20 @@ def see(ctx, filepath, filetype, show_chunks, header):
         limix.io.hdf5.see(filepath, show_chunks=show_chunks)
 
     elif filetype == "csv":
-        limix.io.csv.see(filepath, verbose=ctx.obj["verbose"], header=header)
+        limix.io.csv.see(filepath, verbose=verbose, header=header)
 
     elif filetype == "grm.raw":
-        r = limix.io.plink.see_kinship(filepath, verbose=ctx.obj["verbose"])
+        r = limix.io.plink.see_kinship(filepath, verbose)
         limix.plot.show()
         return r
 
     elif filetype == "bed":
-        limix.io.plink.see_bed(filepath, verbose=ctx.obj["verbose"])
+        limix.io.plink.see_bed(filepath, verbose)
 
     elif filetype == "bimbam-pheno":
-        limix.io.bimbam.see_phenotype(filepath)
+        limix.io.bimbam.see_phenotype(filepath, verbose)
 
     elif filetype == "image":
         r = limix.plot.image(filepath)
         limix.plot.show()
         return r
-    else:
-        print("Unknown file type: %s" % filepath)

@@ -23,6 +23,19 @@ class QTLModel(object):
         alt_lmls.name = "alt lmls"
         effsizes.name = "effsizes"
 
+    def _get_null_series(self):
+        from pandas import concat, Series
+
+        a = self._null_covariate_effsizes
+        b = Series(data=[self._null_lml], index=["null_lml"])
+        return concat([a, b])
+
+    def _get_alt_dataframe(self):
+        from pandas import DataFrame
+
+        df = DataFrame({"alt_lmls": self._alt_lmls, "effsizes": self._effsizes})
+        return df
+
     @property
     def null_lml(self):
         r"""Log of the marginal likelihood under the null hypothesis.
@@ -102,7 +115,16 @@ class QTLModel(object):
         """
         return self._null_covariate_effsizes
 
+    def to_csv(self, path_or_buf_null, path_or_buf_alt):
+
+        null = self._get_null_series()
+        alt = self._get_alt_dataframe()
+
+        null.to_csv(path_or_buf_null)
+        alt.to_csv(path_or_buf_alt)
+
     def __repr__(self):
+        import re
         from pandas import DataFrame
 
         data = dict(
@@ -112,6 +134,17 @@ class QTLModel(object):
         )
 
         variant_msg = str(DataFrame(data=data).describe())
+
+        variant_lines = variant_msg.split("\n")
+
+        pline = variant_lines[1]
+        count_line = re.sub(r"(\d+)\.0", r" \1.", pline)
+        while pline != count_line:
+            pline = count_line
+            count_line = re.sub(r"(\d+)\.0", r" \1.", pline)
+
+        variant_lines[1] = re.sub(r"(\d+)\.", r" \1", count_line)
+        variant_msg = "\n".join(variant_lines)
 
         data = self.null_covariate_effsizes
         k = data.index.values

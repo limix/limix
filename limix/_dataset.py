@@ -191,10 +191,51 @@ def _assign_index_to_nonindexed(data, dim_name):
 
 
 def _rename_dims(x, dim_0, dim_1):
+    from numpy import atleast_1d
+
     if x is None:
         return None
-    x = x.rename({x.dims[0]: dim_0})
-    x = x.rename({x.dims[1]: dim_1})
+
+    dims = [dim_0, dim_1]
+    x = _reorder_dims_if_hint(x, dims)
+
+    for i, dim in enumerate(dims):
+        if x.dims[i] != dim:
+            coords = None
+            if dim in x.coords:
+                coords = x.coords[dim]
+                x = x.drop([dim])
+            if x.dims[i].startswith("_") and x.dims[i][1:] == dim:
+                x = x.drop([x.dims[i]])
+                x = x.rename({x.dims[i]: dim})
+                if coords is not None:
+                    x = x.assign_coords(**{x.dims[i]: atleast_1d(coords)})
+            else:
+                x = x.rename({x.dims[i]: dim})
+                if coords is not None:
+                    x = x.assign_coords(**{dim: atleast_1d(coords)})
+
+    return x
+
+
+def _reorder_dims_if_hint(x, dims):
+    dims = {k: a for a, k in enumerate(dims)}
+    hint = {}
+    for i, d in enumerate(x.dims):
+        if d.startswith("_"):
+            d = d[1:]
+        if d in dims:
+            hint[d] = i
+
+    if len(hint) == 0:
+        return x
+
+    for d in dims.keys():
+        if d in hint:
+            if hint[d] != dims[d]:
+                x = x.T
+                break
+
     return x
 
 

@@ -1,7 +1,7 @@
 import os
 
 
-def read(filename, sep=None, header=True):
+def read(filename, sep=None, header=True, verbose=True):
     r"""Read a CSV file.
 
     Parameters
@@ -13,6 +13,8 @@ def read(filename, sep=None, header=True):
     header : bool
         ``True`` for file with a header; ``False`` otherwise. Defaults
         to ``True``.
+    verbose : bool
+        `True` for progress information; `False` otherwise.
 
     Returns
     -------
@@ -26,7 +28,7 @@ def read(filename, sep=None, header=True):
         >>> from limix.example import file_example
         >>>
         >>> with file_example("data.csv") as filepath:
-        ...     df = read(filepath)
+        ...     df = read(filepath, verbose=False)
         ...     print(df)  # doctest: +FLOAT_CMP
            pheno   attr1 attr2 attr3
         0    sex  string    10     a
@@ -35,16 +37,19 @@ def read(filename, sep=None, header=True):
     """
     from dask.dataframe import read_csv as dask_read_csv
     from pandas import read_csv as pandas_read_csv
+    from ..display import timer_text
 
     if sep is None:
         sep = _infer_separator(filename)
 
     header = 0 if header else None
 
-    if _is_large_file(filename):
-        df = dask_read_csv(filename, sep=sep, header=header)
-    else:
-        df = pandas_read_csv(filename, sep=sep, header=header)
+    with timer_text("Reading {}... ".format(filename), disable=not verbose):
+
+        if _is_large_file(filename):
+            df = dask_read_csv(filename, sep=sep, header=header)
+        else:
+            df = pandas_read_csv(filename, sep=sep, header=header)
 
     if len(df.columns) > 0:
         if df.columns[0] == "Unnamed: 0":

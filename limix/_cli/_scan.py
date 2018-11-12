@@ -2,6 +2,25 @@ import traceback
 import sys
 import limix
 import click
+import os
+from collections import namedtuple
+
+
+_synonym = {"y": "trait", "trait": "y", "G": "genotype", "genotype": "G"}
+
+
+def short_name(name):
+    alt = _synonym[name]
+    if len(alt) < len(name):
+        return alt
+    return name
+
+
+def long_name(name):
+    alt = _synonym[name]
+    if len(alt) < len(name):
+        return name
+    return alt
 
 
 @click.command()
@@ -34,7 +53,28 @@ import click
     ),
     multiple=True,
 )
-@click.option("--output-dir", help="Specify the output directory path.", default=None)
+@click.option(
+    "--filter-missing",
+    help=("Drop out samples, candidates, or covariates with missing values."),
+    multiple=True,
+)
+@click.option(
+    "--filter-maf",
+    help=(
+        "Drop out candidates having a minor allele frequency below the provided threshold."
+    ),
+)
+@click.option(
+    "--impute",
+    help=("Impute missing values for phenotype, genotype, and covariate."),
+    multiple=True,
+)
+@click.option(
+    "--output-dir", help="Specify the output directory path.", default="output"
+)
+@click.option(
+    "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
+)
 def scan(
     ctx,
     phenotypes_file,
@@ -43,7 +83,11 @@ def scan(
     kinship_file,
     lik,
     filter,
+    filter_missing,
+    filter_maf,
+    impute,
     output_dir,
+    verbose,
 ):
     """Perform genome-wide association scan.
 
@@ -85,53 +129,210 @@ def scan(
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
-    pheno_filepath, pheno_type = limix.io.detect_file_type(phenotypes_file)
+    from limix.display import session_text, banner
 
-    geno_filepath, geno_type = limix.io.detect_file_type(genotype_file)
+    print(banner())
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
-    y = limix.io.fetch_phenotype(pheno_filepath, pheno_type)
-    G = limix.io.fetch_genotype(geno_filepath, geno_type)
+    pheno_fetch = limix.io.get_fetch_spec(phenotypes_file)
+    geno_fetch = limix.io.get_fetch_spec(genotype_file)
 
-    data = {"phenotype": y, "genotype": G}
+    if verbose:
+        print("Phenotype file type: {}".format(pheno_fetch["filetype"]))
+        print("Genotype file type: {}".format(geno_fetch["filetype"]))
 
-    for filt in filter:
-        target = _get_filter_target(filt)
-        data[target] = _dispath_process_filter[target](data[target], filt)
+    y = limix.io.fetch_phenotype(pheno_fetch, verbose=verbose)
+    if verbose:
+        print()
+        print(y)
+        print()
+
+    G = limix.io.fetch_genotype(geno_fetch, verbose=verbose)
+    if verbose:
+        print()
+        print(G)
+        print()
+
+    data = {"y": y, "G": G}
+
+    with session_text("preprocessing", disable=not verbose):
+        _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose)
 
     try:
-        r = limix.qtl.scan(data["genotype"], data["phenotype"], lik)
+        model = limix.qtl.scan(data["G"], data["y"], lik, verbose=verbose)
     except Exception as e:
-        limix._exception.print_exc(traceback.format_stack(), e)
+        from limix import _exception
+
+        _exception.print_exc(traceback.format_stack(), e)
         sys.exit(1)
-    print(r)
+
+    if verbose:
+        print(model)
+
+    model.to_csv(
+        os.path.join(output_dir, "null.csv"), os.path.join(output_dir, "alt.csv")
+    )
 
 
-def _process_phenotype_filter(df, flt):
-    import re
+def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
+    from limix._dataset import _normalise_dataset
 
-    flt = flt.strip()
-    r = flt.replace("phenotype", "", 1).strip()
-    m = re.match(r"^(\[.*\])+", r)
-    if m is not None:
-        slic = m.groups(0)[0]
-        df = eval("df{}".format(slic))
-    return df
+    layout = _LayoutChange()
+
+    for target in data.keys():
+        layout.append(target, "initial", data[target].shape)
+
+    data = _normalise_dataset(data["y"], G=data["G"])
+    data = {k: v for k, v in data.items() if v is not None}
+
+    for target in data.keys():
+        layout.append(target, "sample match", data[target].shape)
+
+    if data["y"].sample.size == 0:
+        print(layout.to_string())
+        raise RuntimeError(
+            "Exiting early because there is no sample left."
+            + " Please, check your sample ids."
+        )
+
+    for i, f in enumerate(filter):
+        _process_filter(f, data)
+        for target in data.keys():
+            layout.append(target, "filter {}".format(i), data[target].shape)
+            if data["y"].sample.size == 0:
+                print(layout.to_string())
+                raise RuntimeError("Exiting early because there is no sample left.")
+
+    for f in filter_missing:
+        _process_filter_missing(f, data)
+        if data["y"].sample.size == 0:
+            print(layout.to_string())
+            raise RuntimeError("Exiting early because there is no sample left.")
+
+    if filter_maf is not None:
+        data["G"] = _process_filter_maf(float(filter_maf), data["G"])
+
+        for target in data.keys():
+            layout.append(target, "maf filter", data[target].shape)
+
+        if data["G"].candidate.size == 0:
+            print(layout.to_string())
+            raise RuntimeError("Exiting early because there is no candidate left.")
+
+    for imp in impute:
+        _process_impute(imp, data)
+
+    print(layout.to_string())
 
 
-_dispath_process_filter = {"phenotype": _process_phenotype_filter}
+def _process_filter(expr, data):
+    elems = [e.strip() for e in expr.strip().split(":")]
+    if len(elems) < 2 or len(elems) > 3:
+        raise ValueError("Filter syntax error.")
 
 
-def _get_filter_target(flt):
-    flt = flt.strip()
-    a, b = flt.find("["), flt.find(":")
-    s = _sign(a) * _sign(b)
-    i = s * min(s * a, s * b)
-    return flt[: i + 1][:-1].strip().lower()
+def _process_filter_missing(expr, data):
+    elems = [e.strip() for e in expr.strip().split(":")]
+    if len(elems) < 2 or len(elems) > 3:
+        raise ValueError("Missing filter syntax error.")
+
+    target = elems[0]
+    dim = elems[1]
+
+    if len(elems) == 3:
+        how = elems[2]
+    else:
+        how = "any"
+
+    data[target] = data[target].dropna(dim, how)
 
 
-def _sign(v):
-    if v > 0:
-        return 1
-    if v < 0:
-        return -1
-    return 0
+def _process_filter_maf(maf, G):
+    import limix
+
+    mafs = limix.qc.compute_maf(G)
+    ok = mafs >= maf
+    return G.isel(candidate=ok)
+
+
+def _process_impute(expr, data):
+    breakpoint()
+    elems = [e.strip() for e in expr.strip().split(":")]
+    if len(elems) < 2 or len(elems) > 3:
+        raise ValueError("Missing filter syntax error.")
+
+    target = short_name(elems[0])
+    dim = elems[1]
+
+    if len(elems) == 3:
+        method = elems[2]
+    else:
+        method = "mean"
+
+    X = data[target]
+    if dim not in X.dims:
+        raise ValueError("Unrecognized dimension: {}.".format(dim))
+
+    if method == "mean":
+        if X.dims[0] == dim:
+            X = limix.qc.impute.mean_impute(X.T).T
+        else:
+            X = limix.qc.impute.mean_impute(X)
+    else:
+        raise ValueError("Unrecognized imputation method: {}.".format(method))
+
+    data[target] = X
+
+
+def _print_data_stats(data):
+    for k in sorted(data.keys()):
+        print(k)
+        print(data[k].shape)
+
+
+class _LayoutChange(object):
+    def __init__(self):
+        self._targets = {}
+        self._steps = ["sentinel"]
+
+    def append(self, target, step, shape):
+        if target not in self._targets:
+            self._targets[target] = {}
+
+        self._targets[target][step] = shape
+        if step != self._steps[-1]:
+            self._steps.append(step)
+
+    def to_string(self):
+        from texttable import Texttable
+
+        table = Texttable()
+        header = [""]
+        shapes = {k: [k] for k in self._targets.keys()}
+
+        for step in self._steps[1:]:
+            header.append(step)
+            for target in self._targets.keys():
+                v = str(self._targets[target].get(step, "n/a"))
+                shapes[target].append(v)
+
+        table.header(header)
+
+        table.set_cols_dtype(["t"] * len(header))
+        table.set_cols_align(["l"] * len(header))
+        table.set_deco(Texttable.HEADER)
+
+        for target in self._targets.keys():
+            table.add_row(shapes[target])
+
+        msg = table.draw()
+
+        msg = self._add_caption(msg, "-", "Table: Data layout transformation.")
+        return msg + "\n"
+
+    def _add_caption(self, msg, c, caption):
+        n = len(msg.split("\n")[-1])
+        msg += "\n" + (c * n)
+        msg += "\n" + caption
+        return msg

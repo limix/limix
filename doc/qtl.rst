@@ -98,7 +98,7 @@ alternative hypotheses to be tested:
     Variants
     --------
            effsizes  effsizes_se  pvalues
-    count   4.00000      4.00000  4.00000
+    count         4            4        4
     mean   -0.40001      0.31305  0.44927
     std     0.46269      0.04716  0.48433
     min    -1.02874      0.25594  0.00537
@@ -188,7 +188,7 @@ The matrix ``G`` defines both the five alternative hypotheses
     Variants
     --------
            effsizes  effsizes_se  pvalues
-    count   5.00000      5.00000  5.00000
+    count         5            5        5
     mean    0.19325      1.47399  0.40702
     std     1.55579      0.20552  0.20956
     min    -1.24902      1.31003  0.19819

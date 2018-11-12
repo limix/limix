@@ -10,13 +10,9 @@ from ._remove import remove
 
 @click.group(name="limix", context_settings=dict(help_option_names=["-h", "--help"]))
 @click.pass_context
-@click.option(
-    "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
-)
 @click.version_option(version=limix.__version__)
-def cli(ctx, verbose):
-    ctx.obj = {}
-    ctx.obj["verbose"] = verbose
+def cli(ctx):
+    pass
 
 
 cli.add_command(see)
