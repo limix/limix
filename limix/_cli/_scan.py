@@ -176,7 +176,7 @@ def scan(
 
 
 def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
-    from limix._dataset import conform_dataset
+    from limix._data import conform_dataset
 
     layout = _LayoutChange()
 

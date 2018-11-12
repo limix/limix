@@ -4,7 +4,7 @@ import sys
 
 from limix.display import timer_text
 
-from .._dataset import conform_dataset
+from .._data import conform_dataset
 from ..display import session_text
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
 from ._model import QTLModel

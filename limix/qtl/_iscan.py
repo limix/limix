@@ -3,7 +3,7 @@ from tqdm import tqdm
 
 from limix.display import timer_text
 
-from .._dataset import conform_dataset
+from .._data import conform_dataset
 from ..display import session_text
 
 from glimix_core.lmm import LMM
