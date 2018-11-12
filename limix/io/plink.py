@@ -24,17 +24,19 @@ def read(prefix, verbose=True):
         >>>
         >>> (bim, fam, bed) = plink.read(example_file_prefix(), verbose=False)
         >>> print(bim.head())
-          chrom         snp       cm    pos a0 a1  i
-        0     1  rs10399749  0.00000  45162  G  C  0
-        1     1   rs2949420  0.00000  45257  C  T  1
-        2     1   rs2949421  0.00000  45413  0  0  2
-        3     1   rs2691310  0.00000  46844  A  T  3
-        4     1   rs4030303  0.00000  72434  0  G  4
+                   chrom         snp       cm    pos a0 a1  i
+        candidate
+        rs10399749     1  rs10399749  0.00000  45162  G  C  0
+        rs2949420      1   rs2949420  0.00000  45257  C  T  1
+        rs2949421      1   rs2949421  0.00000  45413  0  0  2
+        rs2691310      1   rs2691310  0.00000  46844  A  T  3
+        rs4030303      1   rs4030303  0.00000  72434  0  G  4
         >>> print(fam.head())
-                fid       iid    father    mother gender trait  i
-        0  Sample_1  Sample_1         0         0      1    -9  0
-        1  Sample_2  Sample_2         0         0      2    -9  1
-        2  Sample_3  Sample_3  Sample_1  Sample_2      2    -9  2
+                       fid       iid    father    mother gender trait  i
+        sample
+        Sample_1  Sample_1  Sample_1         0         0      1    -9  0
+        Sample_2  Sample_2  Sample_2         0         0      2    -9  1
+        Sample_3  Sample_3  Sample_3  Sample_1  Sample_2      2    -9  2
         >>> print(bed.compute())
         [[ 2.  2.  1.]
          [ 2.  1.  2.]
@@ -76,11 +78,13 @@ def read(prefix, verbose=True):
         print("Reading `{}`...".format(prefix))
 
     data = read_plink(prefix, verbose=verbose)
+
+    data[1].name = "fam"
     data[1].index = data[1]["iid"]
     data[1].index.name = "sample"
-    data[0].index = (
-        data[0]["chrom"].astype(str).values + "_" + data[0]["snp"].astype(str).values
-    )
+
+    data[0].name = "bim"
+    data[0].index = data[0]["snp"].astype(str).values
     data[0].index.name = "candidate"
 
     return data

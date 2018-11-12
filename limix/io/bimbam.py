@@ -22,12 +22,20 @@ def read_phenotype(filepath, verbose=True):
         >>>
         >>> with file_example("ex0/phenotype.gemma") as filepath:
         ...     print(limix.io.bimbam.read_phenotype(filepath, verbose=False))
-                 0        1        2
-        0  1.20000 -0.30000 -1.50000
-        1      nan  1.50000  0.30000
-        2  2.70000  1.10000      nan
-        3 -0.20000 -0.70000  0.80000
-        4  3.30000  2.40000  2.10000
+        trait         0        1        2
+        sample
+        0        1.20000 -0.30000 -1.50000
+        1            nan  1.50000  0.30000
+        2        2.70000  1.10000      nan
+        3       -0.20000 -0.70000  0.80000
+        4        3.30000  2.40000  2.10000
+
+    Notes
+    -----
+    BIMBAM phenotype files do not explicitly define sample ids (nor trait ids) but their
+    order of appearance is used to associate samples from different files. Therefore,
+    we denote the first sample found in this file as ``0``, the second as ``1``, and so
+    on. We apply the same reasoning for trait naming.
     """
     from pandas import read_csv
     from ..display import timer_text
@@ -35,8 +43,10 @@ def read_phenotype(filepath, verbose=True):
     with timer_text("Reading `{}`... ".format(filepath), disable=not verbose):
         df = read_csv(filepath, sep=r"\s+", header=None)
 
-    df.index = ["sample_{}".format(i) for i in range(len(df))]
+    df.index = range(df.shape[0])
     df.index.name = "sample"
+    df.columns = range(df.shape[1])
+    df.columns.name = "trait"
 
     return df
 
