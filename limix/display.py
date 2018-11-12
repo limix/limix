@@ -108,7 +108,7 @@ class timer_text(object):
             sys.stdout.flush()
         return self
 
-    def __exit__(self, *args, **kwargs):
+    def __exit__(self, *args, **_):
         from humanfriendly import format_timespan
 
         self.elapsed = time() - self._tstart
