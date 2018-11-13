@@ -112,7 +112,31 @@ def conform_dataset(y, M=None, G=None, K=None, X=None):
     }
     dim_name.update({"X{}".format(i): ["sample"] for i in range(len(X))})
 
-    data.update(_assign_index_to_nonindexed(_fout(data), dim_name))
+    samples_list = []
+    missing_samples = False
+    for k, v in _fout(data).items():
+        for dn in dim_name[k]:
+            if dn in v.coords:
+                samples_list.append(v.coords[dn])
+            else:
+                missing_samples = True
+
+    if len(samples_list) == 0:
+        data.update(_assign_coords(_fout(data), dim_name, create_default_sample_coords))
+    elif missing_samples:
+        # samples = min(samples_list, key=lambda s: s.size)
+        samples = samples_list[0].values
+        ok = all([array_equal(s, samples) for s in samples_list])
+        if not ok:
+            msg = "Please, check the provided sample labels in your arrays."
+            msg += " There are some inconsistences between them."
+            raise ValueError(msg)
+        n = min(v.coords[dn].size for (k, v) in _fout(data).items() for dn in dim_name[k])
+        samples = samples[:n]
+        data.update(_slice_coordinates(_fout(data), dim_name, len(samples)))
+        # data.update(_set_coordinates(_fout(data), dim_name, len(samples)))
+        data.update(_assign_coords(_fout(data), dim_name, lambda _: samples))
+        # data.update(_assign_index_to_nonindexed(_fout(data), dim_name))
 
     valid_samples = _infer_samples_index(_fout(data), dim_name)
 
@@ -189,54 +213,100 @@ def create_default_covariates(samples):
     return M
 
 
-def _assign_index_to_nonindexed(data, dim_name):
-    indexed = {}
-    nonindexed = {}
+def create_default_sample_coords(n):
+    return ["sample{}".format(j) for j in range(n)]
 
-    for k, v in data.items():
-        for dn in dim_name[k]:
-            if dn not in v.coords:
-                nonindexed[k] = v
-            else:
-                indexed[k] = v
 
-    if len(nonindexed) == 0:
+def _assign_index_to_nonindexed(data, dims):
+    from .._bits.xarray import take
+
+    present, absent = _split_coordinates(data, dims)
+    if len(absent) == 0:
         return data
 
-    if len(indexed) == 0:
-        for k, v in data.items():
-            for dn in dim_name[k]:
-                n = len(v.coords[dn])
-                v.coords[dn] = ["sample{}".format(j) for j in range(n)]
-        return data
+    if not _check_equal_coords(present, dims):
+        msg = "Please, check the provided sample labels in your arrays."
+        msg += " There are some inconsistences between them."
+        raise ValueError(msg)
 
-    k = next(iter(indexed.keys()))
-    index = indexed[k].coords[dim_name[k][0]]
-    for k, v in indexed.items():
-        for dn in dim_name[k]:
-            if not array_equal(index, v.coords[dn]):
-                msg = "Please, check the provided sample labels in your arrays."
-                msg += " There are some inconsistences in them."
-                raise ValueError(msg)
+    # The reference index is the smallest one we can find.
+    n = min(v.coords[dn].size for (k, v) in data.items() for dn in dims[k])
+    k = next(iter(present.keys()))
+    index = present[k].coords[dims[k][0]][:n]
 
-    n = min(v.coords[dn].size for (k, v) in data.items() for dn in dim_name[k])
-    index = index[:n]
-
+    # Take only the first n indices.
+    # The rest will be ignored.
     for k, v in data.items():
-        for dn in dim_name[k]:
-            data[k] = _take(v, dn, n)
+        for dn in dims[k]:
+            data[k] = take(v, slice(0, n), dn)
 
-    nonindexed = {}
-    for k, v in data.items():
-        for dn in dim_name[k]:
-            if dn not in v.coords:
-                nonindexed[k] = v
+    _, absent = _split_coordinates(data, dims)
 
-    for k, v in nonindexed.items():
-        for dn in dim_name[k]:
+    for k, v in absent.items():
+        for dn in dims[k]:
             v.coords[dn] = index.values
 
     return data
+
+
+def _get_shortest_coords(data, dims):
+    n = min(v.coords[dn].size for (k, v) in data.items() for dn in dims[k])
+    k = next(iter(data.keys()))
+    return data[k].coords[dims[k][0]][:n]
+
+
+def _split_coordinates(data, dims):
+    r""" Split the mentioned coordinates into absent or present. """
+    present = {}
+    absent = {}
+    for name, c in data.items():
+        for dim in dims[name]:
+            if dim not in c.coords:
+                absent[name] = c
+            else:
+                present[name] = c
+    return present, absent
+
+
+def _slice_coordinates(data, dims, n):
+    from .._bits.xarray import take
+
+    for name, c in data.items():
+        for dim in dims[name]:
+            data[name] = take(c, slice(0, n), dim)
+    return data
+
+
+def _any_coords(data, dims):
+    r""" Check if `data` has any data array with the specified dimension name. """
+    present, _ = _split_coordinates(data, dims)
+    return len(present) > 0
+
+
+def _all_coords(data, dims):
+    r""" Check if every data array has its specified dimension name. """
+    _, absent = _split_coordinates(data, dims)
+    return len(absent) == 0
+
+
+def _assign_coords(data, dims, create_coords):
+    r""" Assign coordinate values for the specified dimension name. """
+    for name, c in data.items():
+        for dim in dims[name]:
+            n = len(c.coords[dim])
+            c.coords[dim] = create_coords(n)
+    return data
+
+
+def _check_equal_coords(data, dims):
+    name = next(iter(data.keys()))
+    coords = data[name].coords[dims[name][0]]
+
+    for name, c in data.items():
+        for dim in dims[name]:
+            if not array_equal(coords, c.coords[dim]):
+                return False
+    return True
 
 
 def _infer_samples_index(data, dim_name):
@@ -276,15 +346,6 @@ def _infer_samples_index(data, dim_name):
 
 def _fout(data):
     return {k: v for k, v in data.items() if v is not None}
-
-
-def _take(x, dim_name, n):
-    i = 0
-    sl = [slice(None)] * x.ndim
-    while i < x.ndim and x.dims[i] != dim_name:
-        i += 1
-    sl[i] = slice(0, n)
-    return x[tuple(sl)]
 
 
 def _check_uniqueness(data, dim_name):

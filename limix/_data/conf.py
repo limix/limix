@@ -1,5 +1,12 @@
 CONF = {
-    "dim_order": {"sample": 0, "trait": 1, "candidate": 1, "covariate": 1},
+    "dim_order": {
+        "sample": 0,
+        "trait": 1,
+        "candidate": 1,
+        "covariate": 1,
+        "sample_0": 0,
+        "sample_1": 1,
+    },
     "dim_names": {"sample", "candidate", "covariate", "trait"},
     "data_names": {"trait", "genotype", "covariates", "covariance"},
     "short_data_names": {"y", "G", "M", "K"},
