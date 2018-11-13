@@ -41,14 +41,13 @@ def fix_dim_order_if_hinted(x):
     hint = {}
     for i, d in enumerate(x.dims):
         if _is_dim_hint(d):
-            d = _hint_to_name(d)
-            hint[d] = i
+            hint[_hint_to_name(d)] = i
 
     if len(hint) == 0:
         return x
 
-    for d in hint.keys():
-        if hint[d] != dim_order(d):
+    for d, v in hint.items():
+        if v != dim_order(d):
             x = x.T
             break
 
