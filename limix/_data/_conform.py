@@ -87,6 +87,7 @@ def conform_dataset(y, M=None, G=None, K=None, X=None):
         ...     conform_dataset(y, G=G, K=K)
     """
     from pandas import unique
+    from .._bits.xarray import take
 
     if X is None:
         X = []
@@ -104,55 +105,52 @@ def conform_dataset(y, M=None, G=None, K=None, X=None):
     data = {"y": y, "M": M, "G": G, "K": K}
     data.update({"X{}".format(i): x[0] for i, x in enumerate(X)})
 
-    dim_name = {
-        "y": ["sample"],
-        "M": ["sample"],
-        "G": ["sample"],
-        "K": ["sample_0", "sample_1"],
-    }
-    dim_name.update({"X{}".format(i): ["sample"] for i in range(len(X))})
-
-    samples_list = []
-    missing_samples = False
-    for k, v in _fout(data).items():
-        for dn in dim_name[k]:
-            if dn in v.coords:
-                samples_list.append(v.coords[dn])
-            else:
-                missing_samples = True
+    sample_dims = [
+        ("y", "sample"),
+        ("M", "sample"),
+        ("G", "sample"),
+        ("K", "sample_0"),
+        ("K", "sample_1"),
+    ]
+    sample_dims += [("X{}".format(i), "sample") for i in range(len(X))]
+    sample_dims = [t for t in sample_dims if data[t[0]] is not None]
+    samples_list = [
+        data[n].coords[d].values for n, d in sample_dims if d in data[n].coords
+    ]
 
     if len(samples_list) == 0:
-        data.update(_assign_coords(_fout(data), dim_name, create_default_sample_coords))
-    elif missing_samples:
-        # samples = min(samples_list, key=lambda s: s.size)
-        samples = samples_list[0].values
+        data.update(
+            _assign_coords(_fout(data), sample_dims, create_default_sample_coords)
+        )
+        samples_list = [
+            data[n].coords[d].values for n, d in sample_dims if d in data[n].coords
+        ]
+    elif len(samples_list) < len(sample_dims):
+        samples = samples_list[0]
         ok = all([array_equal(s, samples) for s in samples_list])
         if not ok:
             msg = "Please, check the provided sample labels in your arrays."
             msg += " There are some inconsistences between them."
             raise ValueError(msg)
-        n = min(v.coords[dn].size for (k, v) in _fout(data).items() for dn in dim_name[k])
-        samples = samples[:n]
-        data.update(_slice_coordinates(_fout(data), dim_name, len(samples)))
-        # data.update(_set_coordinates(_fout(data), dim_name, len(samples)))
-        data.update(_assign_coords(_fout(data), dim_name, lambda _: samples))
-        # data.update(_assign_index_to_nonindexed(_fout(data), dim_name))
 
-    valid_samples = _infer_samples_index(_fout(data), dim_name)
+        nmin = min(data[n].coords[d].size for n, d in sample_dims)
+        samples = samples[:nmin]
+        data.update({n: take(data[n], slice(0, nmin), d) for n, d in sample_dims})
+        data.update(_assign_coords(_fout(data), sample_dims, lambda _: samples))
+        samples_list = [
+            data[n].coords[d].values for n, d in sample_dims if d in data[n].coords
+        ]
 
-    for k, v in data.items():
-        for dn in dim_name[k]:
-            data[k] = set_coord(v, dn, valid_samples)
+    valid_samples = _infer_samples_index(data, sample_dims, samples_list[0])
+    for n, d in sample_dims:
+        data[n] = set_coord(data[n], d, valid_samples)
+        if is_short_data_name(n) or is_data_name(n):
+            data[n].name = data_name(n)
+        else:
+            data[n].name = n
 
-    for k, v in _fout(data).items():
-        if v.name is None:
-            if is_short_data_name(k) or is_data_name(k):
-                v.name = data_name(k)
-            else:
-                v.name = k
-
-    n = len(data["y"].coords["sample"])
-    o = [v.coords[dn].size == n for k, v in _fout(data).items() for dn in dim_name[k]]
+    N = len(data["y"].coords["sample"])
+    o = [data[n].coords[d].size == N for n, d in sample_dims]
 
     if all(o):
         if data["M"] is None:
@@ -162,8 +160,8 @@ def conform_dataset(y, M=None, G=None, K=None, X=None):
     if data["M"] is None:
         data["M"] = create_default_covariates(unique(y.sample.values))
 
-    _check_uniqueness(data, dim_name)
-    _check_sample_compatibility(data, dim_name)
+    _check_uniqueness(data, sample_dims)
+    _check_sample_compatibility(data, sample_dims)
 
     return data
 
@@ -291,10 +289,9 @@ def _all_coords(data, dims):
 
 def _assign_coords(data, dims, create_coords):
     r""" Assign coordinate values for the specified dimension name. """
-    for name, c in data.items():
-        for dim in dims[name]:
-            n = len(c.coords[dim])
-            c.coords[dim] = create_coords(n)
+    for n, d in dims:
+        nmin = len(data[n].coords[d])
+        data[n].coords[d] = create_coords(nmin)
     return data
 
 
@@ -309,22 +306,13 @@ def _check_equal_coords(data, dims):
     return True
 
 
-def _infer_samples_index(data, dim_name):
+def _infer_samples_index(data, dims, samples):
 
-    k, v = next(iter(data.items()))
-    samples = v.coords[dim_name[k][0]].values
-    for k, v in data.items():
-        for dn in dim_name[k]:
-            if not array_equal(v.coords[dn].values, samples):
-                break
-        else:
-            continue
-        break
-    else:
+    if all(array_equal(data[n].coords[d].values, samples) for n, d in dims):
         return Counter(samples)
 
     samples_sets = [
-        Counter(v.coords[dn].values) for k, v in data.items() for dn in dim_name[k]
+        Counter(data[n].coords[d].values) for n, d in dims if d in data[n].coords
     ]
 
     set_intersection = samples_sets[0]
@@ -348,30 +336,28 @@ def _fout(data):
     return {k: v for k, v in data.items() if v is not None}
 
 
-def _check_uniqueness(data, dim_name):
+def _check_uniqueness(data, dims):
     msg = "Non-unique sample ids are not allowed in the {} array"
     msg += " if the sample ids are not equal nor in the same order."
 
-    for k, v in _fout(data).items():
-        if k == "y":
+    for n, d in dims:
+        if n == "y":
             continue
-        for dn in dim_name[k]:
-            idx = v.coords[dn].values
-            if len(unique(idx)) < len(idx):
-                raise ValueError(msg.format(v.name))
+        idx = data[n].coords[d].values
+        if len(unique(idx)) < len(idx):
+            raise ValueError(msg.format(data[n].name))
 
 
-def _check_sample_compatibility(data, dim_name):
+def _check_sample_compatibility(data, dims):
     inc_msg = "The provided trait and {} arrays are sample-wise incompatible."
 
-    for k, v in _fout(data).items():
-        if k == "y":
+    for n, d in dims:
+        if n == "y":
             continue
-        for dn in dim_name[k]:
-            try:
-                data[k] = data[k].sel(**{dn: data["y"].coords["sample"].values})
-            except IndexError as e:
-                raise ValueError(str(e) + "\n\n" + inc_msg.format(v.name))
+        try:
+            data[n] = data[n].sel(**{d: data["y"].coords["sample"].values})
+        except IndexError as e:
+            raise ValueError(str(e) + "\n\n" + inc_msg.format(data[n].name))
 
 
 def _return_none(f):
