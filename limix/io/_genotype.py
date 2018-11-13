@@ -1,6 +1,5 @@
 def fetch_bed_genotype(filepath, verbose=True):
     from .plink import read
-    from limix._data import to_dataarray
 
     candidates, samples, G = read(filepath, verbose=verbose)
 

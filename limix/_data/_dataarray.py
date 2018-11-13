@@ -27,7 +27,7 @@ def rename_dims(x, dims):
     return x
 
 
-def fix_dim_order_if_hinted(x):
+def fix_dim_hint(x):
     r""" Hints start with underscore.
 
     A DataArray with row-dimension name `_trait` and col-dimension name `_sample`

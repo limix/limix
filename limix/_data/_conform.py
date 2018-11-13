@@ -6,11 +6,11 @@ from numpy import array_equal, asarray, unique, dtype
 
 from .._bits.dask import array_shape_reveal
 from .._bits.xarray import set_coord
-from ._dataarray import fix_dim_order_if_hinted, rename_dims
-from .conf import is_data_name, is_short_data_name, data_name
+from ._dataarray import fix_dim_hint, rename_dims
+from .conf import is_data_name, is_short_data_name, data_name, short_data_names
 
 
-def conform_dataset(y, M=None, G=None, K=None, X=None):
+def conform_dataset(y, M=None, G=None, K=None):
     r""" Convert data types to DataArray.
 
     This is a fundamental function for :mod:`limix` as it standardise outcome,
@@ -86,87 +86,45 @@ def conform_dataset(y, M=None, G=None, K=None, X=None):
         >>> with pytest.raises(ValueError):
         ...     conform_dataset(y, G=G, K=K)
     """
-    from pandas import unique
-    from .._bits.xarray import take
+    y = rename_dims(fix_dim_hint(_to_dataarray(y)), ["sample", "trait"])
+    M = rename_dims(fix_dim_hint(_to_dataarray(M)), ["sample", "covariate"])
+    G = rename_dims(fix_dim_hint(_to_dataarray(G)), ["sample", "candidate"])
+    K = rename_dims(fix_dim_hint(_to_dataarray(K)), ["sample_0", "sample_1"])
 
-    if X is None:
-        X = []
-
-    y = rename_dims(fix_dim_order_if_hinted(to_dataarray(y)), ["sample", "trait"])
-    M = rename_dims(fix_dim_order_if_hinted(to_dataarray(M)), ["sample", "covariate"])
-    G = rename_dims(fix_dim_order_if_hinted(to_dataarray(G)), ["sample", "candidate"])
-    K = rename_dims(fix_dim_order_if_hinted(to_dataarray(K)), ["sample_0", "sample_1"])
-
-    X = [
-        (rename_dims(fix_dim_order_if_hinted(to_dataarray(x)), ["sample", n1]), n0, n1)
-        for x, n0, n1 in X
-    ]
-
-    data = {"y": y, "M": M, "G": G, "K": K}
-    data.update({"X{}".format(i): x[0] for i, x in enumerate(X)})
+    # Select those variables different than None
+    _locals = locals()
+    data = {k: _locals[k] for k in short_data_names() if _locals[k] is not None}
 
     sample_dims = [
-        ("y", "sample"),
-        ("M", "sample"),
-        ("G", "sample"),
-        ("K", "sample_0"),
-        ("K", "sample_1"),
-    ]
-    sample_dims += [("X{}".format(i), "sample") for i in range(len(X))]
-    sample_dims = [t for t in sample_dims if data[t[0]] is not None]
-    samples_list = [
-        data[n].coords[d].values for n, d in sample_dims if d in data[n].coords
-    ]
-
-    if len(samples_list) == 0:
-        data.update(
-            _assign_coords(_fout(data), sample_dims, create_default_sample_coords)
-        )
-        samples_list = [
-            data[n].coords[d].values for n, d in sample_dims if d in data[n].coords
+        t
+        for t in [
+            ("y", "sample"),
+            ("M", "sample"),
+            ("G", "sample"),
+            ("K", "sample_0"),
+            ("K", "sample_1"),
         ]
-    elif len(samples_list) < len(sample_dims):
-        samples = samples_list[0]
-        ok = all([array_equal(s, samples) for s in samples_list])
-        if not ok:
-            msg = "Please, check the provided sample labels in your arrays."
-            msg += " There are some inconsistences between them."
-            raise ValueError(msg)
+        if t[0] in data
+    ]
 
-        nmin = min(data[n].coords[d].size for n, d in sample_dims)
-        samples = samples[:nmin]
-        data.update({n: take(data[n], slice(0, nmin), d) for n, d in sample_dims})
-        data.update(_assign_coords(_fout(data), sample_dims, lambda _: samples))
-        samples_list = [
-            data[n].coords[d].values for n, d in sample_dims if d in data[n].coords
-        ]
+    data = _fix_samples(data, sample_dims)
+    data = _set_titles(data)
 
-    valid_samples = _infer_samples_index(data, sample_dims, samples_list[0])
-    for n, d in sample_dims:
-        data[n] = set_coord(data[n], d, valid_samples)
-        if is_short_data_name(n) or is_data_name(n):
-            data[n].name = data_name(n)
-        else:
-            data[n].name = n
+    nsamples = len(data["y"].coords["sample"])
+    same_size = all(data[n].coords[d].size == nsamples for n, d in sample_dims)
 
-    N = len(data["y"].coords["sample"])
-    o = [data[n].coords[d].size == N for n, d in sample_dims]
+    data = _fix_covariates(data, same_size)
 
-    if all(o):
-        if data["M"] is None:
-            data["M"] = create_default_covariates(y.sample.values)
-        return data
+    # We accept non-unique samples when all sample sizes are equal.
+    # In the other cases, we check for uniqueness.
+    if not same_size:
+        _check_uniqueness(data, sample_dims)
+        _match_samples(data, sample_dims)
 
-    if data["M"] is None:
-        data["M"] = create_default_covariates(unique(y.sample.values))
-
-    _check_uniqueness(data, sample_dims)
-    _check_sample_compatibility(data, sample_dims)
-
-    return data
+    return {k: data.get(k, None) for k in short_data_names()}
 
 
-def to_dataarray(x):
+def _to_dataarray(x):
     import dask.dataframe as dd
     import dask.array as da
     import xarray as xr
@@ -196,7 +154,7 @@ def to_dataarray(x):
     return x
 
 
-def create_default_covariates(samples):
+def _default_covariates(samples):
     from numpy import ones, asarray
     from xarray import DataArray
 
@@ -211,99 +169,8 @@ def create_default_covariates(samples):
     return M
 
 
-def create_default_sample_coords(n):
+def _default_sample_coords(n):
     return ["sample{}".format(j) for j in range(n)]
-
-
-def _assign_index_to_nonindexed(data, dims):
-    from .._bits.xarray import take
-
-    present, absent = _split_coordinates(data, dims)
-    if len(absent) == 0:
-        return data
-
-    if not _check_equal_coords(present, dims):
-        msg = "Please, check the provided sample labels in your arrays."
-        msg += " There are some inconsistences between them."
-        raise ValueError(msg)
-
-    # The reference index is the smallest one we can find.
-    n = min(v.coords[dn].size for (k, v) in data.items() for dn in dims[k])
-    k = next(iter(present.keys()))
-    index = present[k].coords[dims[k][0]][:n]
-
-    # Take only the first n indices.
-    # The rest will be ignored.
-    for k, v in data.items():
-        for dn in dims[k]:
-            data[k] = take(v, slice(0, n), dn)
-
-    _, absent = _split_coordinates(data, dims)
-
-    for k, v in absent.items():
-        for dn in dims[k]:
-            v.coords[dn] = index.values
-
-    return data
-
-
-def _get_shortest_coords(data, dims):
-    n = min(v.coords[dn].size for (k, v) in data.items() for dn in dims[k])
-    k = next(iter(data.keys()))
-    return data[k].coords[dims[k][0]][:n]
-
-
-def _split_coordinates(data, dims):
-    r""" Split the mentioned coordinates into absent or present. """
-    present = {}
-    absent = {}
-    for name, c in data.items():
-        for dim in dims[name]:
-            if dim not in c.coords:
-                absent[name] = c
-            else:
-                present[name] = c
-    return present, absent
-
-
-def _slice_coordinates(data, dims, n):
-    from .._bits.xarray import take
-
-    for name, c in data.items():
-        for dim in dims[name]:
-            data[name] = take(c, slice(0, n), dim)
-    return data
-
-
-def _any_coords(data, dims):
-    r""" Check if `data` has any data array with the specified dimension name. """
-    present, _ = _split_coordinates(data, dims)
-    return len(present) > 0
-
-
-def _all_coords(data, dims):
-    r""" Check if every data array has its specified dimension name. """
-    _, absent = _split_coordinates(data, dims)
-    return len(absent) == 0
-
-
-def _assign_coords(data, dims, create_coords):
-    r""" Assign coordinate values for the specified dimension name. """
-    for n, d in dims:
-        nmin = len(data[n].coords[d])
-        data[n].coords[d] = create_coords(nmin)
-    return data
-
-
-def _check_equal_coords(data, dims):
-    name = next(iter(data.keys()))
-    coords = data[name].coords[dims[name][0]]
-
-    for name, c in data.items():
-        for dim in dims[name]:
-            if not array_equal(coords, c.coords[dim]):
-                return False
-    return True
 
 
 def _infer_samples_index(data, dims, samples):
@@ -332,8 +199,62 @@ def _infer_samples_index(data, dims, samples):
     return valid_samples
 
 
-def _fout(data):
-    return {k: v for k, v in data.items() if v is not None}
+def _fix_samples(data, sample_dims):
+    from .._bits.xarray import take
+
+    samples_list = [
+        data[n].coords[d].values for n, d in sample_dims if d in data[n].coords
+    ]
+    nmin_samples = min(data[n].coords[d].size for n, d in sample_dims)
+
+    if len(samples_list) == 0:
+        data["y"] = take(data["y"], slice(0, nmin_samples), "sample")
+        data["y"].coords["sample"] = _default_sample_coords(data["y"].sample.size)
+        samples_list.append(data["y"].coords["sample"].values)
+
+    samples = samples_list[0]
+
+    if len(samples_list) < len(sample_dims):
+        if not all([array_equal(s, samples) for s in samples_list]):
+            raise ValueError(
+                "Please, check the provided sample labels in your arrays."
+                + " There are some inconsistences between them."
+            )
+
+        for n, d in sample_dims:
+            data[n] = take(data[n], slice(0, nmin_samples), d)
+            data[n].coords[d] = samples[:nmin_samples]
+
+    valid_samples = _infer_samples_index(data, sample_dims, samples)
+    for n, d in sample_dims:
+        data[n] = set_coord(data[n], d, valid_samples)
+
+    return data
+
+
+def _set_titles(data):
+    for n in data.keys():
+        if is_short_data_name(n) or is_data_name(n):
+            data[n].name = data_name(n)
+        else:
+            data[n].name = n
+    return data
+
+
+def _fix_covariates(data, samples_same_size):
+    from pandas import unique
+
+    y = data["y"]
+
+    # We accept non-unique samples when all sample sizes are equal.
+    if samples_same_size:
+        if "M" not in data:
+            data["M"] = _default_covariates(y.sample.values)
+    else:
+        if "M" not in data:
+            data["M"] = _default_covariates(unique(y.sample.values))
+
+    return data
 
 
 def _check_uniqueness(data, dims):
@@ -348,7 +269,7 @@ def _check_uniqueness(data, dims):
             raise ValueError(msg.format(data[n].name))
 
 
-def _check_sample_compatibility(data, dims):
+def _match_samples(data, dims):
     inc_msg = "The provided trait and {} arrays are sample-wise incompatible."
 
     for n, d in dims:
@@ -358,6 +279,8 @@ def _check_sample_compatibility(data, dims):
             data[n] = data[n].sel(**{d: data["y"].coords["sample"].values})
         except IndexError as e:
             raise ValueError(str(e) + "\n\n" + inc_msg.format(data[n].name))
+
+    return data
 
 
 def _return_none(f):
@@ -371,6 +294,6 @@ def _return_none(f):
 
 
 rename_dims = _return_none(rename_dims)
-to_dataarray = _return_none(to_dataarray)
-fix_dim_order_if_hinted = _return_none(fix_dim_order_if_hinted)
+_to_dataarray = _return_none(_to_dataarray)
+fix_dim_hint = _return_none(fix_dim_hint)
 set_coord = _return_none(set_coord)

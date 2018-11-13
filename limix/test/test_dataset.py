@@ -2,7 +2,7 @@ from numpy import array, asarray, dtype
 from numpy.random import RandomState
 from numpy.testing import assert_, assert_array_equal, assert_equal
 
-from limix._data import conform_dataset, to_dataarray
+from limix._data import conform_dataset
 from pandas import DataFrame, Series
 from xarray import DataArray
 
@@ -54,6 +54,7 @@ def test_dataset_pandas_xarray_dask():
     import dask.array as da
     import dask.dataframe as dd
     import pandas as pd
+    from limix._data._conform import _to_dataarray
 
     x = []
 
@@ -97,7 +98,7 @@ def test_dataset_pandas_xarray_dask():
 
     print()
     for xi in x:
-        y = to_dataarray(xi)
+        y = _to_dataarray(xi)
         assert_equal(y.dtype, dtype("float64"))
         assert_array_equal(y.shape, (3, 1))
         assert_(isinstance(y, DataArray))

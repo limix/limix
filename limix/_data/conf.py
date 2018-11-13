@@ -51,3 +51,7 @@ def data_name(name):
     if len(alt) < len(name):
         return name
     return alt
+
+
+def short_data_names():
+    return CONF["short_data_names"]
