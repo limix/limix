@@ -1,13 +1,15 @@
 from __future__ import unicode_literals
 from collections import Counter
+from functools import wraps
 
 from numpy import array_equal, asarray, unique, dtype
 
 from .._bits.dask import array_shape_reveal
+from ._dataarray import fix_dim_order_if_hinted, rename_dims
 
 
 def conform_dataset(y, M=None, G=None, K=None, X=None):
-    r"""Convert data types to DataArray.
+    r""" Convert data types to DataArray.
 
     This is a fundamental function for :mod:`limix` as it standardise outcome,
     covariates, candidates, and kinship arrays into :class:`xarray.DataArray` data type.
@@ -85,12 +87,15 @@ def conform_dataset(y, M=None, G=None, K=None, X=None):
     if X is None:
         X = []
 
-    y = _rename_dims(to_dataarray(y), "sample", "trait")
-    M = _rename_dims(to_dataarray(M), "sample", "covariate")
-    G = _rename_dims(to_dataarray(G), "sample", "candidate")
-    K = _rename_dims(to_dataarray(K), "sample_0", "sample_1")
+    y = rename_dims(fix_dim_order_if_hinted(to_dataarray(y)), ["sample", "trait"])
+    M = rename_dims(fix_dim_order_if_hinted(to_dataarray(M)), ["sample", "covariate"])
+    G = rename_dims(fix_dim_order_if_hinted(to_dataarray(G)), ["sample", "candidate"])
+    K = rename_dims(fix_dim_order_if_hinted(to_dataarray(K)), ["sample_0", "sample_1"])
 
-    X = [(_rename_dims(to_dataarray(x), "sample", n1), n0, n1) for x, n0, n1 in X]
+    X = [
+        (rename_dims(fix_dim_order_if_hinted(to_dataarray(x)), ["sample", n1]), n0, n1)
+        for x, n0, n1 in X
+    ]
 
     data = {"y": y, "M": M, "G": G, "K": K}
     data.update({"X{}".format(i): x[0] for i, x in enumerate(X)})
@@ -144,9 +149,6 @@ def to_dataarray(x):
     import dask.dataframe as dd
     import dask.array as da
     import xarray as xr
-
-    if x is None:
-        return None
 
     if isinstance(x, (dd.Series, dd.DataFrame)):
         xidx = x.index.compute()
@@ -223,53 +225,7 @@ def _assign_index_to_nonindexed(data, dim_name):
     return data
 
 
-def _rename_dims(x, dim_0, dim_1):
-    from numpy import atleast_1d
 
-    if x is None:
-        return None
-
-    dims = [dim_0, dim_1]
-    x = _reorder_dims_if_hint(x, dims)
-
-    for i, dim in enumerate(dims):
-        if x.dims[i] != dim:
-            coords = None
-            if dim in x.coords:
-                coords = x.coords[dim]
-                x = x.drop([dim])
-            if x.dims[i].startswith("_") and x.dims[i][1:] == dim:
-                x = x.drop([x.dims[i]])
-                x = x.rename({x.dims[i]: dim})
-                if coords is not None:
-                    x = x.assign_coords(**{x.dims[i]: atleast_1d(coords)})
-            else:
-                x = x.rename({x.dims[i]: dim})
-                if coords is not None:
-                    x = x.assign_coords(**{dim: atleast_1d(coords)})
-
-    return x
-
-
-def _reorder_dims_if_hint(x, dims):
-    dims = {k: a for a, k in enumerate(dims)}
-    hint = {}
-    for i, d in enumerate(x.dims):
-        if d.startswith("_"):
-            d = d[1:]
-        if d in dims:
-            hint[d] = i
-
-    if len(hint) == 0:
-        return x
-
-    for d in dims.keys():
-        if d in hint:
-            if hint[d] != dims[d]:
-                x = x.T
-                break
-
-    return x
 
 
 def _assign_coords(x, dim_name, samples):
@@ -398,3 +354,18 @@ def _create_default_covariates(y, unique_samples):
     # M = ones((len(y), 1))
 
     return M
+
+
+def _return_none(f):
+    @wraps(f)
+    def new_func(x, *args, **kwargs):
+        if x is None:
+            return None
+        return f(x, *args, **kwargs)
+
+    return new_func
+
+
+rename_dims = _return_none(rename_dims)
+to_dataarray = _return_none(to_dataarray)
+fix_dim_order_if_hinted = _return_none(fix_dim_order_if_hinted)

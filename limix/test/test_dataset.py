@@ -3,7 +3,6 @@ from numpy.random import RandomState
 from numpy.testing import assert_, assert_array_equal, assert_equal
 
 from limix._data import conform_dataset, to_dataarray
-# from limix._data._conform import _rename_dims
 from pandas import DataFrame, Series
 from xarray import DataArray
 

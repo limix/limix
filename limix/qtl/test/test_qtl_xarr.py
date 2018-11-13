@@ -27,7 +27,7 @@ def test_qtl_xarr():
 
         G = xr.concat(G, dim="snps")
 
-        K = limix.stats.linear_kinship(G)
+        K = limix.stats.linear_kinship(G, verbose=False)
 
     k = [
         [4.316150754626438, -0.12182214897716158],
@@ -37,7 +37,7 @@ def test_qtl_xarr():
     random = RandomState(0)
     y = random.randn(10)
 
-    limix.qtl.scan(G, y, "normal", K)
+    limix.qtl.scan(G, y, "normal", K, verbose=False)
 
     G = G.rename({"samples": "sample"})
-    limix.qtl.scan(G, y, "normal", K)
+    limix.qtl.scan(G, y, "normal", K, verbose=False)

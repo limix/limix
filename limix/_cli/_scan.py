@@ -6,23 +6,6 @@ import os
 from collections import namedtuple
 
 
-_synonym = {"y": "trait", "trait": "y", "G": "genotype", "genotype": "G"}
-
-
-def short_name(name):
-    alt = _synonym[name]
-    if len(alt) < len(name):
-        return alt
-    return name
-
-
-def long_name(name):
-    alt = _synonym[name]
-    if len(alt) < len(name):
-        return name
-    return alt
-
-
 @click.command()
 @click.pass_context
 @click.argument("phenotypes-file")
