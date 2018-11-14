@@ -1,4 +1,4 @@
-def read(prefix):
+def read(prefix, verbose=True):
     r"""
     Read GEN files into Pandas data frames.
 

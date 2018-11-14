@@ -6,23 +6,6 @@ import os
 from collections import namedtuple
 
 
-_synonym = {"y": "trait", "trait": "y", "G": "genotype", "genotype": "G"}
-
-
-def short_name(name):
-    alt = _synonym[name]
-    if len(alt) < len(name):
-        return alt
-    return name
-
-
-def long_name(name):
-    alt = _synonym[name]
-    if len(alt) < len(name):
-        return name
-    return alt
-
-
 @click.command()
 @click.pass_context
 @click.argument("phenotypes-file")
@@ -176,14 +159,14 @@ def scan(
 
 
 def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
-    from limix._dataset import _normalise_dataset
+    from limix._data import conform_dataset
 
     layout = _LayoutChange()
 
     for target in data.keys():
         layout.append(target, "initial", data[target].shape)
 
-    data = _normalise_dataset(data["y"], G=data["G"])
+    data = conform_dataset(data["y"], G=data["G"])
     data = {k: v for k, v in data.items() if v is not None}
 
     for target in data.keys():

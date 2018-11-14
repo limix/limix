@@ -1,4 +1,4 @@
-from .._dask import array_shape_reveal
+from .._bits.dask import array_shape_reveal
 
 
 def allele_frequency(expec):

@@ -3,7 +3,7 @@ from __future__ import division
 from numpy import ones, pi, var
 
 from ..display import session_text, timer_text
-from .._dataset import _normalise_dataset
+from .._data import conform_dataset
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
 from ..qc import normalise_covariance
 
@@ -83,7 +83,7 @@ def estimate(y, lik, K, M=None, verbose=True):
             M = ones((len(y), 1))
 
         with timer_text("Normalising input...", disable=not verbose):
-            data = _normalise_dataset(y, M=M, K=K)
+            data = conform_dataset(y, M=M, K=K)
 
         y = data["y"]
         M = data["M"]

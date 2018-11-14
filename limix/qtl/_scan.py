@@ -4,7 +4,7 @@ import sys
 
 from limix.display import timer_text
 
-from .._dataset import _normalise_dataset
+from .._data import conform_dataset
 from ..display import session_text
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
 from ._model import QTLModel
@@ -104,7 +104,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         Variants
         --------
                effsizes  effsizes_se   pvalues
-        count  3.000000     3.000000  3.000000
+        count         3            3         3
         mean  -0.196604     0.239910  0.441880
         std    0.102807     0.017563  0.193027
         min   -0.315077     0.221389  0.218996
@@ -135,7 +135,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     with session_text("qtl analysis", disable=not verbose):
 
         with timer_text("Normalising input... ", disable=not verbose):
-            data = _normalise_dataset(y, M, G=G, K=K)
+            data = conform_dataset(y, M, G=G, K=K)
 
         y = data["y"]
         M = data["M"]
