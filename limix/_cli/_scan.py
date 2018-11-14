@@ -136,7 +136,7 @@ def scan(
     data = {"y": y, "G": G}
 
     with session_text("preprocessing", disable=not verbose):
-        _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose)
+        data = _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose)
 
     try:
         model = limix.qtl.scan(data["G"], data["y"], lik, verbose=verbose)
@@ -202,9 +202,12 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
             raise RuntimeError("Exiting early because there is no candidate left.")
 
     for imp in impute:
-        _process_impute(imp, data)
+        with timer_text("Imputting missing values (`{}`)... ".format(imp)):
+            data = _process_impute(imp, data)
 
     print(layout.to_string())
+
+    return data
 
 
 def _process_filter(expr, data):
@@ -238,11 +241,17 @@ def _process_filter_maf(maf, G):
 
 
 def _process_impute(expr, data):
+    from .._data.conf import (
+        short_data_name,
+        dim_hint_to_name,
+        dim_name_to_hint,
+    )
+
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
         raise ValueError("Missing filter syntax error.")
 
-    target = short_name(elems[0])
+    target = short_data_name(elems[0])
     dim = elems[1]
 
     if len(elems) == 3:
@@ -250,12 +259,16 @@ def _process_impute(expr, data):
     else:
         method = "mean"
 
+    def in_dim(X, dim):
+        return dim_hint_to_name(dim) in X.dims or dim_name_to_hint(dim) in X.dims
+
     X = data[target]
-    if dim not in X.dims:
+    if not in_dim(X, dim):
         raise ValueError("Unrecognized dimension: {}.".format(dim))
 
     if method == "mean":
-        if X.dims[0] == dim:
+        axis = next(i for i in range(len(X.dims)) if in_dim(X, dim))
+        if axis == 0:
             X = limix.qc.impute.mean_impute(X.T).T
         else:
             X = limix.qc.impute.mean_impute(X)
@@ -263,6 +276,8 @@ def _process_impute(expr, data):
         raise ValueError("Unrecognized imputation method: {}.".format(method))
 
     data[target] = X
+
+    return data
 
 
 def _print_data_stats(data):

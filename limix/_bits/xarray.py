@@ -16,7 +16,6 @@ def take(x, indices, dim):
 def in_coords_dim(arr, k):
     return k in arr.coords or k in arr.dims
 
-
 def hint_aware_sel(x, **kwargs):
     from .._data.conf import (
         is_dim_hint,

@@ -186,7 +186,11 @@ def _perform_lmm(y, M, QS, G, verbose):
     ncov_effsizes = Series(beta, covariates)
 
     flmm = lmm.get_fast_scanner()
-    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+    if hasattr(G, "data"):
+        values = G.data
+    else:
+        values = G.values
+    alt_lmls, effsizes = flmm.fast_scan(values, verbose=verbose)
 
     coords = {
         k: ("candidate", G.coords[k].values)
@@ -224,7 +228,11 @@ def _perform_glmm(y, lik, M, K, QS, G, verbose):
     flmm.set_scale(1.0)
     null_lml = flmm.null_lml()
 
-    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+    if hasattr(G, "data"):
+        values = G.data
+    else:
+        values = G.values
+    alt_lmls, effsizes = flmm.fast_scan(values, verbose=verbose)
 
     coords = {
         k: ("candidate", G.coords[k].values)
