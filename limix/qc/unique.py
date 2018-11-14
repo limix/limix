@@ -1,7 +1,3 @@
-import numpy as np
-from numpy import cumsum, concatenate
-
-
 def unique_variants(X):
     r"""Filters out variants with the same genetic profile.
 
@@ -43,6 +39,7 @@ def unique_variants(X):
          [1. 0. 1.]]
     """
     import dask.array as da
+    import numpy as np
 
     if isinstance(X, da.Array):
         dot = da.dot
@@ -58,15 +55,18 @@ def unique_variants(X):
 def _dask_unique(x, return_index=True):
     from dask.array.core import Array
     from dask import sharedict
+    from numpy import cumsum, concatenate, unique
+    from numpy.testing import assert_
 
-    np.testing.assert_(return_index)
+    assert_(return_index)
 
     name = "unique-" + x.name
 
-    def unique(x):
-        return np.unique(x, return_index=return_index)
+    def _unique(x):
 
-    dsk = dict(((name, i), (unique, key)) for i, key in enumerate(x._keys()))
+        return unique(x, return_index=return_index)
+
+    dsk = dict(((name, i), (_unique, key)) for i, key in enumerate(x._keys()))
     parts = Array._get(sharedict.merge((name, dsk), x.dask), list(dsk.keys()))
 
     arrs = [a[0] for a in parts]
@@ -79,5 +79,5 @@ def _dask_unique(x, return_index=True):
     arr = concatenate(arrs)
     idx = concatenate(idxs)
 
-    u, i = np.unique(arr, return_index=True)
+    u, i = unique(arr, return_index=True)
     return u, idx[i]

@@ -1,8 +1,5 @@
 from __future__ import division
 
-import numpy as np
-from numpy import sqrt, zeros, asfortranarray, isfinite
-
 
 def linear_kinship(G, out=None, verbose=True):
     r"""Estimate Kinship matrix via linear kernel.
@@ -24,6 +21,16 @@ def linear_kinship(G, out=None, verbose=True):
          [-0.3413 -0.2356  0.9578 -0.3808]
          [-0.379  -0.4704 -0.3808  1.2302]]
     """
+    from numpy import (
+        sqrt,
+        zeros,
+        asfortranarray,
+        where,
+        asarray,
+        nanmean,
+        std,
+        isnan
+    )
     from scipy.linalg.blas import get_blas_funcs
     from tqdm import tqdm
 
@@ -40,11 +47,11 @@ def linear_kinship(G, out=None, verbose=True):
     for chunk in tqdm(chunks, desc="Kinship", disable=not verbose):
         end = start + chunk
 
-        g = np.asarray(G[:, start:end])
-        m = np.nanmean(g, 0)
-        g = np.where(np.isnan(g), m, g)
+        g = asarray(G[:, start:end])
+        m = nanmean(g, 0)
+        g = where(isnan(g), m, g)
         g = g - m
-        g /= np.std(g, 0)
+        g /= std(g, 0)
         g /= sqrt(p)
 
         gemm(1.0, g, g, 1.0, out, 0, 1, 1)
@@ -55,6 +62,8 @@ def linear_kinship(G, out=None, verbose=True):
 
 
 def _get_chunks(G):
+    from numpy import isfinite
+
     if hasattr(G, "chunks") and G.chunks is not None:
         if len(G.chunks) > 1 and all(isfinite(G.chunks[0])):
             return G.chunks[1]

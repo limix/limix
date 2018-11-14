@@ -1,5 +1,3 @@
-from numpy import concatenate, newaxis
-
 from limix._display import timer_text
 
 from .._data import conform_dataset
@@ -167,6 +165,7 @@ def _perform_lmm(y, M, QS, G, inter, Ginter, verbose):
     from xarray import DataArray
     from glimix_core.lmm import LMM
     from tqdm import tqdm
+    from numpy import concatenate, newaxis
 
     alt_lmls = []
     effsizes = []

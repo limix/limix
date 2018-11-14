@@ -1,8 +1,6 @@
 from __future__ import division
 
-from numpy import inf
 
-import numpy as np
 from brent_search import brent
 
 
@@ -54,6 +52,7 @@ def mean_standardize(X, axis=None, out=None):
          [ 1.4142  1.4142  1.4142]]
     """
     import dask.array as da
+    import numpy as np
 
     if isinstance(X, da.Array):
         return _mean_standardize(da, X, axis=axis, out=out)
@@ -138,6 +137,7 @@ def boxcox(x):
         stats.probplot(y, dist=stats.norm, plot=ax2)
     """
     import dask.array as da
+    import numpy as np
 
     if isinstance(x, da.Array):
         return _boxcox(da, x)
@@ -162,6 +162,7 @@ def _boxcox(lib, x):
 
 def _mean_standardize(lib, X, axis=None, out=None):
     from numpy_sugar import epsilon
+    from numpy import inf
 
     X = lib.asarray(X).astype(float)
 

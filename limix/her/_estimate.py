@@ -1,7 +1,5 @@
 from __future__ import division
 
-from numpy import ones, pi, var
-
 from .._display import session_text, timer_text
 from .._data import conform_dataset
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
@@ -68,6 +66,7 @@ def estimate(y, lik, K, M=None, verbose=True):
     """
     from numpy_sugar import is_all_finite
     from numpy_sugar.linalg import economic_qs
+    from numpy import ones, pi, var
     from glimix_core.glmm import GLMMExpFam
     from glimix_core.lmm import LMM
 
