@@ -20,7 +20,7 @@ import click
 )
 def see(ctx, filepath, show_chunks, header, verbose):
     """Show an overview of multiple file types."""
-    spec = limix.io.get_fetch_specification(filepath)
+    spec = limix.io.get_fetch_spec(filepath)
     filetype = spec["filetype"]
     filepath = spec["filepath"]
 

@@ -90,10 +90,10 @@ def conform_dataset(y, M=None, G=None, K=None):
         >>> with pytest.raises(ValueError):
         ...     conform_dataset(y, G=G, K=K)
     """
-    y = rename_dims(fix_dim_hint(_to_dataarray(y)), ["sample", "trait"])
-    M = rename_dims(fix_dim_hint(_to_dataarray(M)), ["sample", "covariate"])
-    G = rename_dims(fix_dim_hint(_to_dataarray(G)), ["sample", "candidate"])
-    K = rename_dims(fix_dim_hint(_to_dataarray(K)), ["sample_0", "sample_1"])
+    y = rename_dims(fix_dim_hint(to_dataarray(y)), ["sample", "trait"])
+    M = rename_dims(fix_dim_hint(to_dataarray(M)), ["sample", "covariate"])
+    G = rename_dims(fix_dim_hint(to_dataarray(G)), ["sample", "candidate"])
+    K = rename_dims(fix_dim_hint(to_dataarray(K)), ["sample_0", "sample_1"])
 
     # Select those variables different than None
     _locals = locals()
@@ -129,11 +129,12 @@ def conform_dataset(y, M=None, G=None, K=None):
 
 
 @return_none_if_none
-def _to_dataarray(x):
+def to_dataarray(x):
     import dask.dataframe as dd
     import dask.array as da
     import xarray as xr
     from numpy import dtype
+    from .conf import is_dim_hint
 
     if isinstance(x, (dd.Series, dd.DataFrame)):
         xidx = x.index.compute()
@@ -157,6 +158,11 @@ def _to_dataarray(x):
     for dim in x.dims:
         if x.coords[dim].dtype.kind in {"U", "S"}:
             x.coords[dim] = x.coords[dim].values.astype(object)
+
+    for dim in x.dims:
+        if dim in x.coords and is_dim_hint(dim):
+            del x.coords[dim]
+
     return x
 
 

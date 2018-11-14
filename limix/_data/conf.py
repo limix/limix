@@ -60,3 +60,23 @@ def data_name(name):
 
 def short_data_names():
     return CONF["short_data_names"]
+
+
+def is_dim_hint(dim):
+    return dim[0] == "_" and is_dim_name(dim[1:])
+
+
+def dim_name_to_hint(dim):
+    if not (is_dim_name(dim) or is_dim_hint(dim)):
+        raise ValueError("`{}` is not a dimensional name/hint.")
+    if is_dim_name(dim):
+        return "_" + dim
+    return dim
+
+
+def dim_hint_to_name(dim):
+    if not (is_dim_name(dim) or is_dim_hint(dim)):
+        raise ValueError("`{}` is not a dimensional name/hint.")
+    if is_dim_hint(dim):
+        return dim[1:]
+    return dim

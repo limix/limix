@@ -141,9 +141,9 @@ def scan(
     try:
         model = limix.qtl.scan(data["G"], data["y"], lik, verbose=verbose)
     except Exception as e:
-        from limix import _exception
+        from .._display import print_exc
 
-        _exception.print_exc(traceback.format_stack(), e)
+        print_exc(traceback.format_stack(), e)
         sys.exit(1)
 
     with timer_text("Saving results to `{}`... ".format(output_dir)):
@@ -238,7 +238,6 @@ def _process_filter_maf(maf, G):
 
 
 def _process_impute(expr, data):
-    breakpoint()
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
         raise ValueError("Missing filter syntax error.")

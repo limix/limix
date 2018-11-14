@@ -1,5 +1,5 @@
 from ._exception import print_exc
-from ._display import banner, session_text, timer_text
+from ._display import banner, session_text, timer_text, dataframe_repr
 from ._core import bold, blue, red, green, width
 
 __all__ = [
@@ -12,4 +12,5 @@ __all__ = [
     "width",
     "session_text",
     "timer_text",
+    "dataframe_repr"
 ]

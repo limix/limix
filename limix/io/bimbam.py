@@ -43,10 +43,8 @@ def read_phenotype(filepath, verbose=True):
     with timer_text("Reading `{}`... ".format(filepath), disable=not verbose):
         df = read_csv(filepath, sep=r"\s+", header=None)
 
-    df.index = range(df.shape[0])
-    df.index.name = "sample"
-    df.columns = range(df.shape[1])
-    df.columns.name = "trait"
+    df.index.name = "_sample"
+    df.columns.name = "_trait"
 
     return df
 

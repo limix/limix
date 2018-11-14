@@ -43,7 +43,8 @@ def _parse_matrix_spec(txt):
             match = re.match(r"(^[^\[]+)\[(.+)\]$", p)
             if match is None:
                 raise ValueError("Invalid fetch specification syntax.")
-            data["sel"].update({match.group(1): match.group(2)})
+            # TODO: replace eval for something safer
+            data["sel"].update({match.group(1): eval(match.group(2))})
 
     return data
 

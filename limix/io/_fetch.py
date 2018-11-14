@@ -2,7 +2,8 @@ from .._data.conf import is_data_name, get_data_dims
 
 
 def fetch(data_name, fetch_spec, verbose=True):
-    from xarray import DataArray
+    from .._data import to_dataarray
+    from .._bits.xarray import hint_aware_sel
 
     if not is_data_name(data_name):
         raise ValueError("`{}` is not a valid data name.".format(data_name))
@@ -13,10 +14,11 @@ def fetch(data_name, fetch_spec, verbose=True):
     dims = {d: spec[d] for d in ["row", "col"] if d in spec}
 
     X = _dispatch[data_name][filetype](fetch_spec["filepath"], verbose=verbose)
-    X = DataArray(X, dims=_read_dims_into(dims, *get_data_dims(data_name)))
+    X = to_dataarray(X)
+    X = _read_dims_into(X, dims)
 
     if len(spec["sel"]) > 0:
-        X = X.sel(**spec["sel"])
+        X = hint_aware_sel(X, **spec["sel"])
 
     if X.name is None:
         X.name = data_name
@@ -57,12 +59,12 @@ def _fetch_csv_phenotype(filepath, verbose):
     return read(filepath, verbose=verbose)
 
 
-def _read_dims_into(dims, row, col):
-    default = {"row": row, "col": col}
-    for dim in default.keys():
-        if dim in dims:
-            default[dim] = dims[dim]
-    return [default["row"], default["col"]]
+def _read_dims_into(X, dims):
+    rc = {"row": 0, "col": 1}
+    for dim in dims:
+        if rc[dim] != next(i for i in range(len(X.dims)) if X.dims[i] == dim):
+            X = X.T
+    return X
 
 
 _dispatch = {
