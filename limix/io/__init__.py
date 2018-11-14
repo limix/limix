@@ -3,7 +3,7 @@ from __future__ import absolute_import
 from . import bgen, bimbam, csv, hdf5, npy, plink
 from . import gen
 from ._fetch import fetch
-from ._detect import detect_filetype, get_fetch_spec
+from ._detect import infer_filetype
 
 __all__ = [
     "bgen",
@@ -14,6 +14,5 @@ __all__ = [
     "plink",
     "bimbam",
     "fetch",
-    "detect_filetype",
-    "get_fetch_spec",
+    "infer_filetype",
 ]

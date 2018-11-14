@@ -1,4 +1,3 @@
-import traceback
 import sys
 import limix
 import click
@@ -110,26 +109,32 @@ def scan(
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
-    import os
-    from limix._display import session_block, banner, session_line
+    from os import makedirs
+    from os.path import abspath, exists, join
+    import traceback
+    from .._display import session_block, banner, session_line, print_exc
+    from ._spec import parse_fetch_spec
 
     print(banner())
-    output_dir = os.path.abspath(output_dir)
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
 
-    pheno_fetch = limix.io.get_fetch_spec(phenotypes_file)
-    geno_fetch = limix.io.get_fetch_spec(genotype_file)
+    output_dir = abspath(output_dir)
+    if not exists(output_dir):
+        makedirs(output_dir)
+
+    fetch = {
+        "phenotype": parse_fetch_spec(phenotypes_file),
+        "genotype": parse_fetch_spec(genotype_file),
+    }
 
     if verbose:
-        print("Phenotype file type: {}".format(pheno_fetch["filetype"]))
-        print("Genotype file type: {}".format(geno_fetch["filetype"]))
+        print("Phenotype file type: {}".format(fetch["phenotype"]["filetype"]))
+        print("Genotype file type: {}".format(fetch["genotype"]["filetype"]))
 
-    y = limix.io.fetch("trait", pheno_fetch, verbose=verbose)
+    y = limix.io.fetch("trait", fetch["phenotype"], verbose=verbose)
     if verbose:
         print("\n{}\n".format(y))
 
-    G = limix.io.fetch("genotype", geno_fetch, verbose=verbose)
+    G = limix.io.fetch("genotype", fetch["genotype"], verbose=verbose)
     if verbose:
         print("\n{}\n".format(G))
 
@@ -141,15 +146,11 @@ def scan(
     try:
         model = limix.qtl.scan(data["G"], data["y"], lik, verbose=verbose)
     except Exception as e:
-        from .._display import print_exc
-
         print_exc(traceback.format_stack(), e)
         sys.exit(1)
 
     with session_line("Saving results to `{}`... ".format(output_dir)):
-        model.to_csv(
-            os.path.join(output_dir, "null.csv"), os.path.join(output_dir, "alt.csv")
-        )
+        model.to_csv(join(output_dir, "null.csv"), join(output_dir, "alt.csv"))
 
 
 def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
@@ -233,19 +234,15 @@ def _process_filter_missing(expr, data):
 
 
 def _process_filter_maf(maf, G):
-    import limix
+    from limix import compute_maf
 
-    mafs = limix.qc.compute_maf(G)
+    mafs = compute_maf(G)
     ok = mafs >= maf
     return G.isel(candidate=ok)
 
 
 def _process_impute(expr, data):
-    from .._data.conf import (
-        short_data_name,
-        dim_hint_to_name,
-        dim_name_to_hint,
-    )
+    from .._data.conf import short_data_name, dim_hint_to_name, dim_name_to_hint
 
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
@@ -278,12 +275,6 @@ def _process_impute(expr, data):
     data[target] = X
 
     return data
-
-
-def _print_data_stats(data):
-    for k in sorted(data.keys()):
-        print(k)
-        print(data[k].shape)
 
 
 class _LayoutChange(object):
