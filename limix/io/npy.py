@@ -1,4 +1,4 @@
-from ..display import timer_text as _timer_text
+from .._display import timer_text as _timer_text
 
 
 def see(filepath, verbose=True):

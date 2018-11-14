@@ -38,7 +38,7 @@ def read_phenotype(filepath, verbose=True):
     on. We apply the same reasoning for trait naming.
     """
     from pandas import read_csv
-    from ..display import timer_text
+    from .._display import timer_text
 
     with timer_text("Reading `{}`... ".format(filepath), disable=not verbose):
         df = read_csv(filepath, sep=r"\s+", header=None)
@@ -64,7 +64,7 @@ def see_phenotype(filepath, verbose=True):
     str
         File representation.
     """
-    from ..display import dataframe_repr
+    from .._display import dataframe_repr
 
     df = read_phenotype(filepath, verbose)
 

@@ -37,7 +37,7 @@ def read(filename, sep=None, header=True, verbose=True):
     """
     from dask.dataframe import read_csv as dask_read_csv
     from pandas import read_csv as pandas_read_csv
-    from ..display import timer_text
+    from .._display import timer_text
 
     if sep is None:
         sep = _infer_separator(filename)
@@ -77,7 +77,7 @@ def see(filepath, header, verbose=True):
         CSV representation.
     """
     from pandas import read_csv
-    from ..display import timer_text
+    from .._display import timer_text
 
     if header:
         header = 0

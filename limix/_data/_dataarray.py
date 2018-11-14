@@ -2,10 +2,7 @@ from .conf import is_dim_name, dim_order
 
 
 def rename_dims(x, dims):
-    r""" Rename dimensions while considering hinted name and default matrix layout.
-
-
-    """
+    r""" Rename dimensions while considering hinted name and default matrix layout. """
     from numpy import atleast_1d
 
     for i, dim in enumerate(dims):

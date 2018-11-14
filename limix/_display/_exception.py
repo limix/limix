@@ -1,5 +1,5 @@
 import sys
-from limix.display import bold, red, pprint
+from ._display import bold, red, pprint
 
 
 def print_exc(stack, e):

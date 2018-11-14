@@ -112,7 +112,7 @@ def scan(
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
-    from limix.display import session_text, banner
+    from limix._display import session_text, banner
 
     print(banner())
     if not os.path.exists(output_dir):
