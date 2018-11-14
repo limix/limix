@@ -111,9 +111,10 @@ def scan(
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
     import os
-    from limix._display import session_text, banner
+    from limix._display import session_text, banner, timer_text
 
     print(banner())
+    output_dir = os.path.abspath(output_dir)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -124,17 +125,13 @@ def scan(
         print("Phenotype file type: {}".format(pheno_fetch["filetype"]))
         print("Genotype file type: {}".format(geno_fetch["filetype"]))
 
-    y = limix.io.fetch_phenotype(pheno_fetch, verbose=verbose)
+    y = limix.io.fetch("trait", pheno_fetch, verbose=verbose)
     if verbose:
-        print()
-        print(y)
-        print()
+        print("\n{}\n".format(y))
 
-    G = limix.io.fetch_genotype(geno_fetch, verbose=verbose)
+    G = limix.io.fetch("genotype", geno_fetch, verbose=verbose)
     if verbose:
-        print()
-        print(G)
-        print()
+        print("\n{}\n".format(G))
 
     data = {"y": y, "G": G}
 
@@ -149,23 +146,23 @@ def scan(
         _exception.print_exc(traceback.format_stack(), e)
         sys.exit(1)
 
-    if verbose:
-        print(model)
-
-    model.to_csv(
-        os.path.join(output_dir, "null.csv"), os.path.join(output_dir, "alt.csv")
-    )
+    with timer_text("Saving results to `{}`... ".format(output_dir)):
+        model.to_csv(
+            os.path.join(output_dir, "null.csv"), os.path.join(output_dir, "alt.csv")
+        )
 
 
 def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
     from limix._data import conform_dataset
+    from .._display import timer_text
 
     layout = _LayoutChange()
 
     for target in data.keys():
         layout.append(target, "initial", data[target].shape)
 
-    data = conform_dataset(data["y"], G=data["G"])
+    with timer_text("Matching samples... "):
+        data = conform_dataset(data["y"], G=data["G"])
     data = {k: v for k, v in data.items() if v is not None}
 
     for target in data.keys():
@@ -187,13 +184,15 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
                 raise RuntimeError("Exiting early because there is no sample left.")
 
     for f in filter_missing:
-        _process_filter_missing(f, data)
-        if data["y"].sample.size == 0:
-            print(layout.to_string())
-            raise RuntimeError("Exiting early because there is no sample left.")
+        with timer_text("Applying `{}`... ".format(f)):
+            _process_filter_missing(f, data)
+            if data["y"].sample.size == 0:
+                print(layout.to_string())
+                raise RuntimeError("Exiting early because there is no sample left.")
 
     if filter_maf is not None:
-        data["G"] = _process_filter_maf(float(filter_maf), data["G"])
+        with timer_text("Removing candidates with MAF<{}... ".format(filter_maf)):
+            data["G"] = _process_filter_maf(float(filter_maf), data["G"])
 
         for target in data.keys():
             layout.append(target, "maf filter", data[target].shape)

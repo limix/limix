@@ -20,7 +20,12 @@ CONF = {
         "K": "covariance",
         "covariance": "K",
     },
+    "data_dims": {"trait": ["sample", "trait"], "genotype": ["sample", "candidate"]},
 }
+
+
+def get_data_dims(name):
+    return CONF["data_dims"][name]
 
 
 def is_dim_name(name):

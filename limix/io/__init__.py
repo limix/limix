@@ -2,8 +2,7 @@ from __future__ import absolute_import
 
 from . import bgen, bimbam, csv, hdf5, npy, plink
 from . import gen
-from ._phenotype import fetch_phenotype
-from ._genotype import fetch_genotype
+from ._fetch import fetch
 from ._detect import detect_filetype, get_fetch_spec
 
 __all__ = [
@@ -14,8 +13,7 @@ __all__ = [
     "npy",
     "plink",
     "bimbam",
-    "fetch_phenotype",
-    "fetch_genotype",
+    "fetch",
     "detect_filetype",
     "get_fetch_spec",
 ]

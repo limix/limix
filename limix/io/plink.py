@@ -73,19 +73,18 @@ def read(prefix, verbose=True):
          [ 2.  1.  2.]]
     """
     from pandas_plink import read_plink
+    from .._display import timer_text
 
-    if verbose:
-        print("Reading `{}`...".format(prefix))
+    with timer_text("Reading `{}`...\n".format(prefix), disable=not verbose):
+        data = read_plink(prefix, verbose=verbose)
 
-    data = read_plink(prefix, verbose=verbose)
+        data[1].name = "fam"
+        data[1].index = data[1]["iid"]
+        data[1].index.name = "sample"
 
-    data[1].name = "fam"
-    data[1].index = data[1]["iid"]
-    data[1].index.name = "sample"
-
-    data[0].name = "bim"
-    data[0].index = data[0]["snp"].astype(str).values
-    data[0].index.name = "candidate"
+        data[0].name = "bim"
+        data[0].index = data[0]["snp"].astype(str).values
+        data[0].index.name = "candidate"
 
     return data
 

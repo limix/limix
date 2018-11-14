@@ -185,8 +185,6 @@ class _RichText(object):
 
 
 def _terminal_format(txt):
-    from limix.display import _get_terminal
-
     term = _get_terminal()
 
     for tag in _tags:

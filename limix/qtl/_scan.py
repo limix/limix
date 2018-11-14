@@ -162,6 +162,9 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         else:
             model = _perform_glmm(y.values, lik, M, K, QS, G, verbose)
 
+        if verbose:
+            print(model)
+
         return model
 
 
