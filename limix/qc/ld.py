@@ -1,7 +1,6 @@
 from __future__ import division
 
 from numpy import ascontiguousarray, double, einsum, logical_not, newaxis, sqrt, zeros
-from tqdm import tqdm
 
 
 def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
@@ -43,6 +42,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
                 True,  True])
     """
     from joblib import Parallel, delayed
+    from tqdm import tqdm
     from .. import get_max_nthreads
 
     left = 0

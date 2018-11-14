@@ -1,6 +1,5 @@
 from __future__ import division
 
-import hashlib
 
 
 # # TODO: document those functions
@@ -14,6 +13,8 @@ import hashlib
 
 def filehash(filepath):
     r"""Compute sha256 from a given file."""
+    import hashlib
+
     BUF_SIZE = 65536
     sha256 = hashlib.sha256()
 

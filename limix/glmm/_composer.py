@@ -1,5 +1,4 @@
 import sys
-from textwrap import TextWrapper
 
 from numpy import (
     all as npall,
@@ -192,6 +191,8 @@ class GLMMComposer(object):
             raise NotImplementedError()
 
     def __repr__(self):
+        from textwrap import TextWrapper
+
         width = _display.width()
 
         if self._likname == "normal":

@@ -2,7 +2,6 @@ from __future__ import division
 
 import numpy as np
 from numpy import sqrt, zeros, asfortranarray, isfinite
-from tqdm import tqdm
 
 
 def linear_kinship(G, out=None, verbose=True):
@@ -26,6 +25,7 @@ def linear_kinship(G, out=None, verbose=True):
          [-0.379  -0.4704 -0.3808  1.2302]]
     """
     from scipy.linalg.blas import get_blas_funcs
+    from tqdm import tqdm
 
     (n, p) = G.shape
     if out is None:
