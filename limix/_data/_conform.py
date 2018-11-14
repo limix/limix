@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 from collections import Counter
 
-from numpy import array_equal, asarray, unique, dtype
 
 from .._bits.dask import array_shape_reveal
 from .._bits.xarray import set_coord
@@ -134,6 +133,7 @@ def _to_dataarray(x):
     import dask.dataframe as dd
     import dask.array as da
     import xarray as xr
+    from numpy import dtype
 
     if isinstance(x, (dd.Series, dd.DataFrame)):
         xidx = x.index.compute()
@@ -181,6 +181,7 @@ def _default_sample_coords(n):
 
 def _fix_samples(data, sample_dims):
     from .._bits.xarray import take
+    from numpy import array_equal
 
     samples_list = [
         data[n].coords[d].values for n, d in sample_dims if d in data[n].coords
@@ -223,6 +224,7 @@ def _infer_samples_index(samples_list):
     It uses :class:`collections.Counter` to count the number of repeated sample
     labels, and to provide set (bag) intersection that handles repeated elements.
     """
+    from numpy import array_equal, asarray
 
     samples = samples_list[0]
     if all(array_equal(s, samples) for s in samples_list):
@@ -273,6 +275,8 @@ def _fix_covariates(data, samples_same_size):
 
 
 def _check_uniqueness(data, dims):
+    from numpy import unique
+
     msg = "Non-unique sample ids are not allowed in the {} array"
     msg += " if the sample ids are not equal nor in the same order."
 
@@ -296,5 +300,3 @@ def _match_samples(data, dims):
             raise ValueError(str(e) + "\n\n" + inc_msg.format(data[n].name))
 
     return data
-
-

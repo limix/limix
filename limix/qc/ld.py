@@ -1,8 +1,5 @@
 from __future__ import division
 
-from numpy import ascontiguousarray, double, einsum, logical_not, newaxis, sqrt, zeros
-from tqdm import tqdm
-
 
 def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     r"""Determine pair-wise independent variants.
@@ -43,7 +40,9 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
                 True,  True])
     """
     from joblib import Parallel, delayed
+    from tqdm import tqdm
     from .. import get_max_nthreads
+    from numpy import ascontiguousarray, logical_not, zeros
 
     left = 0
     excls = zeros(X.shape[1], dtype=bool)
@@ -92,11 +91,14 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
 
 
 def _row_norms(X):
+    from numpy import double, einsum, sqrt
+
     norms = einsum("ij,ij->i", X, X, dtype=double)
     return sqrt(norms, out=norms)
 
 
 def _sq_pearson(X):
+    from numpy import ascontiguousarray, double, newaxis, zeros
     from scipy.spatial import _distance_wrap
 
     m = X.shape[0]
@@ -134,6 +136,8 @@ def _pdist_threshold(mark, dist, thr):
 
 
 def _func(x, excls, threshold):
+    from numpy import zeros
+
     dist = _sq_pearson(x)
     e = zeros(x.shape[0], dtype=bool)
     _pdist_threshold(e, dist, threshold)

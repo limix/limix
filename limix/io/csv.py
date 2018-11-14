@@ -1,4 +1,3 @@
-import os
 
 
 def read(filename, sep=None, header=True, verbose=True):
@@ -140,5 +139,7 @@ def _remove_repeat(s):
 
 
 def _is_large_file(filepath):
+    import os
+
     large = 1024 * 1024 * 100
     return os.path.getsize(filepath) >= large

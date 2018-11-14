@@ -1,7 +1,5 @@
 from __future__ import division
 
-from numpy import isnan, nanmean
-
 
 def mean_impute(X):
     r"""Column-wise impute ``NaN`` values by column mean.
@@ -65,6 +63,8 @@ def mean_impute(X):
 
 
 def _impute_ndarray(x):
+    from numpy import isnan, nanmean
+
     m = nanmean(x, axis=0)
     for i, mi in enumerate(m):
         x[isnan(x[:, i]), i] = mi
@@ -87,6 +87,8 @@ def _impute_dask_array(x):
 
 
 def _get_imputer(m):
+    from numpy import isnan
+
     def impute(X):
         A = X.copy()
 

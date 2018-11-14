@@ -1,7 +1,5 @@
 from __future__ import division
 
-from numpy import isnan, logical_not, minimum, nansum
-
 
 def compute_maf(X):
     r"""Compute minor allele frequencies.
@@ -33,6 +31,7 @@ def compute_maf(X):
         [0.49  0.49  0.445 0.495 0.5   0.45  0.48  0.48  0.47  0.435]
     """
     import dask.array as da
+    from numpy import isnan, logical_not, minimum, nansum
 
     if isinstance(X, da.Array):
         s0 = da.nansum(X, axis=0).compute()

@@ -2,9 +2,6 @@ from __future__ import division
 
 import logging
 
-import numpy as np
-from numpy import argsort, asarray, concatenate, nan, where
-
 
 def _get_jit():
     try:
@@ -55,14 +52,16 @@ def _get_walk_right():
 
 
 def roc_curve(multi_score, method, max_fpr=0.05):
+    from numpy import arange, empty_like, mean, std, sqrt
+
     max_fpr = float(max_fpr)
-    fprs = np.arange(0., max_fpr, step=0.001)
-    tprs = np.empty_like(fprs)
-    tprs_stde = np.empty_like(fprs)
+    fprs = arange(0.0, max_fpr, step=0.001)
+    tprs = empty_like(fprs)
+    tprs_stde = empty_like(fprs)
     for (i, fpr) in enumerate(fprs):
         tprs_ = multi_score.get_tprs(method, fpr=fpr, approach="rank")
-        tprs[i] = np.mean(tprs_)
-        tprs_stde[i] = np.std(tprs_) / np.sqrt(len(tprs_))
+        tprs[i] = mean(tprs_)
+        tprs_stde[i] = std(tprs_) / sqrt(len(tprs_))
     return (fprs, tprs, tprs_stde)
 
 
@@ -75,6 +74,8 @@ def confusion_matrix(df, wsize=50000):
        :param pos: Within-chromossome base-pair position of each candidate
                    marker, in crescent order.
     """
+    from numpy import argsort, asarray, concatenate, where
+
     logger = logging.getLogger(__name__)
     wsize = int(wsize)
 
@@ -139,19 +140,29 @@ def getter(func):
             return func(i)
 
         def __lt__(self, other):
-            return func(np.s_[:]) < other
+            from numpy import s_
+
+            return func(s_[:]) < other
 
         def __le__(self, other):
-            return func(np.s_[:]) <= other
+            from numpy import s_
+
+            return func(s_[:]) <= other
 
         def __gt__(self, other):
-            return func(np.s_[:]) > other
+            from numpy import s_
+
+            return func(s_[:]) > other
 
         def __ge__(self, other):
-            return func(np.s_[:]) >= other
+            from numpy import s_
+
+            return func(s_[:]) >= other
 
         def __eq__(self, other):
-            return func(np.s_[:]) == other
+            from numpy import s_
+
+            return func(s_[:]) == other
 
     return ItemGetter()
 
@@ -159,19 +170,21 @@ def getter(func):
 # TODO: document it
 class ConfusionMatrix(object):
     def __init__(self, P, N, true_set, idx_rank):
-        self._TP = np.empty(P + N + 1, dtype=int)
-        self._FP = np.empty(P + N + 1, dtype=int)
+        from numpy import empty, asarray, searchsorted
+
+        self._TP = empty(P + N + 1, dtype=int)
+        self._FP = empty(P + N + 1, dtype=int)
         if len(idx_rank) != P + N:
             raise ValueError(
                 "Rank indices array has to have length equal" + " to ``P + N``."
             )
 
-        true_set = np.asarray(true_set, int)
+        true_set = asarray(true_set, int)
         true_set.sort()
 
-        idx_rank = np.asarray(idx_rank, int)
+        idx_rank = asarray(idx_rank, int)
 
-        ins_pos = np.searchsorted(true_set, idx_rank)
+        ins_pos = searchsorted(true_set, idx_rank)
         _confusion_matrix_tp_fp(P + N, ins_pos, true_set, idx_rank, self._TP, self._FP)
         self._N = N
         self._P = P
@@ -214,6 +227,8 @@ class ConfusionMatrix(object):
 
     @property
     def precision(self):
+        from numpy import nan
+
         return getter(
             lambda i: nan if i == 0 else self.TP[i] / (self.TP[i] + self.FP[i])
         )
@@ -263,10 +278,12 @@ class ConfusionMatrix(object):
         return getter(lambda i: 2 * self.TP[i] / denominator(i))
 
     def roc(self):
+        from numpy import argsort
+
         tpr = self.tpr[1:]
         fpr = self.fpr[1:]
 
-        idx = np.argsort(fpr)
+        idx = argsort(fpr)
         fpr = fpr[idx]
         tpr = tpr[idx]
 
@@ -275,7 +292,7 @@ class ConfusionMatrix(object):
 
 def auc(fpr, tpr):
     left = fpr[0]
-    area = 0.
+    area = 0.0
     for i in range(1, len(fpr)):
         width = fpr[i] - left
         area += width * tpr[i - 1]

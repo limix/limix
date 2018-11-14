@@ -1,12 +1,8 @@
-from numpy import concatenate, newaxis
-from tqdm import tqdm
-
 from limix._display import timer_text
 
 from .._data import conform_dataset
 from .._display import session_text
 
-from glimix_core.lmm import LMM
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
 
 from ._model import QTLModel
@@ -167,6 +163,9 @@ def iscan(G, y, lik, inter, Ginter=None, K=None, M=None, verbose=True):
 
 def _perform_lmm(y, M, QS, G, inter, Ginter, verbose):
     from xarray import DataArray
+    from glimix_core.lmm import LMM
+    from tqdm import tqdm
+    from numpy import concatenate, newaxis
 
     alt_lmls = []
     effsizes = []
@@ -215,4 +214,3 @@ def _perform_lmm(y, M, QS, G, inter, Ginter, verbose):
 
 def _perform_glmm(y, M, QS, G, inter, Ginter, verbose):
     raise NotImplementedError
-

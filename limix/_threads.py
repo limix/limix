@@ -1,6 +1,3 @@
-from multiprocessing import cpu_count
-from multiprocessing.pool import ThreadPool
-
 _max_nthreads = None
 
 
@@ -12,6 +9,7 @@ def set_max_nthreads(nthreads):
         Maximum number of threads.
     """
     import dask
+    from multiprocessing.pool import ThreadPool
 
     nthreads = int(nthreads)
     if nthreads < 1:
@@ -21,6 +19,8 @@ def set_max_nthreads(nthreads):
 
 
 def get_max_nthreads():
+    from multiprocessing import cpu_count
+
     r"""Get the maximum number of threads."""
     if _max_nthreads is None:
         return cpu_count()

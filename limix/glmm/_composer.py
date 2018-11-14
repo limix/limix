@@ -1,16 +1,4 @@
 import sys
-from textwrap import TextWrapper
-
-from numpy import (
-    all as npall,
-    arange,
-    asarray,
-    atleast_2d,
-    isfinite,
-    issubdtype,
-    number,
-    var as np_var,
-)
 
 from . import _cov as user_cov, _mean as user_mean
 from .. import _display
@@ -49,12 +37,14 @@ class GLMMComposer(object):
         fixed_effects : Fixed effects.
         random_effects : Random effects.
         """
+        from numpy import var as npvar
+
         decomp = dict(fixed_effects={}, random_effects={})
 
         for fe in self.fixed_effects:
             if hasattr(fe, "offset"):
                 continue
-            decomp["fixed_effects"][fe.name] = np_var(fe.value())
+            decomp["fixed_effects"][fe.name] = npvar(fe.value())
 
         for re in self.covariance_matrices:
             decomp["random_effects"][re.name] = re.scale
@@ -114,6 +104,8 @@ class GLMMComposer(object):
         y : array_like
             Outcome array.
         """
+        from numpy import all as npall, isfinite
+
         if not npall(isfinite(y)):
             raise ValueError("Phenotype values must be finite.")
         self._glmm = None
@@ -175,6 +167,7 @@ class GLMMComposer(object):
 
     def _build_glmm(self):
         from glimix_core.gp import GP
+        from numpy import asarray
 
         if self._y is None:
             raise ValueError("Phenotype has not been set.")
@@ -192,6 +185,8 @@ class GLMMComposer(object):
             raise NotImplementedError()
 
     def __repr__(self):
+        from textwrap import TextWrapper
+
         width = _display.width()
 
         if self._likname == "normal":
@@ -220,6 +215,8 @@ class GLMMComposer(object):
 
 class FixedEffects(object):
     def __init__(self, nsamples):
+        from numpy import arange
+
         self._sample_idx = arange(nsamples)
         self._fixed_effects = {"impl": [], "user": []}
         self._mean = None
@@ -253,6 +250,7 @@ class FixedEffects(object):
         self._mean = None
 
     def append(self, m, name=None):
+        from numpy import all as npall, asarray, atleast_2d, isfinite
         from glimix_core.mean import LinearMean
 
         m = asarray(m, float)
@@ -280,6 +278,8 @@ class FixedEffects(object):
         return self._mean["user"]
 
     def __str__(self):
+        from numpy import asarray
+
         vals = []
         for fi in self._fixed_effects["user"]:
             if isinstance(fi, user_mean.OffsetMean):
@@ -291,6 +291,8 @@ class FixedEffects(object):
 
 class CovarianceMatrices(object):
     def __init__(self, nsamples):
+        from numpy import arange
+
         self._sample_idx = arange(nsamples)
         self._covariance_matrices = {"impl": [], "user": []}
         self._cov = None
@@ -324,6 +326,7 @@ class CovarianceMatrices(object):
         self._cov = None
 
     def append(self, K, name=None):
+        from numpy import all as npall, isfinite, issubdtype, number
         from glimix_core.cov import GivenCov
 
         if not issubdtype(K.dtype, number):
@@ -353,6 +356,8 @@ class CovarianceMatrices(object):
         return self._cov["user"]
 
     def __str__(self):
+        from numpy import asarray
+
         vals = []
         for cm in self._covariance_matrices["user"]:
             vals.append(cm.scale)

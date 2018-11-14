@@ -1,7 +1,5 @@
 from __future__ import division
 
-from numpy import argsort, zeros
-
 
 # TODO: add test
 def multipletests(pvals, alpha=0.05, method="hs", is_sorted=False):
@@ -90,6 +88,8 @@ def empirical_pvalues(xt, x0):
         >>> empirical_pvalues(x0, x1) # doctest: +FLOAT_CMP
         array([0.563 , 1.    , 0.839 , 0.7982, 0.5803])
     """
+    from numpy import argsort, zeros
+
     idxt = argsort(xt)[::-1]
     idx0 = argsort(x0)[::-1]
     xts = xt[idxt]
@@ -111,5 +111,5 @@ def empirical_pvalues(xt, x0):
             if it == xt.shape[0]:
                 break
     pv = (count + 1) / float(x0.shape[0])
-    pv[pv > 1.] = 1.
+    pv[pv > 1.0] = 1.0
     return pv

@@ -2,8 +2,6 @@ import traceback
 import sys
 import limix
 import click
-import os
-from collections import namedtuple
 
 
 @click.command()
@@ -112,6 +110,7 @@ def scan(
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
+    import os
     from limix._display import session_text, banner
 
     print(banner())

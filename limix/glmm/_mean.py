@@ -1,6 +1,3 @@
-from numpy import ascontiguousarray
-
-
 class BaseMean(object):
     def __init__(self, mean):
         self._mean = mean
@@ -49,6 +46,8 @@ class LinearMean(BaseMean):
 
     @effsizes.setter
     def effsizes(self, v):
+        from numpy import ascontiguousarray
+
         self._mean.effsizes = ascontiguousarray(v)
 
 
