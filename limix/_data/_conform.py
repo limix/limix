@@ -1,13 +1,18 @@
 from __future__ import unicode_literals
 from collections import Counter
-from functools import wraps
 
 from numpy import array_equal, asarray, unique, dtype
 
 from .._bits.dask import array_shape_reveal
 from .._bits.xarray import set_coord
+from .._bits.deco import return_none_if_none
 from ._dataarray import fix_dim_hint, rename_dims
 from .conf import is_data_name, is_short_data_name, data_name, short_data_names
+
+
+rename_dims = return_none_if_none(rename_dims)
+fix_dim_hint = return_none_if_none(fix_dim_hint)
+set_coord = return_none_if_none(set_coord)
 
 
 def conform_dataset(y, M=None, G=None, K=None):
@@ -124,6 +129,7 @@ def conform_dataset(y, M=None, G=None, K=None):
     return {k: data.get(k, None) for k in short_data_names()}
 
 
+@return_none_if_none
 def _to_dataarray(x):
     import dask.dataframe as dd
     import dask.array as da
@@ -173,32 +179,6 @@ def _default_sample_coords(n):
     return ["sample{}".format(j) for j in range(n)]
 
 
-def _infer_samples_index(data, dims, samples):
-
-    if all(array_equal(data[n].coords[d].values, samples) for n, d in dims):
-        return Counter(samples)
-
-    samples_sets = [
-        Counter(data[n].coords[d].values) for n, d in dims if d in data[n].coords
-    ]
-
-    set_intersection = samples_sets[0]
-    for ss in samples_sets[1:]:
-        set_intersection = set_intersection & ss
-
-    membership_size = [
-        asarray([ss[si] for ss in samples_sets], int) for si in set_intersection
-    ]
-
-    valid_samples = Counter()
-
-    for i, k in enumerate(set_intersection.keys()):
-        if sum(membership_size[0] > 1) <= 1:
-            valid_samples[k] = set_intersection[k]
-
-    return valid_samples
-
-
 def _fix_samples(data, sample_dims):
     from .._bits.xarray import take
 
@@ -225,11 +205,46 @@ def _fix_samples(data, sample_dims):
             data[n] = take(data[n], slice(0, nmin_samples), d)
             data[n].coords[d] = samples[:nmin_samples]
 
-    valid_samples = _infer_samples_index(data, sample_dims, samples)
+    samples_list = [
+        data[n].coords[d].values for n, d in sample_dims if d in data[n].coords
+    ]
+
+    valid_samples = _infer_samples_index(samples_list)
+    # valid_samples = _infer_samples_index(data, sample_dims, samples)
     for n, d in sample_dims:
         data[n] = set_coord(data[n], d, valid_samples)
 
     return data
+
+
+def _infer_samples_index(samples_list):
+    r""" Infer a list of sample labels that is compatible to the provided data.
+
+    It uses :class:`collections.Counter` to count the number of repeated sample
+    labels, and to provide set (bag) intersection that handles repeated elements.
+    """
+
+    samples = samples_list[0]
+    if all(array_equal(s, samples) for s in samples_list):
+        return Counter(samples)
+
+    samples_sets = [Counter(s) for s in samples_list]
+
+    set_intersection = samples_sets[0]
+    for ss in samples_sets[1:]:
+        set_intersection = set_intersection & ss
+
+    membership_size = [
+        asarray([ss[si] for ss in samples_sets], int) for si in set_intersection
+    ]
+
+    valid_samples = Counter()
+
+    for i, k in enumerate(set_intersection.keys()):
+        if sum(membership_size[0] > 1) <= 1:
+            valid_samples[k] = set_intersection[k]
+
+    return valid_samples
 
 
 def _set_titles(data):
@@ -283,17 +298,3 @@ def _match_samples(data, dims):
     return data
 
 
-def _return_none(f):
-    @wraps(f)
-    def new_func(x, *args, **kwargs):
-        if x is None:
-            return None
-        return f(x, *args, **kwargs)
-
-    return new_func
-
-
-rename_dims = _return_none(rename_dims)
-_to_dataarray = _return_none(_to_dataarray)
-fix_dim_hint = _return_none(fix_dim_hint)
-set_coord = _return_none(set_coord)
