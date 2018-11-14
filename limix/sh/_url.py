@@ -1,6 +1,6 @@
 import sys
 import warnings
-from .._display import timer_text
+from .._display import session_line
 
 PY2 = sys.version_info < (3,)
 
@@ -23,7 +23,7 @@ def download(url, dest=None, verbose=True, force=False):
         print("Set `force` to `True` in order to overwrite the existing file.")
         return
 
-    with timer_text("Downloading {}... ".format(url), disable=not verbose):
+    with session_line("Downloading {}... ".format(url), disable=not verbose):
         urlretrieve(url, filepath)
 
 

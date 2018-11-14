@@ -38,9 +38,9 @@ def read_phenotype(filepath, verbose=True):
     on. We apply the same reasoning for trait naming.
     """
     from pandas import read_csv
-    from .._display import timer_text
+    from .._display import session_line
 
-    with timer_text("Reading `{}`... ".format(filepath), disable=not verbose):
+    with session_line("Reading `{}`... ".format(filepath), disable=not verbose):
         df = read_csv(filepath, sep=r"\s+", header=None)
 
     df.index.name = "_sample"

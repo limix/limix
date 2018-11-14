@@ -1,7 +1,7 @@
-from limix._display import timer_text
+from limix._display import session_line
 
 from .._data import conform_dataset
-from .._display import session_text
+from .._display import session_block
 
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
 
@@ -117,9 +117,9 @@ def iscan(G, y, lik, inter, Ginter=None, K=None, M=None, verbose=True):
     if Ginter is None:
         Ginter = G
 
-    with session_text("interaction qtl analysis", disable=not verbose):
+    with session_block("interaction qtl analysis", disable=not verbose):
 
-        with timer_text("Normalising input... ", disable=not verbose):
+        with session_line("Normalising input... ", disable=not verbose):
             data = conform_dataset(
                 y,
                 M,

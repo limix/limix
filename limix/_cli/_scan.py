@@ -111,7 +111,7 @@ def scan(
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
     import os
-    from limix._display import session_text, banner, timer_text
+    from limix._display import session_block, banner, session_line
 
     print(banner())
     output_dir = os.path.abspath(output_dir)
@@ -135,7 +135,7 @@ def scan(
 
     data = {"y": y, "G": G}
 
-    with session_text("preprocessing", disable=not verbose):
+    with session_block("preprocessing", disable=not verbose):
         data = _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose)
 
     try:
@@ -146,7 +146,7 @@ def scan(
         print_exc(traceback.format_stack(), e)
         sys.exit(1)
 
-    with timer_text("Saving results to `{}`... ".format(output_dir)):
+    with session_line("Saving results to `{}`... ".format(output_dir)):
         model.to_csv(
             os.path.join(output_dir, "null.csv"), os.path.join(output_dir, "alt.csv")
         )
@@ -154,14 +154,14 @@ def scan(
 
 def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
     from limix._data import conform_dataset
-    from .._display import timer_text
+    from .._display import session_line
 
     layout = _LayoutChange()
 
     for target in data.keys():
         layout.append(target, "initial", data[target].shape)
 
-    with timer_text("Matching samples... "):
+    with session_line("Matching samples... "):
         data = conform_dataset(data["y"], G=data["G"])
     data = {k: v for k, v in data.items() if v is not None}
 
@@ -184,14 +184,14 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
                 raise RuntimeError("Exiting early because there is no sample left.")
 
     for f in filter_missing:
-        with timer_text("Applying `{}`... ".format(f)):
+        with session_line("Applying `{}`... ".format(f)):
             _process_filter_missing(f, data)
             if data["y"].sample.size == 0:
                 print(layout.to_string())
                 raise RuntimeError("Exiting early because there is no sample left.")
 
     if filter_maf is not None:
-        with timer_text("Removing candidates with MAF<{}... ".format(filter_maf)):
+        with session_line("Removing candidates with MAF<{}... ".format(filter_maf)):
             data["G"] = _process_filter_maf(float(filter_maf), data["G"])
 
         for target in data.keys():
@@ -202,7 +202,7 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
             raise RuntimeError("Exiting early because there is no candidate left.")
 
     for imp in impute:
-        with timer_text("Imputting missing values (`{}`)... ".format(imp)):
+        with session_line("Imputting missing values (`{}`)... ".format(imp)):
             data = _process_impute(imp, data)
 
     print(layout.to_string())

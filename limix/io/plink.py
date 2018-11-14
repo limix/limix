@@ -73,9 +73,9 @@ def read(prefix, verbose=True):
          [ 2.  1.  2.]]
     """
     from pandas_plink import read_plink
-    from .._display import timer_text
+    from .._display import session_line
 
-    with timer_text("Reading `{}`...\n".format(prefix), disable=not verbose):
+    with session_line("Reading `{}`...\n".format(prefix), disable=not verbose):
         data = read_plink(prefix, verbose=verbose)
 
         data[1].name = "fam"
@@ -91,12 +91,12 @@ def read(prefix, verbose=True):
 
 def see_kinship(filepath, verbose):
     from .. import plot
-    from .._display import timer_text
+    from .._display import session_line
 
     # TODO: document
 
     if filepath.endswith(".grm.raw"):
-        with timer_text("Reading {}... ".format(filepath), disable=not verbose):
+        with session_line("Reading {}... ".format(filepath), disable=not verbose):
             K = _read_grm_raw(filepath)
     else:
         print("File %s not found." % filepath)

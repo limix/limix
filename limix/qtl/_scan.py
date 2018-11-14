@@ -2,10 +2,10 @@ from __future__ import division
 
 import sys
 
-from limix._display import timer_text
+from limix._display import session_line
 
 from .._data import conform_dataset
-from .._display import session_text
+from .._display import session_block
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
 from ._model import QTLModel
 
@@ -132,9 +132,9 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
     lik_name = lik[0].lower()
     assert_likelihood_name(lik_name)
 
-    with session_text("qtl analysis", disable=not verbose):
+    with session_block("qtl analysis", disable=not verbose):
 
-        with timer_text("Normalising input... ", disable=not verbose):
+        with session_line("Normalising input... ", disable=not verbose):
             data = conform_dataset(y, M, G=G, K=K)
 
         y = data["y"]

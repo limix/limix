@@ -145,7 +145,7 @@ class GLMMComposer(object):
             session_name = "composed lmm"
         else:
             session_name = "composed {}-glmm".format(self._likname)
-        with _display.session_text(session_name, disable=not verbose):
+        with _display.session_block(session_name, disable=not verbose):
             self._build_glmm()
             self._glmm.fit(verbose=verbose)
 

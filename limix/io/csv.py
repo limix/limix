@@ -36,14 +36,14 @@ def read(filename, sep=None, header=True, verbose=True):
     """
     from dask.dataframe import read_csv as dask_read_csv
     from pandas import read_csv as pandas_read_csv
-    from .._display import timer_text
+    from .._display import session_line
 
     if sep is None:
         sep = _infer_separator(filename)
 
     header = 0 if header else None
 
-    with timer_text("Reading {}... ".format(filename), disable=not verbose):
+    with session_line("Reading {}... ".format(filename), disable=not verbose):
 
         if _is_large_file(filename):
             df = dask_read_csv(filename, sep=sep, header=header)
@@ -76,14 +76,14 @@ def see(filepath, header, verbose=True):
         CSV representation.
     """
     from pandas import read_csv
-    from .._display import timer_text
+    from .._display import session_line
 
     if header:
         header = 0
     else:
         header = None
 
-    with timer_text(desc="Reading %s... " % filepath, disable=not verbose):
+    with session_line(desc="Reading %s... " % filepath, disable=not verbose):
         sep = _infer_separator(filepath)
         msg = read_csv(filepath, sep=sep, header=header).head()
 
