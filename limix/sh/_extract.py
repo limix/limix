@@ -1,11 +1,11 @@
-import bz2
-import os
-import tarfile
 from .._display import timer_text
 
 
 # TODO: document
 def extract(filepath, verbose=True):
+    import bz2
+    import tarfile
+    import os
 
     with timer_text("Extracting {}... ".format(filepath), disable=not verbose):
 

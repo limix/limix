@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import os
 import pytest
 
 
@@ -17,6 +16,7 @@ def pytest_sessionstart(*args, **kwargs):
 
 @pytest.fixture(autouse=True)
 def _docdir(request):
+    import os
 
     # Trigger ONLY for the doctests or doctestplus.
     plug = request.config.pluginmanager.getplugin("doctest")

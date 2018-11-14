@@ -1,8 +1,4 @@
 import sys
-import os
-from os.path import dirname, realpath, join
-import tempfile
-import shutil
 
 _filenames = [
     "data.csv",
@@ -19,6 +15,8 @@ class file_example(object):
     r"""Example."""
 
     def __init__(self, filenames):
+        import tempfile
+
         self._unlist = False
         if not isinstance(filenames, (tuple, list)):
             filenames = [filenames]
@@ -37,6 +35,8 @@ class file_example(object):
 
     def __enter__(self):
         import pkg_resources
+        from os.path import dirname, realpath, join
+        import shutil
 
         filepaths = [join(self._dirpath, fn) for fn in self._filenames]
 
@@ -58,6 +58,8 @@ class file_example(object):
         return filepaths
 
     def __exit__(self, *_):
+        import shutil
+
         try:
             shutil.rmtree(self._dirpath)
         except PermissionError:
@@ -65,6 +67,8 @@ class file_example(object):
 
 
 def _makedirs(dirpath):
+    import os
+
     if sys.version_info >= (3,):
         os.makedirs(dirpath, exist_ok=True)
     else:
