@@ -24,16 +24,15 @@ stats
 The official documentation together with examples and tutorials can be found
 at https://limix.readthedocs.io/.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import as _
 
 __version__ = "2.0.0a3"
 
-from . import display, glmm, her, io, plot, qc, qtl, sh, stats, example
+from . import glmm, her, io, plot, qc, qtl, sh, stats, example
 from ._cli import cli
 from ._config import config
 from ._testit import test
 from ._threads import set_max_nthreads, get_max_nthreads
-
 
 
 __all__ = [
@@ -50,7 +49,6 @@ __all__ = [
     "main",
     "sh",
     "config",
-    "display",
     "cli",
     "get_max_nthreads",
     "example",

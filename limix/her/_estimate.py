@@ -2,7 +2,7 @@ from __future__ import division
 
 from numpy import ones, pi, var
 
-from ..display import session_text, timer_text
+from .._display import session_text, timer_text
 from .._data import conform_dataset
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
 from ..qc import normalise_covariance

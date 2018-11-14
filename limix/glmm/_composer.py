@@ -13,7 +13,7 @@ from numpy import (
 )
 
 from . import _cov as user_cov, _mean as user_mean
-from .. import display
+from .. import _display
 from .._likelihood import assert_likelihood_name, normalise_extreme_values
 
 if sys.version_info < (3, 0):
@@ -153,14 +153,14 @@ class GLMMComposer(object):
             session_name = "composed lmm"
         else:
             session_name = "composed {}-glmm".format(self._likname)
-        with display.session_text(session_name, disable=not verbose):
+        with _display.session_text(session_name, disable=not verbose):
             self._build_glmm()
             self._glmm.fit(verbose=verbose)
 
             if verbose:
                 sys.stdout.flush()
-                txt = display.bold(str(self))
-                display.display(display.format_richtext(txt))
+                txt = _display.bold(str(self))
+                _display.display(_display.format_richtext(txt))
 
     def lml(self):
         """ Get the log of the marginal likelihood.
@@ -192,7 +192,7 @@ class GLMMComposer(object):
             raise NotImplementedError()
 
     def __repr__(self):
-        width = display.width()
+        width = _display.width()
 
         if self._likname == "normal":
             s = "GLMMComposer using LMM\n"

@@ -1,7 +1,7 @@
 import bz2
 import os
 import tarfile
-from ..display import timer_text
+from .._display import timer_text
 
 
 # TODO: document

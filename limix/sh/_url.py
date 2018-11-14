@@ -1,7 +1,7 @@
 import os
 import sys
 import warnings
-from ..display import timer_text
+from .._display import timer_text
 
 PY2 = sys.version_info < (3,)
 

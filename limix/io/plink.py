@@ -92,7 +92,7 @@ def read(prefix, verbose=True):
 
 def see_kinship(filepath, verbose):
     from .. import plot
-    from ..display import timer_text
+    from .._display import timer_text
 
     # TODO: document
 
@@ -114,7 +114,7 @@ def fetch_dosage(prefix, verbose):
 
 def see_bed(filepath, verbose):
     # TODO: document
-    from ..display import dataframe_repr
+    from .._display import dataframe_repr
 
     (bim, fam, _) = read(filepath, verbose=verbose)
 
