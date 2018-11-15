@@ -10,7 +10,7 @@ def banner():
     return "Running Limix {} using Python {}.".format(__version__, pyver)
 
 
-def dataframe_repr(title, df):
+def add_title_header(title, df):
     msg = repr(df)
     k = msg.find("\n") - len(title) - 2
     left = ("-" * (k // 2)) + " "

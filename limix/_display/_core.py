@@ -23,7 +23,7 @@ def pprint(txt):
         print(_RichText(txt))
 
 
-def dataframe_repr(title, df):
+def add_title_header(title, df):
     msg = repr(df)
     k = msg.find("\n") - len(title) - 2
     left = ("-" * (k // 2)) + " "
@@ -180,7 +180,6 @@ class _RichText(object):
                 expr = "<span style='color:{}'>\\1</span>".format(_color[tag])
                 txt = r.sub(expr, txt)
 
-        # return txt.replace("\n", "\n<br>")
         return "<pre>{}</pre>".format(txt)
 
 

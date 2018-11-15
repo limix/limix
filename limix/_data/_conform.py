@@ -6,7 +6,7 @@ from .._bits.dask import array_shape_reveal
 from .._bits.xarray import set_coord
 from .._bits.deco import return_none_if_none
 from ._dataarray import fix_dim_hint, rename_dims
-from .conf import is_data_name, is_short_data_name, data_name, short_data_names
+from ._data import is_data_name, is_short_data_name, to_data_name, get_short_data_names
 
 
 rename_dims = return_none_if_none(rename_dims)
@@ -97,7 +97,7 @@ def conform_dataset(y, M=None, G=None, K=None):
 
     # Select those variables different than None
     _locals = locals()
-    data = {k: _locals[k] for k in short_data_names() if _locals[k] is not None}
+    data = {k: _locals[k] for k in get_short_data_names() if _locals[k] is not None}
 
     sample_dims = [
         t
@@ -125,7 +125,7 @@ def conform_dataset(y, M=None, G=None, K=None):
         _check_uniqueness(data, sample_dims)
         _match_samples(data, sample_dims)
 
-    return {k: data.get(k, None) for k in short_data_names()}
+    return {k: data.get(k, None) for k in get_short_data_names()}
 
 
 @return_none_if_none
@@ -134,7 +134,7 @@ def to_dataarray(x):
     import dask.array as da
     import xarray as xr
     from numpy import dtype
-    from .conf import is_dim_hint
+    from ._dim import is_dim_hint
 
     if isinstance(x, (dd.Series, dd.DataFrame)):
         xidx = x.index.compute()
@@ -258,7 +258,7 @@ def _infer_samples_index(samples_list):
 def _set_titles(data):
     for n in data.keys():
         if is_short_data_name(n) or is_data_name(n):
-            data[n].name = data_name(n)
+            data[n].name = to_data_name(n)
         else:
             data[n].name = n
     return data

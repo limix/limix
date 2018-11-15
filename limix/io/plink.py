@@ -113,12 +113,12 @@ def fetch_dosage(prefix, verbose):
 
 def see_bed(filepath, verbose):
     # TODO: document
-    from .._display import dataframe_repr
+    from .._display import add_title_header
 
     (bim, fam, _) = read(filepath, verbose=verbose)
 
-    print(dataframe_repr("Samples", bim))
-    print(dataframe_repr("Genotype", fam))
+    print(add_title_header("Samples", bim))
+    print(add_title_header("Genotype", fam))
 
 
 def _read_grm_raw(filepath):

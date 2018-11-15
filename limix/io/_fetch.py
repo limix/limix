@@ -1,4 +1,4 @@
-from .._data.conf import is_data_name, get_data_dims
+from .._data import is_data_name, get_dims_from_data_name
 
 
 def fetch(data_name, fetch_spec, verbose=True):
@@ -32,7 +32,7 @@ def _fetch_bed_genotype(filepath, verbose=True):
 
     candidates, samples, G = read(filepath, verbose=verbose)
 
-    G = DataArray(G.T, dims=get_data_dims("genotype"))
+    G = DataArray(G.T, dims=get_dims_from_data_name("genotype"))
 
     for colname in samples.columns:
         G.coords[colname] = ("sample", samples[colname].values)

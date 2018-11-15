@@ -213,14 +213,14 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
 
 def _process_filter(expr, data):
     from .._bits.xarray import query
-    from .._data.conf import short_data_name
+    from .._data.conf import to_short_data_name
 
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
         raise ValueError("Filter syntax error.")
     target = elems[0]
     expr = elems[1]
-    n = short_data_name(target)
+    n = to_short_data_name(target)
     data[n] = query(data[n], expr)
     return data
 
@@ -250,13 +250,13 @@ def _process_filter_maf(maf, G):
 
 
 def _process_impute(expr, data):
-    from .._data.conf import short_data_name, dim_hint_to_name, dim_name_to_hint
+    from .._data.conf import to_short_data_name, dim_hint_to_name, dim_name_to_hint
 
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
         raise ValueError("Missing filter syntax error.")
 
-    target = short_data_name(elems[0])
+    target = to_short_data_name(elems[0])
     dim = elems[1]
 
     if len(elems) == 3:

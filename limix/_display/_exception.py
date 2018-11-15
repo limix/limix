@@ -3,6 +3,7 @@ from ._display import bold, red, pprint
 
 
 def print_exc(stack, e):
+    """ Print exception with red and bold fonts. """
 
     print("Traceback (most recent call last):")
     sys.stdout.write("".join(stack))
