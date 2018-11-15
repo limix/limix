@@ -16,6 +16,7 @@ def take(x, indices, dim):
 def in_coords_dim(arr, k):
     return k in arr.coords or k in arr.dims
 
+
 def hint_aware_sel(x, **kwargs):
     from .._data.conf import (
         is_dim_hint,
@@ -40,3 +41,43 @@ def hint_aware_sel(x, **kwargs):
                     del kwargs[k]
 
     return x.sel(**kwargs)
+
+
+def query(data, expr):
+    from io import StringIO
+    from tokenize import generate_tokens, OP, NAME
+
+    tokens = list(generate_tokens(StringIO(expr).readline))
+
+    final_expr = ""
+    last = None
+    for t in tokens:
+        if t.type == NAME:
+
+            is_boolean = last is not None
+            is_boolean = is_boolean and not (last.type == OP and _is_comp(last.string))
+            is_boolean = is_boolean and _is_boolean(t.string)
+            if is_boolean:
+                final_expr += _cast_boolean(t.string)
+            else:
+                final_expr += 'data["{}"]'.format(t.string)
+        elif t.type == OP and _is_comp(t.string):
+            final_expr += " {} ".format(t.string)
+        else:
+            final_expr += t.string
+        last = t
+
+    return eval("data.where(" + final_expr + ", drop=True)")
+
+
+def _is_comp(v):
+    return v in set(["<", ">", "<=", ">=", "==", "!="])
+
+
+def _is_boolean(v):
+    return v.lower() in set(["and", "or", "not"])
+
+
+def _cast_boolean(v):
+    d = {"and": " & ", "or": " | ", "not": "~"}
+    return d[v.lower()]
