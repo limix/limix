@@ -31,8 +31,10 @@ from ._data import (
     to_data_name,
     to_short_data_name,
 )
+from ._lik import check_likelihood_name
 
 __all__ = [
+    "check_likelihood_name",
     "conform_dataset",
     "dim_hint_to_name",
     "dim_name_to_hint",

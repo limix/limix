@@ -1,6 +1,3 @@
-import warnings
-
-
 def normalise_extreme_values(y, likelihood):
     from numpy import isfinite, all
 
@@ -16,18 +13,9 @@ def normalise_extreme_values(y, likelihood):
     return y
 
 
-def assert_likelihood_name(likname):
-
-    likname = likname.lower()
-    valid_names = set(["normal", "bernoulli", "probit", "binomial", "poisson"])
-    if likname not in valid_names:
-        msg = "Unrecognized likelihood name: {}.\n".format(likname)
-        msg += "Valid names are: {}.".format(valid_names)
-        raise ValueError(msg)
-
-
 def _poisson_normalise_extreme_values(y):
-    from numpy import clip, minimum, isfinite, all
+    import warnings
+    from numpy import clip
 
     max_val = 25000.0
     if y.values.max() > max_val:
@@ -39,7 +27,7 @@ def _poisson_normalise_extreme_values(y):
 
 
 def _binomial_normalise_extreme_values(y):
-    from numpy import clip, minimum, isfinite, all
+    from numpy import minimum
 
     max_val = 300
     v = y.values

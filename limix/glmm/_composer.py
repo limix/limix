@@ -2,7 +2,9 @@ import sys
 
 from . import _cov as user_cov, _mean as user_mean
 from .. import _display
-from .._likelihood import assert_likelihood_name, normalise_extreme_values
+from .._data import check_likelihood_name
+from ..qc._lik import normalise_extreme_values
+
 
 if sys.version_info < (3, 0):
     PY2 = True
@@ -80,7 +82,7 @@ class GLMMComposer(object):
         likname : str
             Likelihood name.
         """
-        assert_likelihood_name(likname)
+        check_likelihood_name(likname)
         self._likname = likname.lower()
         self._glmm = None
 

@@ -32,24 +32,23 @@ from . import glmm, her, io, plot, qc, qtl, sh, stats, example
 from ._cli import cli
 from ._config import config
 from ._testit import test
-from ._threads import set_max_nthreads, get_max_nthreads
+from . import threads
 
 
 __all__ = [
     "__version__",
-    "test",
+    "cli",
+    "config",
+    "example",
+    "glmm",
+    "her",
     "io",
+    "main",
     "plot",
     "qc",
     "qtl",
-    "stats",
-    "her",
-    "glmm",
-    "set_max_nthreads",
-    "main",
+    "threads",
     "sh",
-    "config",
-    "cli",
-    "get_max_nthreads",
-    "example",
+    "stats",
+    "test",
 ]
