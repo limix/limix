@@ -49,6 +49,9 @@ def see(ctx, filepath, show_chunks, header, verbose):
     elif filetype == "bimbam-pheno":
         limix.io.bimbam.see_phenotype(filepath, verbose)
 
+    elif filetype == "npy":
+        limix.io.npy.see(filepath, verbose)
+
     elif filetype == "image":
         r = limix.plot.image(filepath)
         limix.plot.show()

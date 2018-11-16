@@ -18,7 +18,7 @@ def in_coords_dim(arr, k):
 
 
 def hint_aware_sel(x, **kwargs):
-    from .._data.conf import (
+    from .._data import (
         is_dim_hint,
         is_dim_name,
         dim_name_to_hint,

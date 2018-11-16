@@ -125,10 +125,14 @@ def scan(
         "phenotype": parse_fetch_spec(phenotypes_file),
         "genotype": parse_fetch_spec(genotype_file),
     }
+    if kinship_file is not None:
+        fetch["kinship"] = parse_fetch_spec(kinship_file)
 
     if verbose:
         print("Phenotype file type: {}".format(fetch["phenotype"]["filetype"]))
         print("Genotype file type: {}".format(fetch["genotype"]["filetype"]))
+        if "kinship" in fetch:
+            print("Kinship file type: {}".format(fetch["kinship"]["filetype"]))
 
     y = limix.io.fetch("trait", fetch["phenotype"], verbose=verbose)
     if verbose:
@@ -138,13 +142,18 @@ def scan(
     if verbose:
         print("\n{}\n".format(G))
 
-    data = {"y": y, "G": G}
+    data = {"y": y, "G": G, "K": None}
+    if kinship_file is not None:
+        K = limix.io.fetch("covariance", fetch["kinship"], verbose=verbose)
+        if verbose:
+            print("\n{}\n".format(K))
+        data["K"] = K
 
     with session_block("preprocessing", disable=not verbose):
         data = _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose)
 
     try:
-        model = limix.qtl.scan(data["G"], data["y"], lik, verbose=verbose)
+        model = limix.qtl.scan(data["G"], data["y"], lik, K=data["K"], verbose=verbose)
     except Exception as e:
         print_exc(traceback.format_stack(), e)
         sys.exit(1)
@@ -163,7 +172,7 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
         layout.append(target, "initial", data[target].shape)
 
     with session_line("Matching samples... "):
-        data = conform_dataset(data["y"], G=data["G"])
+        data = conform_dataset(**data)
     data = {k: v for k, v in data.items() if v is not None}
 
     for target in data.keys():
@@ -213,7 +222,7 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
 
 def _process_filter(expr, data):
     from .._bits.xarray import query
-    from .._data.conf import to_short_data_name
+    from .._data import to_short_data_name
 
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
@@ -250,7 +259,7 @@ def _process_filter_maf(maf, G):
 
 
 def _process_impute(expr, data):
-    from .._data.conf import to_short_data_name, dim_hint_to_name, dim_name_to_hint
+    from .._data import to_short_data_name, dim_hint_to_name, dim_name_to_hint
 
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
@@ -323,7 +332,7 @@ class _LayoutChange(object):
         msg = table.draw()
 
         msg = self._add_caption(msg, "-", "Table: Data layout transformation.")
-        return msg + "\n"
+        return msg
 
     def _add_caption(self, msg, c, caption):
         n = len(msg.split("\n")[-1])
