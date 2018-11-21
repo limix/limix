@@ -1,5 +1,4 @@
---process-dependency-links
-https://github.com/horta/pytest-doctestplus/raw/0.1.4/pytest-doctestplus-0.1.4.tar.gz#md5=06d1844d2e20d0bd0d104362966ed204
+pytest-doctestplus>=0.2.0
 pip>=18.0
 pytest>=3.7.0
 seaborn>=0.9.0
