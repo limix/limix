@@ -5,7 +5,7 @@ python:
   - 3.6
 env:
   - PKG_NAME=limix
-  - HDF5_USE_FILE_LOCKING=FALSE
+    HDF5_USE_FILE_LOCKING=FALSE
 addons:
   apt:
     packages:
