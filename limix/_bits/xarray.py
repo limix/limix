@@ -1,3 +1,6 @@
+from __future__ import absolute_import as _
+
+
 def set_coord(x, dim, values):
     r""" Assign a new coordinate or subset an existing one. """
     if dim not in x.coords:

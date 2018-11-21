@@ -1,3 +1,6 @@
+from __future__ import absolute_import as _
+
+
 def array_shape_reveal(a):
     r""" Compute shape from lazy arrays.
 
@@ -40,4 +43,5 @@ def _get_chunks(a):
 
         c.append(tuple(cs[s]))
 
+    return tuple(c)
     return tuple(c)
