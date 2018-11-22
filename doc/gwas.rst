@@ -209,10 +209,7 @@ The process method returns three sets of P values:
 Multi-trait tests
 ^^^^^^^^^^^^^^^^^
 
-Association test
-~~~~~~~~~~~~~~~~
-
-The following linear mixed model is considered:
+The multi-trait linear mixed model has the form:
 
 .. math::
     \mathbf{Y} =
@@ -238,10 +235,15 @@ where :math:`\mathbf{Y}` is the :math:`\text{N$\times$P}` phenotype matrix,
     \right)
 
 
-The association test is :math:`\boldsymbol{\beta}\neq{0}`.
+Any-effect association test
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+An any-effect association test corresponds to testing :math:`\boldsymbol{\beta}\neq{0}`
+with an ``eye`` snp trait design 
 
 .. code-block:: python
+   :linenos:
+
     P = 4
     phenos = sp.randn(pheno.shape[0], P)
     Asnps = sp.eye(P)
@@ -253,7 +255,7 @@ The association test is :math:`\boldsymbol{\beta}\neq{0}`.
 Common and interaction tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The module allow testing alternative trait design matrix for the variant effects.
+The module allows for testing specific trait design matrices for the variant effects.
 This is achieved by specifying the two trait design to compare, namely ``Asnps`` and ``Asnps0``.
 
 In the example below we instantiate this principle to test for departures from
