@@ -13,12 +13,14 @@ Import modules and data.
 
     import os
     import numpy as np
+    from numpy.random import RandomState
     import pandas as pd
     import scipy as sp
     import scipy.linalg as la
     from limix_core.util.preprocess import gaussianize
     from limix_lmm import download, unzip
     from pandas_plink import read_plink
+    random = RandomState(1)
 
     # download data
     download("http://www.ebi.ac.uk/~casale/data_structlmm.zip")
@@ -32,7 +34,7 @@ Import modules and data.
     snps = G[:100].compute().T
 
     # define genetic relatedness matrix
-    W_R = sp.randn(fam.shape[0], 20)
+    W_R = random.randn(fam.shape[0], 20)
     R = sp.dot(W_R, W_R.T)
     R/= R.diagonal().mean()
     S_R, U_R = la.eigh(R)
@@ -68,12 +70,25 @@ and :math:`\mathbf{g}` is a column of ``snps``.
 
 The method returns P values and variant effect sizes for each tested variant.
 
-.. code-block:: python
-   :linenos:
+.. testcode::
+
+    from limix.qtl import GWAS_LMM
 
     lm = GWAS_LMM(pheno, covs=covs, verbose=True)
     res = lm.process(snps)
     print(res.head())
+
+.. testoutput::
+
+    I am a stupid line that will break the test
+
+    Model: lm
+             pv      beta
+    0  0.562124  0.082701
+    1  0.776498 -0.027745
+    2  0.884695 -0.014210
+    3  0.188546 -0.169266
+    4  0.205569 -0.108849
 
 
 LMM
@@ -98,14 +113,26 @@ cryptic relatedness and :math:`\mathbf{R}` is the genetic relatedness matrix (GR
 
 In the following example we provide the eigenvalue decomposition (``S_R``, ``U_R``).
 
-.. code-block:: python
-   :linenos:
-
-    from limix.qtl import GWAS_LMM
+.. testcode::
 
     lmm = GWAS_LMM(pheno, covs=covs, eigh_R=(S_R, U_R), verbose=True)
     res = lmm.process(snps)
     print(res.head())
+
+.. testoutput::
+
+    Model: lmm
+    Marginal likelihood optimization.
+    ('Converged:', True)
+    Time elapsed: 0.04 s
+    Log Marginal Likelihood: 139.1644722.
+    Gradient norm: 0.0000009.
+             pv      beta
+    0  0.562068  0.082711
+    1  0.776302 -0.027770
+    2  0.884427 -0.014244
+    3  0.188425 -0.169315
+    4  0.205670 -0.108825
 
 
 Low-rank LMM
@@ -115,12 +142,26 @@ If the random effect covariance is low-rank :math:`\mathbf{R}=\mathbf{WW}^T`,
 one can provide :math:`\mathbf{W}` as ``W_R``.
 This is much faster than a full-rank LMM when the rank is low.
 
-.. code-block:: python
-   :linenos:
+.. testcode::
 
     lrlmm = GWAS_LMM(pheno, covs=covs, W_R=W_R, verbose=True)
-    res = lr_lmm.process(snps)
+    res = lrlmm.process(snps)
     print(res.head())
+
+.. testoutput::
+
+    Model: low-rank lmm
+    Marginal likelihood optimization.
+    ('Converged:', True)
+    Time elapsed: 0.04 s
+    Log Marginal Likelihood: 139.1638134.
+    Gradient norm: 0.0000555.
+             pv      beta
+    0  0.562124  0.082701
+    1  0.776498 -0.027745
+    2  0.884695 -0.014210
+    3  0.188546 -0.169266
+    4  0.205569 -0.108849
 
 
 Single-trait interaction tests
@@ -155,11 +196,11 @@ If ``inter0`` is not specified, a column-vector of ones is considered.
 In this case the :math:`\text{G$\times$I0}` term reduces to an additive genetic effect,
 and thus the test corresponds to a standard gxe test.
 
-.. code-block:: python
-   :linenos:
+.. testcode::
 
     # generate interacting variables (environment)
-    inter = sp.randn(phenos.shape[0], 1)
+    random = RandomState(1)
+    inter = random.randn(pheno.shape[0], 1)
 
     # add additive environment as covariate
     _covs = sp.concatenate([covs, inter], 1)
@@ -168,6 +209,16 @@ and thus the test corresponds to a standard gxe test.
     lmi = GWAS_LMM(pheno, covs=_covs, inter=inter, verbose=True)
     res = lmi.process(snps)
     print(res.head())
+
+.. testoutput::
+
+    Model: lm
+            pv1       pv0        pv     beta0
+    0  0.838593  0.566320  0.878988  0.081838
+    1  0.113650  0.790649  0.038591 -0.025957
+    2  0.271806  0.913387  0.107303 -0.010669
+    3  0.407792  0.206818  0.654374 -0.162842
+    4  0.101433  0.201112  0.086281 -0.109963
 
 
 The process method returns three sets of P values:
@@ -182,14 +233,15 @@ Complex interaction test
 
 Example when ``inter0`` is provided.
 
-.. code-block:: python
-   :linenos:
+
+.. testcode::
 
     # generate interacting variables to condition on
-    inter0 = sp.randn(phenos.shape[0], 1)
+    random = RandomState(1)
+    inter0 = random.randn(pheno.shape[0], 1)
 
     # generate interacting variables to test
-    inter = sp.randn(phenos.shape[0], 1)
+    inter = random.randn(pheno.shape[0], 1)
 
     # add additive environment as covariate
     _covs = sp.concatenate([covs, inter0, inter], 1)
@@ -198,6 +250,16 @@ Example when ``inter0`` is provided.
     lmi = GWAS_LMM(pheno, covs=covs, inter=inter, inter0=inter0, verbose=True)
     res = lmi.process(snps)
     print(res.head())
+
+.. testoutput::
+
+            pv1       pv0        pv
+    0  0.440999  0.381090  0.350889
+    1  0.069124  0.097546  0.106965
+    2  0.099507  0.136465  0.121514
+    3  0.161068  0.462403  0.077728
+    4  0.936849  0.832067  0.769978
+
 
 The process method returns three sets of P values:
 (i) ``pv0`` are P values for the test :math:`\boldsymbol{\alpha}\neq{0}` when :math:`\boldsymbol{\beta}={0}`,
@@ -233,15 +295,25 @@ where
     \boldsymbol{\psi}\sim\mathcal{N}(\mathbf{0}, \sigma_n^2\mathbf{I}_N)
 
 
-.. code-block:: python
-   :linenos:
+.. testcode::
 
     from limix.qtl import GWAS_StructLMM
-    envs = sp.randn(pheno.shape[0], 30)
+
+    random = RandomState(1)
+    envs = random.randn(pheno.shape[0], 30)
+
     slmm = GWAS_StructLMM(pheno, envs, covs=covs, tests=['inter', 'assoc'], verbose=True)
     res = slmm.process(snps[:,:5])
     print(res.head())
 
+.. testoutput::
+
+            pvi       pva
+    0  0.991105  0.926479
+    1  0.956181  0.984790
+    2  0.954051  0.989192
+    3  0.997851  0.393730
+    4  0.946831  0.375530
 
 The process method returns two sets of P values:
 (i) ``pvi`` are the interaction P values,
@@ -283,17 +355,32 @@ Any-effect association test
 An any-effect association test corresponds to testing :math:`\boldsymbol{\beta}\neq{0}`
 with an ``eye`` snp trait design
 
-.. code-block:: python
-   :linenos:
+.. testcode::
 
     from limix.qtl import GWAS_MTLMM
 
     P = 4
-    phenos = sp.randn(pheno.shape[0], P)
+    random = RandomState(1)
+    phenos = random.randn(pheno.shape[0], P)
+
     Asnps = sp.eye(P)
     mtlmm = GWAS_MTLMM(phenos, covs=covs, Asnps=Asnps, eigh_R=(S_R, U_R), verbose=True)
     res = mtlmm.process(snps)
     print(res.head())
+
+.. testoutput::
+
+    Marginal likelihood optimization.
+    ('Converged:', True)
+    Time elapsed: 0.25 s
+    Log Marginal Likelihood: 540.8991353.
+    Gradient norm: 0.0037459.
+             pv
+    0  0.588783
+    1  0.517333
+    2  0.715508
+    3  0.727924
+    4  0.859793
 
 
 Common and interaction tests
@@ -308,14 +395,27 @@ a same effect model (same effect size for all analyzed traits).
 In this example, the choices of ``Asnps`` and ``Asnps0``
 are ``sp.eye(P)`` and ``sp.ones([P, 1])``, respectively.
 
-.. code-block:: python
-   :linenos:
+.. testcode::
 
     Asnps = sp.eye(P)
     Asnps0 = sp.ones([P, 1])
     mtlmm = GWAS_MTLMM(phenos, covs=covs, Asnps=Asnps, Asnps0=Asnps0, eigh_R=(S_R, U_R), verbose=True)
     res = mtlmm.process(snps)
     print(res.head())
+
+.. testoutput::
+
+    Marginal likelihood optimization.
+    ('Converged:', True)
+    Time elapsed: 0.25 s
+    Log Marginal Likelihood: 540.8991353.
+    Gradient norm: 0.0037459.
+            pv1       pv0        pv
+    0  0.588783  0.347447  0.586021
+    1  0.517333  0.369855  0.485662
+    2  0.715508  0.504226  0.644940
+    3  0.727924  0.249909  0.868777
+    4  0.859793  0.772237  0.746886
 
 The process method returns three sets of P values:
 (i) ``pv0`` are P values for the association test with snp trait design `Asnps0`,
@@ -334,8 +434,7 @@ Genome-wide analysis
 Using the geno-sugar module, one can perform genome-wide analyses and
 apply different models to batches of snps as in the example below.
 
-.. code-block:: python
-   :linenos:
+.. testcode::
 
     from sklearn.impute import SimpleImputer
     import geno_sugar as gs
@@ -368,12 +467,35 @@ apply different models to batches of snps as in the example below.
         _res['lmm'] = lmm.process(_G)
         _res['lrlmm'] = lrlmm.process(_G)
         _res = append_res(_bim, _res)
-        _res.append(_res)
+        res.append(_res)
+
+    res = pd.concat(res)
+    print(res.head())
+
+.. testcode::
+
+    .. read 200 / 994 variants (20.12%)
+    .. read 400 / 994 variants (40.24%)
+    .. read 600 / 994 variants (60.36%)
+    .. read 800 / 994 variants (80.48%)
+    .. read 994 / 994 variants (100.00%)
+      chrom         snp   cm       pos a0 a1     ...         lm_pv   lm_beta    lmm_pv  lmm_beta  lrlmm_pv  lrlmm_beta
+    0    22  rs17204993  0.0  17500036  C  T     ...      0.467405  0.043858  0.467826  0.043816  0.467405    0.043858
+    1    22   rs2399166  0.0  17501647  T  C     ...      0.685198  0.024473  0.685536  0.024446  0.685198    0.024473
+    2    22  rs62237458  0.0  17502191  A  G     ...      0.353895  0.055932  0.354078  0.055911  0.353895    0.055932
+    3    22   rs5994134  0.0  17503328  A  C     ...      0.897661  0.007766  0.897844  0.007752  0.897661    0.007766
+    4    22   rs9605194  0.0  17503403  A  G     ...      0.304653 -0.061921  0.304838 -0.061896  0.304653   -0.061921
+
+    [5 rows x 13 columns]
+
+Export to file
+
+.. testcode::
 
     # export
     print("Exporting to out/")
     if not os.path.exists("out"):
         os.makedirs("out")
-    res = pd.concat(res)
     res.reset_index(inplace=True, drop=True)
     res.to_csv("out/res_lmm.csv", index=False)
+    
