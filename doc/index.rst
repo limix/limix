@@ -16,6 +16,7 @@ Limix's documentation
    her
    qc
    qtl
+   gwas
    sh
    stats
    tutorials/index

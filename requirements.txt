@@ -1,4 +1,4 @@
-ipython>=5.8.0
+pytest-doctestplus>=0.2.0
 pip>=18.0
 pytest-doctestplus>=0.2.0
 pytest>=3.7.0

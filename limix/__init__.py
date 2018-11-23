@@ -18,6 +18,8 @@ qc
     Quality control for genetic data sets.
 qtl
     Quantitative trait locus analysis.
+gwas
+    Methods for GWAS and QTL mapping.
 stats
     PCA, confusion matrix, p-value correction, and others.
 
@@ -48,6 +50,7 @@ __all__ = [
     "qc",
     "qtl",
     "threads",
+    "gwas",
     "sh",
     "stats",
     "test",
