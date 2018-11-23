@@ -14,12 +14,12 @@ from limix_core.covar import FreeFormCov
 
 
 def add_jitter(S_R):
-    assert S_R.min()>-1e-6, 'LMM-covariance is not sdp!'
+    assert S_R.min() > -1e-6, "LMM-covariance is not sdp!"
     RV = S_R + sp.maximum(1e-4 - S_R.min(), 0)
     return RV
 
 
-class GWAS_LMM():
+class GWAS_LMM:
     """
     Wrapper function for univariate single-variant association testing
     using variants of the linear mixed model.
@@ -58,16 +58,18 @@ class GWAS_LMM():
     verbose : (bool, optional):
         if True, details such as runtime as displayed.
     """
-    def __init__(self,
-                  pheno,
-                  covs=None,
-                  R=None,
-                  eigh_R=None,
-                  W_R=None,
-                  inter=None,
-                  inter0=None,
-                  verbose=False,
-                  ):
+
+    def __init__(
+        self,
+        pheno,
+        covs=None,
+        R=None,
+        eigh_R=None,
+        W_R=None,
+        inter=None,
+        inter0=None,
+        verbose=False,
+    ):
         self.verbose = None
 
         if covs is None:
@@ -76,19 +78,17 @@ class GWAS_LMM():
         # case 1: linear model
         if W_R is None and eigh_R is None and R is None:
             if verbose:
-                print('Model: lm')
+                print("Model: lm")
             self.gp = None
             Kiy_fun = None
 
         # case 2: low-rank linear model
         elif W_R is not None:
             if verbose:
-                print('Model: low-rank lmm')
-            self.gp = GP2KronSumLR(Y=pheno,
-                                    Cn=FreeFormCov(1),
-                                    G=W_R,
-                                    F=covs,
-                                    A=sp.ones((1, 1)))
+                print("Model: low-rank lmm")
+            self.gp = GP2KronSumLR(
+                Y=pheno, Cn=FreeFormCov(1), G=W_R, F=covs, A=sp.ones((1, 1))
+            )
             self.gp.covar.Cr.setCovariance(sp.var(pheno) * sp.ones((1, 1)))
             self.gp.covar.Cn.setCovariance(sp.var(pheno) * sp.ones((1, 1)))
             info_opt = self.gp.optimize(verbose=verbose)
@@ -97,18 +97,20 @@ class GWAS_LMM():
         # case 3: full-rank linear model
         else:
             if verbose:
-                print('Model: lmm')
+                print("Model: lmm")
             if eigh_R is None:
                 eigh_R = la.eigh(R)
             S_R, U_R = eigh_R
             add_jitter(S_R)
-            self.gp = GP2KronSum(Y=pheno,
-                                    Cg=FreeFormCov(1),
-                                    Cn=FreeFormCov(1),
-                                    S_R=S_R,
-                                    U_R=U_R,
-                                    F=covs,
-                                    A=sp.ones((1, 1)))
+            self.gp = GP2KronSum(
+                Y=pheno,
+                Cg=FreeFormCov(1),
+                Cn=FreeFormCov(1),
+                S_R=S_R,
+                U_R=U_R,
+                F=covs,
+                A=sp.ones((1, 1)),
+            )
             self.gp.covar.Cr.setCovariance(0.5 * sp.var(pheno) * sp.ones((1, 1)))
             self.gp.covar.Cn.setCovariance(0.5 * sp.var(pheno) * sp.ones((1, 1)))
             info_opt = self.gp.optimize(verbose=verbose)
@@ -122,7 +124,7 @@ class GWAS_LMM():
             self.lmm = LMMCore(pheno, covs, Kiy_fun)
             if inter0 is None:
                 inter0 = sp.ones([pheno.shape[0], 1])
-            if (inter0==1).sum():
+            if (inter0 == 1).sum():
                 self.lmm0 = LMM(pheno, covs, Kiy_fun)
             else:
                 self.lmm0 = LMMCore(pheno, covs, Kiy_fun)
@@ -149,17 +151,17 @@ class GWAS_LMM():
 
             self.lmm.process(snps)
             RV = {}
-            RV['pv'] = self.lmm.getPv()
-            RV['beta'] = self.lmm.getBetaSNP()
+            RV["pv"] = self.lmm.getPv()
+            RV["beta"] = self.lmm.getBetaSNP()
             if return_ste:
-                RV['beta_ste'] = self.lmm.getBetaSNPste()
+                RV["beta_ste"] = self.lmm.getBetaSNPste()
             if return_lrt:
-                RV['lrt'] = self.lmm.getLRT()
+                RV["lrt"] = self.lmm.getLRT()
 
         else:
 
             self.lmm.process(snps, self.inter1)
-            if (self.inter0==1).sum():
+            if (self.inter0 == 1).sum():
                 self.lmm0.process(snps)
             else:
                 self.lmm0.process(snps, self.inter0)
@@ -171,22 +173,22 @@ class GWAS_LMM():
             pv = st.chi2(self.inter1.shape[1] - self.inter0.shape[1]).sf(lrt)
 
             RV = {}
-            RV['pv1'] = self.lmm.getPv()
-            RV['pv0'] = self.lmm0.getPv()
-            RV['pv'] = pv
-            if (self.inter0==1).sum():
-                RV['beta0'] = self.lmm0.getBetaSNP()
+            RV["pv1"] = self.lmm.getPv()
+            RV["pv0"] = self.lmm0.getPv()
+            RV["pv"] = pv
+            if (self.inter0 == 1).sum():
+                RV["beta0"] = self.lmm0.getBetaSNP()
                 if return_ste:
-                    RV['beta0_ste'] = self.lmm0.getBetaSNPste()
+                    RV["beta0_ste"] = self.lmm0.getBetaSNPste()
             if return_lrt:
-                RV['lrt1'] = lrt1
-                RV['lrt0'] = lrt0
-                RV['lrt'] = lrt
+                RV["lrt1"] = lrt1
+                RV["lrt0"] = lrt0
+                RV["lrt"] = lrt
 
         return pd.DataFrame(RV)
 
 
-class GWAS_StructLMM():
+class GWAS_StructLMM:
     """
     Wrapper function for univariate single-variant association testing
     using variants of the linear mixed model.
@@ -216,15 +218,17 @@ class GWAS_StructLMM():
     verbose : (bool, optional):
         if True, details such as runtime as displayed.
     """
-    def __init__(self,
-                  pheno,
-                  environments,
-                  covs=None,
-                  W_R=None,
-                  tests=None,
-                  rhos=None,
-                  verbose=False,
-                  ):
+
+    def __init__(
+        self,
+        pheno,
+        environments,
+        covs=None,
+        W_R=None,
+        tests=None,
+        rhos=None,
+        verbose=False,
+    ):
         self.verbose = verbose
         self.tests = tests
 
@@ -239,15 +243,14 @@ class GWAS_StructLMM():
             W_R = environments
 
         if tests is None:
-            tests = ['inter']
+            tests = ["inter"]
 
-        if 'inter' in tests:
+        if "inter" in tests:
             self.slmi = StructLMM(pheno, environments, W=environments, rho_list=[0])
 
-        if 'assoc' in tests:
+        if "assoc" in tests:
             self.slmm = StructLMM(pheno, environments, W=environments, rho_list=rhos)
             self.slmm.fit_null(F=covs, verbose=False)
-
 
     def process(self, snps):
         """
@@ -266,21 +269,20 @@ class GWAS_StructLMM():
         for snp in range(snps.shape[1]):
             x = snps[:, [snp]]
 
-            if 'inter' in self.tests:
+            if "inter" in self.tests:
                 # interaction test
                 covs1 = sp.hstack((self.covs, x))
                 self.slmi.fit_null(F=covs1, verbose=False)
                 _pvi[snp] = self.slmi.score_2_dof(x)
 
-            if 'assoc' in self.tests:
+            if "assoc" in self.tests:
                 # association test
                 _pva[snp] = self.slmm.score_2_dof(x)
 
-        return pd.DataFrame({'pvi': _pvi, 'pva': _pva})
+        return pd.DataFrame({"pvi": _pvi, "pva": _pva})
 
 
-
-class GWAS_MTLMM():
+class GWAS_MTLMM:
     """
     Wrapper function for multi-trait single-variant association testing
     using variants of the multi-trait linear mixed model.
@@ -315,16 +317,18 @@ class GWAS_MTLMM():
     verbose : (bool, optional):
         if True, details such as runtime as displayed.
     """
-    def __init__(self,
-                  pheno,
-                  Asnps=None,
-                  R=None,
-                  eigh_R=None,
-                  covs=None,
-                  Acovs=None,
-                  verbose=None,
-                  Asnps0=None
-                  ):
+
+    def __init__(
+        self,
+        pheno,
+        Asnps=None,
+        R=None,
+        eigh_R=None,
+        covs=None,
+        Acovs=None,
+        verbose=None,
+        Asnps0=None,
+    ):
         self.verbose = None
 
         if covs is None:
@@ -334,19 +338,24 @@ class GWAS_MTLMM():
             Acovs = sp.eye(pheno.shape[1])
 
         # case 1: multi-trait linear model
-        assert not (eigh_R is None and R is None), 'multi-trait linear model not supported'
+        assert not (
+            eigh_R is None and R is None
+        ), "multi-trait linear model not supported"
 
         # case 2: full-rank multi-trait linear model
-        if eigh_R is None: eigh_R = la.eigh(R)
+        if eigh_R is None:
+            eigh_R = la.eigh(R)
         S_R, U_R = eigh_R
         S_R = add_jitter(S_R)
-        self.gp = GP2KronSum(Y=pheno,
-                              Cg=FreeFormCov(pheno.shape[1]),
-                              Cn=FreeFormCov(pheno.shape[1]),
-                              S_R=eigh_R[0],
-                              U_R=eigh_R[1],
-                              F=covs,
-                              A=Acovs)
+        self.gp = GP2KronSum(
+            Y=pheno,
+            Cg=FreeFormCov(pheno.shape[1]),
+            Cn=FreeFormCov(pheno.shape[1]),
+            S_R=eigh_R[0],
+            U_R=eigh_R[1],
+            F=covs,
+            A=Acovs,
+        )
         self.gp.covar.Cr.setCovariance(0.5 * sp.cov(pheno.T))
         self.gp.covar.Cn.setCovariance(0.5 * sp.cov(pheno.T))
         info_opt = self.gp.optimize(verbose=verbose)
@@ -376,9 +385,9 @@ class GWAS_MTLMM():
 
             self.lmm.process(snps)
             RV = {}
-            RV['pv'] = self.lmm.getPv()
+            RV["pv"] = self.lmm.getPv()
             if return_lrt:
-                RV['lrt'] = self.lmm.getLRT()
+                RV["lrt"] = self.lmm.getLRT()
 
         else:
 
@@ -392,12 +401,12 @@ class GWAS_MTLMM():
             pv = st.chi2(self.Asnps.shape[1] - self.Asnps0.shape[1]).sf(lrt)
 
             RV = {}
-            RV['pv1'] = self.lmm.getPv()
-            RV['pv0'] = self.lmm0.getPv()
-            RV['pv'] = pv
+            RV["pv1"] = self.lmm.getPv()
+            RV["pv0"] = self.lmm0.getPv()
+            RV["pv"] = pv
             if return_lrt:
-                RV['lrt1'] = lrt1
-                RV['lrt0'] = lrt0
-                RV['lrt'] = lrt
+                RV["lrt1"] = lrt1
+                RV["lrt0"] = lrt0
+                RV["lrt"] = lrt
 
         return pd.DataFrame(RV)
