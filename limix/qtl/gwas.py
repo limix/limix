@@ -4,9 +4,10 @@ import scipy as sp
 import scipy.linalg as la
 import pandas as pd
 import time
-from .lmm import LMM
-from .lmm_core import LMMCore
-from .mtlmm import MTLMM
+from limix_lmm.lmm import LMM
+from limix_lmm.lmm_core import LMMCore
+from limix_lmm.mtlmm import MTLMM
+from struct_lmm import StructLMM
 from limix_core.gp import GP2KronSum
 from limix_core.gp import GP2KronSumLR
 from limix_core.covar import FreeFormCov
@@ -183,6 +184,100 @@ class GWAS_LMM():
                 RV['lrt'] = lrt
 
         return pd.DataFrame(RV)
+
+
+class GWAS_StructLMM():
+    """
+    Wrapper function for univariate single-variant association testing
+    using variants of the linear mixed model.
+
+    Parameters
+    ----------
+    pheno : (`N`, 1) ndarray
+        phenotype data
+    environments : (`N`, `E`) ndarray
+        environments data.
+    covs : (`N`, `D`) ndarray
+        covariate design matrix.
+        By default, ``covs`` is a (`N`, `1`) array of ones.
+    W_R : (`N`, `R`) ndarray
+        ``W_R`` define the lmm-covariance as
+        ``R`` = dot(``W_R``, transpose(``W_R``)).
+        By detault, ``W_R`` is set to ``environments``.
+    tests : list
+        Which tests are performed.
+        Element list values are ``'inter'`` and ``'assoc'``.
+        By default, only the interaction test is considered.
+    rhos : list
+        for the association test, a list of ``rho`` values must be specified.
+        The choice of ``rho`` affects the statistical power of the test
+        (for more information see the StructLMM paper).
+        By default, ``rho=[0, 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.]``
+    verbose : (bool, optional):
+        if True, details such as runtime as displayed.
+    """
+    def __init__(self,
+                  pheno,
+                  environments,
+                  covs=None,
+                  W_R=None,
+                  tests=None,
+                  rhos=None,
+                  verbose=False,
+                  ):
+        self.verbose = verbose
+        self.tests = tests
+
+        if covs is None:
+            covs = sp.ones((env.shape[0], 1))
+        self.covs = covs
+
+        if rhos is None:
+            rhos = [0.0, 0.1 ** 2, 0.2 ** 2, 0.3 ** 2, 0.4 ** 2, 0.5 ** 2, 0.5, 1.0]
+
+        if W_R is None:
+            W_R = environments
+
+        if tests is None:
+            tests = ['inter']
+
+        if 'inter' in tests:
+            self.slmi = StructLMM(pheno, environments, W=environments, rho_list=[0])
+
+        if 'assoc' in tests:
+            self.slmm = StructLMM(pheno, environments, W=environments, rho_list=rhos)
+            self.slmm.fit_null(F=covs, verbose=False)
+
+
+    def process(self, snps):
+        """
+        Parameters
+        ----------
+        snps : (`N`, `S`) ndarray
+            genotype data
+
+        Return
+        ------
+        res : pandas DataFrame
+            Results as pandas dataframs
+        """
+        _pvi = sp.zeros(snps.shape[1])
+        _pva = sp.zeros(snps.shape[1])
+        for snp in range(snps.shape[1]):
+            x = snps[:, [snp]]
+
+            if 'inter' in self.tests:
+                # interaction test
+                covs1 = sp.hstack((self.covs, x))
+                self.slmi.fit_null(F=covs1, verbose=False)
+                _pvi[snp] = self.slmi.score_2_dof(x)
+
+            if 'assoc' in self.tests:
+                # association test
+                _pva[snp] = self.slmm.score_2_dof(x)
+
+        return pd.DataFrame({'pvi': _pvi, 'pva': _pva})
+
 
 
 class GWAS_MTLMM():
