@@ -4,9 +4,6 @@ import scipy as sp
 import scipy.linalg as la
 import pandas as pd
 import time
-from limix_lmm.lmm import LMM
-from limix_lmm.lmm_core import LMMCore
-from limix_lmm.mtlmm import MTLMM
 from struct_lmm import StructLMM
 from limix_core.gp import GP2KronSum
 from limix_core.gp import GP2KronSumLR
@@ -70,6 +67,9 @@ class GWAS_LMM:
         inter0=None,
         verbose=False,
     ):
+        from limix_lmm.lmm import LMM
+        from limix_lmm.lmm_core import LMMCore
+
         self.verbose = None
 
         if covs is None:
@@ -330,6 +330,7 @@ class GWAS_MTLMM:
         Asnps0=None,
     ):
         self.verbose = None
+        from limix_lmm.mtlmm import MTLMM
 
         if covs is None:
             covs = sp.ones([pheno.shape[0], 1])
