@@ -17,9 +17,6 @@ Import modules and data.
     import scipy as sp
     import scipy.linalg as la
     from limix_core.util.preprocess import gaussianize
-    from limix_core.gp import GP2KronSumLR
-    from limix_core.covar import FreeFormCov
-    from limix_lmm import GWAS_LMM, GWAS_MTLMM
     from limix_lmm import download, unzip
     from pandas_plink import read_plink
 
@@ -103,6 +100,8 @@ In the following example we provide the eigenvalue decomposition (``S_R``, ``U_R
 
 .. code-block:: python
    :linenos:
+
+    from limix.qtl import GWAS_LMM
 
     lmm = GWAS_LMM(pheno, covs=covs, eigh_R=(S_R, U_R), verbose=True)
     res = lmm.process(snps)
@@ -206,6 +205,49 @@ The process method returns three sets of P values:
 (iii) ``pv`` are P values for the test :math:`\boldsymbol{\alpha}\neq{0}`.
 
 
+Struct-LMM
+^^^^^^^^^^
+
+Struct-LMM can be use to test for interaction with multi-dimensional environments or
+to test for association of genetic variants while accounting for GxE interactions.
+The Struct-LMM model is
+
+.. math::
+    \mathbf{y}=
+    \underbrace{\mathbf{F}\mathbf{b}}_{\text{covariates}}+
+    \underbrace{\mathbf{g}\beta}_{\text{genetics}}+
+    \underbrace{\mathbf{g}\odot\boldsymbol{\gamma}}_{\text{G$\times$E}}+
+    \underbrace{\mathbf{u}}_{\text{random effect}}+
+    \underbrace{\boldsymbol{\psi}}_{\text{noise}}
+
+where
+
+.. math::
+    \boldsymbol{\gamma}\sim\mathcal{N}(\mathbf{0},
+    \underbrace{\sigma^2_h\boldsymbol{EE}^T}_{\text{GxE}})
+
+.. math::
+    \mathbf{u}\sim\mathcal{N}(\mathbf{0}, \sigma_u^2\mathbf{R}^T)
+
+.. math::
+    \boldsymbol{\psi}\sim\mathcal{N}(\mathbf{0}, \sigma_n^2\mathbf{I}_N)
+
+
+.. code-block:: python
+   :linenos:
+
+    from limix.qtl import GWAS_StructLMM
+    envs = sp.randn(pheno.shape[0], 30)
+    slmm = GWAS_StructLMM(pheno, envs, covs=covs, tests=['inter', 'assoc'], verbose=True)
+    res = slmm.process(snps[:,:5])
+    print(res.head())
+
+
+The process method returns two sets of P values:
+(i) ``pvi`` are the interaction P values,
+(ii) ``pva`` are the association P values.
+
+
 Multi-trait tests
 ^^^^^^^^^^^^^^^^^
 
@@ -239,10 +281,12 @@ Any-effect association test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 An any-effect association test corresponds to testing :math:`\boldsymbol{\beta}\neq{0}`
-with an ``eye`` snp trait design 
+with an ``eye`` snp trait design
 
 .. code-block:: python
    :linenos:
+
+    from limix.qtl import GWAS_MTLMM
 
     P = 4
     phenos = sp.randn(pheno.shape[0], P)
