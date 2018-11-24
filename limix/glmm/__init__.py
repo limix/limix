@@ -1,4 +1,4 @@
-""" Generalised Linear Mixed Models constructor module. 
+""" Generalised Linear Mixed Models constructor module.
 
 Classes
 -------

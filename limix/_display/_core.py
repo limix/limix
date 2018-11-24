@@ -150,7 +150,7 @@ def _get_terminal():
 
     try:
         term = Terminal()
-    except ValueError as e:
+    except ValueError:
         return None
     return term
 

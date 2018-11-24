@@ -1,6 +1,5 @@
 from __future__ import division
 
-import pytest
 from numpy import dot, sqrt, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose

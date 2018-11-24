@@ -28,7 +28,6 @@ def fetch(data_name, fetch_spec, verbose=True):
 
 def _fetch_npy_covariance(filepath, verbose=True):
     from .npy import read
-    from xarray import DataArray
 
     return read(filepath, verbose=verbose)
 
