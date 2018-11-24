@@ -1,5 +1,3 @@
-
-
 def read(filename, sep=None, header=True, verbose=True):
     r"""Read a CSV file.
 

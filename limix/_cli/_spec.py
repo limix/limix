@@ -78,4 +78,3 @@ def _split_fetch_spec(txt):
     if len(parts) > 2:
         data["matrix_spec"] = parts[2]
     return data
-

@@ -21,16 +21,7 @@ def linear_kinship(G, out=None, verbose=True):
          [-0.3413 -0.2356  0.9578 -0.3808]
          [-0.379  -0.4704 -0.3808  1.2302]]
     """
-    from numpy import (
-        sqrt,
-        zeros,
-        asfortranarray,
-        where,
-        asarray,
-        nanmean,
-        std,
-        isnan
-    )
+    from numpy import sqrt, zeros, asfortranarray, where, asarray, nanmean, std, isnan
     from scipy.linalg.blas import get_blas_funcs
     from tqdm import tqdm
 
