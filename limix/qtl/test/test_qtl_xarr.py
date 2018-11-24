@@ -6,10 +6,10 @@ from numpy.testing import assert_allclose
 import os
 
 
-@pytest.mark.skipif(
-    os.environ.get("TRAVIS", False),
-    reason="lock problem with xarray: https://github.com/pydata/xarray/issues/2560",
-)
+# @pytest.mark.skipif(
+#     os.environ.get("TRAVIS", "false") == "true",
+#     reason="lock problem with xarray: https://github.com/pydata/xarray/issues/2560",
+# )
 def test_qtl_xarr():
     with limix.example.file_example("xarr.hdf5.bz2") as filepath:
         filepath = limix.sh.extract(filepath, verbose=False)
