@@ -1,13 +1,7 @@
-import numpy as np
 import scipy.stats as st
 import scipy as sp
 import scipy.linalg as la
-import pandas as pd
-import time
 from struct_lmm import StructLMM
-from limix_core.gp import GP2KronSum
-from limix_core.gp import GP2KronSumLR
-from limix_core.covar import FreeFormCov
 
 
 def add_jitter(S_R):
@@ -69,6 +63,9 @@ class GWAS_LMM:
     ):
         from limix_lmm.lmm import LMM
         from limix_lmm.lmm_core import LMMCore
+        from limix_core.gp import GP2KronSum
+        from limix_core.gp import GP2KronSumLR
+        from limix_core.covar import FreeFormCov
 
         self.verbose = None
 
@@ -147,6 +144,8 @@ class GWAS_LMM:
         res : pandas DataFrame
             Results as pandas dataframs
         """
+        from pandas import DataFrame
+
         if self.inter1 is None:
 
             self.lmm.process(snps)
@@ -185,7 +184,7 @@ class GWAS_LMM:
                 RV["lrt0"] = lrt0
                 RV["lrt"] = lrt
 
-        return pd.DataFrame(RV)
+        return DataFrame(RV)
 
 
 class GWAS_StructLMM:
@@ -264,6 +263,8 @@ class GWAS_StructLMM:
         res : pandas DataFrame
             Results as pandas dataframs
         """
+        from pandas import DataFrame
+
         _pvi = sp.zeros(snps.shape[1])
         _pva = sp.zeros(snps.shape[1])
         for snp in range(snps.shape[1]):
@@ -279,7 +280,7 @@ class GWAS_StructLMM:
                 # association test
                 _pva[snp] = self.slmm.score_2_dof(x)
 
-        return pd.DataFrame({"pvi": _pvi, "pva": _pva})
+        return DataFrame({"pvi": _pvi, "pva": _pva})
 
 
 class GWAS_MTLMM:
@@ -329,6 +330,9 @@ class GWAS_MTLMM:
         verbose=None,
         Asnps0=None,
     ):
+        from limix_core.gp import GP2KronSum
+        from limix_core.covar import FreeFormCov
+
         self.verbose = None
         from limix_lmm.mtlmm import MTLMM
 
@@ -382,6 +386,8 @@ class GWAS_MTLMM:
         res : pandas DataFrame
             Results as pandas dataframs
         """
+        from pandas import DataFrame
+
         if self.Asnps0 is None:
 
             self.lmm.process(snps)
@@ -410,4 +416,4 @@ class GWAS_MTLMM:
                 RV["lrt0"] = lrt0
                 RV["lrt"] = lrt
 
-        return pd.DataFrame(RV)
+        return DataFrame(RV)
