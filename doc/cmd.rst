@@ -54,7 +54,7 @@ Command::
 .. plot::
     :context:
     :include-source: False
-    
+
     >>> call(["see", "small_example.grm.raw"])
     >>> show()
 
@@ -115,3 +115,4 @@ GWAS
 
 .. _plink: https://www.cog-genomics.org/plink2
 .. _hdf5: https://support.hdfgroup.org/HDF5/
+
