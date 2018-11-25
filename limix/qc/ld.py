@@ -41,7 +41,7 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
     """
     from joblib import Parallel, delayed
     from tqdm import tqdm
-    from .. import get_max_nthreads
+    from ..threads import get_max_nthreads
     from numpy import ascontiguousarray, logical_not, zeros
 
     left = 0

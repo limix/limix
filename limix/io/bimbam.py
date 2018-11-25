@@ -22,13 +22,13 @@ def read_phenotype(filepath, verbose=True):
         >>>
         >>> with file_example("ex0/phenotype.gemma") as filepath:
         ...     print(limix.io.bimbam.read_phenotype(filepath, verbose=False))
-                trait         0        1        2
-        sample
-        0       1.20000 -0.30000 -1.50000
-        1           nan  1.50000  0.30000
-        2       2.70000  1.10000      nan
-        3      -0.20000 -0.70000  0.80000
-        4       3.30000  2.40000  2.10000
+        _trait         0        1        2
+        _sample
+        0        1.20000 -0.30000 -1.50000
+        1            nan  1.50000  0.30000
+        2        2.70000  1.10000      nan
+        3       -0.20000 -0.70000  0.80000
+        4        3.30000  2.40000  2.10000
 
     Notes
     -----
@@ -38,15 +38,13 @@ def read_phenotype(filepath, verbose=True):
     on. We apply the same reasoning for trait naming.
     """
     from pandas import read_csv
-    from .._display import timer_text
+    from .._display import session_line
 
-    with timer_text("Reading `{}`... ".format(filepath), disable=not verbose):
+    with session_line("Reading `{}`... ".format(filepath), disable=not verbose):
         df = read_csv(filepath, sep=r"\s+", header=None)
 
-    df.index = range(df.shape[0])
-    df.index.name = "sample"
-    df.columns = range(df.shape[1])
-    df.columns.name = "trait"
+    df.index.name = "_sample"
+    df.columns.name = "_trait"
 
     return df
 
@@ -64,8 +62,8 @@ def see_phenotype(filepath, verbose=True):
     str
         File representation.
     """
-    from .._display import dataframe_repr
+    from .._display import add_title_header
 
     df = read_phenotype(filepath, verbose)
 
-    print(dataframe_repr("Phenotypes", df))
+    print(add_title_header("Phenotypes", df))

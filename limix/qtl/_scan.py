@@ -2,11 +2,12 @@ from __future__ import division
 
 import sys
 
-from limix._display import timer_text
+from limix._display import session_line
 
 from .._data import conform_dataset
-from .._display import session_text
-from .._likelihood import assert_likelihood_name, normalise_extreme_values
+from .._display import session_block
+from .._data import check_likelihood_name
+from ..qc._lik import normalise_extreme_values
 from ._model import QTLModel
 
 
@@ -130,11 +131,11 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         lik = (lik,)
 
     lik_name = lik[0].lower()
-    assert_likelihood_name(lik_name)
+    check_likelihood_name(lik_name)
 
-    with session_text("qtl analysis", disable=not verbose):
+    with session_block("qtl analysis", disable=not verbose):
 
-        with timer_text("Normalising input... ", disable=not verbose):
+        with session_line("Normalising input... ", disable=not verbose):
             data = conform_dataset(y, M, G=G, K=K)
 
         y = data["y"]
@@ -162,6 +163,9 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         else:
             model = _perform_glmm(y.values, lik, M, K, QS, G, verbose)
 
+        if verbose:
+            print(model)
+
         return model
 
 
@@ -183,7 +187,11 @@ def _perform_lmm(y, M, QS, G, verbose):
     ncov_effsizes = Series(beta, covariates)
 
     flmm = lmm.get_fast_scanner()
-    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+    if hasattr(G, "data"):
+        values = G.data
+    else:
+        values = G.values
+    alt_lmls, effsizes = flmm.fast_scan(values, verbose=verbose)
 
     coords = {
         k: ("candidate", G.coords[k].values)
@@ -221,7 +229,11 @@ def _perform_glmm(y, lik, M, K, QS, G, verbose):
     flmm.set_scale(1.0)
     null_lml = flmm.null_lml()
 
-    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+    if hasattr(G, "data"):
+        values = G.data
+    else:
+        values = G.values
+    alt_lmls, effsizes = flmm.fast_scan(values, verbose=verbose)
 
     coords = {
         k: ("candidate", G.coords[k].values)

@@ -10,6 +10,9 @@ _filenames = [
     "ex0/phenotype.gemma",
 ]
 
+if sys.version_info < (3,):
+    PermissionError = OSError
+
 
 class file_example(object):
     r"""Example."""

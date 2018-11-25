@@ -23,7 +23,7 @@ def pprint(txt):
         print(_RichText(txt))
 
 
-def dataframe_repr(title, df):
+def add_title_header(title, df):
     msg = repr(df)
     k = msg.find("\n") - len(title) - 2
     left = ("-" * (k // 2)) + " "
@@ -150,7 +150,7 @@ def _get_terminal():
 
     try:
         term = Terminal()
-    except ValueError as e:
+    except ValueError:
         return None
     return term
 
@@ -180,13 +180,10 @@ class _RichText(object):
                 expr = "<span style='color:{}'>\\1</span>".format(_color[tag])
                 txt = r.sub(expr, txt)
 
-        # return txt.replace("\n", "\n<br>")
         return "<pre>{}</pre>".format(txt)
 
 
 def _terminal_format(txt):
-    from limix.display import _get_terminal
-
     term = _get_terminal()
 
     for tag in _tags:

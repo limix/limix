@@ -2,7 +2,8 @@ _max_nthreads = None
 
 
 def set_max_nthreads(nthreads):
-    r"""Set the maximum number of threads.
+    """ Set the maximum number of threads.
+
     Parameters
     ----------
     nthreads : int
@@ -19,9 +20,15 @@ def set_max_nthreads(nthreads):
 
 
 def get_max_nthreads():
+    """ Get the maximum number of threads
+
+    Returns
+    -------
+    int
+        Maximum number of threads.
+    """
     from multiprocessing import cpu_count
 
-    r"""Get the maximum number of threads."""
     if _max_nthreads is None:
         return cpu_count()
     return _max_nthreads

@@ -19,7 +19,7 @@ qc
 qtl
     Quantitative trait locus analysis.
 gwas
-    Methods for GWAS and QTL mapping. 
+    Methods for GWAS and QTL mapping.
 stats
     PCA, confusion matrix, p-value correction, and others.
 
@@ -34,25 +34,24 @@ from . import glmm, her, io, plot, qc, qtl, sh, stats, example
 from ._cli import cli
 from ._config import config
 from ._testit import test
-from ._threads import set_max_nthreads, get_max_nthreads
+from . import threads
 
 
 __all__ = [
     "__version__",
-    "test",
+    "cli",
+    "config",
+    "example",
+    "glmm",
+    "her",
     "io",
+    "main",
     "plot",
     "qc",
     "qtl",
+    "threads",
     "gwas",
-    "stats",
-    "her",
-    "glmm",
-    "set_max_nthreads",
-    "main",
     "sh",
-    "config",
-    "cli",
-    "get_max_nthreads",
-    "example",
+    "stats",
+    "test",
 ]

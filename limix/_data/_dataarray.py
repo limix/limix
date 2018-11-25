@@ -1,4 +1,4 @@
-from .conf import is_dim_name, dim_order
+from ._dim import is_dim_name, get_dim_axis
 
 
 def rename_dims(x, dims):
@@ -12,7 +12,8 @@ def rename_dims(x, dims):
                 coords = x.coords[dim]
                 x = x.drop([dim])
             if x.dims[i].startswith("_") and x.dims[i][1:] == dim:
-                x = x.drop([x.dims[i]])
+                if dim in x.coords:
+                    x = x.drop([x.dims[i]])
                 x = x.rename({x.dims[i]: dim})
                 if coords is not None:
                     x = x.assign_coords(**{x.dims[i]: atleast_1d(coords)})
@@ -44,7 +45,7 @@ def fix_dim_hint(x):
         return x
 
     for d, v in hint.items():
-        if v != dim_order(d):
+        if v != get_dim_axis(d):
             x = x.T
             break
 

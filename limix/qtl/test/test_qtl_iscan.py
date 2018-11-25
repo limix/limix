@@ -37,4 +37,3 @@
 #     model = iscan(X, y, "normal", inter, K, verbose=False)
 
 #     assert_allclose(model.variant_pvalues.loc["SNP02", "inter01"], [0.72881611358])
-

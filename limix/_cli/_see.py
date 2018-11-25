@@ -19,8 +19,10 @@ import click
     "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
 )
 def see(ctx, filepath, show_chunks, header, verbose):
-    """Show an overview of multiple file types."""
-    spec = limix.io.get_fetch_specification(filepath)
+    """ Show an overview of multiple file types. """
+    from ._spec import parse_fetch_spec
+
+    spec = parse_fetch_spec(filepath)
     filetype = spec["filetype"]
     filepath = spec["filepath"]
 
@@ -46,6 +48,9 @@ def see(ctx, filepath, show_chunks, header, verbose):
 
     elif filetype == "bimbam-pheno":
         limix.io.bimbam.see_phenotype(filepath, verbose)
+
+    elif filetype == "npy":
+        limix.io.npy.see(filepath, verbose)
 
     elif filetype == "image":
         r = limix.plot.image(filepath)

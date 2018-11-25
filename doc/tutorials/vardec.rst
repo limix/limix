@@ -44,9 +44,19 @@ where
 
 If :math:`\mathbf{R}` is a genetic contribution from set of SNPs :math:`\mathcal{S}`,
 with a bit of abuse of notation we can write
-:math:`\mathbf{R}= \frac{1}{C}\mathbf{X}_{:,\,\mathcal{S}}{\mathbf{X}_{:,\,\mathcal{S}}}^T`
+
+.. math::
+
+    \mathbf{R}= \frac{1}{C}
+        \mathbf{X}_{:,\,\mathcal{S}}{\mathbf{X}_{:,\,\mathcal{S}}}^T
+
 where
-:math:`C=\frac{1}{N}\text{trace}\left(\mathbf{X}_{:,\,\mathcal{S}_i}{\mathbf{X}_{:,\,\mathcal{S}_i}}^T\right)`.
+
+.. math::
+
+    C=\frac{1}{N}
+        \text{trace}\left(\mathbf{X}_{:,\,\mathcal{S}_i}
+        {\mathbf{X}_{:,\,\mathcal{S}_i}}^T\right).
 
 Limix supports an arbitrary number of fixed or random effects to be included in the
 model.
@@ -55,9 +65,9 @@ Example: cis/trans Variance Decomposition in the glucose condition
 ------------------------------------------------------------------
 
 Here we use the LIMIX variance decomposition module to quantify the variability in gene
-expression explained by proximal (cis) and distal (trans) genetic variation. To do so, we
-build a linear mixed model with a fixed effect intercept, two random effects for cis and
-trans genetic effects and a noise random effect:
+expression explained by proximal (cis) and distal (trans) genetic variation. To do so,
+we build a linear mixed model with a fixed effect intercept, two random effects for cis
+and trans genetic effects and a noise random effect:
 
 .. math::
 
@@ -70,9 +80,10 @@ trans genetic effects and a noise random effect:
     \boldsymbol{\Psi}\sim
         \mathcal{N}\left(\mathbf{0},\sigma_e^2\mathbf{I}_N\right)
 
-where :math:`\mathbf{R}^\text{(cis)}` and :math:`\mathbf{R}^\text{(trans)}` are the local
-and distal relatedeness matrices, built considering all SNPs in cis and trans (i.e., not
-in cis) respectively. As cis region is defined by the 50kb region around each gene.
+where :math:`\mathbf{R}^\text{(cis)}` and :math:`\mathbf{R}^\text{(trans)}` are the
+local and distal relatedeness matrices, built considering all SNPs in cis and trans
+(i.e., not in cis) respectively. As cis region is defined by the 50kb region around
+each gene.
 
 The gene-model is fitted to gene expression in environment 0 for all genes in the Lysine
 Biosynthesis pathway and variance components are averaged thereafter to obtain pathway

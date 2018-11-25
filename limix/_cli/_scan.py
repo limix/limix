@@ -1,4 +1,3 @@
-import traceback
 import sys
 import limix
 import click
@@ -110,62 +109,70 @@ def scan(
             --filter="phenotype: col == 'height'" \
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
-    import os
-    from limix._display import session_text, banner
+    from os import makedirs
+    from os.path import abspath, exists, join
+    import traceback
+    from .._display import session_block, banner, session_line, print_exc
+    from ._spec import parse_fetch_spec
 
     print(banner())
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
 
-    pheno_fetch = limix.io.get_fetch_spec(phenotypes_file)
-    geno_fetch = limix.io.get_fetch_spec(genotype_file)
+    output_dir = abspath(output_dir)
+    if not exists(output_dir):
+        makedirs(output_dir)
+
+    fetch = {
+        "phenotype": parse_fetch_spec(phenotypes_file),
+        "genotype": parse_fetch_spec(genotype_file),
+    }
+    if kinship_file is not None:
+        fetch["kinship"] = parse_fetch_spec(kinship_file)
 
     if verbose:
-        print("Phenotype file type: {}".format(pheno_fetch["filetype"]))
-        print("Genotype file type: {}".format(geno_fetch["filetype"]))
+        print("Phenotype file type: {}".format(fetch["phenotype"]["filetype"]))
+        print("Genotype file type: {}".format(fetch["genotype"]["filetype"]))
+        if "kinship" in fetch:
+            print("Kinship file type: {}".format(fetch["kinship"]["filetype"]))
 
-    y = limix.io.fetch_phenotype(pheno_fetch, verbose=verbose)
+    y = limix.io.fetch("trait", fetch["phenotype"], verbose=verbose)
     if verbose:
-        print()
-        print(y)
-        print()
+        print("\n{}\n".format(y))
 
-    G = limix.io.fetch_genotype(geno_fetch, verbose=verbose)
+    G = limix.io.fetch("genotype", fetch["genotype"], verbose=verbose)
     if verbose:
-        print()
-        print(G)
-        print()
+        print("\n{}\n".format(G))
 
-    data = {"y": y, "G": G}
+    data = {"y": y, "G": G, "K": None}
+    if kinship_file is not None:
+        K = limix.io.fetch("covariance", fetch["kinship"], verbose=verbose)
+        if verbose:
+            print("\n{}\n".format(K))
+        data["K"] = K
 
-    with session_text("preprocessing", disable=not verbose):
-        _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose)
+    with session_block("preprocessing", disable=not verbose):
+        data = _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose)
 
     try:
-        model = limix.qtl.scan(data["G"], data["y"], lik, verbose=verbose)
+        model = limix.qtl.scan(data["G"], data["y"], lik, K=data["K"], verbose=verbose)
     except Exception as e:
-        from limix import _exception
-
-        _exception.print_exc(traceback.format_stack(), e)
+        print_exc(traceback.format_stack(), e)
         sys.exit(1)
 
-    if verbose:
-        print(model)
-
-    model.to_csv(
-        os.path.join(output_dir, "null.csv"), os.path.join(output_dir, "alt.csv")
-    )
+    with session_line("Saving results to `{}`... ".format(output_dir)):
+        model.to_csv(join(output_dir, "null.csv"), join(output_dir, "alt.csv"))
 
 
 def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
     from limix._data import conform_dataset
+    from .._display import session_line
 
     layout = _LayoutChange()
 
     for target in data.keys():
         layout.append(target, "initial", data[target].shape)
 
-    data = conform_dataset(data["y"], G=data["G"])
+    with session_line("Matching samples... "):
+        data = conform_dataset(**data)
     data = {k: v for k, v in data.items() if v is not None}
 
     for target in data.keys():
@@ -179,7 +186,7 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
         )
 
     for i, f in enumerate(filter):
-        _process_filter(f, data)
+        data = _process_filter(f, data)
         for target in data.keys():
             layout.append(target, "filter {}".format(i), data[target].shape)
             if data["y"].sample.size == 0:
@@ -187,13 +194,15 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
                 raise RuntimeError("Exiting early because there is no sample left.")
 
     for f in filter_missing:
-        _process_filter_missing(f, data)
-        if data["y"].sample.size == 0:
-            print(layout.to_string())
-            raise RuntimeError("Exiting early because there is no sample left.")
+        with session_line("Applying `{}`... ".format(f)):
+            _process_filter_missing(f, data)
+            if data["y"].sample.size == 0:
+                print(layout.to_string())
+                raise RuntimeError("Exiting early because there is no sample left.")
 
     if filter_maf is not None:
-        data["G"] = _process_filter_maf(float(filter_maf), data["G"])
+        with session_line("Removing candidates with MAF<{}... ".format(filter_maf)):
+            data["G"] = _process_filter_maf(float(filter_maf), data["G"])
 
         for target in data.keys():
             layout.append(target, "maf filter", data[target].shape)
@@ -203,15 +212,26 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
             raise RuntimeError("Exiting early because there is no candidate left.")
 
     for imp in impute:
-        _process_impute(imp, data)
+        with session_line("Imputting missing values (`{}`)... ".format(imp)):
+            data = _process_impute(imp, data)
 
     print(layout.to_string())
 
+    return data
+
 
 def _process_filter(expr, data):
+    from .._bits.xarray import query
+    from .._data import to_short_data_name
+
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
         raise ValueError("Filter syntax error.")
+    target = elems[0]
+    expr = elems[1]
+    n = to_short_data_name(target)
+    data[n] = query(data[n], expr)
+    return data
 
 
 def _process_filter_missing(expr, data):
@@ -231,20 +251,21 @@ def _process_filter_missing(expr, data):
 
 
 def _process_filter_maf(maf, G):
-    import limix
+    from limix import compute_maf
 
-    mafs = limix.qc.compute_maf(G)
+    mafs = compute_maf(G)
     ok = mafs >= maf
     return G.isel(candidate=ok)
 
 
 def _process_impute(expr, data):
-    breakpoint()
+    from .._data import to_short_data_name, dim_hint_to_name, dim_name_to_hint
+
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
         raise ValueError("Missing filter syntax error.")
 
-    target = short_name(elems[0])
+    target = to_short_data_name(elems[0])
     dim = elems[1]
 
     if len(elems) == 3:
@@ -252,12 +273,16 @@ def _process_impute(expr, data):
     else:
         method = "mean"
 
+    def in_dim(X, dim):
+        return dim_hint_to_name(dim) in X.dims or dim_name_to_hint(dim) in X.dims
+
     X = data[target]
-    if dim not in X.dims:
+    if not in_dim(X, dim):
         raise ValueError("Unrecognized dimension: {}.".format(dim))
 
     if method == "mean":
-        if X.dims[0] == dim:
+        axis = next(i for i in range(len(X.dims)) if in_dim(X, dim))
+        if axis == 0:
             X = limix.qc.impute.mean_impute(X.T).T
         else:
             X = limix.qc.impute.mean_impute(X)
@@ -266,11 +291,7 @@ def _process_impute(expr, data):
 
     data[target] = X
 
-
-def _print_data_stats(data):
-    for k in sorted(data.keys()):
-        print(k)
-        print(data[k].shape)
+    return data
 
 
 class _LayoutChange(object):
@@ -311,7 +332,7 @@ class _LayoutChange(object):
         msg = table.draw()
 
         msg = self._add_caption(msg, "-", "Table: Data layout transformation.")
-        return msg + "\n"
+        return msg
 
     def _add_caption(self, msg, c, caption):
         n = len(msg.split("\n")[-1])

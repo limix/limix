@@ -104,7 +104,8 @@ The following linear mixed model is considered:
     \underbrace{\boldsymbol{\psi}}_{\text{noise}},
 
 where
-:math:`\boldsymbol{\psi}\sim\mathcal{N}\left(\mathbf{0}, \sigma_n^2\mathbf{I}\right)` and
+:math:`\boldsymbol{\psi}\sim\mathcal{N}\left(\mathbf{0}, \sigma_n^2\mathbf{I}\right)`
+and
 :math:`\mathbf{u}\sim\mathcal{N}\left(\mathbf{0}, \sigma_g^2\mathbf{R}\right)`.
 The association test is :math:`\beta\neq{0}`.
 
@@ -172,22 +173,29 @@ The following linear mixed model is considered:
 .. math::
     \mathbf{y} =
     \underbrace{\mathbf{F}\mathbf{b}}_{\text{covariates}}+
-    \underbrace{\left[\mathbf{g}\odot\mathbf{i}^{(0)}_0,\dots,\mathbf{g}\odot\mathbf{i}^{(0)}_{K_0}\right]\boldsymbol{\alpha}}_{\text{G$\times$I0}}+
-    \underbrace{\left[\mathbf{g}\odot\mathbf{i}^{(1)}_0,\dots,\mathbf{g}\odot\mathbf{i}^{(1)}_{K}\right]\boldsymbol{\beta}}_{\text{G$\times$I1}}+
+    \underbrace{\left[\mathbf{g}\odot\mathbf{i}^{(0)}_0,\dots,
+        \mathbf{g}\odot\mathbf{i}^{(0)}_{K_0}\right]
+        \boldsymbol{\alpha}}_{\text{G$\times$I0}}+
+    \underbrace{\left[\mathbf{g}\odot\mathbf{i}^{(1)}_0,\dots,
+        \mathbf{g}\odot\mathbf{i}^{(1)}_{K}\right]
+        \boldsymbol{\beta}}_{\text{G$\times$I1}}+
     \underbrace{\mathbf{u}}_{\text{random effect}}+
     \underbrace{\boldsymbol{\psi}}_{\text{noise}},
 
 where
-:math:`\boldsymbol{\psi}\sim\mathcal{N}\left(\mathbf{0}, \sigma_n^2\mathbf{I}\right)` and
+:math:`\boldsymbol{\psi}\sim\mathcal{N}\left(\mathbf{0}, \sigma_n^2\mathbf{I}\right)`
+and
 :math:`\mathbf{u}\sim\mathcal{N}\left(\mathbf{0}, \sigma_g^2\mathbf{R}\right)`.
 The association test is :math:`\boldsymbol{\beta}\neq{0}`.
 The matrices of interacting variables
-:math:`\mathbf{I}^{(0)}=\left[\mathbf{i}^{(0)}_0,\dots,\mathbf{i}^{(0)}_{K_0}\right]` and
+:math:`\mathbf{I}^{(0)}=\left[\mathbf{i}^{(0)}_0,\dots,\mathbf{i}^{(0)}_{K_0}\right]`
+and
 :math:`\mathbf{I}^{(1)}=\left[\mathbf{i}^{(1)}_0,\dots,\mathbf{i}^{(1)}_{K}\right]`
 can be specified through ``inter`` and ``inter0``, respectively.
 
 Depending on if and how the random-effect covariance is specified,
-either a linear model, an lmm or a low-rank lmm is considered (see single-trait association test).
+either a linear model, an lmm or a low-rank lmm is considered (see single-trait
+association test).
 
 Standard GxE interaction test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -222,8 +230,10 @@ and thus the test corresponds to a standard gxe test.
 
 
 The process method returns three sets of P values:
-(i) ``pv0`` are association test P values (:math:`\boldsymbol{\alpha}\neq{0}` when :math:`\boldsymbol{\beta}={0}`),
-(ii) ``pv1`` are association + interaction P values (:math:`\left[\boldsymbol{\beta}, \boldsymbol{\alpha}\right]\neq{0}`) and
+(i) ``pv0`` are association test P values (:math:`\boldsymbol{\alpha}\neq{0}` when
+:math:`\boldsymbol{\beta}={0}`),
+(ii) ``pv1`` are association + interaction P values
+(:math:`\left[\boldsymbol{\beta}, \boldsymbol{\alpha}\right]\neq{0}`) and
 (iii) ``pv`` are interaction P values (:math:`\boldsymbol{\alpha}\neq{0}`).
 The effect sizes of the association test are also returned.
 
@@ -262,9 +272,12 @@ Example when ``inter0`` is provided.
 
 
 The process method returns three sets of P values:
-(i) ``pv0`` are P values for the test :math:`\boldsymbol{\alpha}\neq{0}` when :math:`\boldsymbol{\beta}={0}`,
-(ii) ``pv1`` are P values for the test :math:`\left[\boldsymbol{\beta}, \boldsymbol{\alpha}\right]\neq{0}`,
-(iii) ``pv`` are P values for the test :math:`\boldsymbol{\alpha}\neq{0}`.
+(i) ``pv0`` are P values for the test :math:`\boldsymbol{\alpha}\neq{0}`
+when :math:`\boldsymbol{\beta}={0}`,
+(ii) ``pv1`` are P values for the test
+:math:`\left[\boldsymbol{\beta}, \boldsymbol{\alpha}\right]\neq{0}`,
+(iii) ``pv`` are P values for the test
+:math:`\boldsymbol{\alpha}\neq{0}`.
 
 
 Struct-LMM
@@ -302,7 +315,8 @@ where
     random = RandomState(1)
     envs = random.randn(pheno.shape[0], 30)
 
-    slmm = GWAS_StructLMM(pheno, envs, covs=covs, tests=['inter', 'assoc'], verbose=True)
+    slmm = GWAS_StructLMM(pheno, envs, covs=covs, tests=['inter', 'assoc'],
+                          verbose=True)
     res = slmm.process(snps[:,:5])
     print(res.head())
 
@@ -333,8 +347,10 @@ The multi-trait linear mixed model has the form:
     \underbrace{\boldsymbol{\Psi}}_{\text{noise}},
 
 where :math:`\mathbf{Y}` is the :math:`\text{N$\times$P}` phenotype matrix,
-:math:`\mathbf{A}_{\text{covs}}` :math:`\text{P$\times$J}` is the trait design matrix of the covariates, and
-:math:`\mathbf{A}_{\text{snps}}` :math:`\text{P$\times$L}` is the trait design matrix of the variants.
+:math:`\mathbf{A}_{\text{covs}}` :math:`\text{P$\times$J}` is the trait design matrix
+of the covariates, and
+:math:`\mathbf{A}_{\text{snps}}` :math:`\text{P$\times$L}` is the trait design matrix
+of the variants.
 
 .. math::
     \mathbf{U}\sim\text{MVN}\left(\mathbf{0},
@@ -387,7 +403,8 @@ Common and interaction tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The module allows for testing specific trait design matrices for the variant effects.
-This is achieved by specifying the two trait design to compare, namely ``Asnps`` and ``Asnps0``.
+This is achieved by specifying the two trait design to compare, namely ``Asnps`` and
+``Asnps0``.
 
 In the example below we instantiate this principle to test for departures from
 a same effect model (same effect size for all analyzed traits).
@@ -399,7 +416,8 @@ are ``sp.eye(P)`` and ``sp.ones([P, 1])``, respectively.
 
     Asnps = sp.eye(P)
     Asnps0 = sp.ones([P, 1])
-    mtlmm = GWAS_MTLMM(phenos, covs=covs, Asnps=Asnps, Asnps0=Asnps0, eigh_R=(S_R, U_R), verbose=True)
+    mtlmm = GWAS_MTLMM(phenos, covs=covs, Asnps=Asnps, Asnps0=Asnps0, eigh_R=(S_R, U_R),
+                       verbose=True)
     res = mtlmm.process(snps)
     print(res.head())
 
@@ -498,4 +516,4 @@ Export to file
         os.makedirs("out")
     res.reset_index(inplace=True, drop=True)
     res.to_csv("out/res_lmm.csv", index=False)
-    
+

@@ -10,7 +10,7 @@ def banner():
     return "Running Limix {} using Python {}.".format(__version__, pyver)
 
 
-def dataframe_repr(title, df):
+def add_title_header(title, df):
     msg = repr(df)
     k = msg.find("\n") - len(title) - 2
     left = ("-" * (k // 2)) + " "
@@ -20,7 +20,7 @@ def dataframe_repr(title, df):
     return out
 
 
-class timer_text(object):
+class session_line(object):
     r"""Print the elapsed time after the execution of a block of code."""
 
     def __init__(self, desc="Running... ", disable=False):
@@ -45,7 +45,7 @@ class timer_text(object):
             sys.stdout.flush()
 
 
-class session_text(object):
+class session_block(object):
     """Print session block: session start and session end."""
 
     def __init__(self, session_name, disable=False):

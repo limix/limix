@@ -1,18 +1,8 @@
-import numpy as np
-import scipy.stats as st
-import scipy as sp
-import scipy.linalg as la
-import pandas as pd
-import time
-from struct_lmm import StructLMM
-from limix_core.gp import GP2KronSum
-from limix_core.gp import GP2KronSumLR
-from limix_core.covar import FreeFormCov
-
-
 def add_jitter(S_R):
+    from numpy import maximum
+
     assert S_R.min() > -1e-6, "LMM-covariance is not sdp!"
-    RV = S_R + sp.maximum(1e-4 - S_R.min(), 0)
+    RV = S_R + maximum(1e-4 - S_R.min(), 0)
     return RV
 
 
@@ -69,11 +59,15 @@ class GWAS_LMM:
     ):
         from limix_lmm.lmm import LMM
         from limix_lmm.lmm_core import LMMCore
+        from limix_core.gp import GP2KronSum, GP2KronSumLR
+        from limix_core.covar import FreeFormCov
+        from scipy.linalg import eigh
+        from numpy import ones, var, concatenate
 
         self.verbose = None
 
         if covs is None:
-            covs = sp.ones([pheno.shape[0], 1])
+            covs = ones([pheno.shape[0], 1])
 
         # case 1: linear model
         if W_R is None and eigh_R is None and R is None:
@@ -87,11 +81,11 @@ class GWAS_LMM:
             if verbose:
                 print("Model: low-rank lmm")
             self.gp = GP2KronSumLR(
-                Y=pheno, Cn=FreeFormCov(1), G=W_R, F=covs, A=sp.ones((1, 1))
+                Y=pheno, Cn=FreeFormCov(1), G=W_R, F=covs, A=ones((1, 1))
             )
-            self.gp.covar.Cr.setCovariance(sp.var(pheno) * sp.ones((1, 1)))
-            self.gp.covar.Cn.setCovariance(sp.var(pheno) * sp.ones((1, 1)))
-            info_opt = self.gp.optimize(verbose=verbose)
+            self.gp.covar.Cr.setCovariance(var(pheno) * ones((1, 1)))
+            self.gp.covar.Cn.setCovariance(var(pheno) * ones((1, 1)))
+            self.gp.optimize(verbose=verbose)
             Kiy_fun = self.gp.covar.solve
 
         # case 3: full-rank linear model
@@ -99,7 +93,7 @@ class GWAS_LMM:
             if verbose:
                 print("Model: lmm")
             if eigh_R is None:
-                eigh_R = la.eigh(R)
+                eigh_R = eigh(R)
             S_R, U_R = eigh_R
             add_jitter(S_R)
             self.gp = GP2KronSum(
@@ -109,11 +103,11 @@ class GWAS_LMM:
                 S_R=S_R,
                 U_R=U_R,
                 F=covs,
-                A=sp.ones((1, 1)),
+                A=ones((1, 1)),
             )
-            self.gp.covar.Cr.setCovariance(0.5 * sp.var(pheno) * sp.ones((1, 1)))
-            self.gp.covar.Cn.setCovariance(0.5 * sp.var(pheno) * sp.ones((1, 1)))
-            info_opt = self.gp.optimize(verbose=verbose)
+            self.gp.covar.Cr.setCovariance(0.5 * var(pheno) * ones((1, 1)))
+            self.gp.covar.Cn.setCovariance(0.5 * var(pheno) * ones((1, 1)))
+            self.gp.optimize(verbose=verbose)
             Kiy_fun = self.gp.covar.solve
 
         if inter is None:
@@ -123,12 +117,12 @@ class GWAS_LMM:
         else:
             self.lmm = LMMCore(pheno, covs, Kiy_fun)
             if inter0 is None:
-                inter0 = sp.ones([pheno.shape[0], 1])
+                inter0 = ones([pheno.shape[0], 1])
             if (inter0 == 1).sum():
                 self.lmm0 = LMM(pheno, covs, Kiy_fun)
             else:
                 self.lmm0 = LMMCore(pheno, covs, Kiy_fun)
-            self.inter1 = sp.concatenate([inter0, inter], 1)
+            self.inter1 = concatenate([inter0, inter], 1)
             self.inter0 = inter0
 
     def process(self, snps, return_ste=False, return_lrt=False):
@@ -147,6 +141,9 @@ class GWAS_LMM:
         res : pandas DataFrame
             Results as pandas dataframs
         """
+        from scipy.stats import chi2
+        from pandas import DataFrame
+
         if self.inter1 is None:
 
             self.lmm.process(snps)
@@ -170,7 +167,7 @@ class GWAS_LMM:
             lrt1 = self.lmm.getLRT()
             lrt0 = self.lmm0.getLRT()
             lrt = lrt1 - lrt0
-            pv = st.chi2(self.inter1.shape[1] - self.inter0.shape[1]).sf(lrt)
+            pv = chi2(self.inter1.shape[1] - self.inter0.shape[1]).sf(lrt)
 
             RV = {}
             RV["pv1"] = self.lmm.getPv()
@@ -185,7 +182,7 @@ class GWAS_LMM:
                 RV["lrt0"] = lrt0
                 RV["lrt"] = lrt
 
-        return pd.DataFrame(RV)
+        return DataFrame(RV)
 
 
 class GWAS_StructLMM:
@@ -229,11 +226,14 @@ class GWAS_StructLMM:
         rhos=None,
         verbose=False,
     ):
+        from struct_lmm import StructLMM
+
         self.verbose = verbose
         self.tests = tests
 
-        if covs is None:
-            covs = sp.ones((env.shape[0], 1))
+        # Paolo: this is not being used right now, otherwise it would fail
+        # if covs is None:
+        #     covs = ones((env.shape[0], 1))
         self.covs = covs
 
         if rhos is None:
@@ -264,14 +264,17 @@ class GWAS_StructLMM:
         res : pandas DataFrame
             Results as pandas dataframs
         """
-        _pvi = sp.zeros(snps.shape[1])
-        _pva = sp.zeros(snps.shape[1])
+        from numpy import zeros, hstack
+        from pandas import DataFrame
+
+        _pvi = zeros(snps.shape[1])
+        _pva = zeros(snps.shape[1])
         for snp in range(snps.shape[1]):
             x = snps[:, [snp]]
 
             if "inter" in self.tests:
                 # interaction test
-                covs1 = sp.hstack((self.covs, x))
+                covs1 = hstack((self.covs, x))
                 self.slmi.fit_null(F=covs1, verbose=False)
                 _pvi[snp] = self.slmi.score_2_dof(x)
 
@@ -279,7 +282,7 @@ class GWAS_StructLMM:
                 # association test
                 _pva[snp] = self.slmm.score_2_dof(x)
 
-        return pd.DataFrame({"pvi": _pvi, "pva": _pva})
+        return DataFrame({"pvi": _pvi, "pva": _pva})
 
 
 class GWAS_MTLMM:
@@ -329,14 +332,19 @@ class GWAS_MTLMM:
         verbose=None,
         Asnps0=None,
     ):
+        from numpy import ones, eye, cov
+        from scipy.linalg import eigh
+        from limix_core.gp import GP2KronSum
+        from limix_core.covar import FreeFormCov
+
         self.verbose = None
         from limix_lmm.mtlmm import MTLMM
 
         if covs is None:
-            covs = sp.ones([pheno.shape[0], 1])
+            covs = ones([pheno.shape[0], 1])
 
         if Acovs is None:
-            Acovs = sp.eye(pheno.shape[1])
+            Acovs = eye(pheno.shape[1])
 
         # case 1: multi-trait linear model
         assert not (
@@ -345,7 +353,7 @@ class GWAS_MTLMM:
 
         # case 2: full-rank multi-trait linear model
         if eigh_R is None:
-            eigh_R = la.eigh(R)
+            eigh_R = eigh(R)
         S_R, U_R = eigh_R
         S_R = add_jitter(S_R)
         self.gp = GP2KronSum(
@@ -357,9 +365,9 @@ class GWAS_MTLMM:
             F=covs,
             A=Acovs,
         )
-        self.gp.covar.Cr.setCovariance(0.5 * sp.cov(pheno.T))
-        self.gp.covar.Cn.setCovariance(0.5 * sp.cov(pheno.T))
-        info_opt = self.gp.optimize(verbose=verbose)
+        self.gp.covar.Cr.setCovariance(0.5 * cov(pheno.T))
+        self.gp.covar.Cn.setCovariance(0.5 * cov(pheno.T))
+        self.gp.optimize(verbose=verbose)
 
         self.lmm = MTLMM(pheno, F=covs, A=Acovs, Asnp=Asnps, covar=self.gp.covar)
         if Asnps0 is not None:
@@ -382,6 +390,9 @@ class GWAS_MTLMM:
         res : pandas DataFrame
             Results as pandas dataframs
         """
+        from pandas import DataFrame
+        from scipy.stats import chi2
+
         if self.Asnps0 is None:
 
             self.lmm.process(snps)
@@ -399,7 +410,7 @@ class GWAS_MTLMM:
             lrt1 = self.lmm.getLRT()
             lrt0 = self.lmm0.getLRT()
             lrt = lrt1 - lrt0
-            pv = st.chi2(self.Asnps.shape[1] - self.Asnps0.shape[1]).sf(lrt)
+            pv = chi2(self.Asnps.shape[1] - self.Asnps0.shape[1]).sf(lrt)
 
             RV = {}
             RV["pv1"] = self.lmm.getPv()
@@ -410,4 +421,4 @@ class GWAS_MTLMM:
                 RV["lrt0"] = lrt0
                 RV["lrt"] = lrt
 
-        return pd.DataFrame(RV)
+        return DataFrame(RV)

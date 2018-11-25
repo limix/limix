@@ -73,31 +73,30 @@ def read(prefix, verbose=True):
          [ 2.  1.  2.]]
     """
     from pandas_plink import read_plink
+    from .._display import session_line
 
-    if verbose:
-        print("Reading `{}`...".format(prefix))
+    with session_line("Reading `{}`...\n".format(prefix), disable=not verbose):
+        data = read_plink(prefix, verbose=verbose)
 
-    data = read_plink(prefix, verbose=verbose)
+        data[1].name = "fam"
+        data[1].index = data[1]["iid"]
+        data[1].index.name = "sample"
 
-    data[1].name = "fam"
-    data[1].index = data[1]["iid"]
-    data[1].index.name = "sample"
-
-    data[0].name = "bim"
-    data[0].index = data[0]["snp"].astype(str).values
-    data[0].index.name = "candidate"
+        data[0].name = "bim"
+        data[0].index = data[0]["snp"].astype(str).values
+        data[0].index.name = "candidate"
 
     return data
 
 
 def see_kinship(filepath, verbose):
     from .. import plot
-    from .._display import timer_text
+    from .._display import session_line
 
     # TODO: document
 
     if filepath.endswith(".grm.raw"):
-        with timer_text("Reading {}... ".format(filepath), disable=not verbose):
+        with session_line("Reading {}... ".format(filepath), disable=not verbose):
             K = _read_grm_raw(filepath)
     else:
         print("File %s not found." % filepath)
@@ -114,12 +113,12 @@ def fetch_dosage(prefix, verbose):
 
 def see_bed(filepath, verbose):
     # TODO: document
-    from .._display import dataframe_repr
+    from .._display import add_title_header
 
     (bim, fam, _) = read(filepath, verbose=verbose)
 
-    print(dataframe_repr("Samples", bim))
-    print(dataframe_repr("Genotype", fam))
+    print(add_title_header("Samples", bim))
+    print(add_title_header("Genotype", fam))
 
 
 def _read_grm_raw(filepath):

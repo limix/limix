@@ -51,3 +51,4 @@ Regression
 
 .. autofunction:: limix.qc.regress_out
     :noindex:
+

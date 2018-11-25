@@ -1,8 +1,8 @@
 from __future__ import division
 
-from .._display import session_text, timer_text
-from .._data import conform_dataset
-from .._likelihood import assert_likelihood_name, normalise_extreme_values
+from .._display import session_block, session_line
+from .._data import conform_dataset, check_likelihood_name
+from ..qc._lik import normalise_extreme_values
 from ..qc import normalise_covariance
 
 
@@ -74,14 +74,14 @@ def estimate(y, lik, K, M=None, verbose=True):
         lik = (lik,)
 
     lik_name = lik[0].lower()
-    assert_likelihood_name(lik_name)
+    check_likelihood_name(lik_name)
 
-    with session_text("heritability analysis", disable=not verbose):
+    with session_block("heritability analysis", disable=not verbose):
 
         if M is None:
             M = ones((len(y), 1))
 
-        with timer_text("Normalising input...", disable=not verbose):
+        with session_line("Normalising input...", disable=not verbose):
             data = conform_dataset(y, M=M, K=K)
 
         y = data["y"]

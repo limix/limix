@@ -7,3 +7,4 @@ Heritability
 
 .. autofunction:: limix.her.estimate
     :noindex:
+

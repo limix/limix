@@ -1,4 +1,4 @@
-from .._display import timer_text
+from .._display import session_line
 
 
 # TODO: document
@@ -7,7 +7,7 @@ def extract(filepath, verbose=True):
     import tarfile
     import os
 
-    with timer_text("Extracting {}... ".format(filepath), disable=not verbose):
+    with session_line("Extracting {}... ".format(filepath), disable=not verbose):
 
         try:
             tar = tarfile.open(filepath)

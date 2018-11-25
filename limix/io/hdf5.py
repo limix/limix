@@ -100,7 +100,7 @@ def fetch(fp, path):
         HDF5 file path.
     path : str
         Path inside the HDF5 file.
-    
+
     Returns
     -------
     numpy.ndarray
@@ -123,7 +123,7 @@ def see(f_or_filepath, root_name="/", show_chunks=False):
         Group path to be the tree root. Defaults to ``"/"``.
     show_chunks : bool, optional
         ``True`` to show chunks; ``False`` otherwise. Defaults to ``False``.
-    
+
     Returns
     -------
     str
