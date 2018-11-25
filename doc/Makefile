@@ -23,3 +23,7 @@ clean: Makefile
 %: Makefile
 	cd .. && python setup.py develop; cd doc
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+livehtml:
+	sphinx-autobuild -b html -r ".*\.(bz2|hdf5|jpg|csv|gz)" $(SPHINXOPTS) . $(BUILDDIR)/html
+
