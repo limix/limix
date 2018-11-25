@@ -19,7 +19,7 @@ import click
     "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
 )
 def see(ctx, filepath, show_chunks, header, verbose):
-    """Show an overview of multiple file types."""
+    """ Show an overview of multiple file types. """
     from ._spec import parse_fetch_spec
 
     spec = parse_fetch_spec(filepath)

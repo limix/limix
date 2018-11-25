@@ -5,4 +5,4 @@ Developers
 Data type
 =========
 
-.. autofunction:: limix._dataset.conform_dataset
+.. autofunction:: limix._data.conform_dataset

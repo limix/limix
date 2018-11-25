@@ -16,15 +16,15 @@ Command line interface
     >>> call(["download", "http://rest.s3for.me/limix/dali.jpg.bz2"])
     >>> call(["extract", "dali.jpg.bz2"])
 
-.. command-output:: limix -q download http://rest.s3for.me/limix/plink_example.tar.gz &\
-      limix -q download http://rest.s3for.me/limix/small_example.hdf5 &\
-      limix -q download http://rest.s3for.me/limix/small_example.csv.bz2 &\
-      limix -q download http://rest.s3for.me/limix/ex0/phenotype.gemma
+.. command-output:: limix download -q http://rest.s3for.me/limix/plink_example.tar.gz &\
+      limix download -q http://rest.s3for.me/limix/small_example.hdf5 &\
+      limix download -q http://rest.s3for.me/limix/small_example.csv.bz2 &\
+      limix download -q http://rest.s3for.me/limix/ex0/phenotype.gemma
     :shell:
     :cwd: _build
 
-.. command-output:: limix -q extract plink_example.tar.gz &\
-      limix -q extract small_example.csv.bz2
+.. command-output:: limix extract -q plink_example.tar.gz &\
+      limix extract -q small_example.csv.bz2
     :shell:
     :cwd: _build
 
@@ -72,7 +72,7 @@ BIMBAM file formats
 
 Phenotype:
 
-.. command-output:: limix see phenotype.gemma --filetype=bimbam-pheno
+.. command-output:: limix see phenotype.gemma:bimbam-pheno
     :cwd: _build
 
 HDF5
@@ -97,7 +97,7 @@ Image
 
 An image can be seen via
 
-.. command-output:: limix -q see dali.jpg
+.. command-output:: limix see -q dali.jpg
     :cwd: _build
 
 .. plot::
