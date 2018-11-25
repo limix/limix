@@ -1,4 +1,4 @@
-.. _python:
+.. _gwas:
 
 *****************************
 GWAS with linear mixed models
@@ -516,4 +516,3 @@ Export to file
         os.makedirs("out")
     res.reset_index(inplace=True, drop=True)
     res.to_csv("out/res_lmm.csv", index=False)
-
