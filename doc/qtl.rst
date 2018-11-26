@@ -100,7 +100,7 @@ between samples not fully captured by the residual distribution.
 
     >>> from numpy.random import RandomState
     >>> from numpy import dot, ones
-	>>> from pandas import DataFrame
+    >>> from pandas import DataFrame
     >>> from limix.qtl import st_scan
     >>> from limix.stats import linear_kinship
     >>>
@@ -111,7 +111,7 @@ between samples not fully captured by the residual distribution.
     >>> candidates = (random.rand(n, 4) < 0.2).astype(float)
     >>> y = random.randn(n)
     >>> kinship = linear_kinship(random.randn(n, 50), verbose=False)
-	>>> M = DataFrame(ones((n, 1)), columns=["offset"])
+    >>> M = DataFrame(ones((n, 1)), columns=["offset"])
     >>>
     >>> model = st_scan(candidates, y, 'normal', kinship, M=M, verbose=False)
     >>> print(model.variant_pvalues.to_dataframe()) # doctest: +FLOAT_CMP
@@ -244,17 +244,17 @@ defined by the user.
 
 .. doctest::
 
-	>>> from numpy import concatenate, newaxis
+    >>> from numpy import concatenate, newaxis
     >>> from limix.qtl import st_iscan
-	>>> from limix.qtl import GWAS_LMM
+    >>> from limix.qtl import GWAS_LMM
     >>> # generate interacting variables (environment)
     >>> random = RandomState(1)
     >>> E = random.randn(y.shape[0], 1)
     >>>
     >>> # add additive environment as covariate
     >>> ME = concatenate([M, E], axis=1)
-	>>>
-	>>> snps = random.randn(n, 100)
+    >>>
+    >>> snps = random.randn(n, 100)
     >>>
     >>> # interaction test
     >>> lmi = GWAS_LMM(y[:, newaxis], covs=ME, inter=E, verbose=False)
