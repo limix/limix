@@ -3,7 +3,7 @@ from numpy.random import RandomState
 from numpy.testing import assert_allclose
 from pandas import DataFrame
 
-from limix.qtl import scan
+from limix.qtl import st_scan
 from limix.stats import linear_kinship
 
 
@@ -19,14 +19,14 @@ def test_qtl_lmm():
     M = G[:, :5]
     X = G[:, 68:70]
 
-    model = scan(X, y, "normal", K, M=M, verbose=False)
+    model = st_scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
 
     ix_best_snp = pv.argmin().item()
 
     M = concatenate((M, X[:, [ix_best_snp]]), axis=1)
 
-    model = scan(X, y, "normal", K, M=M, verbose=False)
+    model = st_scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
     assert_allclose(pv[ix_best_snp], 1.0)
 
@@ -43,7 +43,7 @@ def test_qtl_lmm_nokinship():
     M = G[:, :5]
     X = G[:, 68:70]
 
-    model = scan(X, y, "normal", K, M=M, verbose=False)
+    model = st_scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues.values
     assert_allclose(pv[:2], [8.159539103135342e-05, 0.10807353641893498])
 
@@ -69,7 +69,7 @@ def test_qtl_lmm_repeat_samples_by_index():
     M = DataFrame(data=M, index=samples)
     X = DataFrame(data=X, index=samples)
 
-    model = scan(X, y, "normal", K, M=M, verbose=False)
+    model = st_scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
     assert_allclose(pv.values[0], 0.9920306566395604)
 
@@ -78,7 +78,7 @@ def test_qtl_lmm_repeat_samples_by_index():
     M = concatenate((M, X.loc[:, [ix_best_snp]]), axis=1)
     M = DataFrame(data=M, index=samples)
 
-    model = scan(X, y, "normal", K, M=M, verbose=False)
+    model = st_scan(X, y, "normal", K, M=M, verbose=False)
     pv = model.variant_pvalues
     assert_allclose(pv[ix_best_snp], 1.0)
     assert_allclose(pv.values[0], 0.6684700834450028)

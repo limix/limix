@@ -203,7 +203,7 @@ This data frame can be readily used to perform association scan.
         pos      (candidate) int64 483 484 3220 3223 ... 927506 932310 932535 932538
         pos_cum  (candidate) int64 483 484 3220 3223 ... 12055570 12055795 12055798
     Dimensions without coordinates: candidate
-    >>> qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
+    >>> qtl = limix.qtl.st_scan(G, y, 'normal', K, verbose=False)
     >>> print(qtl) # doctest: +FLOAT_CMP
     Variants
     --------

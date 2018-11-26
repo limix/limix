@@ -5,7 +5,7 @@
 # from numpy.testing import assert_allclose
 # from pandas import DataFrame
 
-# from limix.qtl import iscan
+# from limix.qtl import st_iscan
 
 
 # def test_qtl_interact():
@@ -34,6 +34,6 @@
 #     cols = ["inter%02d" % i for i in range(inter.shape[1])]
 #     inter = DataFrame(data=inter, index=index, columns=cols)
 
-#     model = iscan(X, y, "normal", inter, K, verbose=False)
+#     model = st_iscan(X, y, "normal", inter, K, verbose=False)
 
 #     assert_allclose(model.variant_pvalues.loc["SNP02", "inter01"], [0.72881611358])

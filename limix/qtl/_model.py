@@ -12,7 +12,7 @@ else:
 class QTLModel(object):
     r"""Result of a QTL analysis.
 
-    An instance of this class is returned by :func:`limix.qtl.scan`.
+    An instance of this class is returned by :func:`limix.qtl.st_scan`.
     """
 
     def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):

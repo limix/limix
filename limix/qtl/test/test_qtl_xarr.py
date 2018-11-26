@@ -37,7 +37,7 @@ def test_qtl_xarr():
     random = RandomState(0)
     y = random.randn(10)
 
-    limix.qtl.scan(G, y, "normal", K, verbose=False)
+    limix.qtl.st_scan(G, y, "normal", K, verbose=False)
 
     G = G.rename({"samples": "sample"})
-    limix.qtl.scan(G, y, "normal", K, verbose=False)
+    limix.qtl.st_scan(G, y, "normal", K, verbose=False)

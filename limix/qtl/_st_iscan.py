@@ -17,7 +17,7 @@ from ._model import QTLModel
 #     >>> from numpy.random import RandomState
 #     >>> from numpy.testing import assert_allclose
 #     >>>
-#     >>> from limix.qtl import iscan
+#     >>> from limix.qtl import st_iscan
 #     >>> from pandas import DataFrame, option_context
 #     >>>
 #     >>> random = RandomState(0)
@@ -45,7 +45,7 @@ from ._model import QTLModel
 #     >>> cols = ['inter%02d' % i for i in range(inter.shape[1])]
 #     >>> inter = DataFrame(data=inter, index=index, columns=cols)
 #     >>>
-#     >>> model = iscan(X, y, 'normal', inter, K, verbose=False)
+#     >>> model = st_iscan(X, y, 'normal', inter, K, verbose=False)
 #     >>>
 #     >>> with option_context('precision', 5):
 #     ...     print(model.variant_pvalues)
@@ -62,7 +62,7 @@ from ._model import QTLModel
 #     SNP09  0.64945  0.67185  0.76600
 
 
-def iscan(G, y, lik, inter, Ginter=None, K=None, M=None, verbose=True):
+def st_iscan(G, y, lik, inter, Ginter=None, K=None, M=None, verbose=True):
     r"""Interaction single-variant association testing via mixed models.
 
     It supports Normal (linear mixed model), Bernoulli, Binomial, and Poisson
