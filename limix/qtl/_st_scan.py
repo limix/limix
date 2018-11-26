@@ -12,7 +12,7 @@ from ._model import QTLModel
 
 
 def st_scan(G, y, lik, K=None, M=None, verbose=True):
-    r"""Single-variant association testing via generalised linear mixed models.
+    r""" Single-variant association testing via generalised linear mixed models.
 
     It supports Normal (linear mixed model), Bernoulli, Probit, Binomial, and Poisson
     residual errors, defined by ``lik``.
