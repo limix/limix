@@ -1,9 +1,7 @@
 from limix._display import session_line
 
-from .._data import check_likelihood_name, conform_dataset
+from .._data import conform_dataset
 from .._display import session_block
-from ..qc._lik import normalise_extreme_values
-from ._model import QTLModel
 
 
 def st_iscan(G, y, K=None, M=None, E0=None, E1=None, W_R=None, verbose=True):
@@ -77,9 +75,7 @@ def st_iscan(G, y, K=None, M=None, E0=None, E1=None, W_R=None, verbose=True):
             elif W_R is not None:
                 if verbose:
                     print("Model: low-rank lmm")
-                gp = GP2KronSumLR(
-                    Y=y, Cn=FreeFormCov(1), G=W_R, F=M, A=ones((1, 1))
-                )
+                gp = GP2KronSumLR(Y=y, Cn=FreeFormCov(1), G=W_R, F=M, A=ones((1, 1)))
                 gp.covar.Cr.setCovariance(var(y) * ones((1, 1)))
                 gp.covar.Cn.setCovariance(var(y) * ones((1, 1)))
                 gp.optimize(verbose=verbose)
@@ -122,6 +118,7 @@ def st_iscan(G, y, K=None, M=None, E0=None, E1=None, W_R=None, verbose=True):
                 E1 = concatenate([E0, E1], 1)
 
     return _process(lmm, lmm0, asarray(G), E0, E1)
+
 
 def _process(lmm, lmm0, snps, E0, E1):
     """
@@ -386,6 +383,7 @@ def _process(lmm, lmm0, snps, E0, E1):
 #     SNP07  0.32834  0.96894  0.67628
 #     SNP08  0.28341  0.29361  0.56248
 #     SNP09  0.64945  0.67185  0.76600
+
 
 def add_jitter(S_R):
     from numpy import maximum

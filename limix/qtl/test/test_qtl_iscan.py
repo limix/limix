@@ -1,17 +1,17 @@
 from __future__ import division
 
-from numpy import concatenate, dot, ones, stack, zeros
+import shutil
+
+from numpy import concatenate, ones, stack
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
-from pandas import DataFrame
 
 from limix.qtl import st_iscan
 
 
 def test_qtl_interact_paolo_ex():
 
-    import os
-    import numpy as np
+    from limix.qtl import st_iscan
     from numpy.random import RandomState
     import pandas as pd
     import scipy as sp
@@ -47,24 +47,26 @@ def test_qtl_interact_paolo_ex():
     # define covs
     covs = sp.ones([pheno.shape[0], 1])
 
-    from limix.qtl import st_iscan
-
     res = st_iscan(snps, pheno, M=covs, verbose=True)
 
-    assert_allclose(
-        res["pv"][:3], [0.5621242538994103, 0.7764976679506745, 0.8846952467562864]
-    )
-    assert_allclose(
-        res["beta"][:3],
-        [0.08270087514483888, -0.02774487670737916, -0.014210408938382794],
-    )
-    assert_allclose(
-        res["beta_ste"][:3],
-        [0.14266417362656036, 0.09773242355610584, 0.09798944635609126],
-    )
-    assert_allclose(
-        res["lrt"][:3], [0.3360395236287443, 0.08059131858936965, 0.021030739508237833]
-    )
+    try:
+        assert_allclose(
+            res["pv"][:3], [0.5621242538994103, 0.7764976679506745, 0.8846952467562864]
+        )
+        assert_allclose(
+            res["beta"][:3],
+            [0.08270087514483888, -0.02774487670737916, -0.014210408938382794],
+        )
+        assert_allclose(
+            res["beta_ste"][:3],
+            [0.14266417362656036, 0.09773242355610584, 0.09798944635609126],
+        )
+        assert_allclose(
+            res["lrt"][:3],
+            [0.3360395236287443, 0.08059131858936965, 0.021030739508237833],
+        )
+    finally:
+        shutil.rmtree("data_structlmm")
 
 
 def test_qtl_interact():
@@ -82,7 +84,7 @@ def test_qtl_interact():
     snps = random.randn(n, 100)
 
     # interaction test
-    lmi = st_iscan(snps, y, M=ME, E1=E1, verbose=False)
+    st_iscan(snps, y, M=ME, E1=E1, verbose=False)
     # res = lmi.process(snps)
     # print(res.head())
 

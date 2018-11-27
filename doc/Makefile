@@ -25,5 +25,5 @@ clean: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 livehtml:
-	sphinx-autobuild -b html -r ".*\.(bz2|hdf5|jpg|csv|gz)" $(SPHINXOPTS) . $(BUILDDIR)/html
+	sphinx-autobuild -b html -r "(.*\.(bz2|hdf5|jpg|csv|gz)|_generated/.*)" $(SPHINXOPTS) . $(BUILDDIR)/html
 

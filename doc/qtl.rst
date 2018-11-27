@@ -246,7 +246,6 @@ defined by the user.
 
     >>> from numpy import concatenate, newaxis
     >>> from limix.qtl import st_iscan
-    >>> from limix.qtl import GWAS_LMM
     >>> # generate interacting variables (environment)
     >>> random = RandomState(1)
     >>> E = random.randn(y.shape[0], 1)
@@ -257,15 +256,14 @@ defined by the user.
     >>> snps = random.randn(n, 100)
     >>>
     >>> # interaction test
-    >>> lmi = GWAS_LMM(y[:, newaxis], covs=ME, inter=E, verbose=False)
-    >>> res = lmi.process(snps)
+    >>> res = st_iscan(snps, y[:, newaxis], M=ME, E1=E, verbose=False)
     >>> print(res.head())
-           pv1      pv0       pv    beta0
-    0  0.13126  0.04668  0.74696  0.39747
-    1  0.69944  0.53667  0.56378  0.13967
-    2  0.83849  0.55301  0.98514  0.14017
-    3  0.94309  0.73246  0.98552 -0.08025
-    4  0.75965  0.70229  0.52519  0.08325
+           pv1      pv0       pv    beta0  beta0_ste     lrt1     lrt0      lrt
+    0  0.13126  0.04668  0.74696  0.39747    0.19981  4.06117  3.95706  0.10410
+    1  0.69944  0.53667  0.56378  0.13967    0.22606  0.71495  0.38175  0.33320
+    2  0.83849  0.55301  0.98514  0.14017    0.23627  0.35230  0.35195  0.00035
+    3  0.94309  0.73246  0.98552 -0.08025    0.23476  0.11719  0.11686  0.00033
+    4  0.75965  0.70229  0.52519  0.08325    0.21780  0.54979  0.14610  0.40370
 
 .. The process method returns three sets of P values:
 .. (i) ``pv0`` are association test P values (:math:`\boldsymbol{\alpha}\neq{0}` when

@@ -1,7 +1,3 @@
-
-
-
-
 class GWAS_StructLMM:
     """
     Wrapper function for univariate single-variant association testing
@@ -239,3 +235,11 @@ class GWAS_MTLMM:
                 RV["lrt"] = lrt
 
         return DataFrame(RV)
+
+
+def add_jitter(S_R):
+    from numpy import maximum
+
+    assert S_R.min() > -1e-6, "LMM-covariance is not sdp!"
+    RV = S_R + maximum(1e-4 - S_R.min(), 0)
+    return RV
