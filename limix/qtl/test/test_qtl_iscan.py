@@ -1,5 +1,6 @@
 from __future__ import division
 
+import os
 import shutil
 
 from numpy import concatenate, ones, stack
@@ -66,6 +67,7 @@ def test_qtl_interact_paolo_ex():
             [0.3360395236287443, 0.08059131858936965, 0.021030739508237833],
         )
     finally:
+        os.unlink("data_structlmm.zip")
         shutil.rmtree("data_structlmm")
 
 
