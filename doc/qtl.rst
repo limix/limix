@@ -442,41 +442,37 @@ If iter0 is provided,
 
 
 
-Struct-LMM
-~~~~~~~~~~
+StructLMM
+^^^^^^^^^
 
-Struct-LMM can be use to test for interaction with multi-dimensional environments or
+StructLMM can be use to test for interaction with multiple environments or
 to test for association of genetic variants while accounting for GxE interactions.
-The Struct-LMM model is
+The StructLMM model is
 
 .. math::
     \mathbf{y}=
-    \underbrace{\mathbf{F}\mathbf{b}}_{\text{covariates}}+
-    \underbrace{\mathbf{g}\beta}_{\text{genetics}}+
-    \underbrace{\mathbf{g}\odot\boldsymbol{\gamma}}_{\text{G$\times$E}}+
-    \underbrace{\mathbf{u}}_{\text{random effect}}+
-    \underbrace{\boldsymbol{\psi}}_{\text{noise}}
+    \underbrace{\mathbf{M}\boldsymbol\beta}_{\text{covariates}}+
+    \underbrace{\mathbf{x}\odot\boldsymbol\gamma}_{\text{genetics}}+
+    \underbrace{\mathbf E\mathbf u}_{\text{random effects}}+
+    \underbrace{\boldsymbol\epsilon}_{\text{noise}},
 
 where
 
 .. math::
-    \boldsymbol{\gamma}\sim\mathcal{N}(\mathbf{0},
-    \underbrace{\sigma^2_h\boldsymbol{EE}^T}_{\text{GxE}})
-
-.. math::
-    \mathbf{u}\sim\mathcal{N}(\mathbf{0}, \sigma_u^2\mathbf{R}^T)
-
-.. math::
-    \boldsymbol{\psi}\sim\mathcal{N}(\mathbf{0}, \sigma_n^2\mathbf{I}_N)
-
+    \boldsymbol\gamma\sim\mathcal N(\mathbf 0,
+    \sigma^2_g(\underbrace{(1-\rho)\mathbf 1}_{\text{persistent}}
+        + \underbrace{\rho\mathbf E\mathbf E^{\intercal}}_{\text{GxE}}),\\
+    \mathbf u\sim\mathcal N(\mathbf 0, v_0\mathbf I),
+    ~~\text{and}~~
+    \boldsymbol\epsilon\sim\mathcal N(\mathbf 0, v_1\mathbf I).
 
 .. doctest::
 
     >>> from limix.qtl import st_sscan
     >>>
-    >>> envs = random.randn(y.shape[0], 10)
+    >>> E = random.randn(y.shape[0], 10)
     >>>
-    >>> r = st_sscan(snps[:, :5], y[:, newaxis], envs, tests=['inter', 'assoc'],
+    >>> r = st_sscan(snps[:, :5], y[:, newaxis], E, tests=['inter', 'assoc'],
     ...              verbose=False)
     >>> print(r.head())
            pvi      pva
@@ -495,8 +491,108 @@ The process method returns two sets of P values:
 Multi-trait association
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Multi-trait with interaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The multi-trait linear mixed model has the form:
+
+.. math::
+    \mathbf{Y} =
+    \underbrace{\mathbf{F}\mathbf{B}\mathbf{A}^T_{\text{covs}}}_{\text{covariates}}+
+    \underbrace{\mathbf{g}\boldsymbol{\beta}^T\mathbf{A}^T_{\text{snps}}}_{\text{genetics}}+
+    \underbrace{\mathbf{U}}_{\text{random effect}},
+    \underbrace{\boldsymbol{\Psi}}_{\text{noise}},
+
+where :math:`\mathbf{Y}` is the :math:`\text{N$\times$P}` phenotype matrix,
+:math:`\mathbf{A}_{\text{covs}}` :math:`\text{P$\times$J}` is the trait design matrix of the covariates, and
+:math:`\mathbf{A}_{\text{snps}}` :math:`\text{P$\times$L}` is the trait design matrix of the variants.
+
+.. math::
+    \mathbf{U}\sim\text{MVN}\left(\mathbf{0},
+    \underbrace{\mathbf{R}}_{\text{mixed-model cov. (GRM)}},
+    \underbrace{\mathbf{C}_g}_{\text{trait (genetic) cov.}}
+    \right),
+
+.. math::
+    \boldsymbol{\Psi}\sim\text{MVN}\left(\mathbf{0},
+    \underbrace{\mathbf{I}}_{\text{identity cov.}},
+    \underbrace{\mathbf{C}_n}_{\text{residual trait cov.}}
+    \right)
+
+Any-effect association test
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An any-effect association test corresponds to testing :math:`\boldsymbol{\beta}\neq{0}`
+with an ``eye`` snp trait design
+
+.. testcode::
+
+    from limix.qtl import GWAS_MTLMM
+
+    P = 4
+    random = RandomState(1)
+    phenos = random.randn(pheno.shape[0], P)
+
+    Asnps = sp.eye(P)
+    mtlmm = GWAS_MTLMM(phenos, covs=covs, Asnps=Asnps, eigh_R=(S_R, U_R), verbose=True)
+    res = mtlmm.process(snps)
+    print(res.head())
+
+.. testoutput::
+
+    Marginal likelihood optimization.
+    ('Converged:', True)
+    Time elapsed: 0.25 s
+    Log Marginal Likelihood: 540.8991353.
+    Gradient norm: 0.0037459.
+             pv
+    0  0.588783
+    1  0.517333
+    2  0.715508
+    3  0.727924
+    4  0.859793
+
+
+Common and interaction tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The module allows for testing specific trait design matrices for the variant effects.
+This is achieved by specifying the two trait design to compare, namely ``Asnps`` and ``Asnps0``.
+
+In the example below we instantiate this principle to test for departures from
+a same effect model (same effect size for all analyzed traits).
+
+In this example, the choices of ``Asnps`` and ``Asnps0``
+are ``sp.eye(P)`` and ``sp.ones([P, 1])``, respectively.
+
+.. testcode::
+
+    Asnps = sp.eye(P)
+    Asnps0 = sp.ones([P, 1])
+    mtlmm = GWAS_MTLMM(phenos, covs=covs, Asnps=Asnps, Asnps0=Asnps0, eigh_R=(S_R, U_R), verbose=True)
+    res = mtlmm.process(snps)
+    print(res.head())
+
+.. testoutput::
+
+    Marginal likelihood optimization.
+    ('Converged:', True)
+    Time elapsed: 0.25 s
+    Log Marginal Likelihood: 540.8991353.
+    Gradient norm: 0.0037459.
+            pv1       pv0        pv
+    0  0.588783  0.347447  0.586021
+    1  0.517333  0.369855  0.485662
+    2  0.715508  0.504226  0.644940
+    3  0.727924  0.249909  0.868777
+    4  0.859793  0.772237  0.746886
+
+The process method returns three sets of P values:
+(i) ``pv0`` are P values for the association test with snp trait design `Asnps0`,
+(ii) ``pv1`` are P values for the association test with snp trait design `Asnps1`,
+(iii) ``pv`` are P values for the test `Asnps1` vs `Asnps0`.
+
+In the specific example, these are the P values for
+a same-effect association test,
+an any-effect association test,
+and an any-vs-same effect test.
 
 
 .. where :math:`\mathbf u \sim \mathcal N(\mathbf 0, \sigma_u^2\mathrm I)` is a

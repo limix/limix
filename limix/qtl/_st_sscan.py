@@ -4,7 +4,7 @@ from .._data import conform_dataset
 from .._display import session_block
 
 
-def st_sscan(G, y, envs, K=None, M=None, tests=None, verbose=True):
+def st_sscan(G, y, E, M=None, tests=None, verbose=True):
     """
     Wrapper function for univariate single-variant association testing
     using variants of the linear mixed model.
@@ -18,10 +18,6 @@ def st_sscan(G, y, envs, K=None, M=None, tests=None, verbose=True):
     covs : (`N`, `D`) ndarray
         covariate design matrix.
         By default, ``covs`` is a (`N`, `1`) array of ones.
-    W_R : (`N`, `R`) ndarray
-        ``W_R`` define the lmm-covariance as
-        ``R`` = dot(``W_R``, transpose(``W_R``)).
-        By detault, ``W_R`` is set to ``environments``.
     tests : list
         Which tests are performed.
         Element list values are ``'inter'`` and ``'assoc'``.
@@ -37,40 +33,26 @@ def st_sscan(G, y, envs, K=None, M=None, tests=None, verbose=True):
     from struct_lmm import StructLMM
     from numpy import zeros, hstack, asarray
     from pandas import DataFrame
-    from scipy.linalg import eigh
-
-    # Paolo: this is not being used right now, otherwise it would fail
-    # if covs is None:
-    #     covs = ones((env.shape[0], 1))
 
     rhos = [0.0, 0.1 ** 2, 0.2 ** 2, 0.3 ** 2, 0.4 ** 2, 0.5 ** 2, 0.5, 1.0]
 
     with session_block("single-trait association test", disable=not verbose):
 
-        # if covs is None:
-        #     covs = ones([pheno.shape[0], 1])
-
         with session_line("Normalising input... ", disable=not verbose):
-            data = conform_dataset(y, M, G=G, K=K)
+            data = conform_dataset(y, M, G=G, K=None)
 
             y = data["y"]
             M = data["M"]
             G = data["G"]
-            K = data["K"]
-
-            if K is None:
-                W_R = envs
-            else:
-                W_R = eigh(K)
 
             if tests is None:
                 tests = ["inter"]
 
             if "inter" in tests:
-                slmi = StructLMM(asarray(y, float), envs, W=envs, rho_list=[0])
+                slmi = StructLMM(asarray(y, float), E, W=E, rho_list=[0])
 
             if "assoc" in tests:
-                slmm = StructLMM(asarray(y, float), envs, W=envs, rho_list=rhos)
+                slmm = StructLMM(asarray(y, float), E, W=E, rho_list=rhos)
                 slmm.fit_null(F=asarray(M, float), verbose=False)
 
             _pvi = zeros(G.shape[1])

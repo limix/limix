@@ -25,5 +25,6 @@ clean: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 livehtml:
+	cd .. && python setup.py develop; cd doc
 	sphinx-autobuild -b html -r "(.*\.(bz2|hdf5|jpg|csv|gz)|_generated/.*)" $(SPHINXOPTS) . $(BUILDDIR)/html
 
