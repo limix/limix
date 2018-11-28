@@ -235,47 +235,50 @@ We perform the analysis again now using also the covariance :math:`\mathbf K` by
     >>> # Whole genotype of each sample.
     >>> X = random.randn(n, 50)
     >>> # Estimate a kinship relationship betweem samples.
-    >>> kinship = linear_kinship(, verbose=False)
+    >>> K = linear_kinship(X, verbose=False)
     >>>
-    >>> model = st_scan(G, y, 'normal', kinship, M=M, verbose=False)
-    >>> print(model.variant_pvalues.to_dataframe()) # doctest: +FLOAT_CMP
-                     pv
+    >>> model = st_scan(X, y, 'normal', K, M=M, verbose=False)
+    >>> print(model.variant_pvalues.to_dataframe().head()) # doctest: +FLOAT_CMP
+                    pv
     candidate
-    0           0.74981
-    1           0.00537
-    2           0.07036
-    3           0.97155
-    >>> print(model.variant_effsizes.to_dataframe()) # doctest: +FLOAT_CMP
-                effsizes
+    0          0.72152
+    1          0.61718
+    2          0.44223
+    3          0.94542
+    4          0.40416
+    >>> print(model.variant_effsizes.to_dataframe().head()) # doctest: +FLOAT_CMP
+               effsizes
     candidate
-    0          -0.09660
-    1          -1.02874
-    2          -0.46314
-    3          -0.01155
-    >>> print(model.variant_effsizes_se.to_dataframe()) # doctest: +FLOAT_CMP
+    0           0.04675
+    1          -0.05855
+    2          -0.09668
+    3           0.00746
+    4           0.12734
+    >>> print(model.variant_effsizes_se.to_dataframe().head()) # doctest: +FLOAT_CMP
                effsizes std
     candidate
-    0               0.30293
-    1               0.36956
-    2               0.25594
-    3               0.32377
+    0               0.13116
+    1               0.11713
+    2               0.12582
+    3               0.10899
+    4               0.15264
     >>> print(model) # doctest: +FLOAT_CMP
     Variants
     --------
            effsizes  effsizes_se  pvalues
-    count         4            4        4
-    mean   -0.40001      0.31305  0.44927
-    std     0.46269      0.04716  0.48433
-    min    -1.02874      0.25594  0.00537
-    25%    -0.60454      0.29118  0.05411
-    50%    -0.27987      0.31335  0.41008
-    75%    -0.07534      0.33522  0.80524
-    max    -0.01155      0.36956  0.97155
+    count        50           50       50
+    mean    0.00412      0.12327  0.51505
+    std     0.12437      0.01564  0.29979
+    min    -0.25728      0.09544  0.01043
+    25%    -0.08632      0.11008  0.31724
+    50%     0.00039      0.12209  0.50611
+    75%     0.07436      0.13173  0.76775
+    max     0.31626      0.16753  0.97555
     <BLANKLINE>
     Covariate effect sizes for H0
     -----------------------------
-     offset
-    0.04828
+         age   offset
+     0.02016 -0.81859
 
 
 Generalised phenotype
@@ -395,11 +398,11 @@ defined by the user.
     >>> res = st_iscan(snps, y[:, newaxis], M=ME, E1=E, verbose=False)
     >>> print(res.head())
            pv1      pv0       pv    beta0  beta0_ste     lrt1     lrt0      lrt
-    0  0.13126  0.04668  0.74696  0.39747    0.19981  4.06117  3.95706  0.10410
-    1  0.69944  0.53667  0.56378  0.13967    0.22606  0.71495  0.38175  0.33320
-    2  0.83849  0.55301  0.98514  0.14017    0.23627  0.35230  0.35195  0.00035
-    3  0.94309  0.73246  0.98552 -0.08025    0.23476  0.11719  0.11686  0.00033
-    4  0.75965  0.70229  0.52519  0.08325    0.21780  0.54979  0.14610  0.40370
+    0  0.14584  0.06186  0.54644  0.36731    0.19671  3.85044  3.48671  0.36373
+    1  0.81134  0.52514  0.90466  0.13994    0.22022  0.41813  0.40378  0.01435
+    2  0.74902  0.45885  0.86414  0.17079    0.23056  0.57798  0.54871  0.02928
+    3  0.77165  0.79650  0.50141 -0.05915    0.22937  0.51845  0.06650  0.45195
+    4  0.81176  0.64857  0.64725  0.09675    0.21229  0.41709  0.20770  0.20939
 
 
 The process method returns three sets of P values:
@@ -419,19 +422,24 @@ If iter0 is provided,
 .. doctest::
 
     >>> # generate interacting variables to condition on
-    >>> random = RandomState(1)
-    >>> inter0 = random.randn(pheno.shape[0], 1)
-
+    >>> E0 = random.randn(y.shape[0], 1)
+    >>>
     >>> # generate interacting variables to test
-    >>> inter = random.randn(pheno.shape[0], 1)
-
+    >>> E1 = random.randn(y.shape[0], 1)
+    >>>
     >>> # add additive environment as covariate
-    >>> _covs = sp.concatenate([covs, inter0, inter], 1)
-
+    >>> ME = concatenate([M, E0, E1], axis=1)
+    >>>
     >>> # interaction test
-    >>> lmi = GWAS_LMM(pheno, covs=covs, inter=inter, inter0=inter0, verbose=True)
-    >>> res = lmi.process(snps)
-    >>> print(res.head())
+    >>> r = st_iscan(snps, y[:, newaxis], M=ME, E1=E1, E0=E0, verbose=False)
+    >>> print(r.head())
+           pv1      pv0       pv     lrt1     lrt0      lrt
+    0  0.36534  0.22031  0.47451  2.01383  1.50237  0.51146
+    1  0.28558  0.15232  0.49876  2.50648  2.04891  0.45757
+    2  0.18256  0.07701  0.60042  3.40136  3.12700  0.27436
+    3  0.61833  0.57460  0.42139  0.96148  0.31504  0.64644
+    4  0.71350  0.47786  0.67886  0.67515  0.50374  0.17142
+
 
 
 Struct-LMM
@@ -462,26 +470,22 @@ where
     \boldsymbol{\psi}\sim\mathcal{N}(\mathbf{0}, \sigma_n^2\mathbf{I}_N)
 
 
-.. testcode::
+.. doctest::
 
-    from limix.qtl import GWAS_StructLMM
+    >>> from limix.qtl import st_sscan
+    >>>
+    >>> envs = random.randn(y.shape[0], 10)
+    >>>
+    >>> r = st_sscan(snps[:, :5], y[:, newaxis], envs, tests=['inter', 'assoc'],
+    ...              verbose=False)
+    >>> print(r.head())
+           pvi      pva
+    0  0.05753  0.05925
+    1  0.14415  0.17995
+    2  0.22886  0.34244
+    3  0.69552  0.82283
+    4  0.59211  0.82515
 
-    random = RandomState(1)
-    envs = random.randn(pheno.shape[0], 30)
-
-    slmm = GWAS_StructLMM(pheno, envs, covs=covs, tests=['inter', 'assoc'],
-                          verbose=True)
-    res = slmm.process(snps[:,:5])
-    print(res.head())
-
-.. testoutput::
-
-            pvi       pva
-    0  0.991105  0.926479
-    1  0.956181  0.984790
-    2  0.954051  0.989192
-    3  0.997851  0.393730
-    4  0.946831  0.375530
 
 The process method returns two sets of P values:
 (i) ``pvi`` are the interaction P values,

@@ -14,7 +14,8 @@ Classes
 
 from ._st_scan import st_scan
 from ._st_iscan import st_iscan
+from ._st_sscan import st_sscan
 from ._model import QTLModel
-from ._gwas import GWAS_StructLMM, GWAS_MTLMM
+from ._gwas import GWAS_MTLMM
 
-__all__ = ["st_scan", "st_iscan", "QTLModel", "GWAS_MTLMM", "GWAS_StructLMM"]
+__all__ = ["st_scan", "st_iscan", "st_sscan", "QTLModel", "GWAS_MTLMM"]
