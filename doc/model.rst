@@ -35,10 +35,10 @@ from limix.qtl import GWAS_StructLMM
 random = RandomState(1)
 envs = random.randn(pheno.shape[0], 30)
 slmm = GWAS_StructLMM(pheno, envs, covs=covs, tests=['inter', 'assoc'],
-                      verbose=True)
+verbose=True)
 res = slmm.process(snps[:,:5])
 print(res.head())
-        pvi       pva
+pvi       pva
 0  0.991105  0.926479
 1  0.956181  0.984790
 2  0.954051  0.989192
