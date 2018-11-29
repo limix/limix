@@ -2,6 +2,7 @@ from limix._display import session_line
 
 from .._data import conform_dataset
 from .._display import session_block
+from collections import OrderedDict
 
 
 def st_iscan(G, y, K=None, M=None, E0=None, E1=None, W_R=None, verbose=True):
@@ -142,7 +143,7 @@ def _process(lmm, lmm0, snps, E0, E1):
     if E1 is None:
 
         lmm.process(snps)
-        RV = {}
+        RV = OrderedDict()
         RV["pv"] = lmm.getPv()
         RV["beta"] = lmm.getBetaSNP()
         RV["beta_ste"] = lmm.getBetaSNPste()
@@ -162,7 +163,7 @@ def _process(lmm, lmm0, snps, E0, E1):
         lrt = lrt1 - lrt0
         pv = chi2(E1.shape[1] - E0.shape[1]).sf(lrt)
 
-        RV = {}
+        RV = OrderedDict()
         RV["pv1"] = lmm.getPv()
         RV["pv0"] = lmm0.getPv()
         RV["pv"] = pv

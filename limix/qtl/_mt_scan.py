@@ -2,6 +2,7 @@ from limix._display import session_line
 
 from .._data import conform_dataset
 from .._display import session_block
+from collections import OrderedDict
 
 
 def mt_scan(G, Y, M=None, K=None, Ac=None, Asnps=None, Asnps0=None, verbose=True):
@@ -90,7 +91,7 @@ def mt_scan(G, Y, M=None, K=None, Ac=None, Asnps=None, Asnps0=None, verbose=True
             if Asnps0 is None:
 
                 lmm.process(G)
-                RV = {}
+                RV = OrderedDict()
                 RV["pv"] = lmm.getPv()
                 RV["lrt"] = lmm.getLRT()
 
@@ -105,7 +106,7 @@ def mt_scan(G, Y, M=None, K=None, Ac=None, Asnps=None, Asnps0=None, verbose=True
                 lrt = lrt1 - lrt0
                 pv = chi2(Asnps.shape[1] - Asnps0.shape[1]).sf(lrt)
 
-                RV = {}
+                RV = OrderedDict()
                 RV["pv1"] = lmm.getPv()
                 RV["pv0"] = lmm0.getPv()
                 RV["pv"] = pv

@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from limix._display import session_line
 
 from .._data import conform_dataset
@@ -70,4 +72,7 @@ def st_sscan(G, y, E, M=None, tests=None, verbose=True):
                     # association test
                     _pva[snp] = slmm.score_2_dof(x)
 
-    return DataFrame({"pvi": _pvi, "pva": _pva})
+    data = OrderedDict()
+    data["pvi"] = _pvi
+    data["pva"] = _pva
+    return DataFrame(data)
