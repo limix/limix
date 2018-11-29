@@ -491,63 +491,67 @@ The process method returns two sets of P values:
 Multi-trait association
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The multi-trait linear mixed model has the form:
+A multi-trait linear mixed model is still a LMM.
+Therefore, its equation
 
 .. math::
-    \mathbf{Y} =
-    \underbrace{\mathbf{F}\mathbf{B}\mathbf{A}^T_{\text{covs}}}_{\text{covariates}}+
-    \underbrace{\mathbf{g}\boldsymbol{\beta}^T\mathbf{A}^T_{\text{snps}}}_{\text{genetics}}+
-    \underbrace{\mathbf{U}}_{\text{random effect}},
-    \underbrace{\boldsymbol{\Psi}}_{\text{noise}},
 
-where :math:`\mathbf{Y}` is the :math:`\text{N$\times$P}` phenotype matrix,
-:math:`\mathbf{A}_{\text{covs}}` :math:`\text{P$\times$J}` is the trait design matrix of the covariates, and
-:math:`\mathbf{A}_{\text{snps}}` :math:`\text{P$\times$L}` is the trait design matrix of the variants.
+    \text{vec}(\mathbf{Y}) =
+    \underbrace{(\mathbf A_c \otimes \mathbf M) \text{vec}(\mathbf B_c)}_{\text{covariates}}+
+    \underbrace{(\mathbf A_g \otimes \mathbf G) \text{vec}(\mathbf B_g)}_{\text{genetics}}+
+    \underbrace{\text{vec}(\mathbf U)}_{\text{random effect}}+
+    \underbrace{\text{vec}(\boldsymbol\Psi)}_{\text{noise}}
+
+is equivalent to Eq. :eq:`eq_lmm` but structured in a different way.
+The columns of :math:`\mathbf Y` correspond to the different traits being
+considered.
+The columns of :math:`\mathbf Y` are stacked over each other and is denoted by
+:math:`\text{vec}(\mathbf Y)`.
+This is a linear transformation called vectorization [Ve19]_, and helps us
+describe the model in a more concise manner.
+
+The matrices :math:`\mathbf A_c` and :math:`\mathbf A_g` are design matrices for
+the covariates and genetic variants, respectively.
+The random effect component is defined by
 
 .. math::
-    \mathbf{U}\sim\text{MVN}\left(\mathbf{0},
-    \underbrace{\mathbf{R}}_{\text{mixed-model cov. (GRM)}},
-    \underbrace{\mathbf{C}_g}_{\text{trait (genetic) cov.}}
-    \right),
+
+    \text{vec}(\mathbf U)\sim\mathcal N(\mathbf 0, \mathbf C_0\otimes\mathbf K)
+
+and the residuals by
 
 .. math::
-    \boldsymbol{\Psi}\sim\text{MVN}\left(\mathbf{0},
-    \underbrace{\mathbf{I}}_{\text{identity cov.}},
-    \underbrace{\mathbf{C}_n}_{\text{residual trait cov.}}
-    \right)
+
+    \text{vec}(\boldsymbol\Psi)\sim\mathcal N(\mathbf 0, \mathbf C_1\otimes\mathbf I_n).
+
+As before, :math:`\mathbf M` is the covariates matrix and :math:`\mathbf G` is the matrix
+of genetic variants.
+The matrices :math:`\mathbf C_0` and :math:`\mathbf C_1` are two matrix-parameters and,
+us such, are fitted during the likelihood maximisation.
 
 Any-effect association test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-An any-effect association test corresponds to testing :math:`\boldsymbol{\beta}\neq{0}`
-with an ``eye`` snp trait design
+An any-effect association test corresponds to testing
+:math:`\boldsymbol\beta\neq\mathbf 0` with :math:`\mathbf A_g = \mathbf I`.
 
-.. testcode::
+.. doctest::
 
-    from limix.qtl import GWAS_MTLMM
-
-    P = 4
-    random = RandomState(1)
-    phenos = random.randn(pheno.shape[0], P)
-
-    Asnps = sp.eye(P)
-    mtlmm = GWAS_MTLMM(phenos, covs=covs, Asnps=Asnps, eigh_R=(S_R, U_R), verbose=True)
-    res = mtlmm.process(snps)
-    print(res.head())
-
-.. testoutput::
-
-    Marginal likelihood optimization.
-    ('Converged:', True)
-    Time elapsed: 0.25 s
-    Log Marginal Likelihood: 540.8991353.
-    Gradient norm: 0.0037459.
-             pv
-    0  0.588783
-    1  0.517333
-    2  0.715508
-    3  0.727924
-    4  0.859793
+    >>> from limix.qtl import mt_scan
+    >>> from numpy import eye
+    >>>
+    >>> p = 4
+    >>> Y = random.randn(y.shape[0], p)
+    >>>
+    >>> Asnps = eye(p)
+    >>> r = mt_scan(G, Y, M=M, Asnps=Asnps, K=K, verbose=False)
+    >>> print(r.head())
+            pv      lrt
+    0  0.79718  1.66438
+    1  0.16840  6.44334
+    2  0.30726  4.81090
+    3  0.46639  3.57615
+    4  0.40613  3.99906
 
 
 Common and interaction tests
@@ -562,27 +566,17 @@ a same effect model (same effect size for all analyzed traits).
 In this example, the choices of ``Asnps`` and ``Asnps0``
 are ``sp.eye(P)`` and ``sp.ones([P, 1])``, respectively.
 
-.. testcode::
+.. doctest::
 
-    Asnps = sp.eye(P)
-    Asnps0 = sp.ones([P, 1])
-    mtlmm = GWAS_MTLMM(phenos, covs=covs, Asnps=Asnps, Asnps0=Asnps0, eigh_R=(S_R, U_R), verbose=True)
-    res = mtlmm.process(snps)
-    print(res.head())
-
-.. testoutput::
-
-    Marginal likelihood optimization.
-    ('Converged:', True)
-    Time elapsed: 0.25 s
-    Log Marginal Likelihood: 540.8991353.
-    Gradient norm: 0.0037459.
-            pv1       pv0        pv
-    0  0.588783  0.347447  0.586021
-    1  0.517333  0.369855  0.485662
-    2  0.715508  0.504226  0.644940
-    3  0.727924  0.249909  0.868777
-    4  0.859793  0.772237  0.746886
+    >>> Asnps0 = eye(p)
+    >>> r = mt_scan(G, Y, K=K, Ac=None, Asnps=Asnps, Asnps0=Asnps0, verbose=False)
+    >>> print(r.head())
+           pv1      pv0       pv     lrt1     lrt0      lrt
+    0  0.79947  0.79947      nan  1.65169  1.65169  0.00000
+    1  0.15318  0.15318      nan  6.69035  6.69035  0.00000
+    2  0.27312  0.27312      nan  5.14113  5.14113  0.00000
+    3  0.41205  0.41205      nan  3.95560  3.95560  0.00000
+    4  0.39952  0.39952      nan  4.04825  4.04825  0.00000
 
 The process method returns three sets of P values:
 (i) ``pv0`` are P values for the association test with snp trait design `Asnps0`,
@@ -1045,3 +1039,6 @@ and an any-vs-same effect test.
 .. [LRT]   Wikipedia contributors. (2018, June 6). Likelihood-ratio test. In Wikipedia,
            The Free Encyclopedia. Retrieved 13:50, July 26, 2018, from
            https://en.wikipedia.org/w/index.php?title=Likelihood-ratio_test&oldid=844734768
+.. [Ve19]  Wikipedia contributors. (2018, September 11). Vectorization (mathematics).
+           In Wikipedia, The Free Encyclopedia. Retrieved 16:18, November 28, 2018,
+           from https://en.wikipedia.org/w/index.php?title=Vectorization_(mathematics)&oldid=859035294
