@@ -41,7 +41,7 @@ def mt_scan(G, Y, M=None, K=None, Ac=None, Asnps=None, Asnps0=None, verbose=True
     """
     from pandas import DataFrame
     from scipy.stats import chi2
-    from numpy import ones, eye, cov, asarray
+    from numpy import eye, cov, asarray
     from scipy.linalg import eigh
     from limix_core.gp import GP2KronSum
     from limix_core.covar import FreeFormCov
