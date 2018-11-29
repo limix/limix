@@ -29,27 +29,21 @@ where
 .. math::
     \boldsymbol{\psi}\sim\mathcal{N}(\mathbf{0}, \sigma_n^2\mathbf{I}_N)
 
+It will be a doctest.
 
-.. testcode::
-
-    from limix.qtl import GWAS_StructLMM
-
-    random = RandomState(1)
-    envs = random.randn(pheno.shape[0], 30)
-
-    slmm = GWAS_StructLMM(pheno, envs, covs=covs, tests=['inter', 'assoc'],
-                          verbose=True)
-    res = slmm.process(snps[:,:5])
-    print(res.head())
-
-.. testoutput::
-
-            pvi       pva
-    0  0.991105  0.926479
-    1  0.956181  0.984790
-    2  0.954051  0.989192
-    3  0.997851  0.393730
-    4  0.946831  0.375530
+from limix.qtl import GWAS_StructLMM
+random = RandomState(1)
+envs = random.randn(pheno.shape[0], 30)
+slmm = GWAS_StructLMM(pheno, envs, covs=covs, tests=['inter', 'assoc'],
+                      verbose=True)
+res = slmm.process(snps[:,:5])
+print(res.head())
+        pvi       pva
+0  0.991105  0.926479
+1  0.956181  0.984790
+2  0.954051  0.989192
+3  0.997851  0.393730
+4  0.946831  0.375530
 
 The process method returns two sets of P values:
 (i) ``pvi`` are the interaction P values,
