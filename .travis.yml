@@ -1,6 +1,5 @@
 language: python
 python:
-  - 2.7
   - 3.6
 env:
   - PKG_NAME=limix
@@ -22,8 +21,9 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy setuptools pytest pip matplotlib cython netcdf4
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy setuptools pytest pip matplotlib cython netcdf4 ipython
   - source activate test-environment
+  - conda update --all --yes
   - pip install -U pip -q
 
 install:

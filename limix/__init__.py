@@ -28,7 +28,7 @@ at https://limix.readthedocs.io/.
 """
 from __future__ import absolute_import as _
 
-__version__ = "2.0.0a3"
+__version__ = "2.0.0"
 
 from . import glmm, her, io, plot, qc, qtl, sh, stats, example
 from ._cli import cli

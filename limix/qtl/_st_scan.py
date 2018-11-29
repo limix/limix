@@ -11,8 +11,8 @@ from ..qc._lik import normalise_extreme_values
 from ._model import QTLModel
 
 
-def scan(G, y, lik, K=None, M=None, verbose=True):
-    r"""Single-variant association testing via generalised linear mixed models.
+def st_scan(G, y, lik, K=None, M=None, verbose=True):
+    r""" Single-variant association testing via generalised linear mixed models.
 
     It supports Normal (linear mixed model), Bernoulli, Probit, Binomial, and Poisson
     residual errors, defined by ``lik``.
@@ -60,7 +60,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>> from numpy.random import RandomState
         >>> from pandas import DataFrame
         >>> import pandas as pd
-        >>> from limix.qtl import scan
+        >>> from limix.qtl import st_scan
         >>>
         >>> random = RandomState(1)
         >>> pd.options.display.float_format = "{:9.6f}".format
@@ -81,7 +81,7 @@ def scan(G, y, lik, K=None, M=None, verbose=True):
         >>>
         >>> y = random.poisson(exp(random.randn(n)))
         >>>
-        >>> model = scan(candidates, y, 'poisson', K, M=M, verbose=False)
+        >>> model = st_scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
         >>> model.variant_pvalues.to_dataframe()  # doctest: +FLOAT_CMP
                          pv

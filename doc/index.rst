@@ -16,7 +16,7 @@ Limix's documentation
    her
    qc
    qtl
-   gwas
+   model
    sh
    stats
    tutorials/index

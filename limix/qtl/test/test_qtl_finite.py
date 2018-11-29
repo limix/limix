@@ -4,7 +4,7 @@ import pytest
 from numpy import dot, nan, sqrt, zeros
 from numpy.random import RandomState
 
-from limix.qtl import scan
+from limix.qtl import st_scan
 
 
 def test_qtl_finite():
@@ -27,15 +27,15 @@ def test_qtl_finite():
 
     successes[0] = nan
     with pytest.raises(ValueError):
-        scan(X, successes, ("binomial", ntrials), K, verbose=False)
+        st_scan(X, successes, ("binomial", ntrials), K, verbose=False)
     successes[0] = 1.0
 
     K[0, 0] = nan
     with pytest.raises(ValueError):
-        scan(X, successes, ("binomial", ntrials), K, verbose=False)
+        st_scan(X, successes, ("binomial", ntrials), K, verbose=False)
     K[0, 0] = 1.0
 
     X[0, 0] = nan
     with pytest.raises(ValueError):
-        scan(X, successes, ("binomial", ntrials), K, verbose=False)
+        st_scan(X, successes, ("binomial", ntrials), K, verbose=False)
     X[0, 0] = 1.0

@@ -4,7 +4,7 @@ from numpy import dot, sqrt, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
-from limix.qtl import scan
+from limix.qtl import st_scan
 
 
 def test_qtl_glmm_binomial():
@@ -22,7 +22,7 @@ def test_qtl_glmm_binomial():
         for _ in range(nt):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
-    lmm = scan(X, successes, ("binomial", ntrials), K, verbose=False)
+    lmm = st_scan(X, successes, ("binomial", ntrials), K, verbose=False)
     pv = lmm.variant_pvalues
     assert_allclose(pv, [0.409114, 0.697728], atol=1e-6, rtol=1e-6)
 
@@ -43,7 +43,7 @@ def test_qtl_glmm_wrong_dimensions():
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
     M = random.randn(49, 2)
-    scan(X, successes, ("binomial", ntrials), K, M=M, verbose=False)
+    st_scan(X, successes, ("binomial", ntrials), K, M=M, verbose=False)
 
 
 def test_qtl_glmm_bernoulli():
@@ -61,7 +61,7 @@ def test_qtl_glmm_bernoulli():
         for _ in range(nt):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
-    lmm = scan(X, successes, "bernoulli", K, verbose=False)
+    lmm = st_scan(X, successes, "bernoulli", K, verbose=False)
     pv = lmm.variant_pvalues
     assert_allclose(pv, [0.3826766843951428, 0.3920631069390206], atol=1e-5, rtol=1e-5)
 
@@ -80,6 +80,6 @@ def test_qtl_glmm_bernoulli_nokinship():
         for _ in range(nt):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
-    lmm = scan(X, successes, "bernoulli", verbose=False)
+    lmm = st_scan(X, successes, "bernoulli", verbose=False)
     pv = lmm.variant_pvalues
     assert_allclose(pv, [0.9259612341394918, 0.1767987580861164], atol=1e-5, rtol=1e-5)

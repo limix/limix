@@ -18,4 +18,3 @@ It will handle all the necessary dependencies and should work for GNU/Linux
 distributions, MacOS, and Windows.
 
 .. _conda: http://conda.pydata.org/docs/index.html
-.. _pip: https://pypi.python.org/pypi/pip
