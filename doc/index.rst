@@ -1,28 +1,30 @@
-=====================
+#####################
 Limix's documentation
-=====================
+#####################
+
+:Date: |today|
+:Version: |version|
 
 .. toctree::
    :caption: Table of contents
    :name: mastertoc
    :maxdepth: 2
 
-   install
+   installation
    cmd
-   qtl
-   heritability
-   vardec
-   mtset
-   iset
    io
+   her
+   qc
+   qtl
+   model
+   sh
    stats
-   plot
-   util
-   data
+   tutorials/index
+   api
+   dev
 
-*****************
 Comments and bugs
-*****************
+=================
 
 You can get the source and open issues `on Github.`_
 

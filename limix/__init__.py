@@ -1,46 +1,57 @@
 r"""
-*************
 limix package
-*************
+=============
 
-A flexible and fast mixed model toolbox.
+A flexible and fast generalised mixed model toolbox.
 
+Modules
+-------
+cmd
+    Command line interface.
+her
+    Genetic heritability estimation.
+io
+    Functions for reading common files used in genetics.
+plot
+    Visualization of data and results for genetic analysis.
+qc
+    Quality control for genetic data sets.
+qtl
+    Quantitative trait locus analysis.
+gwas
+    Methods for GWAS and QTL mapping.
+stats
+    PCA, confusion matrix, p-value correction, and others.
+
+The official documentation together with examples and tutorials can be found
+at https://limix.readthedocs.io/.
 """
+from __future__ import absolute_import as _
 
-from __future__ import absolute_import as _absolute_import
+__version__ = "2.0.0"
 
-import limix_core as core
-from pkg_resources import DistributionNotFound as _DistributionNotFound
-from pkg_resources import get_distribution as _get_distribution
-
-from . import (heritability, io, iset, mtset, plot, qtl, scripts, stats, util,
-               vardec)
-
-try:
-    __version__ = _get_distribution('limix').version
-except _DistributionNotFound:
-    __version__ = 'unknown'
-
-
-def test():
-    import os
-    p = __import__('limix').__path__[0]
-    src_path = os.path.abspath(p)
-    old_path = os.getcwd()
-    os.chdir(src_path)
-
-    try:
-        return_code = __import__('pytest').main(['-q', '--doctest-modules'])
-    finally:
-        os.chdir(old_path)
-
-    if return_code == 0:
-        print("Congratulations. All tests have passed!")
-
-    return return_code
+from . import glmm, her, io, plot, qc, qtl, sh, stats, example
+from ._cli import cli
+from ._config import config
+from ._testit import test
+from . import threads
 
 
 __all__ = [
-    'test', 'core', 'io', 'plot', 'qtl', 'stats', 'util', 'vardec', 'mtset',
-    'iset', 'scripts', 'heritability'
+    "__version__",
+    "cli",
+    "config",
+    "example",
+    "glmm",
+    "her",
+    "io",
+    "main",
+    "plot",
+    "qc",
+    "qtl",
+    "threads",
+    "gwas",
+    "sh",
+    "stats",
+    "test",
 ]

@@ -1,47 +1,21 @@
-r"""
-**********************
-Single-variant testing
-**********************
+""" Quantitative trait locus.
 
-Linear models
-^^^^^^^^^^^^^
+Functions
+---------
+- st_scan
 
-.. autofunction:: limix.qtl.qtl_test_lm
-
-Linear mixed models
-^^^^^^^^^^^^^^^^^^^
-
-.. autofunction:: limix.qtl.qtl_test_lmm
-.. autofunction:: limix.qtl.qtl_test_interaction_lmm
-.. autofunction:: limix.qtl.qtl_test_lmm_kronecker
-.. autofunction:: limix.qtl.qtl_test_interaction_lmm_kronecker
-.. autofunction:: limix.qtl.forward_lmm
-.. autoclass:: limix.qtl.LMM
-  :members:
-
-Generalised linear mixed models
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autofunction:: limix.qtl.qtl_test_glmm
-
+Classes
+-------
+- QTLModel
+- GWAS_LMM
+- GWAS_MTLMM
 """
 
-from .qtl import qtl_test_lm
-from .qtl import qtl_test_lmm
-from .qtl import qtl_test_lmm_kronecker
-from .qtl import qtl_test_interaction_lmm_kronecker
-from .qtl import qtl_test_interaction_lmm
-from .qtl import forward_lmm
-from .glmm import qtl_test_glmm
-from .lmm import LMM
 
-__all__ = [
-    "qtl_test_lm",
-    "qtl_test_lmm",
-    "qtl_test_lmm_kronecker",
-    "qtl_test_interaction_lmm_kronecker",
-    "qtl_test_interaction_lmm",
-    "forward_lmm",
-    "LMM",
-    "qtl_test_glmm",
-]
+from ._model import QTLModel
+from ._mt_scan import mt_scan
+from ._st_iscan import st_iscan
+from ._st_scan import st_scan
+from ._st_sscan import st_sscan
+
+__all__ = ["st_scan", "st_iscan", "st_sscan", "QTLModel", "mt_scan"]

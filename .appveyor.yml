@@ -1,0 +1,13 @@
+build: off
+clone_depth: 4
+platform: x64
+configuration: Release
+
+environment:
+  PKG_NAME: limix
+  PYTHON: "C:\\Python36-x64"
+  ARCH: x64
+
+build_script:
+  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - powershell -Command "(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/horta/ci/master/appveyor.bat', 'appveyor.bat')" && appveyor.bat

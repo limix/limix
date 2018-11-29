@@ -1,78 +1,62 @@
-# Limix
+# limix
 
-[![PyPI-License](https://img.shields.io/pypi/l/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/)
-[![PyPI-Version](https://img.shields.io/pypi/v/limix.svg?style=flat-square)](https://pypi.python.org/pypi/limix/)
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/limix/badges/version.svg)](https://anaconda.org/conda-forge/limix)
-[![Documentation Status](https://readthedocs.org/projects/limix/badge/?style=flat-square&version=latest)](https://limix.readthedocs.io/)
+[![Travis](https://img.shields.io/travis/limix/limix.svg?style=flat-square&label=linux%20%2F%20macos%20build)](https://travis-ci.org/limix/limix) [![AppVeyor](https://img.shields.io/appveyor/ci/Horta/limix.svg?style=flat-square&label=windows%20build)](https://ci.appveyor.com/project/Horta/limix) [![Documentation](https://readthedocs.org/projects/limix/badge/?version=2.0.0&style=flat-square)](https://limix.readthedocs.io/en/2.0.0)
 
 Genomic analyses require flexible models that can be adapted to the needs of the user.
+
 Limix is a flexible and efficient linear mixed model library with interfaces to Python.
+It includes methods for
 
-Limix includes methods for
-- single-variant association and interaction testing,
-- variance decompostion analysis with linear mixed models,
-- association and interaction set tests,
-- as well as different utils for statistical analysis, basic i/o and plotting.
+- Single-variant association and interaction testing
+- Variance decompostion analysis with linear mixed models
+- Association and interaction set tests
+- Different utils for statistical analysis, basic i/o, and plotting.
 
-A description of the public interface is found at
-https://limix.readthedocs.io/.
-
-iPython notebook tutorials are available from github repository:
-https://github.com/limix/limix-tutorials.
-
-These tutorials can also be viewed using the ipython notebook viewer:
-http://nbviewer.ipython.org/github/limix/limix-tutorials/blob/master/index.ipynb.
-
-## ⚠️ Note
-
-Limix 2.0.0 is in the alpha stage but already functional.
-We thus recommend the user to first
-[give it a try](https://github.com/limix/limix/tree/2.0.0) before using the stable
-version 1.0.x.
-[Documentation and tutorials](https://limix.readthedocs.io/en/2.0.0) for 2.0.0 is
-already up and running.
-
-## Highlights
-
-- **iSet**: an interaction set test with external context
-  ([paper](http://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1006693))
-  ([public interface](http://limix.readthedocs.io/iSet.html))
-  ([tutorial](https://github.com/limix/limix-tutorials/tree/master/iSet))
-
-- **mtSet**: an efficient multi-trait set test
-  ([paper](http://www.nature.com/nmeth/journal/v12/n8/abs/nmeth.3439.html))
-  ([public interface](http://limix.readthedocs.io/mtSet.html))
-  ([tutorial](https://github.com/limix/limix-tutorials/tree/master/mtSet))
+The documentation can be found at  https://limix.readthedocs.io/en/develop.
 
 ## Install
 
-The recommended way of installing it is via
-[conda](http://conda.pydata.org/docs/index.html)
+The development version of limix can be installed on macOS and Linux via
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/limix/limix/2.0.0/install)
+```
+
+Stable versions of limix are installed via [conda](http://conda.pydata.org/docs/index.html) though
+
 ```bash
 conda install -c conda-forge limix
 ```
+
+It will handle all the necessary dependencies and should work for GNU/Linux
+distributions, MacOS, and Windows.
+
+An alternative way would be via [pip](https://pypi.python.org/pypi/pip)
+In this case, first you need to install [hcephes](https://github.com/limix/hcephes) and [liknorm](https://github.com/limix/liknorm) C libraries.
+Then,
 
 An alternative way would be via pip
 ```bash
 pip install limix
 ```
 
-In the second option, you will need to sort out some of
-its dependencies.
-At least the [liknorm](https://github.com/limix/liknorm) one.
+## Running the tests
 
-## Problems
+After installation, you can test it
 
-If you encounter any issue, please, [submit it](https://github.com/limix/limix/issues).
+```bash
+python -c "import limix; limix.test()"
+```
+
+as long as you have [pytest](https://docs.pytest.org/en/latest/).
 
 ## Authors
 
-* **Christoph Lippert** - [https://github.com/clippert](https://github.com/clippert)
-* **Danilo Horta** - [https://github.com/Horta](https://github.com/Horta)
-* **Francesco Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
-* **Oliver Stegle** - [https://github.com/ostegle](https://github.com/ostegle)
+* [Christoph Lippert](https://github.com/clippert)
+* [Danilo Horta](https://github.com/horta)
+* [Francesco Paolo Casale](https://github.com/fpcasale)
+* [Oliver Stegle](https://github.com/ostegle)
 
 ## License
 
-This project is licensed under the Apache License (Version 2.0, January 2004) -
-see the [LICENSE](LICENSE) file for details
+This project is licensed under the [Apache License License](https://raw.githubusercontent.com/limix/limix/2.0.0/LICENSE.md).

@@ -1,8 +1,18 @@
-from numpy import load
+from .._display import session_line as _session_line
 
 
-def see_kinship(filepath):
-    import limix
+def see(filepath, verbose=True):
+    # TODO: document
+    print(read(filepath, verbose=verbose))
 
-    K = load(filepath)
-    limix.plot.plot_kinship(K)
+
+def read(filepath, verbose=True):
+    from numpy import load
+
+    with _session_line("Reading {}...".format(filepath), disable=not verbose):
+        return load(filepath)
+
+
+def save(filepath, X, verbose=True):
+    with _session_line("Saving {}...".format(filepath), disable=not verbose):
+        save(filepath, X)

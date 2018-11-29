@@ -1,47 +1,44 @@
 language: python
-sudo: required
-dist: trusty
-services: docker
-git:
-  depth: 5
-cache:
-  pip: true
-  directories:
-  - "$HOME/bin"
-  - "$HOME/.download"
-matrix:
-  include:
-  - python: 2.7
-  - python: 3.5
-  - python: 3.6
-  - env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
-  - os: osx
-    language: generic
-    env: PYENV=py27
-  - os: osx
-    language: generic
-    env: PYENV=py35
-  - os: osx
-    language: generic
-    env: PYENV=py36
-before_install:
-- travis_retry bash <(curl -s https://raw.githubusercontent.com/limix/travis-tools/master/get-travis-tools.sh)
-- travis_retry travis/before-install.sh
-script:
-- travis_retry travis/script.sh
-after_success:
-- travis_retry travis/after-success.sh
-notifications:
-  email: false
+python:
+  - 3.6
 env:
-  global:
   - PKG_NAME=limix
-  - LIKNORM=true
-  - PY_DEPS="numpy scipy scikit-learn pandas h5py tables matplotlib numpy-sugar pandas-plink
-             limix-legacy limix-core sphinx_rtd_theme ncephes ndarray-listener liknorm-py
-             brent-search git+https://github.com/dask/partd git+https://github.com/dask/zict
-             git+https://github.com/dask/distributed git+https://github.com/mrocklin/sparse"
-  - secure: TGjO9nGH88bYMoRG3nBKYZn1Xj43/DzBK6lqWAL+2D7rd6jryPTSMy9R0luuqOUubhPCI7BpQVLKYXsRi0T0EGeRm4WbjQa2AD9TZlrvgRSWftMZ0U5UEvAoONMAsXV3CpND6Ey5yynRALjvt/4kH4a1IjIOwvSepxIwN7bGEFIXGyFq/scl65DT/7TFsv7UKzIKaOO6U9dq0vFekciCX+uuNF5pX7A8SMFrO6ydRfUtO47o9M+ieoGHgkQw0KyjD8wjbMa/2TXvpY6tAf8BnyYH8XhqJ7Tztzzc9Hbpxqr8b4LjnGr3UEfz6c0benzLufYwoQyi6T6T4ur1H19i0OS9LO/v9HrWkhuzx/15HH5b2GEZJK8DcnoWc/1csX5W9M3TbWhOIiCW8fyujVwcOznah7GW9cwPFuWP7+JZiw5E2B+u8ukkio9QsG7BV4+YJZCBevOGe70QNiEwUhF9E9TRyCXuQvORYv8nKIMoQ8GnujSEoHLmYMbdYEM/bLcOVfsfDOEWJPUvtBJ+Mmhz1DyMcS4qpUtStSu5Io38l1ZD7AdZ8iGGPkeYfF7ke4ZWQgx9CGrXVgYmyj016p0Z0mXr7GSDkhyIo4nhHb2EoH1rdW29T+GbSyz4Q9AtZNghkvZbYeFyvqsoWqXLn27dG91t7CZ7hT25gSag49VTbnA=
+    HDF5_USE_FILE_LOCKING=FALSE
+addons:
+  apt:
+    packages:
+      - libffi-dev
+      - libffi6
+before_install:
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy setuptools pytest pip matplotlib cython netcdf4 ipython
+  - source activate test-environment
+  - conda update --all --yes
+  - pip install -U pip -q
+
+install:
+  - source activate test-environment
+  - pip install -U setuptools pytest pytest-pycodestyle -q
+
+script:
+  - source activate test-environment
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis.sh)
+notifications:
+  email:
+    recipients:
+      - danilo.horta@gmail.com
+    on_success: never
+    on_failure: always
 deploy:
   provider: pypi
   server: https://upload.pypi.org/legacy/
@@ -52,3 +49,4 @@ deploy:
     tags: true
     repo: limix/limix
     branch: master
+    python: 3.6

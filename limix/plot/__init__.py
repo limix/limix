@@ -3,39 +3,51 @@ r"""
 Plotting utilities
 ******************
 
-Manhattan
-^^^^^^^^^
+This module is implemented by limix-plot_ package, from which we export
+the following functions and classes:
 
-.. autofunction:: limix.plot.plot_manhattan
+- :py:class:`~limix_plot.ConsensusCurve`
+- :py:func:`~limix_plot.box_aspect`
+- :py:func:`~limix_plot.image`
+- :py:func:`~limix_plot.kinship`
+- :py:func:`~limix_plot.load_dataset`
+- :py:func:`~limix_plot.manhattan`
+- :py:func:`~limix_plot.normal`
+- :py:func:`~limix_plot.pca`
+- :py:func:`~limix_plot.power`
+- :py:func:`~limix_plot.qqplot`
 
-QQ plot
-^^^^^^^
-
-.. autofunction:: limix.plot.qqplot
-
-Power plots
-^^^^^^^^^^^
-
-.. autofunction:: limix.plot.plot_power_curve
-
-Kinship
-^^^^^^^
-
-.. autofunction:: limix.plot.plot_kinship
-
-Normal distribution
-^^^^^^^^^^^^^^^^^^^
-
-.. autofunction:: limix.plot.plot_normal
-
+.. _limix-plot: https://limix-plot.readthedocs.io/
 """
+from __future__ import absolute_import
 
-from .plot_normal import plot_normal
-from .qqplot import qqplot
-from .manhattan import plot_manhattan
-from .kinship import plot_kinship
-from .image import see_image
-from .power import plot_power_curve
+from limix_plot import (
+    ConsensusCurve,
+    box_aspect,
+    kinship,
+    load_dataset,
+    manhattan,
+    normal,
+    pca,
+    power,
+    qqplot,
+    image,
+    get_pyplot,
+    show,
+)
 
-__all__ = ['plot_manhattan', 'qqplot', 'plot_normal', 'plot_kinship',
-           'see_image', 'plot_power_curve']
+__all__ = [
+    "box_aspect",
+    "ConsensusCurve",
+    "image",
+    "kinship",
+    "load_dataset",
+    "manhattan",
+    "normal",
+    "pca",
+    "power",
+    "qqplot",
+    "image",
+    "get_pyplot",
+    "show",
+]
