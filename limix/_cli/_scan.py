@@ -153,7 +153,9 @@ def scan(
         data = _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose)
 
     try:
-        model = limix.qtl.st_scan(data["G"], data["y"], lik, K=data["K"], verbose=verbose)
+        model = limix.qtl.st_scan(
+            data["G"], data["y"], lik, K=data["K"], verbose=verbose
+        )
     except Exception as e:
         print_exc(traceback.format_stack(), e)
         sys.exit(1)
