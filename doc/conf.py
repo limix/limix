@@ -1,8 +1,8 @@
-import os
-import sys
-import shutil
 import errno
-
+import os
+import shutil
+import sys
+import time
 from os.path import join
 
 import sphinx_rtd_theme
@@ -52,6 +52,7 @@ author = "Danilo Horta"
 
 version = _get_version()
 release = version
+today = time.strftime("%B %d, %Y")
 
 language = None
 
