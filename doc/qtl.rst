@@ -410,7 +410,7 @@ variants and environmental covariates defined by the user.
     >>>
     >>> # interaction test
     >>> res = st_iscan(snps, y[:, newaxis], M=ME, E1=E, verbose=False)
-    >>> print(res.head())
+    >>> print(res.head())  # doctest: +FLOAT_CMP
            pv1      pv0       pv    beta0  beta0_ste     lrt1     lrt0      lrt
     0  0.14584  0.06186  0.54644  0.36731    0.19671  3.85044  3.48671  0.36373
     1  0.81134  0.52514  0.90466  0.13994    0.22022  0.41813  0.40378  0.01435
@@ -445,7 +445,7 @@ If iter0 is provided,
     >>>
     >>> # interaction test
     >>> r = st_iscan(snps, y[:, newaxis], M=ME, E1=E1, E0=E0, verbose=False)
-    >>> print(r.head())
+    >>> print(r.head())  # doctest: +FLOAT_CMP
            pv1      pv0       pv     lrt1     lrt0      lrt
     0  0.36534  0.22031  0.47451  2.01383  1.50237  0.51146
     1  0.28558  0.15232  0.49876  2.50648  2.04891  0.45757
@@ -487,7 +487,7 @@ where
     >>>
     >>> r = st_sscan(snps[:, :5], y[:, newaxis], E, tests=['inter', 'assoc'],
     ...              verbose=False)
-    >>> print(r.head())
+    >>> print(r.head())  # doctest: +FLOAT_CMP
            pvi      pva
     0  0.05753  0.05925
     1  0.14415  0.17995
@@ -558,7 +558,7 @@ An any-effect association test corresponds to testing
     >>>
     >>> Asnps = eye(p)
     >>> r = mt_scan(G, Y, M=M, Asnps=Asnps, K=K, verbose=False)
-    >>> print(r.head())
+    >>> print(r.head())  # doctest: +FLOAT_CMP
             pv      lrt
     0  0.79718  1.66438
     1  0.16840  6.44334
@@ -584,7 +584,7 @@ are ``sp.eye(P)`` and ``sp.ones([P, 1])``, respectively.
 
     >>> Asnps0 = eye(p)
     >>> r = mt_scan(G, Y, K=K, Ac=None, Asnps=Asnps, Asnps0=Asnps0, verbose=False)
-    >>> print(r.head())
+    >>> print(r.head())  # doctest: +FLOAT_CMP
            pv1      pv0       pv     lrt1     lrt0      lrt
     0  0.79947  0.79947      nan  1.65169  1.65169  0.00000
     1  0.15318  0.15318      nan  6.69035  6.69035  0.00000
