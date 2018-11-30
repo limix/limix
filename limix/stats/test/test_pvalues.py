@@ -1,5 +1,4 @@
-from limix.stats import empirical_pvalues
-from limix.stats.pvalue import multipletests
+from limix.stats import empirical_pvalues, multipletests
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
@@ -21,7 +20,18 @@ def test_multipletests():
     random = RandomState(5)
 
     pv = multipletests(random.chisquare(1, 10))[1]
-    assert_allclose(pv, [
-        0.56399935, 0.55249248, 0.96090415, 0.99606969, 0.74247325, 0.12299317,
-        1., 0.91970786, 0.99606969, 0.99595594
-    ])
+    assert_allclose(
+        pv,
+        [
+            0.56399935,
+            0.55249248,
+            0.96090415,
+            0.99606969,
+            0.74247325,
+            0.12299317,
+            1.0,
+            0.91970786,
+            0.99606969,
+            0.99595594,
+        ],
+    )

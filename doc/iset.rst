@@ -1,0 +1,2 @@
+.. automodule:: limix.iset
+  :members:

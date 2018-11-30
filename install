@@ -10,7 +10,7 @@ function yes_or_no {
     done
 }
 
-echo "[0/4] Installing development limix version"
+echo "[0/4] Installing development limix 2.0.0 version"
 
 
 if [ command -v python >/dev/null 2>&1 ]
@@ -90,7 +90,7 @@ silent_run pip uninstall limix --yes
 silent_run pip uninstall limix --yes
 
 echo -n "[1/4] Cloning repository... "
-silent_run git clone -b develop $GIT_URL $GIT_FOLDER
+silent_run git clone -b 2.0.0 $GIT_URL $GIT_FOLDER
 cd $GIT_FOLDER
 [ $? == 0 ] && echo "done." || failed
 
@@ -112,7 +112,7 @@ silent_run install_deps
 echo -n "[3/4] Installing Python dependencies... "
 if [[ $USE_CONDA == "yes" ]]
 then
-    silent_run conda install --yes numpy
+    silent_run conda install --yes numpy scipy matplotlib netcdf4 h5py xarray
 else
     silent_run pip install numpy
 fi

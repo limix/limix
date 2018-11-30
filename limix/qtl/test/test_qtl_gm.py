@@ -4,7 +4,7 @@ from numpy import dot, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
-from limix.qtl import scan
+from limix.qtl import st_scan
 
 
 def test_qtl_gmm_binomial():
@@ -20,8 +20,6 @@ def test_qtl_gmm_binomial():
         for _ in range(ntrials[i]):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
-    y = (successes, ntrials)
-
-    lmm = scan(X, y, 'binomial', verbose=False)
+    lmm = st_scan(X, successes, ("binomial", ntrials), verbose=False)
     pv = lmm.variant_pvalues
     assert_allclose(pv, [3.527941e-01, 6.197322e-12], rtol=1e-5, atol=1e-5)

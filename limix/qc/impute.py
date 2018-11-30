@@ -1,23 +1,5 @@
 from __future__ import division
 
-from numpy import isnan, nanmean
-
-
-def _get_imputer(m):
-    def impute(X):
-        A = X.copy()
-
-        isn = isnan(A)
-        A[:] = 0
-        A[isn] = 1
-
-        X[isn] = 0
-        X += A * m
-
-        return X
-
-    return impute
-
 
 def mean_impute(X):
     r"""Column-wise impute ``NaN`` values by column mean.
@@ -56,21 +38,67 @@ def mean_impute(X):
     .. _Dask: https://dask.pydata.org/
     """
     import dask.array as da
+    import xarray as xr
 
     if isinstance(X, da.Array):
-        m = da.nanmean(X, axis=0).compute()
-        start = 0
+        X = _impute_dask_array(X)
 
-        arrs = []
-        for i in range(len(X.chunks[1])):
-            end = start + X.chunks[1][i]
-            impute = _get_imputer(m[start:end])
-            arrs.append(X[:, start:end].map_blocks(impute, dtype=float))
-            start = end
-        X = da.concatenate(arrs, axis=1)
+    elif isinstance(X, xr.DataArray):
+        data = X.data
+
+        if isinstance(data, da.Array):
+            data = _impute_dask_array(data)
+        else:
+            data = _impute_ndarray(data)
+
+        X.data = data
     else:
-        m = nanmean(X, axis=0)
-        for i, mi in enumerate(m):
-            X[isnan(X[:, i]), i] = mi
+        if hasattr(X, "values"):
+            x = X.values
+        else:
+            x = X
+        x = _impute_ndarray(x)
 
     return X
+
+
+def _impute_ndarray(x):
+    from numpy import isnan, nanmean
+
+    m = nanmean(x, axis=0)
+    for i, mi in enumerate(m):
+        x[isnan(x[:, i]), i] = mi
+    return x
+
+
+def _impute_dask_array(x):
+    import dask.array as da
+
+    m = da.nanmean(x, axis=0).compute()
+    start = 0
+
+    arrs = []
+    for i in range(len(x.chunks[1])):
+        end = start + x.chunks[1][i]
+        impute = _get_imputer(m[start:end])
+        arrs.append(x[:, start:end].map_blocks(impute, dtype=float))
+        start = end
+    return da.concatenate(arrs, axis=1)
+
+
+def _get_imputer(m):
+    from numpy import isnan
+
+    def impute(X):
+        A = X.copy()
+
+        isn = isnan(A)
+        A[:] = 0
+        A[isn] = 1
+
+        X[isn] = 0
+        X += A * m
+
+        return X
+
+    return impute

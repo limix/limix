@@ -1,13 +1,11 @@
-.. _ipython_directive:
-
 eQTL
 ^^^^
 
 This tutorial illustrates the use of limix to analyse expression datasets.
-For this illustration, we consider gene expression levels from a yeast genetics
-study with freely available data . These data span 109 individuals with 2,956
-marker SNPs and expression levels for 5,493 in glucose and ethanol growth media
-respectively.
+We consider gene expression levels from a yeast genetics
+study with freely available data.
+This data set span 109 individuals with 2,956 marker SNPs and expression
+levels for 5,493 in glucose and ethanol growth media respectively.
 It is based on the `eQTL basics tutorial`_ of limix 1.0, which is now
 deprecated.
 
@@ -16,12 +14,14 @@ deprecated.
 Importing limix
 ---------------
 
-.. ipython::
+.. plot::
+    :context:
 
-    In [1]: import limix
+    >>> from __future__ import unicode_literals
+    >>> import limix
 
-Downloading the data
---------------------
+Downloading data
+----------------
 
 We are going to use a HDF5 file containg phenotype and genotyped data from
 a remote repository.
@@ -29,23 +29,15 @@ Limix provides some handy utilities to perform common command line tasks,
 like as downloading and extracting files.
 However, feel free to use whatever method you prefer.
 
-.. ipython::
+.. plot::
+    :context:
 
-    In [2]: url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
-
-    In [3]: limix.download(url, verbose=False)
-
-    @doctest
-    In [4]: print(limix.filehash("smith08.hdf5.bz2"))
+    >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
+    >>> limix.sh.download(url, verbose=False)
+    >>> print(limix.sh.filehash("smith08.hdf5.bz2"))
     aecd5ebabd13ed2e38419c11d116e8d582077212efb37871a50c3a08fadb2ee1
-
-    In [5]: limix.extract("smith08.hdf5.bz2", verbose=False)
-
-    In [6]: print(limix.filehash("smith08.hdf5"))
-    4648f596249ee2e3e60b9cd024d6f1af257079d39b2bff5192407a30de989266
-
-    @doctest
-    In [7]: limix.io.hdf5.see_hdf5("smith08.hdf5", verbose=False)
+    >>> _ = limix.sh.extract("smith08.hdf5.bz2", verbose=False)
+    >>> limix.io.hdf5.see("smith08.hdf5")
     /
       +--genotype
       |  +--col_header
@@ -67,33 +59,28 @@ However, feel free to use whatever method you prefer.
          +--matrix [float64, (109, 10986)]
          +--row_header
             +--sample_ID [int64, (109,)]
-
-    In [8]: data = limix.io.read_hdf5_limix("smith08.hdf5")
-
-    @doctest
-    In [9]: print(data['phenotype']['row_header'].head())
-       sample_ID  i
-    0          0  0
-    1          1  1
-    2          2  2
-    3          3  3
-    4          4  4
-
-    @doctest
-    In [10]: print(data['phenotype']['col_header'].head())
-       environment  gene_ID gene_chrom  gene_end  gene_start gene_strand  \
-    0          0.0  YOL161C         15     11548       11910           C
-    1          0.0  YJR107W         10    628319      627333           W
-    2          0.0  YPL270W         16     32803       30482           W
-    3          0.0  YGR256W          7   1006108     1004630           W
-    4          0.0  YDR518W          4   1480153     1478600           W
-
-      phenotype_ID  i
-    0    YOL161C:0  0
-    1    YJR107W:0  1
-    2    YPL270W:0  2
-    3    YGR256W:0  3
-    4    YDR518W:0  4
+    >>> data = limix.io.hdf5.read_limix("smith08.hdf5")
+    >>> Y = data['phenotype']
+    >>> G = data['genotype']
+    >>> print(Y)
+    <xarray.DataArray 'phenotype' (sample: 109, outcome: 10986)>
+    array([[-0.037339, -0.078165,  0.042936, ...,  0.095596, -0.132385, -0.274954],
+           [-0.301376,  0.066055,  0.338624, ..., -0.142661, -0.238349,  0.732752],
+           [ 0.002661,  0.121835, -0.137064, ..., -0.144404,  0.257615,  0.015046],
+           ...,
+           [-0.287339,  0.351835,  0.072936, ...,  0.097339, -0.038349,  0.162752],
+           [-0.577339,  0.011835, -0.007064, ...,  0.135596,  0.107615,  0.245046],
+           [-0.277339,  0.061835,  0.132936, ...,  0.015596, -0.142385, -0.124954]])
+    Coordinates:
+      * sample        (sample) int64 0 1 2 3 4 5 6 7 ... 102 103 104 105 106 107 108
+        environment   (outcome) float64 0.0 0.0 0.0 0.0 0.0 ... 1.0 1.0 1.0 1.0 1.0
+        gene_ID       (outcome) object 'YOL161C' 'YJR107W' ... 'YLR118C' 'YBR242W'
+        gene_chrom    (outcome) object '15' '10' '16' '7' '4' ... '3' '10' '12' '2'
+        gene_end      (outcome) int64 11548 628319 32803 ... 315049 384726 705381
+        gene_start    (outcome) int64 11910 627333 30482 ... 315552 385409 704665
+        gene_strand   (outcome) object 'C' 'W' 'W' 'W' 'W' ... 'W' 'W' 'C' 'C' 'W'
+        phenotype_ID  (outcome) object 'YOL161C:0' 'YJR107W:0' ... 'YBR242W:1'
+    Dimensions without coordinates: outcome
 
 Selecting gene YBR115C under the glucose condition
 --------------------------------------------------
@@ -101,25 +88,19 @@ Selecting gene YBR115C under the glucose condition
 Query for a specific phenotype, select the phenotype itself, and plot it.
 The glucose condition is given by the environment ``0``.
 
-.. ipython::
+header = data['phenotype']['col_header']
+query = "gene_ID=='YBR115C' and environment==0"
+idx = header.query(query).i.values
+y = data['phenotype']['matrix'][:, idx].ravel()
 
-    In [11]: header = data['phenotype']['col_header']
+.. plot::
+    :context:
 
-    In [12]: query = "gene_ID=='YBR115C' and environment==0"
-
-    In [13]: idx = header.query(query).i.values
-
-    In [14]: y = data['phenotype']['matrix'][:, idx].ravel()
-
-    @savefig yeast_pheno01.png width=5in
-    In [15]: limix.plot.plot_normal(y);
-
-
-This will clean up the figure for the next plot.
-
-.. ipython::
-
-    In [16]: limix.plot.clf()
+    >>> y = Y[:, (Y.gene_ID == "YBR115C") & (Y.environment==0)]
+    >>> y = y.stack(z=('sample', 'outcome')).reset_index('z')
+    >>> y = y.rename(z="sample")
+    >>> _ = limix.plot.normal(y)
+    >>> limix.plot.show()
 
 Genetic relatedness matrix
 --------------------------
@@ -127,16 +108,12 @@ Genetic relatedness matrix
 The genetic relatedness will be determined by the inner-product of SNP
 readings between individuals, and the result will be visualised via heatmap.
 
-.. ipython::
+.. plot::
+    :context:
 
-    In [17]: G = data['genotype']['matrix']
-
-    In [18]: K = limix.stats.linear_kinship(G, verbose=False)
-
-    @savefig yeast_kinship01.png width=5in
-    In [19]: limix.plot.plot_kinship(K);
-
-    In [20]: limix.plot.clf()
+    >>> K = limix.stats.linear_kinship(G.values, verbose=False)
+    >>> _ = limix.plot.kinship(K)
+    >>> limix.plot.show()
 
 Univariate association test with linear mixed model
 ---------------------------------------------------
@@ -151,124 +128,138 @@ name and base-pair position.
 However, it is often the case that SNP IDs are provided along with the
 data, which can naturally be used for naming those candidates.
 
-.. ipython::
+.. plot::
+    :context:
 
-    In [21]: print(data['genotype']['col_header'].head())
-    chrom   pos  pos_cum  i
-    0      1   483      483  0
-    1      1   484      484  1
-    2      1  3220     3220  2
-    3      1  3223     3223  3
-    4      1  3232     3232  4
-
-    In [22]: from pandas import DataFrame
-
-    In [23]: chrom = data['genotype']['col_header']['chrom']
-
-    In [24]: pos = data['genotype']['col_header']['pos']
-
-    In [25]: candidate_ids = ["c{}_p{}".format(c, p) for c, p in zip(chrom, pos)]
-
-    In [26]: G = DataFrame(G, columns=candidate_ids)
-
-    In [27]: print(G.head())
-    c1_p483  c1_p484  c1_p3220  c1_p3223  c1_p3232  c1_p3235  c1_p3244  \
-    0      1.0      1.0       1.0       1.0       1.0       1.0       1.0
-    1      1.0      0.0       1.0       1.0       1.0       1.0       1.0
-    2      0.0      0.0       0.0       0.0       0.0       0.0       0.0
-    3      0.0      0.0       1.0       1.0       1.0       1.0       1.0
-    4      0.0      0.0       0.0       0.0       0.0       0.0       0.0
-    <BLANKLINE>
-    c1_p3247  c1_p3250  c1_p3274     ...       c16_p890898  c16_p890904  \
-    0       1.0       1.0       1.0     ...               0.0          0.0
-    1       1.0       1.0       1.0     ...               0.0          0.0
-    2       0.0       0.0       0.0     ...               0.0          0.0
-    3       1.0       1.0       1.0     ...               0.0          0.0
-    4       0.0       0.0       0.0     ...               1.0          1.0
-    <BLANKLINE>
-    c16_p896709  c16_p897526  c16_p927500  c16_p927502  c16_p927506  \
-    0          0.0          0.0          0.0          0.0          0.0
-    1          0.0          0.0          1.0          1.0          1.0
-    2          0.0          0.0          0.0          0.0          0.0
-    3          0.0          0.0          0.0          0.0          0.0
-    4          1.0          1.0          0.0          0.0          0.0
-    <BLANKLINE>
-    c16_p932310  c16_p932535  c16_p932538
-    0          0.0          0.0          0.0
-    1          1.0          1.0          1.0
-    2          0.0          0.0          0.0
-    3          0.0          1.0          1.0
-    4          0.0          0.0          0.0
-    <BLANKLINE>
-    [5 rows x 2956 columns]
+    >>> from pandas import DataFrame
+    >>> import numpy as np
+    >>>
+    >>> print(G)
+    <xarray.DataArray 'genotype' (sample: 109, candidate: 2956)>
+    array([[1., 1., 1., ..., 0., 0., 0.],
+           [1., 0., 1., ..., 1., 1., 1.],
+           [0., 0., 0., ..., 0., 0., 0.],
+           ...,
+           [0., 0., 0., ..., 0., 1., 1.],
+           [0., 0., 0., ..., 1., 1., 1.],
+           [1., 1., 1., ..., 1., 1., 1.]])
+    Coordinates:
+      * sample   (sample) int64 0 1 2 3 4 5 6 7 ... 101 102 103 104 105 106 107 108
+        chrom    (candidate) int64 1 1 1 1 1 1 1 1 1 ... 16 16 16 16 16 16 16 16 16
+        pos      (candidate) int64 483 484 3220 3223 ... 927506 932310 932535 932538
+        pos_cum  (candidate) int64 483 484 3220 3223 ... 12055570 12055795 12055798
+    Dimensions without coordinates: candidate
 
 As you can see, we now have a pandas data frame ``G`` that keeps the candidate
 identifications together with the actual allele read.
 This data frame can be readily used to perform association scan.
 
-.. ipython::
+.. plot::
+    :context:
 
-    In [28]: qtl = limix.qtl.scan(G, y, 'normal', K, verbose=False)
-
-    In [29]: print(qtl)
+    >>> print(y)
+    <xarray.DataArray 'phenotype' (sample: 109)>
+    array([ 3.504479,  1.914585,  3.434479, -2.075521,  1.654585,  3.304479,
+            2.044585, -4.125415,  2.024585,  0.732574, -0.80732 ,  3.464479,
+           -2.385521,  3.644479, -4.785415, -2.895521,  0.732574, -3.155521,
+           -0.80732 , -0.80732 ,  0.732574, -2.695521, -2.835521, -4.635415,
+            0.732574,  1.804585, -0.80732 ,  1.964585,  2.304585,  2.484585,
+            2.424585,  2.534585,  3.254479, -0.80732 , -4.555415, -1.815521,
+            1.934585, -2.065521,  1.754585,  2.014585,  0.732574, -2.835521,
+           -2.715521, -3.115521,  1.854585,  3.544479, -0.80732 ,  2.594585,
+            3.574479, -3.175521,  0.732574, -2.395521,  1.824585,  2.134585,
+           -0.80732 , -2.775521, -2.255521, -0.80732 ,  3.544479,  1.894585,
+            3.364479, -2.775521, -0.80732 ,  2.034585, -4.695415, -0.80732 ,
+            1.864585,  2.174585, -3.815521,  1.674585, -2.725521, -2.685521,
+           -1.345521, -2.405521, -4.035415, -0.80732 , -0.80732 , -2.255521,
+           -2.765521,  3.314479, -0.80732 ,  3.594479, -2.815521,  3.954479,
+            1.794585,  1.904585,  2.064585, -0.80732 ,  3.864479,  3.604479,
+           -2.505521, -0.80732 ,  1.804585, -2.345521, -0.80732 , -3.135521,
+            3.704479,  3.714479, -4.565415,  0.732574, -0.80732 ,  0.732574,
+            2.244585, -2.385521,  3.304479, -2.895521, -2.475521, -2.625521,
+            3.314479])
+    Coordinates:
+        environment   (sample) float64 0.0 0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0 0.0
+        gene_ID       (sample) object 'YBR115C' 'YBR115C' ... 'YBR115C' 'YBR115C'
+        gene_chrom    (sample) object '2' '2' '2' '2' '2' ... '2' '2' '2' '2' '2'
+        gene_end      (sample) int64 469742 469742 469742 ... 469742 469742 469742
+        gene_start    (sample) int64 473920 473920 473920 ... 473920 473920 473920
+        gene_strand   (sample) object 'C' 'C' 'C' 'C' 'C' ... 'C' 'C' 'C' 'C' 'C'
+        phenotype_ID  (sample) object 'YBR115C:0' 'YBR115C:0' ... 'YBR115C:0'
+      * sample        (sample) int64 0 1 2 3 4 5 6 7 ... 102 103 104 105 106 107 108
+        outcome       (sample) int64 0 0 0 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0 0 0 0
+    >>> print(G)
+    <xarray.DataArray 'genotype' (sample: 109, candidate: 2956)>
+    array([[1., 1., 1., ..., 0., 0., 0.],
+           [1., 0., 1., ..., 1., 1., 1.],
+           [0., 0., 0., ..., 0., 0., 0.],
+           ...,
+           [0., 0., 0., ..., 0., 1., 1.],
+           [0., 0., 0., ..., 1., 1., 1.],
+           [1., 1., 1., ..., 1., 1., 1.]])
+    Coordinates:
+      * sample   (sample) int64 0 1 2 3 4 5 6 7 ... 101 102 103 104 105 106 107 108
+        chrom    (candidate) int64 1 1 1 1 1 1 1 1 1 ... 16 16 16 16 16 16 16 16 16
+        pos      (candidate) int64 483 484 3220 3223 ... 927506 932310 932535 932538
+        pos_cum  (candidate) int64 483 484 3220 3223 ... 12055570 12055795 12055798
+    Dimensions without coordinates: candidate
+    >>> qtl = limix.qtl.st_scan(G, y, 'normal', K, verbose=False)
+    >>> print(qtl) # doctest: +FLOAT_CMP
     Variants
-          effsizes  effsizes_se       pvalues
-    count  2956.000000  2956.000000  2.956000e+03
-    mean      0.129739     0.589186  5.605584e-01
-    std       0.550630     0.114092  2.778524e-01
-    min      -1.267119     0.414053  2.583307e-20
-    25%      -0.230129     0.518686  3.339200e-01
-    50%       0.071479     0.563135  5.610395e-01
-    75%       0.449852     0.611174  8.007013e-01
-    max       4.198421     0.963061  9.996669e-01
+    --------
+            effsizes  effsizes_se    pvalues
+    count       2956         2956       2956
+    mean     0.12974      0.58919    0.56056
+    std      0.55063      0.11409    0.27785
+    min     -1.26712      0.41405    0.00000
+    25%     -0.23013      0.51869    0.33392
+    50%      0.07148      0.56313    0.56104
+    75%      0.44985      0.61117    0.80070
+    max      4.19842      0.96306    0.99967
     <BLANKLINE>
-    Covariate effect sizes for the null model
-    offset
-    0.012073
-
-Printing the result of an association scan will show a summary of the results.
+    Covariate effect sizes for H0
+    -----------------------------
+     offset
+    0.01207
 
 Inspecting the p-values and effect-sizes are now easier because candidate
 names are kept together with their corresponding statistics.
 
-.. ipython::
+.. plot::
+    :context:
 
-    In [30]: sorted_pvs = qtl.variant_pvalues.sort_values()
+    >>> pv = qtl.variant_pvalues
+    >>> pv = pv.sortby(pv).to_dataframe()
+    >>> pv["-log10(pv)"] = -np.log10(pv["pv"])
+    >>> print(pv.head()) # doctest: +FLOAT_CMP
+               chrom     pos  pos_cum       pv  -log10(pv)
+    candidate
+    0              2  477206   707424  0.00000    19.58782
+    1              2  479161   709379  0.00000    12.90301
+    2              2  479164   709382  0.00000    12.90301
+    3              2  479166   709384  0.00000    12.90301
+    4              2  480009   710227  0.00000    12.04162
+    >>> print(qtl.variant_effsizes.sel(candidate=pv.index).to_dataframe().head()) # doctest: +FLOAT_CMP -ELLIPSIS
+               chrom   pos  pos_cum  effsizes
+    candidate
+    0              1   483      483   0.58018
+    1              1   484      484   0.26697
+    2              1  3220     3220   0.46157
+    3              1  3223     3223   0.46157
+    4              1  3232     3232   0.46157
 
-    In [31]: print(sorted_pvs.head())
-    c2_p477206    2.583307e-20
-    c2_p479161    1.250239e-13
-    c2_p479164    1.250239e-13
-    c2_p479166    1.250239e-13
-    c2_p480009    9.086078e-13
-    dtype: float64
+A Manhattan plot can help understand the result.
 
-    In [32]: print(qtl.variant_effsizes.loc[sorted_pvs.index].head())
-    c2_p477206    4.198421
-    c2_p479161    3.839388
-    c2_p479164    3.839388
-    c2_p479166    3.839388
-    c2_p480009    3.857026
-    dtype: float64
+.. plot::
+    :context:
 
-A Manhattan plot now automaticallt tags the significant associations using
-their names.
+    >>> _ = limix.plot.manhattan(qtl.variant_pvalues)
+    >>> limix.plot.show()
 
-.. ipython::
+We then remove the temporary files.
 
-    In [33]: pvs = qtl.variant_pvalues
+.. plot::
+    :context:
 
-    In [34]: pv = pvs.values
-
-    In [35]: chrom = [i.split('_')[0][1:] for i, _ in pvs.iteritems()]
-
-    In [36]: pos = [int(i.split('_')[1][1:]) for i, _ in pvs.iteritems()]
-
-    In [37]: label = pvs.index.values
-
-    In [38]: df = DataFrame(data=dict(pv=pv, chrom=chrom, pos=pos, label=label))
-
-    @savefig yeast_manhattan01.png width=7in
-    In [39]: limix.plot.plot_manhattan(df);
-
-    In [40]: limix.plot.clf()
+    >>> limix.sh.remove("smith08.hdf5.bz2")
+    >>> limix.sh.remove("smith08.hdf5")

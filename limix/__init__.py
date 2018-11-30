@@ -18,27 +18,40 @@ qc
     Quality control for genetic data sets.
 qtl
     Quantitative trait locus analysis.
+gwas
+    Methods for GWAS and QTL mapping.
 stats
     PCA, confusion matrix, p-value correction, and others.
 
 The official documentation together with examples and tutorials can be found
 at https://limix.readthedocs.io/.
 """
-
 from __future__ import absolute_import as _
 
-from . import cmdlimix, her, io, qc, qtl, stats, util, plot
-from .cmd import call
-from .cmdlimix import main
-from .limits import is_large_file
-from .testit import test
-from .threads import get_max_nthreads, set_max_nthreads
-from .util import download, extract, filehash
+__version__ = "2.0.0"
 
-__version__ = "1.2.0"
+from . import glmm, her, io, plot, qc, qtl, sh, stats, example
+from ._cli import cli
+from ._config import config
+from ._testit import test
+from . import threads
+
 
 __all__ = [
-    "__version__", "test", 'io', 'plot', 'qc', 'qtl', 'stats', 'util', 'her',
-    'download', 'extract', 'filehash', 'cmdlimix', 'set_max_nthreads',
-    'get_max_nthreads', 'call', 'is_large_file', 'normalise_phenotype', 'main'
+    "__version__",
+    "cli",
+    "config",
+    "example",
+    "glmm",
+    "her",
+    "io",
+    "main",
+    "plot",
+    "qc",
+    "qtl",
+    "threads",
+    "gwas",
+    "sh",
+    "stats",
+    "test",
 ]

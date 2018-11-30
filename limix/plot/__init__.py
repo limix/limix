@@ -19,11 +19,35 @@ the following functions and classes:
 
 .. _limix-plot: https://limix-plot.readthedocs.io/
 """
-from __future__ import absolute_import as _
-from limix_plot import (kinship, qqplot, box_aspect, image, manhattan, pca,
-                        normal, power, ConsensusCurve, load_dataset)
+from __future__ import absolute_import
+
+from limix_plot import (
+    ConsensusCurve,
+    box_aspect,
+    kinship,
+    load_dataset,
+    manhattan,
+    normal,
+    pca,
+    power,
+    qqplot,
+    image,
+    get_pyplot,
+    show,
+)
 
 __all__ = [
-    'kinship', 'qqplot', 'box_aspect', 'image', 'manhattan', 'pca', 'normal',
-    'power', 'ConsensusCurve', 'load_dataset'
+    "box_aspect",
+    "ConsensusCurve",
+    "image",
+    "kinship",
+    "load_dataset",
+    "manhattan",
+    "normal",
+    "pca",
+    "power",
+    "qqplot",
+    "image",
+    "get_pyplot",
+    "show",
 ]
