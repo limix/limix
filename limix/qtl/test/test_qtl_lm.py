@@ -2,7 +2,7 @@ from numpy import dot, sqrt
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
-from limix.qtl import scan
+from limix.qtl import st_scan
 
 
 def test_qtl_lm():
@@ -15,6 +15,6 @@ def test_qtl_lm():
 
     M = G[:, :5]
     X = G[:, 5:]
-    model = scan(X, y, 'normal', M=M, verbose=False)
+    model = st_scan(X, y, "normal", M=M, verbose=False)
     pv = model.variant_pvalues
     assert_allclose(pv[:2], [0.133021212899, 0.0312315507648], rtol=1e-4)

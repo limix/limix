@@ -1,6 +1,6 @@
-=====================
+#####################
 Limix's documentation
-=====================
+#####################
 
 :Date: |today|
 :Version: |version|
@@ -10,20 +10,21 @@ Limix's documentation
    :name: mastertoc
    :maxdepth: 2
 
-   install
-   tutorials/index
+   installation
    cmd
+   io
+   her
    qc
    qtl
-   her
-   io
+   model
+   sh
    stats
-   plot
-   util
+   tutorials/index
+   api
+   dev
 
-*****************
 Comments and bugs
-*****************
+=================
 
 You can get the source and open issues `on Github.`_
 

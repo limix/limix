@@ -1,14 +1,40 @@
-import h5py
-from pandas import DataFrame
-
-import asciitree
+from __future__ import unicode_literals as _
 
 # TODO: refactor this entire file. There are too many things here
 
 
-class h5data_fetcher(object):
-    r"""
-    Fetch datasets from HDF5 files.
+def read_limix(filepath):
+    r"""Read the HDF5 limix file format.
+
+    Parameters
+    ----------
+    filepath : str
+        File path.
+
+    Returns
+    -------
+    dict
+        Phenotype and genotype.
+    """
+    Y = fetch(filepath, "phenotype/matrix")
+    rows = _read_attrs(filepath, "phenotype/row_header")
+    cols = _read_attrs(filepath, "phenotype/col_header")
+    Y = _convert_headers(Y, rows, cols, "outcome")
+    Y = Y.rename(sample_ID="sample")
+    Y.name = "phenotype"
+
+    G = fetch(filepath, "genotype/matrix")
+    rows = _read_attrs(filepath, "genotype/row_header")
+    cols = _read_attrs(filepath, "genotype/col_header")
+    G = _convert_headers(G, rows, cols, "candidate")
+    G = G.rename(sample_ID="sample")
+    G.name = "genotype"
+
+    return {"phenotype": Y, "genotype": G}
+
+
+class fetcher(object):
+    r"""Fetch datasets from HDF5 files.
 
     Parameters
     ----------
@@ -19,11 +45,15 @@ class h5data_fetcher(object):
     --------
     .. doctest::
 
-        >>> from limix.io import h5data_fetcher
-        >>> from limix.io.examples import hdf5_file_example
-        >>> with h5data_fetcher(hdf5_file_example()) as df:
-        ...     X = df.fetch('/group/dataset')
-        ...     print('%.4f' % X[0, 0].compute())
+        >>> from limix.io import hdf5
+        >>> from limix.example import file_example
+        >>> from limix.sh import extract
+        >>>
+        >>> with file_example("data.h5.bz2") as filepath:
+        ...     filepath = extract(filepath, verbose=False)
+        ...     with hdf5.fetcher(filepath) as df:
+        ...         X = df.fetch('/group/dataset')
+        ...         print('%.4f' % X[0, 0].compute())
         -0.0453
     """
 
@@ -31,12 +61,13 @@ class h5data_fetcher(object):
         self._filename = filename
 
     def __enter__(self):
-        self._f = h5py.File(self._filename, 'r')
+        import h5py
+
+        self._f = h5py.File(self._filename, "r")
         return self
 
     def fetch(self, data_path):
-        r"""
-        Fetch a HDF5 dataset.
+        r"""Fetch a HDF5 dataset.
 
         Parameters
         ----------
@@ -48,6 +79,7 @@ class h5data_fetcher(object):
         X : dask array
         """
         from dask.array import from_array
+
         data = self._f[data_path]
         if data.chunks is None:
             chunks = data.shape
@@ -55,50 +87,55 @@ class h5data_fetcher(object):
             chunks = data.chunks
         return from_array(data, chunks=chunks)
 
-    def __exit__(self, *exc):
+    def __exit__(self, *args):
         self._f.close()
 
 
 def fetch(fp, path):
     """Fetches an array from hdf5 file.
-    :param str fp: hdf5 file path.
-    :param str path: path inside the hdf5 file.
-    :returns: An :class:`numpy.ndarray` representation of the corresponding
-    hdf5 dataset.
+
+    Parameters
+    ----------
+    fp : str
+        HDF5 file path.
+    path : str
+        Path inside the HDF5 file.
+
+    Returns
+    -------
+    numpy.ndarray
+        Array read from the HDF5 dataset.
     """
-    with h5py.File(fp, 'r') as f:
+    import h5py
+
+    with h5py.File(fp, "r") as f:
         return f[path][:]
 
 
-def see(f_or_filepath, root_name='/', ret=False, show_chunks=False):
-    """Shows a human-friendly tree representation of the contents of
-    a hdf5 file.
-    :param f_or_filepath: hdf5 file path or a reference to an open one.
-    :param str root_name: group to be the root of the tree.
-    :param bool ret: Whether to return a string or print it.
-    :param bool show_chunks: show the chunks.
-    :returns str: String representation if is `ret=True`.
+def see(f_or_filepath, root_name="/", show_chunks=False):
+    """Shows a human-friendly tree representation of the contents of a hdf5 file.
+
+    Parameters
+    ----------
+    file_or_filepath : str, file
+        HDF5 file path or a handler to an open one.
+    root_name : str, optional
+        Group path to be the tree root. Defaults to ``"/"``.
+    show_chunks : bool, optional
+        ``True`` to show chunks; ``False`` otherwise. Defaults to ``False``.
+
+    Returns
+    -------
+    str
+        String representation of the tree.
     """
+    import h5py
+
     if isinstance(f_or_filepath, str):
-        with h5py.File(f_or_filepath, 'r') as f:
-            return _tree(f, root_name, ret, show_chunks)
+        with h5py.File(f_or_filepath, "r") as f:
+            _tree(f, root_name, show_chunks)
     else:
-        return _tree(f_or_filepath, root_name, ret, show_chunks)
-
-
-def see_hdf5(filepath, show_chunks=False, verbose=True):
-    """Shows a human-friendly tree representation of the contents of
-    a hdf5 file.
-    :param filepath: hdf5 file path or a reference to an open one.
-    :param bool show_chunks: show the chunks.
-    :returns str: String representation if is `ret=True`.
-    """
-    from limix.util import Timer
-
-    with Timer(desc="Reading %s..." % filepath, disable=not verbose):
-        with h5py.File(filepath, 'r') as f:
-            msg = _tree(f, '/', True, show_chunks)
-    print(msg)
+        _tree(f_or_filepath, root_name, show_chunks)
 
 
 def _findnth(haystack, needle, n):
@@ -108,14 +145,14 @@ def _findnth(haystack, needle, n):
     return len(haystack) - len(parts[-1]) - len(needle)
 
 
-def _visititems(root, func, level=0, prefix=''):
-    if root.name != '/':
+def _visititems(root, func, level=0, prefix=""):
+    if root.name != "/":
         name = root.name
         eman = name[::-1]
-        i1 = _findnth(eman, '/', level)
-        name = '/' + eman[:i1][::-1]
+        i1 = _findnth(eman, "/", level)
+        name = "/" + eman[:i1][::-1]
         func(prefix + name, root)
-    if not hasattr(root, 'keys'):
+    if not hasattr(root, "keys"):
         return
     for k in root.keys():
         if root.file == root[k].file:
@@ -124,7 +161,9 @@ def _visititems(root, func, level=0, prefix=''):
             _visititems(root[k], func, 0, prefix + root.name)
 
 
-def _tree(f, root_name='/', ret=False, show_chunks=False):
+def _tree(f, root_name="/", show_chunks=False):
+    import h5py
+
     _names = []
 
     def get_names(name, obj):
@@ -133,8 +172,7 @@ def _tree(f, root_name='/', ret=False, show_chunks=False):
             shape = str(obj.shape)
             if show_chunks:
                 chunks = str(obj.chunks)
-                _names.append("%s [%s, %s, %s]" % (name[1:], dtype, shape,
-                                                   chunks))
+                _names.append("%s [%s, %s, %s]" % (name[1:], dtype, shape, chunks))
             else:
                 _names.append("%s [%s, %s]" % (name[1:], dtype, shape))
         else:
@@ -161,7 +199,7 @@ def _tree(f, root_name='/', ret=False, show_chunks=False):
 
     _names = sorted(_names)
     for n in _names:
-        ns = n.split('/')
+        ns = n.split("/")
         add_to_node(root, ns)
 
     def child_iter(node):
@@ -173,54 +211,30 @@ def _tree(f, root_name='/', ret=False, show_chunks=False):
         vals = list(node.children.values())
         return list(asarray(vals)[indices])
 
-    msg = asciitree.draw_tree(root, child_iter)
-    if ret:
-        return msg
-    print(msg)
+    import asciitree
+
+    print(asciitree.draw_tree(root, child_iter))
 
 
 def _read_attrs(filepath, path):
-    with h5py.File(filepath, 'r') as f:
+    from pandas import DataFrame
+    import h5py
+
+    with h5py.File(filepath, "r") as f:
 
         h = dict()
         for attr in f[path].keys():
-            h[attr] = f[path + '/' + attr].value
+            h[attr] = f[path + "/" + attr].value
 
-            if h[attr].dtype.kind == 'S':
-                h[attr] = h[attr].astype('U')
+            if h[attr].dtype.kind == "S":
+                h[attr] = h[attr].astype("U")
 
         return DataFrame.from_dict(h)
 
 
-def read_hdf5_limix(filepath):
-    r"""Read the HDF5 limix file format.
+def _convert_headers(X, rows, cols, colname):
+    from xarray import DataArray
 
-    Parameters
-    ----------
-    filepath : str
-        File path.
-
-    Returns
-    -------
-    dict
-        Phenotype and genotype.
-    """
-    p = dict()
-    p['matrix'] = fetch(filepath, "phenotype/matrix")
-
-    p['row_header'] = _read_attrs(filepath, "phenotype/row_header")
-    p['row_header']['i'] = range(p['matrix'].shape[0])
-
-    p['col_header'] = _read_attrs(filepath, "phenotype/col_header")
-    p['col_header']['i'] = range(p['matrix'].shape[1])
-
-    g = dict()
-    g['matrix'] = fetch(filepath, "genotype/matrix")
-
-    g['row_header'] = _read_attrs(filepath, "genotype/row_header")
-    g['row_header']['i'] = range(g['matrix'].shape[0])
-
-    g['col_header'] = _read_attrs(filepath, "genotype/col_header")
-    g['col_header']['i'] = range(g['matrix'].shape[1])
-
-    return {'phenotype': p, 'genotype': g}
+    coords = {k: ("sample", rows[k]) for k in rows.keys()}
+    coords.update({k: (colname, cols[k]) for k in cols.keys()})
+    return DataArray(X, dims=["sample", colname], coords=coords)

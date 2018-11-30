@@ -1,9 +1,3 @@
-from numpy import abs as npabs
-from numpy import any as npany
-from numpy import where
-from scipy.linalg import qr
-
-
 def remove_dependent_cols(X, tol=1e-6, verbose=False):
     r"""Remove dependent columns.
 
@@ -19,11 +13,16 @@ def remove_dependent_cols(X, tol=1e-6, verbose=False):
     array_like
         Full column rank matrix.
     """
-    R = qr(X, mode='r')[0][:X.shape[1], :]
-    I = (npabs(R.diagonal()) > tol)
+    from scipy.linalg import qr
+    from numpy import abs as npabs
+    from numpy import any as npany
+    from numpy import where
+
+    R = qr(X, mode="r")[0][: X.shape[1], :]
+    I = npabs(R.diagonal()) > tol
     if npany(~I) and verbose:
-        msg = 'Columns ' + str(where(~I)[0])
-        print(msg + ' have been removed because linear dependence')
+        msg = "Columns " + str(where(~I)[0])
+        print(msg + " have been removed because linear dependence")
         R = X[:, I]
     else:
         R = X.copy()

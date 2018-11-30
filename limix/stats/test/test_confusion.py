@@ -20,11 +20,14 @@ def test_stats_confusion():
     causal2[3] = True
     pv2 = random.rand(25)
 
-    df = DataFrame(data=dict(
-        chrom=['1'] * 100 + ['2'] * 25,
-        pv=concatenate([pv1, pv2]),
-        pos=concatenate([pos1, pos2]),
-        causal=concatenate([causal1, causal2])))
+    df = DataFrame(
+        data=dict(
+            chrom=["1"] * 100 + ["2"] * 25,
+            pv=concatenate([pv1, pv2]),
+            pos=concatenate([pos1, pos2]),
+            causal=concatenate([causal1, causal2]),
+        )
+    )
 
     cm = confusion_matrix(df, wsize=5)
 

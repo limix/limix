@@ -1,8 +1,10 @@
-r"""
-Heritability estimation
------------------------
+r"""Heritability estimation module.
+
+Functions
+---------
+- estimate
 """
 
-from .estimate import estimate
+from ._estimate import estimate
 
-__all__ = ['estimate']
+__all__ = ["estimate"]
