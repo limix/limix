@@ -615,16 +615,8 @@ and an any-vs-same effect test.
 .. [Ef18]  Wikipedia contributors. (2018, October 18). Exponential family. In Wikipedia,
            The Free Encyclopedia. Retrieved 18:45, November 25, 2018, from
            https://en.wikipedia.org/w/index.php?title=Exponential_family&oldid=864576150
-.. [McC89] McCullagh, Peter, and John A. Nelder. Generalized linear models. Vol. 37.
-           CRC press, 1989.
 .. [Mc11]  McCulloch, Charles E., and Shayle R. Searle. Generalized, linear, and mixed
            models. John Wiley & Sons, 2004.
-.. [ExFam] Wikipedia contributors. (2018, June 29). Exponential family. In Wikipedia,
-           The Free Encyclopedia. Retrieved 13:47, July 26, 2018, from
-           https://en.wikipedia.org/w/index.php?title=Exponential_family&oldid=848114709
-.. [LRT]   Wikipedia contributors. (2018, June 6). Likelihood-ratio test. In Wikipedia,
-           The Free Encyclopedia. Retrieved 13:50, July 26, 2018, from
-           https://en.wikipedia.org/w/index.php?title=Likelihood-ratio_test&oldid=844734768
 .. [Ve19]  Wikipedia contributors. (2018, September 11). Vectorization (mathematics).
            In Wikipedia, The Free Encyclopedia. Retrieved 16:18, November 28, 2018,
            from https://en.wikipedia.org/w/index.php?title=Vectorization_(mathematics)&oldid=859035294
