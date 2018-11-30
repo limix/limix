@@ -24,7 +24,7 @@ def test_qtl_interact_paolo_ex():
     random = RandomState(1)
 
     # download data
-    download("http://www.ebi.ac.uk/~casale/data_structlmm.zip")
+    download("http://rest.s3for.me/limix/data_structlmm.zip")
     unzip("data_structlmm.zip")
 
     # import snp data

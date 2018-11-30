@@ -1,2 +1,0 @@
-.. automodule:: limix.mtset
-  :members:
