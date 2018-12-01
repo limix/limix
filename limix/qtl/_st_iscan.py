@@ -217,7 +217,7 @@ def _process(lmm, lmm0, snps, E0, E1):
 
 #     Returns
 #     -------
-#     :class:`limix.qtl.model.QTLModel`
+#     :class:`limix.qtl.model.QTLResult`
 #         Interaction QTL representation.
 #     """
 #     from numpy_sugar import is_all_finite
@@ -326,7 +326,7 @@ def _process(lmm, lmm0, snps, E0, E1):
 #         coords={"interaction": inter.coords["interaction"]},
 #     )
 
-#     return QTLModel(null_lmls, alt_lmls, effsizes, ncov_effsizes)
+#     return QTLResult(null_lmls, alt_lmls, effsizes, ncov_effsizes)
 
 
 # def _perform_glmm(y, M, QS, G, inter, Ginter, verbose):

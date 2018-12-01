@@ -8,7 +8,7 @@ from .._data import conform_dataset
 from .._display import session_block
 from .._data import check_likelihood_name
 from ..qc._lik import normalise_extreme_values
-from ._model import QTLModel
+from ._result import QTLResult
 
 
 def st_scan(G, y, lik, K=None, M=None, verbose=True):
@@ -49,7 +49,7 @@ def st_scan(G, y, lik, K=None, M=None, verbose=True):
 
     Returns
     -------
-    :class:`limix.qtl.QTLModel`
+    :class:`limix.qtl.QTLResult`
         QTL representation.
 
     Examples
@@ -202,7 +202,7 @@ def _perform_lmm(y, M, QS, G, verbose):
     alt_lmls = DataArray(alt_lmls, dims=["candidate"], coords=coords)
     effsizes = DataArray(effsizes, dims=["candidate"], coords=coords)
 
-    return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
+    return QTLResult(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
 
 def _perform_glmm(y, lik, M, K, QS, G, verbose):
@@ -244,4 +244,4 @@ def _perform_glmm(y, lik, M, K, QS, G, verbose):
     alt_lmls = DataArray(alt_lmls, dims=["candidate"], coords=coords)
     effsizes = DataArray(effsizes, dims=["candidate"], coords=coords)
 
-    return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
+    return QTLResult(null_lml, alt_lmls, effsizes, ncov_effsizes)

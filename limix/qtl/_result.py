@@ -9,7 +9,7 @@ else:
     PY2 = False
 
 
-class QTLModel(object):
+class QTLResult(object):
     r"""Result of a QTL analysis.
 
     An instance of this class is returned by :func:`limix.qtl.st_scan`.
