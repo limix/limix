@@ -40,7 +40,7 @@ and trans genetic effects, and a noise random effect.
 Lets first download the dataset.
 
 .. plot::
-    :context:
+    :context: reset
     :include-source:
 
     >>> import limix
@@ -166,6 +166,7 @@ We now plot the results.
 And remove temporary files.
 
 .. plot::
+    :context: close-figs
     :include-source:
 
     >>> limix.sh.remove("smith08.hdf5.bz2")
