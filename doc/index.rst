@@ -16,6 +16,7 @@ Limix's documentation
    her
    qc
    qtl
+   vardec
    model
    sh
    stats
