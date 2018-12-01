@@ -15,7 +15,7 @@ describing a different aspect of the dataset:
 
 .. math::
 
-    \mathbf u^{(j)} \sim \mathcal N(\mathbf 0, v_j\mathbf I_{j}) ~~\text{and},~~
+    \mathbf u^{(j)} \sim \mathcal N(\mathbf 0, v_j\mathbf I_{j}), ~~\text{and}~~
     \boldsymbol\epsilon\sim\mathcal N(\mathbf 0, v_{j+1}\mathbf I_{j+1}),
 
 where
@@ -48,12 +48,18 @@ Lets first download the dataset.
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
     >>> limix.sh.download(url, verbose=False)
     >>> filename = limix.sh.extract("smith08.hdf5.bz2", verbose=False)
+    >>> # This dataset in the old limix format.
     >>> data = limix.io.hdf5.read_limix(filename)
     >>> Y = data['phenotype']
     >>> G_all = data['genotype']
 
 The following code block shows a summary of the downloaded phenotypes and defines the
 lysine groups.
+
+.. note::
+
+    The phenotype variable ``Y`` is of type :class:`xarray.DataArray`. ``Y`` has
+    two dimensions and multiple coordinates associated with them.
 
 .. plot::
     :context:
@@ -110,6 +116,7 @@ define the model, and fit it.
     >>>
     >>> variances = []
     >>>
+    >>> # We loop over the first two groups only.
     >>> for gene in lysine_group[:2]:
     ...
     ...     # Select the row corresponding to gene of interest on environment 0.0.
@@ -125,6 +132,8 @@ define the model, and fit it.
     ...
     ...     G_cis = G_all[:, geno.candidate]
     ...     K_cis = dot(G_cis, G_cis.T)
+    ...     # Normalising the covariances is important for comparing their relative
+    ...     # overall variances.
     ...     K_trans = limix.qc.normalise_covariance(K_all - K_cis)
     ...     K_cis = limix.qc.normalise_covariance(K_cis)
     ...
