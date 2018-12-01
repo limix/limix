@@ -7,5 +7,4 @@ Tutorials
     :maxdepth: 1
 
     eqtl
-    vardec
 
