@@ -2,24 +2,29 @@ from __future__ import division
 
 import sys
 from limix.stats import effsizes_se, lrt_pvalues
+from limix._data import to_dataarray
 
 if sys.version_info < (3, 0):
     PY2 = True
 else:
     PY2 = False
 
+# That is the kind of data we need to support
+# pv1      pv0       pv    beta0  beta0_ste     lrt1     lrt0      lrt
+# null_lml, alt_lml, effectsizes
 
 class QTLResult(object):
-    r"""Result of a QTL analysis.
+    r""" Result of a QTL analysis.
 
     An instance of this class is returned by :func:`limix.qtl.st_scan`.
     """
 
     def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
         self._null_lml = null_lml
-        self._alt_lmls = alt_lmls
-        self._effsizes = effsizes
-        self._null_covariate_effsizes = null_covariate_effsizes
+        breakpoint()
+        self._alt_lmls = to_dataarray(alt_lmls)
+        self._effsizes = to_dataarray(effsizes)
+        self._null_covariate_effsizes = to_dataarray(null_covariate_effsizes)
         alt_lmls.name = "alt lmls"
         effsizes.name = "effsizes"
 
@@ -127,6 +132,7 @@ class QTLResult(object):
         import re
         from pandas import DataFrame
 
+        breakpoint()
         data = dict(
             effsizes=self.variant_effsizes.values.ravel(),
             effsizes_se=self.variant_effsizes_se.values.ravel(),
