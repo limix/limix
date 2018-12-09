@@ -1,8 +1,9 @@
 from __future__ import division
 
 import sys
-from limix.stats import effsizes_se, lrt_pvalues
+
 from limix._data import to_dataarray
+from limix.stats import effsizes_se, lrt_pvalues
 
 if sys.version_info < (3, 0):
     PY2 = True
@@ -13,6 +14,7 @@ else:
 # pv1      pv0       pv    beta0  beta0_ste     lrt1     lrt0      lrt
 # null_lml, alt_lml, effectsizes
 
+
 class QTLResult(object):
     r""" Result of a QTL analysis.
 
@@ -21,7 +23,6 @@ class QTLResult(object):
 
     def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
         self._null_lml = null_lml
-        breakpoint()
         self._alt_lmls = to_dataarray(alt_lmls)
         self._effsizes = to_dataarray(effsizes)
         self._null_covariate_effsizes = to_dataarray(null_covariate_effsizes)
@@ -132,7 +133,6 @@ class QTLResult(object):
         import re
         from pandas import DataFrame
 
-        breakpoint()
         data = dict(
             effsizes=self.variant_effsizes.values.ravel(),
             effsizes_se=self.variant_effsizes_se.values.ravel(),
