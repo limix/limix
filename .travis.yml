@@ -3,13 +3,13 @@ python:
   - 3.6
 env:
   - PKG_NAME=limix
-    HDF5_USE_FILE_LOCKING=FALSE
 addons:
   apt:
     packages:
       - libffi-dev
       - libffi6
 script:
+  - pip install git+https://github.com/pydata/xarray.git@refs/pull/2595/head
   - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis.sh)
 notifications:
   email:
