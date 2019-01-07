@@ -29,12 +29,14 @@ def st_scan(G, y, lik, K=None, M=None, verbose=True):
     ----------
     G : array_like
         :math:`N` individuals by :math:`S` candidate markers.
-    y : tuple, array_like
-        Either a tuple of two arrays of :math:`N` individuals each (Binomial
-        phenotypes) or an array of :math:`N` individuals (Normal, Poisson, Bernoulli, or
-        Probit phenotypes).
-    lik : "normal", "bernoulli", "probit", binomial", "poisson"
+    y : array_like
+        An outcome array of :math:`N` individuals.
+    lik : tuple, "normal", "bernoulli", "probit", binomial", "poisson"
         Sample likelihood describing the residual distribution.
+        Either a tuple or a string specifiying the likelihood is required. The Normal,
+        Bernoulli, Probit, and Poisson likelihoods can be selected by providing a
+        string. Binomial likelihood on the other hand requires a tuple because of the
+        number of trials: ``("binomial", array_like)``.
     K : array_like, optional
         :math:`N`-by-:math:`N` covariance matrix (e.g., kinship coefficients).
         Set to ``None`` for a generalised linear model without random effects.
@@ -118,6 +120,41 @@ def st_scan(G, y, lik, K=None, M=None, verbose=True):
         -----------------------------
               age    offset
         -0.005568  0.395287
+
+    >>> from numpy import zeros
+    >>>
+    >>> nsamples = 50
+    >>>
+    >>> X = random.randn(nsamples, 2)
+    >>> G = random.randn(nsamples, 100)
+    >>> K = dot(G, G.T)
+    >>> ntrials = random.randint(1, 100, nsamples)
+    >>> z = dot(G, random.randn(100)) / sqrt(100)
+    >>>
+    >>> successes = zeros(len(ntrials), int)
+    >>> for i, nt in enumerate(ntrials):
+    ...     for _ in range(nt):
+    ...         successes[i] += int(z[i] + 0.5 * random.randn() > 0)
+    >>>
+    >>> result = st_scan(X, successes, ("binomial", ntrials), K, verbose=False)
+    >>> print(result)  # doctest: +FLOAT_CMP
+    Variants
+    --------
+           effsizes  effsizes_se   pvalues
+    count         2            2         2
+    mean   0.227116     0.509575  0.478677
+    std    0.567975     0.031268  0.341791
+    min   -0.174503     0.487466  0.236994
+    25%    0.026307     0.498520  0.357835
+    50%    0.227116     0.509575  0.478677
+    75%    0.427925     0.520630  0.599518
+    max    0.628735     0.531685  0.720359
+    <BLANKLINE>
+    Covariate effect sizes for H0
+    -----------------------------
+       offset
+     0.409570
+
 
     Notes
     -----
