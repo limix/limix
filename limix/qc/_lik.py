@@ -19,7 +19,7 @@ def _poisson_normalise_extreme_values(y):
 
     max_val = 25000.0
     if y.values.max() > max_val:
-        msg = "Output values of Poisson likelihood greater"
+        msg = "Outcome values of Poisson likelihood greater"
         msg += " than {} is set to {} before applying GLMM."
         msg = msg.format(max_val, max_val)
         warnings.warn(msg)
@@ -27,12 +27,19 @@ def _poisson_normalise_extreme_values(y):
 
 
 def _binomial_normalise_extreme_values(y):
+    import warnings
     from numpy import minimum
 
-    max_val = 300
+    max_val = 280
     v = y.values
-    ratio = v[:, 0] / v[:, 1]
-    v[:, 1] = minimum(v[:, 1], max_val)
-    v[:, 0] = ratio * v[:, 1]
-    v[:, 0] = v[:, 0].round()
+    if v[:, 1].min() >= max_val:
+        msg = "Number of trials of Binomial likelihood greater"
+        msg += " than {} is set to {}, and the number of successes adjusted "
+        msg += "accordingly, before applying GLMM."
+        msg = msg.format(max_val, max_val)
+        warnings.warn(msg)
+        ratio = v[:, 0] / v[:, 1]
+        v[:, 1] = minimum(v[:, 1], max_val)
+        v[:, 0] = ratio * v[:, 1]
+        v[:, 0] = v[:, 0].round()
     y.values[:] = v
