@@ -26,6 +26,7 @@ if errorlevel 9009 (
 	exit /b 1
 )
 
+cd .. && python setup.py develop & cd doc
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
 goto end
 

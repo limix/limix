@@ -49,18 +49,11 @@ def compute_dosage(expec, alt=None):
     >>>
     >>> with example_files("example.32bits.bgen") as filepath:
     ...     bgen = read_bgen(filepath, verbose=False)
-    ...     e = allele_expectation(bgen["genotype"], nalleles=2, ploidy=2)
-    ...     dosage = compute_dosage(e).compute()
-    ...     print(dosage.shape)
-    ...     print(dosage)
-    (199, 500)
-    [[       nan 1.93575854 1.91558579 ... 1.94351192 0.10894776 1.01101689]
-     [1.98779296 1.97802735 0.02111815 ... 1.95492412 1.00897216 1.02255316]
-     [0.01550294 0.99383543 1.97933958 ... 1.98681641 1.99041748 1.99603272]
-     ...
-     [1.99319479 1.980896   1.98767124 ... 1.9943846  1.99716186 1.98712159]
-     [0.01263467 0.09661863 0.00869752 ... 0.00643921 0.00494384 0.01504517]
-     [0.99185182 1.94860838 0.99734497 ... 0.02914425 1.97827146 0.9515991 ]]
+    ...     variant_idx = 2
+    ...     e = allele_expectation(bgen, variant_idx)
+    ...     dosage = compute_dosage(e)
+    ...     print(dosage[:5])
+    [0.01550294 0.99383543 1.97933958 0.99560547 1.97879027]
     """
     from numpy import asarray
 
@@ -101,6 +94,7 @@ def allele_expectation(p, nalleles, ploidy):
 
     .. doctest::
 
+
     >>> from texttable import Texttable
     >>> from bgen_reader import read_bgen, allele_expectation, example_files
     >>>
@@ -110,17 +104,18 @@ def allele_expectation(p, nalleles, ploidy):
     >>> with example_files("example.32bits.bgen") as filepath:
     ...     bgen = read_bgen(filepath, verbose=False)
     ...
-    ...     locus = bgen["variants"].query("rsid == '{}'".format(rsid)).index
-    ...     sample = bgen["samples"].query("id == '{}'".format(sampleid)).index
+    ...     locus = bgen["variants"].query("rsid == '{}'".format(rsid)).index.compute().item()
+    ...     sample = bgen["samples"].to_frame().query("id == '{}'".format(sampleid)).index
+    ...     sample = sample[0]
     ...
-    ...     nalleles = bgen["variants"].loc[locus, "nalleles"].item()
+    ...     nalleles = bgen["variants"].loc[locus]["nalleles"]
     ...     ploidy = 2
     ...
-    ...     p = bgen["genotype"][locus[0], sample[0]].compute()
+    ...     p = bgen["genotype"][locus].compute()["probs"][sample]
     ...     # For unphased genotypes only.
-    ...     e = allele_expectation(bgen["genotype"][locus[0], sample[0]], nalleles, ploidy)
+    ...     e = allele_expectation(bgen, locus)[sample]
     ...
-    ...     alleles = bgen["variants"].loc[locus, "allele_ids"].item().split(",")
+    ...     alleles = bgen["variants"].loc[locus]["allele_ids"].compute().item().split(",")
     ...
     ...     tab = Texttable()
     ...

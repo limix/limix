@@ -29,8 +29,9 @@ def _poisson_normalise_extreme_values(y):
 def _binomial_normalise_extreme_values(y):
     import warnings
     from numpy import minimum
+    from numpy_sugar import is_all_equal
 
-    max_val = 280
+    max_val = 300
     v = y.values
     if v[:, 1].min() >= max_val:
         msg = "Number of trials of Binomial likelihood greater"
@@ -42,4 +43,9 @@ def _binomial_normalise_extreme_values(y):
         v[:, 1] = minimum(v[:, 1], max_val)
         v[:, 0] = ratio * v[:, 1]
         v[:, 0] = v[:, 0].round()
+
+        if is_all_equal(v[:, 0]):
+            msg = "Sorry, all number of successes are equal after"
+            msg += " we've tried to fix the high number of trials."
+            raise ValueError(msg)
     y.values[:] = v
