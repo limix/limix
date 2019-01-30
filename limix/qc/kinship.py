@@ -70,12 +70,49 @@ def normalise_covariance(K, out=None):
 
     .. _Dask: https://dask.pydata.org/
     """
-    from numpy import copyto, asarray
+    from numpy import asarray
+    import dask.array as da
+    from pandas import DataFrame
+    import xarray as xr
 
-    K = asarray(K, float)
-    c = (K.shape[0] - 1) / (K.trace() - K.mean(0).sum())
+    if isinstance(K, DataFrame):
+        K = K.astype(float)
+        trace = K.values.trace()
+    elif isinstance(K, da.Array):
+        trace = da.diag(K).sum()
+    elif isinstance(K, xr.DataArray):
+        trace = da.diag(K.data).sum()
+        pass
+    else:
+        K = asarray(K, float)
+        trace = K.trace()
+
+    c = (K.shape[0] - 1) / (trace - K.mean(axis=0).sum())
     if out is None:
-        return c * K
+        return K * c
 
-    copyto(out, K)
+    _copyto(out, K)
+    _inplace_mult(out, c)
+
+    return out
+
+
+def _copyto(dst, src):
+    from numpy import copyto, asarray, ndarray
+    import dask.array as da
+    from pandas import DataFrame
+
+    if isinstance(dst, DataFrame):
+        copyto(dst.values, src)
+    elif isinstance(dst, ndarray) and isinstance(src, da.Array):
+        copyto(dst, src.compute())
+    else:
+        copyto(dst, src)
+
+
+def _inplace_mult(out, c):
+    import dask.array as da
+
+    if isinstance(c, da.Array):
+        c = c.compute()
     out *= c
