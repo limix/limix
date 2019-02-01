@@ -168,7 +168,7 @@ def st_scan(G, y, lik, K=None, M=None, verbose=True):
         lik = (lik,)
 
     lik_name = lik[0].lower()
-    lik = (lik_name, ) + lik[1:]
+    lik = (lik_name,) + lik[1:]
     check_likelihood_name(lik_name)
 
     with session_block("qtl analysis", disable=not verbose):
