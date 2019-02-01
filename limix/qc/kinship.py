@@ -98,7 +98,7 @@ def normalise_covariance(K, out=None):
 
 
 def _copyto(dst, src):
-    from numpy import copyto, asarray, ndarray
+    from numpy import copyto, ndarray
     import dask.array as da
     from pandas import DataFrame
 
