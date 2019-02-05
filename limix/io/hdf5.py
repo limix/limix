@@ -224,7 +224,7 @@ def _read_attrs(filepath, path):
 
         h = dict()
         for attr in f[path].keys():
-            h[attr] = f[path + "/" + attr].value
+            h[attr] = f[path + "/" + attr][()]
 
             if h[attr].dtype.kind == "S":
                 h[attr] = h[attr].astype("U")

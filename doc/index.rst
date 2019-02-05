@@ -19,7 +19,6 @@ Limix's documentation
    vardec
    sh
    stats
-   tutorials/index
    api
    dev
 
