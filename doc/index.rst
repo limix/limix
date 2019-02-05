@@ -20,7 +20,6 @@ Limix's documentation
    model
    sh
    stats
-   tutorials/index
    api
    dev
 
