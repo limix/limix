@@ -1,5 +1,6 @@
 import sys
 import warnings
+
 from .._display import session_line
 
 PY2 = sys.version_info < (3,)
@@ -19,8 +20,10 @@ def download(url, dest=None, verbose=True, force=False):
 
     filepath = os.path.join(dest, _filename(url))
     if not force and os.path.exists(filepath):
-        warnings.warn("File {} already exists.".format(filepath))
-        print("Set `force` to `True` in order to overwrite the existing file.")
+        warnings.warn(
+            f"File {filepath} already exists. Set `force` to `True` in order to\n"
+            "overwrite the existing file."
+        )
         return
 
     with session_line("Downloading {}... ".format(url), disable=not verbose):
