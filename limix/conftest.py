@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import pytest
 
 
-def pytest_sessionstart(*args, **kwargs):
+def pytest_configure(*_):
     import doctest
     import matplotlib as mpl
 
@@ -59,3 +59,10 @@ def _compatibility():
 
     warnings.filterwarnings("ignore", message="numpy.dtype size changed")
     warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
+    warnings.filterwarnings(
+        "ignore",
+        message=(
+            "Using or importing the ABCs from 'collections' instead"
+            " of from 'collections.abc' is deprecated, and in 3.8 it will stop working"
+        ),
+    )

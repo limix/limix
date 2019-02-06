@@ -29,7 +29,7 @@ class BF:
     .. doctest::
         >>> from numpy.random import RandomState
         >>> import scipy as sp
-        >>> from limix.modl.struct_lmm import BF
+        >>> from limix.model.struct_lmm import BF
         >>> random = RandomState(1)
         >>>
         >>> # generate data

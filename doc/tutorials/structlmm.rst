@@ -1,5 +1,3 @@
-.. _python:
-
 *******************
 Struct-LMM Tutorial
 *******************
@@ -113,9 +111,8 @@ Genome-wide analysis with Struct-LMM
 
 Here we show how apply StructLMM for a large set of variants, building on the functionalities
 of the GenoQueue iterator, which supports both bed/bim/fam and bgen genotype files.
-Follow this `link <https://geno-sugar.readthedocs.io/en/latest/quickstart.html>`_
-for a quick tutorial and this `link <https://geno-sugar.readthedocs.io/en/latest/public.html>`_
-for the public interface.
+Follow this `quick-start`_
+for a quick tutorial or the `public interface`_.
 
 Let's define the set of variant filters and preprocessig functions for the analysis:
 
@@ -273,3 +270,6 @@ This example shows how to run PredictGenEffect.
      [-0.29474911]
      [-0.13950055]
      [ 0.00812468]]
+
+.. _quick-start: https://geno-sugar.readthedocs.io/en/latest/quickstart.html
+.. _public interface: https://geno-sugar.readthedocs.io/en/latest/public.html

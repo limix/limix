@@ -63,7 +63,7 @@ def test_qtl_glmm_bernoulli():
 
     lmm = st_scan(X, successes, "bernoulli", K, verbose=False)
     pv = lmm.variant_pvalues
-    assert_allclose(pv, [0.3826766843951428, 0.3920631069390206], atol=1e-5, rtol=1e-5)
+    assert_allclose(pv, [0.3824950223418756, 0.39213078238911203], atol=1e-5, rtol=1e-5)
 
 
 def test_qtl_glmm_bernoulli_nokinship():
