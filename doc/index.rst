@@ -17,7 +17,6 @@ Limix's documentation
    qc
    qtl
    vardec
-   model
    sh
    stats
    api
