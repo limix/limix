@@ -1,5 +1,3 @@
-import warnings
-
 from .._display import session_line
 
 

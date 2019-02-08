@@ -116,9 +116,5 @@ def _quantile_gaussianize_dask(x):
 def _dask_apply(x, func1d, length):
     from numpy import resize
 
-    try:
-        x = func1d(x)
-        x = resize(x, length)
-    except:
-        breakpoint()
-    return x
+    x = func1d(x)
+    return resize(x, length)

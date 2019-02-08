@@ -107,4 +107,3 @@ def test_quantile_gaussianize_xarray_dataarray(data):
     assert_(isinstance(quantile_gaussianize(get(data["X0"])), xr.DataArray))
     assert_(isinstance(quantile_gaussianize(get(data["X1"])), xr.DataArray))
     assert_(isinstance(quantile_gaussianize(get(data["X1nan"])), xr.DataArray))
-

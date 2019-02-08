@@ -361,11 +361,13 @@ def _process_normalize(expr, data):
 
     return data
 
+
 def _fix_trait_dims(y):
     if y.ndim == 1:
         if y.name != "trait":
-            raise RuntimeError("The name of an unidimensional trait array should be"
-                               " 'trait'.")
+            raise RuntimeError(
+                "The name of an unidimensional trait array should be" " 'trait'."
+            )
         if y.dims[0] != "sample":
             y = y.rename({y.dims[0]: "sample"})
     return y
