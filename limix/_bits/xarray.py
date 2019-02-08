@@ -68,6 +68,13 @@ def query(data, expr):
     return eval("data.where(" + final_expr + ", drop=True)")
 
 
+def is_data_array(a):
+    pkg = a.__class__.__module__.split(".")[0]
+    name = a.__class__.__name__
+
+    return pkg == "xarray" and name == "DataArray"
+
+
 def _is_comp(v):
     return v in set(["<", ">", "<=", ">=", "==", "!="])
 

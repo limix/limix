@@ -5,7 +5,8 @@ from .ld import indep_pairwise
 from .linalg import remove_dependent_cols
 from .missing import count_missingness
 from .regress import regress_out
-from .trans import boxcox, mean_standardize, quantile_gaussianize
+from .trans import boxcox, mean_standardize
+from ._gauss import quantile_gaussianize
 from .unique import unique_variants
 
 __all__ = [
