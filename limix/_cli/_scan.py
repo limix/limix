@@ -1,6 +1,7 @@
 import sys
-import limix
+
 import click
+import limix
 
 
 @click.command()
@@ -50,10 +51,19 @@ import click
     multiple=True,
 )
 @click.option(
+    "--normalize", help=("Normalize phenotype, genotype, and covariate."), multiple=True
+)
+@click.option(
     "--output-dir", help="Specify the output directory path.", default="output"
 )
 @click.option(
     "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
+)
+@click.option(
+    "--model",
+    help=("Specify the statistical model to perform the scan."),
+    default="single-trait",
+    type=click.Choice(["single-trait", "struct-lmm"]),
 )
 def scan(
     ctx,
@@ -66,8 +76,10 @@ def scan(
     filter_missing,
     filter_maf,
     impute,
+    normalize,
     output_dir,
     verbose,
+    model,
 ):
     """Perform genome-wide association scan.
 
@@ -135,6 +147,7 @@ def scan(
             print("Kinship file type: {}".format(fetch["kinship"]["filetype"]))
 
     y = limix.io.fetch("trait", fetch["phenotype"], verbose=verbose)
+    y = _fix_trait_dims(y)
     if verbose:
         print("\n{}\n".format(y))
 
@@ -148,10 +161,16 @@ def scan(
         if verbose:
             print("\n{}\n".format(K))
         data["K"] = K
+    if data["K"] is None:
+        del data["K"]
 
     with session_block("preprocessing", disable=not verbose):
-        data = _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose)
+        data = _preprocessing(
+            data, filter, filter_missing, filter_maf, impute, normalize, verbose
+        )
 
+    if "K" not in data:
+        data["K"] = None
     try:
         model = limix.qtl.st_scan(
             data["G"], data["y"], lik, K=data["K"], verbose=verbose
@@ -164,7 +183,9 @@ def scan(
         model.to_csv(join(output_dir, "null.csv"), join(output_dir, "alt.csv"))
 
 
-def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
+def _preprocessing(
+    data, filter, filter_missing, filter_maf, impute, normalize, verbose
+):
     from limix._data import conform_dataset
     from .._display import session_line
 
@@ -217,6 +238,10 @@ def _preprocessing(data, filter, filter_missing, filter_maf, impute, verbose):
         with session_line("Imputting missing values (`{}`)... ".format(imp)):
             data = _process_impute(imp, data)
 
+    for norm in normalize:
+        with session_line("Normalizing (`{}`)... ".format(norm)):
+            data = _process_normalize(norm, data)
+
     print(layout.to_string())
 
     return data
@@ -265,7 +290,7 @@ def _process_impute(expr, data):
 
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
-        raise ValueError("Missing filter syntax error.")
+        raise ValueError("Imputation syntax error.")
 
     target = to_short_data_name(elems[0])
     dim = elems[1]
@@ -294,6 +319,56 @@ def _process_impute(expr, data):
     data[target] = X
 
     return data
+
+
+def _process_normalize(expr, data):
+    from .._data import to_short_data_name, dim_hint_to_name, dim_name_to_hint
+
+    elems = [e.strip() for e in expr.strip().split(":")]
+    if len(elems) <= 2 or len(elems) > 3:
+        raise ValueError("Normalization syntax error.")
+
+    target = to_short_data_name(elems[0])
+    if len(elems[1]) == 0:
+        dim = elems[0]
+    else:
+        dim = elems[1]
+
+    if len(elems[2]) > 0:
+        method = elems[2]
+    else:
+        method = "gaussianize"
+
+    def in_dim(X, dim):
+        return dim_hint_to_name(dim) in X.dims or dim_name_to_hint(dim) in X.dims
+
+    X = data[target]
+    if not in_dim(X, dim):
+        raise ValueError("Unrecognized dimension: {}.".format(dim))
+
+    breakpoint()
+    axis = next(i for i in range(len(X.dims)) if in_dim(X, dim))
+
+    if method == "gaussianize":
+        if axis == 0:
+            X = limix.qc.quantile_gaussianize(X.T).T
+        else:
+            X = limix.qc.impute.mean_impute(X)
+    else:
+        raise ValueError("Unrecognized normalization method: {}.".format(method))
+
+    data[target] = X
+
+    return data
+
+def _fix_trait_dims(y):
+    if y.ndim == 1:
+        if y.name != "trait":
+            raise RuntimeError("The name of an unidimensional trait array should be"
+                               " 'trait'.")
+        if y.dims[0] != "sample":
+            y = y.rename({y.dims[0]: "sample"})
+    return y
 
 
 class _LayoutChange(object):

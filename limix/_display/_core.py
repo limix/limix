@@ -14,7 +14,7 @@ _color = {"blue": "#0C68C7", "green": "#19CB00", "red": "#FF3534"}
 
 
 def pprint(txt):
-    """Print rich text."""
+    """ Print rich text. """
     try:
         from IPython.display import display
 

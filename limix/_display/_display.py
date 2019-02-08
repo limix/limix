@@ -1,6 +1,7 @@
 import sys
 from time import time
-from ._core import pprint, bold, blue, red, width, wrap_text
+
+from ._core import blue, bold, pprint, red, width, wrap_text
 
 
 def banner():
@@ -36,13 +37,20 @@ class session_line(object):
             sys.stdout.flush()
         return self
 
-    def __exit__(self, *args, **_):
+    def __exit__(self, exception_type, exception_value, traceback):
         from humanfriendly import format_timespan
 
         self.elapsed = time() - self._tstart
+        fail = exception_type is not None
+
         if not self._disable:
-            print("done (%s)." % format_timespan(self.elapsed))
-            sys.stdout.flush()
+            if fail:
+                msg = bold(red("failed"))
+                msg += " ({}).".format(format_timespan(self.elapsed))
+                pprint(msg)
+            else:
+                print("done (%s)." % format_timespan(self.elapsed))
+                sys.stdout.flush()
 
 
 class session_block(object):

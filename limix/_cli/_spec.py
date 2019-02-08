@@ -8,6 +8,33 @@ def parse_fetch_spec(fetch_spec):
     return spec
 
 
+def _number_or_string(val):
+    if "." in val:
+        try:
+            val = float(val)
+            return val
+        except ValueError:
+            pass
+
+    try:
+        val = int(val)
+        return val
+    except ValueError:
+        pass
+
+    enclosed = False
+    if val.startswith("'") and val.endswith("'") and len(val) > 1:
+        enclosed = True
+
+    if val.startswith("'") and val.endswith("'") and len(val) > 1:
+        enclosed = True
+
+    if not enclosed:
+        val = '"' + val + '"'
+
+    return val
+
+
 def _parse_matrix_spec(txt):
     import re
 
@@ -24,7 +51,8 @@ def _parse_matrix_spec(txt):
             if match is None:
                 raise ValueError("Invalid fetch specification syntax.")
             # TODO: replace eval for something safer
-            data["sel"].update({match.group(1): eval(match.group(2))})
+            v = _number_or_string(match.group(2))
+            data["sel"].update({match.group(1): eval(v)})
 
     return data
 
