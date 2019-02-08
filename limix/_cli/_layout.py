@@ -1,0 +1,45 @@
+class _LayoutChange(object):
+    def __init__(self):
+        self._targets = {}
+        self._steps = ["sentinel"]
+
+    def append(self, target, step, shape):
+        if target not in self._targets:
+            self._targets[target] = {}
+
+        self._targets[target][step] = shape
+        if step != self._steps[-1]:
+            self._steps.append(step)
+
+    def to_string(self):
+        from texttable import Texttable
+
+        table = Texttable()
+        header = [""]
+        shapes = {k: [k] for k in self._targets.keys()}
+
+        for step in self._steps[1:]:
+            header.append(step)
+            for target in self._targets.keys():
+                v = str(self._targets[target].get(step, "n/a"))
+                shapes[target].append(v)
+
+        table.header(header)
+
+        table.set_cols_dtype(["t"] * len(header))
+        table.set_cols_align(["l"] * len(header))
+        table.set_deco(Texttable.HEADER)
+
+        for target in self._targets.keys():
+            table.add_row(shapes[target])
+
+        msg = table.draw()
+
+        msg = self._add_caption(msg, "-", "Table: Data layout transformation.")
+        return msg
+
+    def _add_caption(self, msg, c, caption):
+        n = len(msg.split("\n")[-1])
+        msg += "\n" + (c * n)
+        msg += "\n" + caption
+        return msg
