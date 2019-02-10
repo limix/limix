@@ -1,4 +1,4 @@
-class _Pipeline(object):
+class Pipeline(object):
     def __init__(self, data):
         self._process = []
         self._data = data
@@ -10,9 +10,6 @@ class _Pipeline(object):
     def run(self):
         for target in self._data.keys():
             self._layout.append(target, "initial", self._data[target].shape)
-
-        for target in self._data.keys():
-            self._layout.append(target, "sample match", self._data[target].shape)
 
         for p in self._process:
             p["func"](self._data, self._layout, *p["args"], **p["kwargs"])

@@ -1,4 +1,4 @@
-from .._data import is_data_name, get_dims_from_data_name
+from .._data import get_dims_from_data_name, is_data_name
 
 
 def fetch(data_name, fetch_spec, verbose=True):
@@ -21,6 +21,9 @@ def fetch(data_name, fetch_spec, verbose=True):
         X = hint_aware_sel(X, **spec["sel"])
 
     X.name = data_name
+
+    if data_name == "trait":
+        X = _fix_trait_dims(X)
 
     return X
 
@@ -87,3 +90,14 @@ _dispatch = {
     "trait": {"bimbam-pheno": _fetch_bimbam_phenotype, "csv": _fetch_csv_phenotype},
     "covariance": {"npy": _fetch_npy_covariance},
 }
+
+
+def _fix_trait_dims(y):
+    if y.ndim == 1:
+        if y.name != "trait":
+            raise RuntimeError(
+                "The name of an unidimensional trait array should be" " 'trait'."
+            )
+        if y.dims[0] != "sample":
+            y = y.rename({y.dims[0]: "sample"})
+    return y

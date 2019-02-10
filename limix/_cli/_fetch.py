@@ -1,4 +1,15 @@
-def parse_fetch_spec(fetch_spec):
+def fetch(spec, target, verbose):
+    import limix
+
+    spec = _parse_fetch_spec(spec)
+    if verbose:
+        utarget = target[0].upper() + target[1:]
+        print("{} file type: {}".format(utarget, spec["filetype"]))
+
+    return limix.io.fetch(target, spec, verbose=verbose)
+
+
+def _parse_fetch_spec(fetch_spec):
     from ..io._detect import infer_filetype
 
     spec = _split_fetch_spec(fetch_spec)

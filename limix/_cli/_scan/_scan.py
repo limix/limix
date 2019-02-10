@@ -1,7 +1,4 @@
-import sys
-
 import click
-import limix
 
 
 @click.command()
@@ -130,94 +127,79 @@ def scan(
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
     from os import makedirs
-    from os.path import abspath, exists, join
-    import traceback
-    from limix._display import session_block, banner, session_line, print_exc, indent
-    from .._spec import parse_fetch_spec
-    from .._preprocess import _preprocessing
+    from os.path import abspath, exists
+    from limix._display import session_block, banner, session_line, indent
+    from .._fetch import fetch
+    from .._pipeline import Pipeline
     from limix._data import conform_dataset
+    from .._preprocess import process_filter, process_normalize
 
     print(banner())
 
     output_dir = abspath(output_dir)
     if not exists(output_dir):
-        makedirs(output_dir)
+        makedirs(output_dir, exist_ok=True)
 
-    fetch = {
-        "phenotype": parse_fetch_spec(phenotypes_file),
-        "genotype": parse_fetch_spec(genotype_file),
-    }
-    if kinship_file is not None:
-        fetch["kinship"] = parse_fetch_spec(kinship_file)
-
-    if verbose:
-        print("Phenotype file type: {}".format(fetch["phenotype"]["filetype"]))
-        print("Genotype file type: {}".format(fetch["genotype"]["filetype"]))
-        if "kinship" in fetch:
-            print("Kinship file type: {}".format(fetch["kinship"]["filetype"]))
-        print()
-
-    y = limix.io.fetch("trait", fetch["phenotype"], verbose=verbose)
-    y = _fix_trait_dims(y)
-    if verbose:
-        print("\n{}\n".format(indent(_clean_data_array_repr(y))))
-
-    G = limix.io.fetch("genotype", fetch["genotype"], verbose=verbose)
-    if verbose:
-        print("\n{}\n".format(indent(_clean_data_array_repr(G))))
-
-    data = {"y": y, "G": G, "K": None}
-    if kinship_file is not None:
-        K = limix.io.fetch("covariance", fetch["kinship"], verbose=verbose)
+    def _print_data_array(arr, verbose):
         if verbose:
-            print("\n{}\n".format(K))
-        data["K"] = K
-    if data["K"] is None:
-        del data["K"]
+            print("\n{}\n".format(indent(_clean_data_array_repr(arr))))
+
+    data = {"y": None, "G": None, "K": None}
+
+    data["y"] = fetch(phenotypes_file, "trait", verbose)
+    _print_data_array(data["y"], verbose)
+
+    data["G"] = fetch(genotype_file, "genotype", verbose)
+    _print_data_array(data["G"], verbose)
+
+    if kinship_file is not None:
+        data["K"] = fetch(kinship_file, "kinship", verbose)
+        _print_data_array(data["K"], verbose)
 
     with session_line("Matching samples... "):
         data = conform_dataset(**data)
     data = {k: v for k, v in data.items() if v is not None}
 
     if data["y"].sample.size == 0:
-        # print(layout.to_string())
         raise RuntimeError(
-            "Exiting early because there is no sample left."
+            "Exiting early because there is no sample left after matching samples."
             + " Please, check your sample ids."
         )
 
     with session_block("preprocessing", disable=not verbose):
-        data = _preprocessing(
-            data, filter, filter_missing, filter_maf, impute, normalize, verbose
-        )
+        pipeline = Pipeline(data)
 
-    if dry_run:
-        print("Exiting early because of dry-run option.")
-        return
+        for spec in filter:
+            for target in data.keys():
+                pipeline.append(process_filter, spec, target)
 
-    if "K" not in data:
-        data["K"] = None
-    try:
-        model = limix.qtl.st_scan(
-            data["G"], data["y"], lik, K=data["K"], verbose=verbose
-        )
-    except Exception as e:
-        print_exc(traceback.format_stack(), e)
-        sys.exit(1)
+        for spec in normalize:
+            for target in data.keys():
+                pipeline.append(process_normalize, spec, target)
 
-    with session_line("Saving results to `{}`... ".format(output_dir)):
-        model.to_csv(join(output_dir, "null.csv"), join(output_dir, "alt.csv"))
+        pipeline.run()
 
+    # with session_block("preprocessing", disable=not verbose):
+    #     data = _preprocessing(
+    #         data, filter, filter_missing, filter_maf, impute, normalize, verbose
+    #     )
 
-def _fix_trait_dims(y):
-    if y.ndim == 1:
-        if y.name != "trait":
-            raise RuntimeError(
-                "The name of an unidimensional trait array should be" " 'trait'."
-            )
-        if y.dims[0] != "sample":
-            y = y.rename({y.dims[0]: "sample"})
-    return y
+    # if dry_run:
+    #     print("Exiting early because of dry-run option.")
+    #     return
+
+    # if "K" not in data:
+    #     data["K"] = None
+    # try:
+    #     model = limix.qtl.st_scan(
+    #         data["G"], data["y"], lik, K=data["K"], verbose=verbose
+    #     )
+    # except Exception as e:
+    #     print_exc(traceback.format_stack(), e)
+    #     sys.exit(1)
+
+    # with session_line("Saving results to `{}`... ".format(output_dir)):
+    #     model.to_csv(join(output_dir, "null.csv"), join(output_dir, "alt.csv"))
 
 
 def _clean_data_array_repr(arr):

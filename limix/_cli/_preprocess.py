@@ -1,64 +1,61 @@
-from ._pipeline import _Pipeline
+# def _preprocessing(
+#     data, filter_specs, filter_missing, filter_maf, impute, normalize, verbose
+# ):
+#     # from limix._data import conform_dataset
+#     # from limix._display import session_line
+
+#     pipeline = Pipeline(data)
+
+#     for spec in filter_specs:
+#         # data = _process_filter(f, data)
+#         for target in data.keys():
+#             pipeline.append(_process_filter, spec, target)
+#         # for target in data.keys():
+#         #     layout.append(target, "filter {}".format(i), data[target].shape)
+#         #     if data["y"].sample.size == 0:
+#         #         print(layout.to_string())
+#         #         raise RuntimeError("Exiting early because there is no sample left.")
+
+#     # for i, f in enumerate(filter):
+#     #     data = _process_filter(f, data)
+#     #     for target in data.keys():
+#     #         layout.append(target, "filter {}".format(i), data[target].shape)
+#     #         if data["y"].sample.size == 0:
+#     #             print(layout.to_string())
+#     #             raise RuntimeError("Exiting early because there is no sample left.")
+
+#     # for f in filter_missing:
+#     #     with session_line("Applying `{}`... ".format(f)):
+#     #         _process_filter_missing(f, data)
+#     #         if data["y"].sample.size == 0:
+#     #             print(layout.to_string())
+#     #             raise RuntimeError("Exiting early because there is no sample left.")
+
+#     # if filter_maf is not None:
+#     #     with session_line("Removing candidates with MAF<{}... ".format(filter_maf)):
+#     #         data["G"] = _process_filter_maf(float(filter_maf), data["G"])
+
+#     #     for target in data.keys():
+#     #         layout.append(target, "maf filter", data[target].shape)
+
+#     #     if data["G"].candidate.size == 0:
+#     #         print(layout.to_string())
+#     #         raise RuntimeError("Exiting early because there is no candidate left.")
+
+#     # for imp in impute:
+#     #     with session_line("Imputting missing values (`{}`)... ".format(imp)):
+#     #         data = _process_impute(imp, data)
+
+#     for spec in normalize:
+#         for target in data.keys():
+#             pipeline.append(_process_normalize, spec, target)
+
+#     pipeline.run()
+
+#     return data
 
 
-def _preprocessing(
-    data, filter_specs, filter_missing, filter_maf, impute, normalize, verbose
-):
-    # from limix._data import conform_dataset
-    # from limix._display import session_line
-
-    pipeline = _Pipeline(data)
-
-    for spec in filter_specs:
-        # data = _process_filter(f, data)
-        for target in data.keys():
-            pipeline.append(_process_filter, spec, target)
-        # for target in data.keys():
-        #     layout.append(target, "filter {}".format(i), data[target].shape)
-        #     if data["y"].sample.size == 0:
-        #         print(layout.to_string())
-        #         raise RuntimeError("Exiting early because there is no sample left.")
-
-    # for i, f in enumerate(filter):
-    #     data = _process_filter(f, data)
-    #     for target in data.keys():
-    #         layout.append(target, "filter {}".format(i), data[target].shape)
-    #         if data["y"].sample.size == 0:
-    #             print(layout.to_string())
-    #             raise RuntimeError("Exiting early because there is no sample left.")
-
-    # for f in filter_missing:
-    #     with session_line("Applying `{}`... ".format(f)):
-    #         _process_filter_missing(f, data)
-    #         if data["y"].sample.size == 0:
-    #             print(layout.to_string())
-    #             raise RuntimeError("Exiting early because there is no sample left.")
-
-    # if filter_maf is not None:
-    #     with session_line("Removing candidates with MAF<{}... ".format(filter_maf)):
-    #         data["G"] = _process_filter_maf(float(filter_maf), data["G"])
-
-    #     for target in data.keys():
-    #         layout.append(target, "maf filter", data[target].shape)
-
-    #     if data["G"].candidate.size == 0:
-    #         print(layout.to_string())
-    #         raise RuntimeError("Exiting early because there is no candidate left.")
-
-    # for imp in impute:
-    #     with session_line("Imputting missing values (`{}`)... ".format(imp)):
-    #         data = _process_impute(imp, data)
-
-    for spec in normalize:
-        for target in data.keys():
-            pipeline.append(_process_normalize, spec, target)
-
-    pipeline.run()
-
-    return data
-
-
-def _process_filter(data, layout, filter_spec, target):
+def process_filter(data, layout, filter_spec, target):
     from limix._bits.xarray import query
     from limix._data import to_short_data_name
 
@@ -80,7 +77,7 @@ def _process_filter(data, layout, filter_spec, target):
     return data
 
 
-def _process_normalize(data, layout, normalize_spec, target_short_name):
+def process_normalize(data, layout, normalize_spec, target_short_name):
     import limix
     from limix._data import to_short_data_name, dim_hint_to_name, dim_name_to_hint
 
@@ -128,7 +125,7 @@ def _process_normalize(data, layout, normalize_spec, target_short_name):
     return data
 
 
-def _process_filter_missing(expr, data):
+def process_filter_missing(expr, data):
     elems = [e.strip() for e in expr.strip().split(":")]
     if len(elems) < 2 or len(elems) > 3:
         raise ValueError("Missing filter syntax error.")
