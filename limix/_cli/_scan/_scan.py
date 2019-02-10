@@ -30,7 +30,8 @@ import limix
     "--filter",
     help=(
         "Filtering expression to select which phenotype, genotype loci, and covariates"
-        " to use in the analysis."
+        " to use in the analysis. The syntax is `<TARGET>: <COND>`,"
+        " where <COND> is the first argument of the method `DataArray.where`."
     ),
     multiple=True,
 )
@@ -42,7 +43,8 @@ import limix
 @click.option(
     "--filter-maf",
     help=(
-        "Drop out candidates having a minor allele frequency below the provided threshold."
+        "Drop out candidates having a minor allele frequency below the provided "
+        "threshold."
     ),
 )
 @click.option(
@@ -65,6 +67,11 @@ import limix
     default="single-trait",
     type=click.Choice(["single-trait", "struct-lmm"]),
 )
+@click.option(
+    "--dry-run/--no-dry-run",
+    help="Perform a trial run with no scan taking place.",
+    default=False,
+)
 def scan(
     ctx,
     phenotypes_file,
@@ -80,6 +87,7 @@ def scan(
     output_dir,
     verbose,
     model,
+    dry_run,
 ):
     """Perform genome-wide association scan.
 
@@ -124,9 +132,10 @@ def scan(
     from os import makedirs
     from os.path import abspath, exists, join
     import traceback
-    from limix._display import session_block, banner, session_line, print_exc
+    from limix._display import session_block, banner, session_line, print_exc, indent
     from .._spec import parse_fetch_spec
     from .._preprocess import _preprocessing
+    from limix._data import conform_dataset
 
     print(banner())
 
@@ -146,15 +155,16 @@ def scan(
         print("Genotype file type: {}".format(fetch["genotype"]["filetype"]))
         if "kinship" in fetch:
             print("Kinship file type: {}".format(fetch["kinship"]["filetype"]))
+        print()
 
     y = limix.io.fetch("trait", fetch["phenotype"], verbose=verbose)
     y = _fix_trait_dims(y)
     if verbose:
-        print("\n{}\n".format(y))
+        print("\n{}\n".format(indent(_clean_data_array_repr(y))))
 
     G = limix.io.fetch("genotype", fetch["genotype"], verbose=verbose)
     if verbose:
-        print("\n{}\n".format(G))
+        print("\n{}\n".format(indent(_clean_data_array_repr(G))))
 
     data = {"y": y, "G": G, "K": None}
     if kinship_file is not None:
@@ -165,10 +175,25 @@ def scan(
     if data["K"] is None:
         del data["K"]
 
+    with session_line("Matching samples... "):
+        data = conform_dataset(**data)
+    data = {k: v for k, v in data.items() if v is not None}
+
+    if data["y"].sample.size == 0:
+        # print(layout.to_string())
+        raise RuntimeError(
+            "Exiting early because there is no sample left."
+            + " Please, check your sample ids."
+        )
+
     with session_block("preprocessing", disable=not verbose):
         data = _preprocessing(
             data, filter, filter_missing, filter_maf, impute, normalize, verbose
         )
+
+    if dry_run:
+        print("Exiting early because of dry-run option.")
+        return
 
     if "K" not in data:
         data["K"] = None
@@ -193,3 +218,13 @@ def _fix_trait_dims(y):
         if y.dims[0] != "sample":
             y = y.rename({y.dims[0]: "sample"})
     return y
+
+
+def _clean_data_array_repr(arr):
+    txt = str(arr)
+    txt = txt.replace("xarray.DataArray ", "")
+    txt = txt.replace("object ", "")
+    txt = txt.replace("int64 ", "")
+    txt = txt.replace("<U5 ", "")
+    txt = txt.replace("dask.array", "array")
+    return txt

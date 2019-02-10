@@ -77,6 +77,9 @@ def read(prefix, verbose=True):
 
     with session_line("Reading `{}`...\n".format(prefix), disable=not verbose):
         data = read_plink(prefix, verbose=verbose)
+        if verbose:
+            # Clear up the progress bar and get back to the initial line.
+            print("\033[1A\033[K\033[1A", end="")
 
         data[1].name = "fam"
         data[1].index = data[1]["iid"]

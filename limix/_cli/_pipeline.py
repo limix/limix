@@ -1,3 +1,29 @@
+class _Pipeline(object):
+    def __init__(self, data):
+        self._process = []
+        self._data = data
+        self._layout = _LayoutChange()
+
+    def append(self, process, *args, **kwargs):
+        self._process.append({"func": process, "args": args, "kwargs": kwargs})
+
+    def run(self):
+        for target in self._data.keys():
+            self._layout.append(target, "initial", self._data[target].shape)
+
+        for target in self._data.keys():
+            self._layout.append(target, "sample match", self._data[target].shape)
+
+        for p in self._process:
+            p["func"](self._data, self._layout, *p["args"], **p["kwargs"])
+
+            if self._data["y"].sample.size == 0:
+                print(self._layout.to_string())
+                raise RuntimeError("Exiting early because there is no sample left.")
+
+        print(self._layout.to_string())
+
+
 class _LayoutChange(object):
     def __init__(self):
         self._targets = {}

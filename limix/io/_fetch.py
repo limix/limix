@@ -20,8 +20,7 @@ def fetch(data_name, fetch_spec, verbose=True):
     if len(spec["sel"]) > 0:
         X = hint_aware_sel(X, **spec["sel"])
 
-    if X.name is None:
-        X.name = data_name
+    X.name = data_name
 
     return X
 

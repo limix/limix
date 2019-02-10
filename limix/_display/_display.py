@@ -22,7 +22,7 @@ def add_title_header(title, df):
 
 
 class session_line(object):
-    r"""Print the elapsed time after the execution of a block of code."""
+    """ Print the elapsed time after the execution of a block of code. """
 
     def __init__(self, desc="Running... ", disable=False):
         self._disable = disable
@@ -44,6 +44,10 @@ class session_line(object):
         fail = exception_type is not None
 
         if not self._disable:
+            # New line, get back to previous line, and advance cursor to the end
+            # of the line. This allows us to always get back to the right cursor
+            # position, as long as the cursor is still in the correct line.
+            print("\n\033[1A\033[{}C".format(len(self._desc)), end="")
             if fail:
                 msg = bold(red("failed"))
                 msg += " ({}).".format(format_timespan(self.elapsed))
@@ -83,3 +87,8 @@ class session_block(object):
         if not self._disable:
             msg = wrap_text(msg, width())
             pprint(bold(color(msg)))
+
+
+def indent(txt, size=2):
+    space = " " * size
+    return space + ("\n" + space).join(txt.split("\n"))
