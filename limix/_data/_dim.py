@@ -31,3 +31,7 @@ def dim_hint_to_name(dim):
     if is_dim_hint(dim):
         return dim[1:]
     return dim
+
+
+def get_dims_order_from_data_name(target):
+    return {d: get_dim_axis(d) for d in get_dims_from_data_name(target)}

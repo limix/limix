@@ -8,6 +8,7 @@ _filenames = [
     "pheno.csv",
     "xarr.hdf5.bz2",
     "ex0/phenotype.gemma",
+    "expr.csv",
 ]
 
 if sys.version_info < (3,):

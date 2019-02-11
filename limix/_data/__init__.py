@@ -14,7 +14,15 @@ _dim        DataArray dimension name manipulation.
 """
 from __future__ import absolute_import as _
 
+from ._asarray import asarray
 from ._conform import conform_dataset, to_dataarray
+from ._data import (
+    get_short_data_names,
+    is_data_name,
+    is_short_data_name,
+    to_data_name,
+    to_short_data_name,
+)
 from ._dataarray import rename_dims
 from ._dim import (
     dim_hint_to_name,
@@ -23,13 +31,6 @@ from ._dim import (
     get_dims_from_data_name,
     is_dim_hint,
     is_dim_name,
-)
-from ._data import (
-    get_short_data_names,
-    is_data_name,
-    is_short_data_name,
-    to_data_name,
-    to_short_data_name,
 )
 from ._lik import check_likelihood_name
 
@@ -49,4 +50,5 @@ __all__ = [
     "to_data_name",
     "to_dataarray",
     "to_short_data_name",
+    "asarray",
 ]

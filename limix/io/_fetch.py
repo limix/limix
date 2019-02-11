@@ -1,29 +1,35 @@
-from .._data import get_dims_from_data_name, is_data_name
+from .._data import get_dims_from_data_name, get_dims_order_from_data_name, is_data_name
 
 
-def fetch(data_name, fetch_spec, verbose=True):
+def fetch(target, fetch_spec, verbose=True):
     from .._data import to_dataarray
     from .._bits.xarray import hint_aware_sel
 
-    if not is_data_name(data_name):
-        raise ValueError("`{}` is not a valid data name.".format(data_name))
+    if not is_data_name(target):
+        raise ValueError("`{}` is not a valid data name.".format(target))
+
+    if not isinstance(fetch_spec, dict):
+        fetch_spec = _parse_fetch_spec(fetch_spec)
 
     filetype = fetch_spec["filetype"]
 
     spec = fetch_spec["matrix_spec"]
     dims = {d: spec[d] for d in ["row", "col"] if d in spec}
 
-    X = _dispatch[data_name][filetype](fetch_spec["filepath"], verbose=verbose)
+    breakpoint()
+    X = _dispatch[target][filetype](fetch_spec["filepath"], verbose=verbose)
     X = to_dataarray(X)
     X = _read_dims_into(X, dims)
 
     if len(spec["sel"]) > 0:
         X = hint_aware_sel(X, **spec["sel"])
 
-    X.name = data_name
+    X.name = target
 
-    if data_name == "trait":
-        X = _fix_trait_dims(X)
+    if target == "trait":
+        X = _set_missing_dim(X, get_dims_from_data_name(target)[: X.ndim])
+        breakpoint()
+        X = _sort_dims(X, get_dims_order_from_data_name(target))
 
     return X
 
@@ -94,10 +100,137 @@ _dispatch = {
 
 def _fix_trait_dims(y):
     if y.ndim == 1:
-        if y.name != "trait":
-            raise RuntimeError(
-                "The name of an unidimensional trait array should be" " 'trait'."
-            )
         if y.dims[0] != "sample":
             y = y.rename({y.dims[0]: "sample"})
+    else:
+        y = _set_missing_dim(y, ["sample", "trait"])
     return y
+
+
+def _set_missing_dim(arr, dims):
+    unk_dims = set(arr.dims) - set(dims)
+    if len(unk_dims) > 1:
+        raise ValueError("Too many unknown dimension names.")
+    elif len(unk_dims) == 1:
+        known_dims = set(dims) - set(arr.dims)
+        if len(known_dims) != 1:
+            raise ValueError("Can't figure out what is the missing dimension name.")
+        arr = arr.rename({unk_dims.pop(): known_dims.pop()})
+    return arr
+
+
+def _sort_dims(arr, dim_order):
+    dim_order = {k: v for k, v in dim_order.items() if k in arr.dims}
+    axis2dim = {v: k for k, v in dim_order.items()}
+    axes = sorted(axis2dim.keys())
+    return arr.transpose(*[axis2dim[a] for a in axes])
+
+
+def _split_fetch_spec(txt):
+    parts = []
+    j = 0
+    for i in range(len(txt)):
+        if len(parts) == 2:
+            parts.append(txt[i:])
+        if txt[i] == ":":
+            if j == i:
+                raise ValueError("Invalid fetch specification syntax.")
+            parts.append(txt[j:i])
+            j = i + 1
+
+    if len(txt[j:]) > 0:
+        parts.append(txt[j:])
+
+    if len(parts) == 0:
+        raise ValueError("Invalid fetch specification syntax.")
+
+    data = {"filepath": "", "filetype": "", "matrix_spec": ""}
+    data["filepath"] = parts[0]
+    if len(parts) > 1:
+        data["filetype"] = parts[1]
+    if len(parts) > 2:
+        data["matrix_spec"] = parts[2]
+    return data
+
+
+def _parse_fetch_spec(fetch_spec):
+    from ._detect import infer_filetype
+
+    spec = _split_fetch_spec(fetch_spec)
+    if spec["filetype"] == "":
+        spec["filetype"] = infer_filetype(spec["filepath"])
+    spec["matrix_spec"] = _parse_matrix_spec(spec["matrix_spec"])
+    return spec
+
+
+def _number_or_string(val):
+    if "." in val:
+        try:
+            val = float(val)
+            return val
+        except ValueError:
+            pass
+
+    try:
+        val = int(val)
+        return val
+    except ValueError:
+        pass
+
+    enclosed = False
+    if val.startswith("'") and val.endswith("'") and len(val) > 1:
+        enclosed = True
+
+    if val.startswith("'") and val.endswith("'") and len(val) > 1:
+        enclosed = True
+
+    if not enclosed:
+        val = '"' + val + '"'
+
+    return val
+
+
+def _parse_matrix_spec(txt):
+    import re
+
+    parts = _split_matrix_spec(txt)
+    data = {"sel": {}}
+    for p in parts:
+        p = p.strip()
+        if p.startswith("row"):
+            data["row"] = p.split("=")[1]
+        elif p.startswith("col"):
+            data["col"] = p.split("=")[1]
+        else:
+            match = re.match(r"(^[^\[]+)\[(.+)\]$", p)
+            if match is None:
+                raise ValueError("Invalid fetch specification syntax.")
+            # TODO: replace eval for something safer
+            v = _number_or_string(match.group(2))
+            data["sel"].update({match.group(1): eval(v)})
+
+    return data
+
+
+def _split_matrix_spec(txt):
+
+    brackets = 0
+    parts = []
+    j = 0
+    for i in range(len(txt)):
+        if txt[i] == "[":
+            brackets += 1
+        elif txt[i] == "]":
+            brackets -= 1
+        elif txt[i] == "," and brackets == 0:
+            if j == i:
+                raise ValueError("Invalid fetch specification syntax.")
+            parts.append(txt[j:i])
+            j = i + 1
+        if brackets < 0:
+            raise ValueError("Invalid fetch specification syntax.")
+
+    if len(txt[j:]) > 0:
+        parts.append(txt[j:])
+
+    return parts
