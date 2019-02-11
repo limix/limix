@@ -7,6 +7,8 @@ from .._bits.xarray import set_coord
 from .._bits.deco import return_none_if_none
 from ._dataarray import fix_dim_hint, rename_dims
 from ._data import is_data_name, is_short_data_name, to_data_name, get_short_data_names
+from ._asarray import asarray
+from ._conf import CONF
 
 
 rename_dims = return_none_if_none(rename_dims)
@@ -90,10 +92,14 @@ def conform_dataset(y, M=None, G=None, K=None):
         >>> with pytest.raises(ValueError):
         ...     conform_dataset(y, G=G, K=K)
     """
-    y = rename_dims(fix_dim_hint(to_dataarray(y)), ["sample", "trait"])
+    # y = rename_dims(fix_dim_hint(to_dataarray(y)), ["sample", "trait"])
+    y = asarray(y, "trait", CONF["data_dims"]["trait"])
     M = rename_dims(fix_dim_hint(to_dataarray(M)), ["sample", "covariate"])
+    # M = asarray(M, "covariate", CONF["data_dims"]["covariate"])
     G = rename_dims(fix_dim_hint(to_dataarray(G)), ["sample", "candidate"])
+    # G = asarray(G, "genotype", CONF["data_dims"]["genotype"])
     K = rename_dims(fix_dim_hint(to_dataarray(K)), ["sample_0", "sample_1"])
+    # K = asarray(K, "covariance", CONF["data_dims"]["covariance"])
 
     # Select those variables different than None
     _locals = locals()

@@ -13,16 +13,8 @@ _dim        DataArray dimension name manipulation.
 
 """
 from ._asarray import asarray
-from ._conform import conform_dataset, to_dataarray
+from ._conform import conform_dataset
 from ._dataarray import rename_dims
-from ._dim import is_dim_hint
 from ._lik import check_likelihood_name
 
-__all__ = [
-    "asarray",
-    "conform_dataset",
-    "to_dataarray",
-    "rename_dims",
-    "check_likelihood_name",
-    "is_dim_hint",
-]
+__all__ = ["asarray", "conform_dataset", "rename_dims", "check_likelihood_name"]
