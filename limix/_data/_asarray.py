@@ -1,9 +1,42 @@
 def asarray(x, target, dims=None):
     from xarray import DataArray
+    from limix._bits.dask import is_data_frame as is_dask_dataframe
+    from limix._bits.dask import is_array as is_dask_array
+    from limix._bits.dask import array_shape_reveal
     from ._conf import CONF
 
     if target not in CONF["data_names"]:
         raise ValueError(f"Unknown target name: {target}.")
+
+    # import dask.dataframe as dd
+    import dask.array as da
+    import xarray as xr
+
+    # from numpy import dtype
+    # from ._dim import is_dim_hint
+
+    if is_dask_array(x) or is_dask_dataframe(x):
+        xidx = x.index.compute()
+        x = da.asarray(x)
+        x = array_shape_reveal(x)
+        x0 = xr.DataArray(x)
+        x0.coords[x0.dims[0]] = xidx
+        if is_dask_dataframe(x):
+            x0.coords[x0.dims[1]] = x.columns
+        x = x0
+
+    # if not isinstance(x, xr.DataArray):
+    #     x = xr.DataArray(x, encoding={"dtype": "float64"})
+
+    # if x.dtype != dtype("float64"):
+    #     x = x.astype("float64")
+
+    if x.ndim < 2:
+        x = x.expand_dims("dim_1", 1)
+
+    # for dim in x.dims:
+    #     if x.coords[dim].dtype.kind in {"U", "S"}:
+    #         x.coords[dim] = x.coords[dim].values.astype(object)
 
     x = DataArray(x)
 

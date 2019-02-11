@@ -1,6 +1,3 @@
-from __future__ import absolute_import as _
-
-
 def array_shape_reveal(a):
     r""" Compute shape from lazy arrays.
 

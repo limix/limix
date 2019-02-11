@@ -1,12 +1,13 @@
-from .._data import get_dims_from_data_name, is_data_name
+# from .._data import asarray
 
 
 def fetch(target, fetch_spec, verbose=True):
-    from .._data import to_dataarray
-    from .._bits.xarray import hint_aware_sel
+    from .._data import asarray
 
-    if not is_data_name(target):
-        raise ValueError("`{}` is not a valid data name.".format(target))
+    # from .._bits.xarray import hint_aware_sel
+
+    # if not is_data_name(target):
+    #     raise ValueError("`{}` is not a valid data name.".format(target))
 
     if not isinstance(fetch_spec, dict):
         fetch_spec = _parse_fetch_spec(fetch_spec)
@@ -17,18 +18,21 @@ def fetch(target, fetch_spec, verbose=True):
     dims = {d: spec[d] for d in ["row", "col"] if d in spec}
 
     X = _dispatch[target][filetype](fetch_spec["filepath"], verbose=verbose)
-    X = to_dataarray(X)
-    X = _read_dims_into(X, dims)
+    X = asarray(X, target, dims)
+    # X = to_dataarray(X)
+    # X = _read_dims_into(X, dims)
 
     if len(spec["sel"]) > 0:
-        X = hint_aware_sel(X, **spec["sel"])
+        # X = hint_aware_sel(X, **spec["sel"])
+        X = X.sel(**spec["sel"])
 
+    X = asarray(X, target)
     X.name = target
 
-    if target == "trait":
-        X = _set_missing_dim(X, get_dims_from_data_name(target)[: X.ndim])
-        # breakpoint()
-        # X = _sort_dims(X, get_dims_order_from_data_name(target))
+    # if target == "trait":
+    #     X = _set_missing_dim(X, get_dims_from_data_name(target)[: X.ndim])
+    #     # breakpoint()
+    #     # X = _sort_dims(X, get_dims_order_from_data_name(target))
 
     return X
 
@@ -45,7 +49,8 @@ def _fetch_bed_genotype(filepath, verbose=True):
 
     candidates, samples, G = read(filepath, verbose=verbose)
 
-    G = DataArray(G.T, dims=get_dims_from_data_name("genotype"))
+    G = DataArray(G.T)
+    # G = DataArray(G.T, dims=get_dims_from_data_name("genotype"))
 
     for colname in samples.columns:
         G.coords[colname] = ("sample", samples[colname].values)
@@ -233,3 +238,24 @@ def _split_matrix_spec(txt):
         parts.append(txt[j:])
 
     return parts
+
+
+# def hint_aware_sel(x, **kwargs):
+#     from .._data import is_dim_hint, is_dim_name, dim_name_to_hint, dim_hint_to_name
+
+#     for k in kwargs.keys():
+#         if in_coords_dim(x, k):
+#             continue
+#         if is_dim_name(k) or is_dim_hint(k):
+#             if in_coords_dim(x, dim_name_to_hint(k)):
+#                 new_k = dim_name_to_hint(k)
+#                 if new_k not in kwargs:
+#                     kwargs[new_k] = kwargs[k]
+#                     del kwargs[k]
+#             elif in_coords_dim(x, dim_hint_to_name(k)):
+#                 new_k = dim_hint_to_name(k)
+#                 if new_k not in kwargs:
+#                     kwargs[new_k] = kwargs[k]
+#                     del kwargs[k]
+
+#     return x.sel(**kwargs)

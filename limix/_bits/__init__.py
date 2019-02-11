@@ -1,5 +1,3 @@
-from . import dask
-from . import xarray
-from . import deco
+from . import dask, deco, pandas, xarray
 
-__all__ = ["dask", "xarray", "deco"]
+__all__ = ["dask", "xarray", "deco", "pandas"]
