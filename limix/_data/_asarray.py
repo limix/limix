@@ -25,14 +25,14 @@ def asarray(x, target, dims=None):
     x = DataArray(x)
     x.name = target
 
-    if x.ndim < 2:
+    while x.ndim < 2:
         rdims = set(CONF["data_dims"]["trait"]).intersection(set(x.coords.keys()))
         rdims = rdims - set(x.dims)
         if len(rdims) == 1:
             dim = rdims.pop()
         else:
-            dim = "dim_1"
-        x = x.expand_dims(dim, 1)
+            dim = "dim_{}".format(x.ndim)
+        x = x.expand_dims(dim, x.ndim)
 
     if isinstance(dims, (tuple, list)):
         dims = {a: n for a, n in enumerate(dims)}

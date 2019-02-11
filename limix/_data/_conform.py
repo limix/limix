@@ -14,6 +14,7 @@ from ._conf import CONF
 rename_dims = return_none_if_none(rename_dims)
 fix_dim_hint = return_none_if_none(fix_dim_hint)
 set_coord = return_none_if_none(set_coord)
+asarray = return_none_if_none(asarray)
 
 
 def conform_dataset(y, M=None, G=None, K=None):
@@ -94,10 +95,10 @@ def conform_dataset(y, M=None, G=None, K=None):
     """
     # y = rename_dims(fix_dim_hint(to_dataarray(y)), ["sample", "trait"])
     y = asarray(y, "trait", CONF["data_dims"]["trait"])
-    M = rename_dims(fix_dim_hint(to_dataarray(M)), ["sample", "covariate"])
-    # M = asarray(M, "covariate", CONF["data_dims"]["covariate"])
-    G = rename_dims(fix_dim_hint(to_dataarray(G)), ["sample", "candidate"])
-    # G = asarray(G, "genotype", CONF["data_dims"]["genotype"])
+    # M = rename_dims(fix_dim_hint(to_dataarray(M)), ["sample", "covariate"])
+    M = asarray(M, "covariate", CONF["data_dims"]["covariate"])
+    # G = rename_dims(fix_dim_hint(to_dataarray(G)), ["sample", "candidate"])
+    G = asarray(G, "genotype", CONF["data_dims"]["genotype"])
     K = rename_dims(fix_dim_hint(to_dataarray(K)), ["sample_0", "sample_1"])
     # K = asarray(K, "covariance", CONF["data_dims"]["covariance"])
 
