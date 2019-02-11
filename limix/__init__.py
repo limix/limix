@@ -28,9 +28,10 @@ at https://limix.readthedocs.io/.
 """
 from __future__ import absolute_import as _
 
-from . import example, glmm, her, io, plot, qc, qtl, sh, stats, threads
+from . import glmm, her, io, plot, qc, qtl, sh, stats, threads
 from ._cli import cli
 from ._config import config
+from ._example import file_example
 from ._testit import test
 
 __version__ = "2.0.2"
@@ -40,7 +41,7 @@ __all__ = [
     "__version__",
     "cli",
     "config",
-    "example",
+    "file_example",
     "glmm",
     "gwas",
     "her",

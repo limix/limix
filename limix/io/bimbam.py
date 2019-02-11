@@ -18,9 +18,9 @@ def read_phenotype(filepath, verbose=True):
     .. doctest::
 
         >>> import limix
-        >>> from limix.example import file_example
+        >>> from limix import file_example
         >>>
-        >>> with file_example("ex0/phenotype.gemma") as filepath:
+        >>> with file_example("phenotype.gemma") as filepath:
         ...     print(limix.io.bimbam.read_phenotype(filepath, verbose=False))
         _trait         0        1        2
         _sample

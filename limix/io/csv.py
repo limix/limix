@@ -22,7 +22,7 @@ def read(filename, sep=None, header=True, verbose=True):
     .. doctest::
 
         >>> from limix.io.csv import read
-        >>> from limix.example import file_example
+        >>> from limix import file_example
         >>>
         >>> with file_example("data.csv") as filepath:
         ...     df = read(filepath, verbose=False)

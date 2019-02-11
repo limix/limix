@@ -1,4 +1,4 @@
-from .._data import get_dims_from_data_name, get_dims_order_from_data_name, is_data_name
+from .._data import get_dims_from_data_name, is_data_name
 
 
 def fetch(target, fetch_spec, verbose=True):
@@ -16,7 +16,6 @@ def fetch(target, fetch_spec, verbose=True):
     spec = fetch_spec["matrix_spec"]
     dims = {d: spec[d] for d in ["row", "col"] if d in spec}
 
-    breakpoint()
     X = _dispatch[target][filetype](fetch_spec["filepath"], verbose=verbose)
     X = to_dataarray(X)
     X = _read_dims_into(X, dims)
@@ -28,8 +27,8 @@ def fetch(target, fetch_spec, verbose=True):
 
     if target == "trait":
         X = _set_missing_dim(X, get_dims_from_data_name(target)[: X.ndim])
-        breakpoint()
-        X = _sort_dims(X, get_dims_order_from_data_name(target))
+        # breakpoint()
+        # X = _sort_dims(X, get_dims_order_from_data_name(target))
 
     return X
 

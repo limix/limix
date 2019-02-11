@@ -17,7 +17,7 @@ def read(prefix, verbose=True):
     .. doctest::
 
         >>> from limix.io.gen import read
-        >>> from limix.example import file_example
+        >>> from limix import file_example
         >>>
         >>> with file_example(["example.gen", "example.sample"]) as filepaths:
         ...     data = read(filepaths[0][:-4])
