@@ -1,7 +1,7 @@
 def check_likelihood_name(likname):
+    from ._conf import CONF
 
-    valid_names = set(["normal", "bernoulli", "probit", "binomial", "poisson"])
-    if likname not in valid_names:
+    if likname not in CONF["likelihoods"]:
         msg = "Unrecognized likelihood name: {}.\n".format(likname)
-        msg += "Valid names are: {}.".format(valid_names)
+        msg += "Valid names are: {}.".format(list(CONF["likelihoods"]))
         raise ValueError(msg)

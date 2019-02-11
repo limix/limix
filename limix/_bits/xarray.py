@@ -1,4 +1,4 @@
-from __future__ import absolute_import as _
+__all__ = ["set_coord", "take", "query"]
 
 
 def set_coord(x, dim, values):
@@ -14,10 +14,6 @@ def take(x, indices, dim):
     axis = next(i for i, d in enumerate(x.dims) if d == dim)
     sl[axis] = indices
     return x[tuple(sl)]
-
-
-def in_coords_dim(arr, k):
-    return k in arr.coords or k in arr.dims
 
 
 def query(data, expr):

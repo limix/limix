@@ -35,7 +35,7 @@ def quantile_gaussianize(X):
 
     if dask.is_array(X):
         X = _quantile_gaussianize_dask(X)
-    elif dask.is_data_frame(X):
+    elif dask.is_dataframe(X):
         x = _quantile_gaussianize_dask(X)
         import dask.dataframe as dd
 
@@ -67,7 +67,7 @@ def quantile_gaussianize(X):
 def _get_shape(x):
     from .._bits import dask
 
-    if dask.is_array(x) or dask.is_data_frame(x):
+    if dask.is_array(x) or dask.is_dataframe(x):
         import dask.array as da
 
         return da.compute(*x.shape)

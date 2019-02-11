@@ -1,20 +1,18 @@
 """
-_data package
-=============
+_data module
+============
 
 Private subpackage for standardisation of data structures and names.
 
-Modules
+Functions
 -------
-_conform    Standardise data structures.
-_data       Manipulation of phenotype, genotype, and other data names.
-_dataarray  Manipulation of names stored in DataArray.
-_dim        DataArray dimension name manipulation.
-
+conform_dataset       Standardise arrays jointly into limix DataArray.
+asarray               Convert array-like to limix DataArray.
+check_likelihood_name Check if a likelihood name is supported.
 """
 from ._asarray import asarray
+from ._conf import CONF
 from ._conform import conform_dataset
-from ._dataarray import rename_dims
 from ._lik import check_likelihood_name
 
-__all__ = ["asarray", "conform_dataset", "rename_dims", "check_likelihood_name"]
+__all__ = ["asarray", "conform_dataset", "check_likelihood_name", "CONF"]

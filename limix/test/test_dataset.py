@@ -1,8 +1,7 @@
-from numpy import array, asarray, dtype
+from limix._data import conform_dataset
+from numpy import array, dtype
 from numpy.random import RandomState
 from numpy.testing import assert_, assert_array_equal, assert_equal
-
-from limix._data import conform_dataset
 from pandas import DataFrame, Series
 from xarray import DataArray
 
@@ -54,7 +53,7 @@ def test_dataset_pandas_xarray_dask():
     import dask.array as da
     import dask.dataframe as dd
     import pandas as pd
-    from limix._data._conform import to_dataarray
+    from limix._data import asarray
 
     x = []
 
@@ -96,16 +95,15 @@ def test_dataset_pandas_xarray_dask():
         x.append(DataArray(x[i]))
         x.append(x[-1].chunk(2))
 
-    print()
     for xi in x:
-        y = to_dataarray(xi)
+        y = asarray(xi, "trait", ["sample", "trait"])
         assert_equal(y.dtype, dtype("float64"))
         assert_array_equal(y.shape, (3, 1))
         assert_(isinstance(y, DataArray))
         if isinstance(xi, Series):
-            assert_array_equal(list(xi.index), list(y.coords["dim_0"].values))
+            assert_array_equal(list(xi.index), list(y.coords["sample"].values))
         if isinstance(xi, DataFrame):
-            assert_array_equal(list(xi.columns), list(y.coords["dim_1"].values))
+            assert_array_equal(list(xi.columns), list(y.coords["trait"].values))
 
         is_dask = (
             hasattr(xi, "chunks")
@@ -117,7 +115,7 @@ def test_dataset_pandas_xarray_dask():
         )
 
         assert_equal(is_dask, y.chunks is not None)
-        assert_array_equal(asarray(xi).ravel(), asarray(y).ravel())
+        assert_array_equal(np.asarray(xi).ravel(), np.asarray(y).ravel())
 
 
 def test_dataset_different_size():

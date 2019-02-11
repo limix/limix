@@ -1,8 +1,10 @@
 def asarray(x, target, dims=None):
     from xarray import DataArray
-    from limix._bits.dask import is_data_frame as is_dask_dataframe
+    from limix._bits.dask import is_dataframe as is_dask_dataframe
     from limix._bits.dask import is_array as is_dask_array
+    from limix._bits.dask import is_series as is_dask_series
     from limix._bits.dask import array_shape_reveal
+    from limix._bits.xarray import is_data_array
     from ._conf import CONF
     from numpy import issubdtype, integer
 
@@ -12,7 +14,7 @@ def asarray(x, target, dims=None):
     import dask.array as da
     import xarray as xr
 
-    if is_dask_array(x) or is_dask_dataframe(x):
+    if is_dask_dataframe(x) or is_dask_series(x):
         xidx = x.index.compute()
         x = da.asarray(x)
         x = array_shape_reveal(x)
@@ -21,8 +23,13 @@ def asarray(x, target, dims=None):
         if is_dask_dataframe(x):
             x0.coords[x0.dims[1]] = x.columns
         x = x0
+    elif is_dask_array(x):
+        x = array_shape_reveal(x)
+        x = xr.DataArray(x)
 
-    x = DataArray(x)
+    if not is_data_array(x):
+        x = DataArray(x)
+
     x.name = target
 
     while x.ndim < 2:

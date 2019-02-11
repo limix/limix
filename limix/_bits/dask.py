@@ -1,3 +1,6 @@
+__all__ = ["array_shape_reveal", "is_array", "is_series"]
+
+
 def array_shape_reveal(a):
     r""" Compute shape from lazy arrays.
 
@@ -21,7 +24,14 @@ def is_array(a):
     return pkg == "dask" and name == "Array"
 
 
-def is_data_frame(a):
+def is_series(a):
+    pkg = a.__class__.__module__.split(".")[0]
+    name = a.__class__.__name__
+
+    return pkg == "dask" and name == "Series"
+
+
+def is_dataframe(a):
     pkg = a.__class__.__module__.split(".")[0]
     name = a.__class__.__name__
 

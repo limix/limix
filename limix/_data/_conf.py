@@ -1,4 +1,5 @@
 CONF = {
+    "likelihoods": set(["normal", "bernoulli", "probit", "binomial", "poisson"]),
     "dim_axis": {
         "sample": 0,
         "trait": 1,
@@ -25,5 +26,11 @@ CONF = {
         "genotype": ["sample", "candidate"],
         "covariate": ["sample", "covariate"],
         "covariance": ["sample_0", "sample_1"],
+    },
+    "varname_to_target": {
+        "y": "trait",
+        "M": "covariate",
+        "G": "genotype",
+        "K": "covariance",
     },
 }
