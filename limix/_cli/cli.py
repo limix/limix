@@ -1,11 +1,11 @@
 import click
 
-from ._download import download
-from ._estimate_kinship import estimate_kinship
-from ._extract import extract
-from ._remove import remove
-from ._scan import scan
-from ._see import see
+from .download import download
+from .estimate_kinship import estimate_kinship
+from .extract import extract
+from .remove import remove
+from .scan import scan
+from .see import see
 
 
 def _get_version():

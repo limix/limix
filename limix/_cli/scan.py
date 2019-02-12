@@ -130,7 +130,7 @@ def scan(
     from os.path import abspath, exists
     from limix._display import session_block, banner, session_line, indent
     from .._fetch import fetch
-    from .._pipeline import Pipeline
+    from .pipeline import Pipeline
     from limix._data import conform_dataset
     from .._preprocess import process_filter, process_normalize
 
