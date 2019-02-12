@@ -35,4 +35,10 @@ CONF = {
         "G": "genotype",
         "K": "covariance",
     },
+    "target_to_varname": {
+        "trait": "y",
+        "covariate": "M",
+        "genotype": "G",
+        "covariance": "K",
+    },
 }

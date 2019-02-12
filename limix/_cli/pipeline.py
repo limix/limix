@@ -7,18 +7,27 @@ class Pipeline(object):
     def append(self, process, *args, **kwargs):
         self._process.append({"func": process, "args": args, "kwargs": kwargs})
 
-    def run(self):
+    def run(self, verbose=True):
         for target in self._data.keys():
             self._layout.append(target, "initial", self._data[target].shape)
 
         for p in self._process:
             p["func"](self._data, self._layout, *p["args"], **p["kwargs"])
 
-            if self._data["y"].sample.size == 0:
+            if self._get_samples().size == 0:
                 print(self._layout.to_string())
                 raise RuntimeError("Exiting early because there is no sample left.")
 
-        print(self._layout.to_string())
+        if verbose:
+            print(self._layout.to_string())
+
+        return self._data
+
+    def _get_samples(self):
+        for x in self._data.values():
+            if hasattr(x, "sample"):
+                return x.sample
+        raise RuntimeError("Could not get samples.")
 
 
 class _LayoutChange(object):

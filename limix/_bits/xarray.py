@@ -16,16 +16,19 @@ def take(x, indices, dim):
     return x[tuple(sl)]
 
 
-def query(data, expr):
+def query(x, expr):
     from io import StringIO
     from tokenize import generate_tokens, OP, NAME
 
+    expr = expr.strip()
+    if len(expr) == 0:
+        return x
     tokens = list(generate_tokens(StringIO(expr).readline))
 
     final_expr = ""
     last = None
     for t in tokens:
-        if t.type == NAME:
+        if t.type == NAME and t.string not in ["isin", "None"]:
 
             is_boolean = last is not None
             is_boolean = is_boolean and not (last.type == OP and _is_comp(last.string))
@@ -33,14 +36,14 @@ def query(data, expr):
             if is_boolean:
                 final_expr += _cast_boolean(t.string)
             else:
-                final_expr += 'data["{}"]'.format(t.string)
+                final_expr += 'x["{}"]'.format(t.string)
         elif t.type == OP and _is_comp(t.string):
             final_expr += " {} ".format(t.string)
         else:
             final_expr += t.string
         last = t
 
-    return eval("data.where(" + final_expr + ", drop=True)")
+    return eval("x.where(" + final_expr + ", drop=True)")
 
 
 def is_data_array(a):

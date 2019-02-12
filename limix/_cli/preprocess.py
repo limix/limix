@@ -55,24 +55,13 @@
 #     return data
 
 
-def process_filter(data, layout, filter_spec, target):
+def where_filter(data, layout, expr, target):
     from limix._bits.xarray import query
-    from limix._data import to_short_data_name
+    from limix._data import CONF
 
-    elems = [fs.strip() for fs in filter_spec.strip().split(":")]
-    if len(elems) != 2:
-        msg = "Filter syntax error. It should have been\n"
-        msg += "  <TARGET>: <COND>\n"
-        msg += f"but we received `{filter_spec}`."
-        raise ValueError(msg)
-
-    target_name = elems[0]
-    expr = elems[1]
-
-    if to_short_data_name(target_name) == target:
-        data[target] = query(data[target], expr)
-
-    layout.append(target, "filter", data[target].shape)
+    varname = CONF["target_to_varname"][target]
+    data[varname] = query(data[varname], expr)
+    layout.append(target, "filter", data[varname].shape)
 
     return data
 
