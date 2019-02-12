@@ -1,4 +1,5 @@
 import limix
+import pytest
 from numpy.testing import (
     assert_allclose,
     assert_array_equal,
@@ -289,7 +290,7 @@ def test_fetch_csv():
     with limix.file_example("expr.csv") as filepath:
 
         spec = f"{filepath}:csv:row=trait,trait[gene1]"
-        y = limix.io.fetch("trait", spec, verbose=True)
+        y = limix.io.fetch("trait", spec, verbose=False)
 
         assert_string_equal(y.name, "trait")
         assert_array_equal(y["sample"], _samples)
@@ -298,7 +299,7 @@ def test_fetch_csv():
         assert_array_equal(y.coords, ["trait", "sample"])
 
         spec = f"{filepath}:csv:row=trait,trait[gene11]"
-        y = limix.io.fetch("trait", spec, verbose=True)
+        y = limix.io.fetch("trait", spec, verbose=False)
 
         assert_string_equal(y.name, "trait")
         assert_array_equal(y["sample"], _samples)
@@ -306,8 +307,75 @@ def test_fetch_csv():
         assert_allclose(y.values[:2, 0], [0.798_312_717_19, 0.237_496_587_19])
 
         spec = f"{filepath}:csv:row=trait"
-        y = limix.io.fetch("trait", spec, verbose=True)
+        y = limix.io.fetch("trait", spec, verbose=False)
 
         assert_string_equal(y.name, "trait")
         assert_array_equal(y["sample"], _samples)
         assert_equal(y.shape, (274, 11))
+
+        spec = f"{filepath}:csv:row=trait,col=sample"
+        y = limix.io.fetch("trait", spec, verbose=False)
+        assert_equal(y.shape, (274, 11))
+        assert_equal(y.dims, ("sample", "trait"))
+
+        spec = f"{filepath}:csv:row=sample,col=trait"
+        y = limix.io.fetch("trait", spec, verbose=False)
+        assert_equal(y.shape, (11, 274))
+        assert_equal(y.dims, ("sample", "trait"))
+
+        spec = f"{filepath}:csv:"
+        with pytest.raises(ValueError):
+            y = limix.io.fetch("trait", spec, verbose=False)
+
+        spec = f"{filepath}:csv"
+        with pytest.raises(ValueError):
+            y = limix.io.fetch("trait", spec, verbose=False)
+        spec = f"{filepath}:csv:row=samples"
+        with pytest.raises(ValueError):
+            y = limix.io.fetch("trait", spec, verbose=False)
+
+        spec = "wrong_filepath:csv:row=sample"
+        with pytest.raises(FileNotFoundError):
+            y = limix.io.fetch("trait", spec, verbose=False)
+
+        spec = f"{filepath}:csv:row=sample,col=trait"
+        with pytest.raises(ValueError):
+            y = limix.io.fetch("traits", spec, verbose=False)
+
+        spec = f"{filepath}:csvs:row=sample,col=trait"
+        with pytest.raises(ValueError):
+            y = limix.io.fetch("trait", spec, verbose=False)
+
+
+def test_fetch_bed():
+    import os
+
+    filenames = [
+        "chrom22_subsample20_maf0.10.bed",
+        "chrom22_subsample20_maf0.10.fam",
+        "chrom22_subsample20_maf0.10.bim",
+    ]
+
+    with limix.file_example(filenames) as filepaths:
+        folder = os.path.dirname(filepaths[0])
+        filepath = os.path.join(folder, "chrom22_subsample20_maf0.10")
+
+        specs = [
+            f"{filepath}",
+            f"{filepath}:bed:row=candidate,col=sample",
+            f"{filepath}:bed:col=sample",
+            f"{filepath}:bed",
+            f"{filepath}",
+            f"{filepath}:",
+            f"{filepath}::",
+            f"{filepath}:bed:",
+            f"{filepath}::row=candidate",
+        ]
+
+        for spec in specs:
+            G = limix.io.fetch("genotype", spec, verbose=False)
+
+            assert_string_equal(G.name, "genotype")
+            assert_array_equal(G["sample"], _samples)
+            assert_equal(G.shape, (274, 49008))
+            assert_array_equal(G.dims, ["sample", "candidate"])

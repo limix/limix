@@ -1,5 +1,7 @@
 CONF = {
     "likelihoods": set(["normal", "bernoulli", "probit", "binomial", "poisson"]),
+    "targets": set(["trait", "covariate", "covariance", "genotype"]),
+    "filetypes": set(["csv", "bed"]),
     "dim_axis": {
         "sample": 0,
         "trait": 1,

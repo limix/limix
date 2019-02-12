@@ -47,6 +47,18 @@ _filenames = {
         "url": "http://rest.s3for.me/limix/example/data.h5.bz2",
         "sha256": "2df755158b403416e1b0270815b2fc18f7d23ec5590c9cabacd2e1be98510c59",
     },
+    "chrom22_subsample20_maf0.10.bed": {
+        "url": "http://rest.s3for.me/limix/example/chrom22_subsample20_maf0.10.bed",
+        "sha256": "cf18099968dbb9a514d2e9b86f02f2fab2c549e7859d7560ae5bc79a841dd269",
+    },
+    "chrom22_subsample20_maf0.10.fam": {
+        "url": "http://rest.s3for.me/limix/example/chrom22_subsample20_maf0.10.fam",
+        "sha256": "76bd241625bf2b6aa5fe763d4d037609fbd8c70eadf261faeab99cdd5fe7443e",
+    },
+    "chrom22_subsample20_maf0.10.bim": {
+        "url": "http://rest.s3for.me/limix/example/chrom22_subsample20_maf0.10.bim",
+        "sha256": "24824433bef33e17a9f9713868f492c9957efbc585e0010dfcc8536fdf7996d4",
+    },
 }
 
 

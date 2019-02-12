@@ -1,38 +1,29 @@
-# from .._data import asarray
+from collections import namedtuple
+
+FetchSpec = namedtuple("FetchSpec", ["filepath", "filetype", "matrix_spec"])
 
 
 def fetch(target, fetch_spec, verbose=True):
     from .._data import asarray
+    from .._data import assert_target, assert_filetype
 
-    # from .._bits.xarray import hint_aware_sel
+    assert_target(target)
 
-    # if not is_data_name(target):
-    #     raise ValueError("`{}` is not a valid data name.".format(target))
-
-    if not isinstance(fetch_spec, dict):
+    if isinstance(fetch_spec, str):
         fetch_spec = _parse_fetch_spec(fetch_spec)
 
-    filetype = fetch_spec["filetype"]
+    assert_filetype(fetch_spec.filetype)
+    matrix_spec = fetch_spec.matrix_spec
+    dims = {d: matrix_spec[d] for d in ["row", "col"] if d in matrix_spec}
 
-    spec = fetch_spec["matrix_spec"]
-    dims = {d: spec[d] for d in ["row", "col"] if d in spec}
-
-    X = _dispatch[target][filetype](fetch_spec["filepath"], verbose=verbose)
+    X = _dispatch[target][fetch_spec.filetype](fetch_spec.filepath, verbose=verbose)
     X = asarray(X, target, dims)
-    # X = to_dataarray(X)
-    # X = _read_dims_into(X, dims)
 
-    if len(spec["sel"]) > 0:
-        # X = hint_aware_sel(X, **spec["sel"])
-        X = X.sel(**spec["sel"])
+    if len(matrix_spec["sel"]) > 0:
+        X = X.sel(**matrix_spec["sel"])
 
     X = asarray(X, target)
     X.name = target
-
-    # if target == "trait":
-    #     X = _set_missing_dim(X, get_dims_from_data_name(target)[: X.ndim])
-    #     # breakpoint()
-    #     # X = _sort_dims(X, get_dims_order_from_data_name(target))
 
     return X
 
@@ -45,12 +36,14 @@ def _fetch_npy_covariance(filepath, verbose=True):
 
 def _fetch_bed_genotype(filepath, verbose=True):
     from .plink import read
-    from xarray import DataArray
+    from limix._data import asarray
 
     candidates, samples, G = read(filepath, verbose=verbose)
 
-    G = DataArray(G.T)
-    # G = DataArray(G.T, dims=get_dims_from_data_name("genotype"))
+    assert G.shape == (len(candidates), len(samples))
+    G = asarray(G, "genotype", ["candidate", "sample"])
+    # Make sure we return the same matrix layout that has been read.
+    G = G.transpose("candidate", "sample")
 
     for colname in samples.columns:
         G.coords[colname] = ("sample", samples[colname].values)
@@ -77,24 +70,6 @@ def _fetch_csv_phenotype(filepath, verbose):
     return read(filepath, verbose=verbose)
 
 
-def _read_dims_into(X, dims):
-    rc = {"row": 0, "col": 1}
-    # If mentioned dims are already in the datarray, just transpose it
-    # if necessary.
-    for axis_name, dim_name in dims.items():
-        try:
-            first = next(i for i in range(len(X.dims)) if X.dims[i] == dim_name)
-        except StopIteration:
-            continue
-        if rc[axis_name] != first:
-            X = X.T
-
-    # Se dim names if they were not found already in the dataarray.
-    for axis_name, dim_name in dims.items():
-        X = X.rename({X.dims[rc[axis_name]]: dim_name})
-    return X
-
-
 _dispatch = {
     "genotype": {"bed": _fetch_bed_genotype},
     "trait": {"bimbam-pheno": _fetch_bimbam_phenotype, "csv": _fetch_csv_phenotype},
@@ -102,69 +77,20 @@ _dispatch = {
 }
 
 
-def _fix_trait_dims(y):
-    if y.ndim == 1:
-        if y.dims[0] != "sample":
-            y = y.rename({y.dims[0]: "sample"})
-    else:
-        y = _set_missing_dim(y, ["sample", "trait"])
-    return y
-
-
-def _set_missing_dim(arr, dims):
-    unk_dims = set(arr.dims) - set(dims)
-    if len(unk_dims) > 1:
-        raise ValueError("Too many unknown dimension names.")
-    elif len(unk_dims) == 1:
-        known_dims = set(dims) - set(arr.dims)
-        if len(known_dims) != 1:
-            raise ValueError("Can't figure out what is the missing dimension name.")
-        arr = arr.rename({unk_dims.pop(): known_dims.pop()})
-    return arr
-
-
-def _sort_dims(arr, dim_order):
-    dim_order = {k: v for k, v in dim_order.items() if k in arr.dims}
-    axis2dim = {v: k for k, v in dim_order.items()}
-    axes = sorted(axis2dim.keys())
-    return arr.transpose(*[axis2dim[a] for a in axes])
-
-
-def _split_fetch_spec(txt):
-    parts = []
-    j = 0
-    for i in range(len(txt)):
-        if len(parts) == 2:
-            parts.append(txt[i:])
-        if txt[i] == ":":
-            if j == i:
-                raise ValueError("Invalid fetch specification syntax.")
-            parts.append(txt[j:i])
-            j = i + 1
-
-    if len(txt[j:]) > 0:
-        parts.append(txt[j:])
-
-    if len(parts) == 0:
-        raise ValueError("Invalid fetch specification syntax.")
-
-    data = {"filepath": "", "filetype": "", "matrix_spec": ""}
-    data["filepath"] = parts[0]
-    if len(parts) > 1:
-        data["filetype"] = parts[1]
-    if len(parts) > 2:
-        data["matrix_spec"] = parts[2]
-    return data
-
-
-def _parse_fetch_spec(fetch_spec):
+def _parse_fetch_spec(spec):
     from ._detect import infer_filetype
 
-    spec = _split_fetch_spec(fetch_spec)
+    ncolons = sum([1 for c in spec if c == ":"])
+    if ncolons > 2:
+        raise ValueError("Wrong specification syntax: there were more than two colons.")
+    spec = spec + ":" * (2 - ncolons)
+    spec = dict(zip(["filepath", "filetype", "matrix_spec"], spec.split(":")))
+
     if spec["filetype"] == "":
         spec["filetype"] = infer_filetype(spec["filepath"])
     spec["matrix_spec"] = _parse_matrix_spec(spec["matrix_spec"])
-    return spec
+
+    return FetchSpec(**spec)
 
 
 def _number_or_string(val):
@@ -238,24 +164,3 @@ def _split_matrix_spec(txt):
         parts.append(txt[j:])
 
     return parts
-
-
-# def hint_aware_sel(x, **kwargs):
-#     from .._data import is_dim_hint, is_dim_name, dim_name_to_hint, dim_hint_to_name
-
-#     for k in kwargs.keys():
-#         if in_coords_dim(x, k):
-#             continue
-#         if is_dim_name(k) or is_dim_hint(k):
-#             if in_coords_dim(x, dim_name_to_hint(k)):
-#                 new_k = dim_name_to_hint(k)
-#                 if new_k not in kwargs:
-#                     kwargs[new_k] = kwargs[k]
-#                     del kwargs[k]
-#             elif in_coords_dim(x, dim_hint_to_name(k)):
-#                 new_k = dim_hint_to_name(k)
-#                 if new_k not in kwargs:
-#                     kwargs[new_k] = kwargs[k]
-#                     del kwargs[k]
-
-#     return x.sel(**kwargs)
