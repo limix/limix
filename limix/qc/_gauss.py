@@ -1,10 +1,12 @@
-def quantile_gaussianize(X):
+def quantile_gaussianize(X, axis=1):
     r"""Normalize a sequence of values via rank and Normal c.d.f.
 
     Parameters
     ----------
     X : array_like
         Array of values.
+    axis : int
+        Axis value. Defaults to `1`.
 
     Returns
     -------
@@ -34,10 +36,11 @@ def quantile_gaussianize(X):
         X = X.astype(float)
 
     if dask.is_array(X):
-        X = _quantile_gaussianize_dask(X)
+        X = _quantile_gaussianize_dask(X, axis)
     elif dask.is_dataframe(X):
-        x = _quantile_gaussianize_dask(X)
         import dask.dataframe as dd
+
+        x = _quantile_gaussianize_dask(X, axis)
 
         x = x.rechunk([(x.shape[0] + 1) // X.index.npartitions, x.chunks[1]])
         X = dd.from_dask_array(x, columns=X.columns, index=X.index)
@@ -45,18 +48,13 @@ def quantile_gaussianize(X):
         data = X.data
 
         if dask.is_array(data):
-            data = _quantile_gaussianize_dask(data)
+            data = _quantile_gaussianize_dask(data, axis)
         else:
-            data = _quantile_gaussianize_ndarray(data)
+            data = _quantile_gaussianize_ndarray(data, axis)
 
         X.data = data
     else:
-        if hasattr(X, "to_numpy"):
-            x = X.to_numpy()
-        else:
-            x = X
-
-        X[:] = _quantile_gaussianize_ndarray(x)
+        X[:] = _quantile_gaussianize_ndarray(X, axis)
 
     if orig_shape is not None and hasattr(X, "reshape"):
         X = X.reshape(orig_shape)
@@ -74,7 +72,7 @@ def _get_shape(x):
     return x.shape
 
 
-def _quantile_gaussianize_ndarray(X):
+def _quantile_gaussianize_ndarray(X, axis):
     from scipy.stats import norm
     from numpy import isfinite, asanyarray
     from numpy.ma import masked_invalid
@@ -82,18 +80,21 @@ def _quantile_gaussianize_ndarray(X):
     from numpy import apply_along_axis
 
     X = asanyarray(X, float)
+
     orig_shape = X.shape
     if X.ndim == 1:
         X = X.reshape(orig_shape + (1,))
+
+    X = X.swapaxes(1, axis)
     X = masked_invalid(X)
     X *= -1
     X = nanrankdata(X, axis=0)
     X = X / (isfinite(X).sum(axis=0) + 1)
     X = apply_along_axis(norm.isf, 0, X)
-    return X.reshape(orig_shape)
+    return X.swapaxes(1, axis).reshape(orig_shape)
 
 
-def _quantile_gaussianize_dask(x):
+def _quantile_gaussianize_dask(x, axis):
     import dask.array as da
     from scipy.stats import norm
     from bottleneck import nanrankdata
@@ -101,6 +102,8 @@ def _quantile_gaussianize_dask(x):
 
     if hasattr(x, "to_dask_array"):
         x = x.to_dask_array(lengths=True)
+
+    x = x.swapaxes(1, axis)
 
     x = dask.array_shape_reveal(x)
     shape = da.compute(*x.shape)
@@ -110,7 +113,7 @@ def _quantile_gaussianize_dask(x):
     x = x / (da.isfinite(x).sum(axis=0) + 1)
     x = da.apply_along_axis(_dask_apply, 0, x, norm.isf, shape[0])
 
-    return x
+    return x.swapaxes(1, axis)
 
 
 def _dask_apply(x, func1d, length):
@@ -118,3 +121,4 @@ def _dask_apply(x, func1d, length):
 
     x = func1d(x)
     return resize(x, length)
+

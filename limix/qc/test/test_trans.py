@@ -1,3 +1,4 @@
+import dask.array as da
 import dask.dataframe as dd
 import pandas as pd
 import pytest
@@ -107,3 +108,44 @@ def test_quantile_gaussianize_xarray_dataarray(data):
     assert_(isinstance(quantile_gaussianize(get(data["X0"])), xr.DataArray))
     assert_(isinstance(quantile_gaussianize(get(data["X1"])), xr.DataArray))
     assert_(isinstance(quantile_gaussianize(get(data["X1nan"])), xr.DataArray))
+
+
+def test_quantile_gaussianize_axis():
+    X = RandomState(0).randn(2, 3)
+    N0 = asarray(
+        [
+            [
+                -0.430_727_299_295_457_44,
+                -0.430_727_299_295_457_44,
+                0.430_727_299_295_457_44,
+            ],
+            [
+                0.430_727_299_295_457_44,
+                0.430_727_299_295_457_44,
+                -0.430_727_299_295_457_44,
+            ],
+        ]
+    )
+    N1 = asarray(
+        [
+            [0.674_489_750_196_081_7, 0.674_489_750_196_081_7],
+            [-0.674_489_750_196_081_7, 0.0],
+            [0.0, -0.674_489_750_196_081_7],
+        ]
+    ).T
+    assert_allclose(quantile_gaussianize(X), N0)
+    assert_allclose(quantile_gaussianize(X, axis=0), N1)
+
+    assert_allclose(quantile_gaussianize(xr.DataArray(X)), N0)
+    assert_allclose(quantile_gaussianize(xr.DataArray(X), axis=0), N1)
+
+    assert_allclose(quantile_gaussianize(xr.DataArray(da.from_array(X, chunks=2))), N0)
+    assert_allclose(
+        quantile_gaussianize(xr.DataArray(da.from_array(X, chunks=2)), axis=0), N1
+    )
+
+    assert_allclose(quantile_gaussianize(da.from_array(X, chunks=2)), N0)
+    assert_allclose(quantile_gaussianize(da.from_array(X, chunks=2), axis=0), N1)
+
+    assert_allclose(quantile_gaussianize(dd.from_array(X)), N0)
+    assert_allclose(quantile_gaussianize(dd.from_array(X), axis=0), N1)
