@@ -1,5 +1,5 @@
 from ._allele import compute_maf
-from .impute import mean_impute
+from ._impute import mean_impute
 from .kinship import normalise_covariance
 from .ld import indep_pairwise
 from .linalg import remove_dependent_cols

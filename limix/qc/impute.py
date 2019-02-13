@@ -1,4 +1,4 @@
-from limix._bits import get_shape
+from limix._bits import dask, get_shape, numpy, pandas, xarray
 
 
 def mean_impute(X, axis=-1, inplace=False):
@@ -41,7 +41,12 @@ def mean_impute(X, axis=-1, inplace=False):
 
     .. _Dask: https://dask.pydata.org/
     """
-    from .._bits import dask, pandas, numpy, xarray
+    from numpy import asarray
+
+    if isinstance(X, (tuple, list)):
+        if inplace:
+            raise ValueError("Can't use `inplace=True` for {}.".format(type(X)))
+        X = asarray(X, float)
 
     if numpy.is_array(X):
         X = _impute_numpy(X, axis, inplace)
@@ -72,6 +77,7 @@ def _impute_numpy(X, axis, inplace):
 
     if not inplace:
         X = X.copy()
+
     X = X.swapaxes(-1, axis)
     m = nanmean(X, axis=0)
     for i, mi in enumerate(m):
@@ -98,6 +104,7 @@ def _impute_dask_dataframe(x, axis, inplace):
 
     if inplace:
         raise NotImplementedError()
+
     d = x.to_dask_array(lengths=True)
     d = _impute_dask_array(d, axis, False)
     x = dd.from_dask_array(d, columns=x.columns, index=x.index)
@@ -132,8 +139,6 @@ def _impute_dask_array(x, axis, inplace):
 
 
 def _impute_xarray_dataarray(X, axis, inplace):
-    from .._bits import dask
-
     if not inplace:
         X = X.copy(deep=True)
 
