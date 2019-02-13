@@ -44,7 +44,7 @@ def quantile_gaussianize(X, axis=1):
 
         x = x.rechunk([(x.shape[0] + 1) // X.index.npartitions, x.chunks[1]])
         X = dd.from_dask_array(x, columns=X.columns, index=X.index)
-    elif xarray.is_data_array(X):
+    elif xarray.is_dataarray(X):
         data = X.data
 
         if dask.is_array(data):

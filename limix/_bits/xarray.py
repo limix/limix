@@ -46,7 +46,7 @@ def query(x, expr):
     return eval("x.where(" + final_expr + ", drop=True)")
 
 
-def is_data_array(a):
+def is_dataarray(a):
     pkg = a.__class__.__module__.split(".")[0]
     name = a.__class__.__name__
 

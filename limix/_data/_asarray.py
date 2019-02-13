@@ -4,7 +4,7 @@ def asarray(x, target, dims=None):
     from limix._bits.dask import is_array as is_dask_array
     from limix._bits.dask import is_series as is_dask_series
     from limix._bits.dask import array_shape_reveal
-    from limix._bits.xarray import is_data_array
+    from limix._bits.xarray import is_dataarray
     from ._conf import CONF
     from numpy import issubdtype, integer
 
@@ -27,7 +27,7 @@ def asarray(x, target, dims=None):
         x = array_shape_reveal(x)
         x = xr.DataArray(x)
 
-    if not is_data_array(x):
+    if not is_dataarray(x):
         x = DataArray(x)
 
     x.name = target

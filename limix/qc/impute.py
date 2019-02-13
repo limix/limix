@@ -55,14 +55,14 @@ def mean_impute(X, axis=-1, inplace=False):
         raise NotImplementedError()
     elif dask.is_dataframe(X):
         X = _impute_dask_dataframe(X, axis, inplace)
-    elif xarray.is_data_array(X):
+    elif xarray.is_dataarray(X):
         X = _impute_xarray_dataarray(X, axis, inplace)
     else:
         if hasattr(X, "values"):
             x = X.values
         else:
             x = X
-        X = _impute_numpy(x.copy(), axis, inplace)
+        X = _impute_numpy(x, axis, inplace)
 
     return X
 
