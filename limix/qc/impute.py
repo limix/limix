@@ -2,9 +2,9 @@ from limix._bits import get_shape
 
 
 def mean_impute(X, axis=-1, inplace=False):
-    r"""Column-wise impute ``NaN`` values by column mean.
+    r"""Impute ``NaN`` values.
 
-    It works well with `Dask`_ array.
+    It defaults to column-wise imputation.
 
     Parameters
     ----------
@@ -58,11 +58,7 @@ def mean_impute(X, axis=-1, inplace=False):
     elif xarray.is_dataarray(X):
         X = _impute_xarray_dataarray(X, axis, inplace)
     else:
-        if hasattr(X, "values"):
-            x = X.values
-        else:
-            x = X
-        X = _impute_numpy(x, axis, inplace)
+        raise NotImplementedError()
 
     return X
 

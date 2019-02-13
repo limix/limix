@@ -1,5 +1,6 @@
 from copy import copy
 
+import warnings
 import dask.array as da
 import dask.dataframe as dd
 import pandas as pd
@@ -117,6 +118,7 @@ def test_impute_xarray_dataarray(data2d):
 
 
 def _assert_impute(astype, data):
+    warnings.simplefilter("ignore", RuntimeWarning)
     Xorig = astype(data)
     X = copy(Xorig)
     assert_allclose(mean_impute(X), data["R"])
@@ -131,6 +133,7 @@ def _assert_impute(astype, data):
 
 
 def _assert_impute_inplace(astype, data):
+    warnings.simplefilter("ignore", RuntimeWarning)
     Xorig = astype(data)
     X = copy(Xorig)
     assert_allclose(mean_impute(X, inplace=True), data["R"])
