@@ -2,7 +2,8 @@ import os
 
 import limix
 from limix._cli.pipeline import Pipeline
-from limix._cli.preprocess import normalize, where
+from limix._cli.preprocess import normalize, where, impute
+from numpy.testing import assert_allclose
 
 
 def test_pipeline_where_filter():
@@ -57,3 +58,51 @@ def test_pipeline_normalize():
         pipeline = Pipeline(data)
         pipeline.append(normalize, spec="trait:trait:gaussianize")
         data = pipeline.run(verbose=False)
+        assert_allclose(
+            data["y"].values[0, :3],
+            [
+                -2.684_091_161_327_623_7,
+                -0.348_755_695_517_044_7,
+                -1.429_964_275_028_744_2,
+            ],
+        )
+
+        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        data = {"y": y}
+        pipeline = Pipeline(data)
+        pipeline.append(normalize, spec="trait:sample:gaussianize")
+        data = pipeline.run(verbose=False)
+        assert_allclose(
+            data["y"].values[0, :3],
+            [-1.382_994_127_100_638, 0.0, -0.674_489_750_196_081_7],
+        )
+
+def test_pipeline_impute():
+
+    with limix.file_example("expr_nan.csv") as filepath:
+        folder = os.path.dirname(filepath)
+        filepath = os.path.join(folder, "expr_nan.csv")
+
+        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        data = {"y": y}
+        pipeline = Pipeline(data)
+        pipeline.append(impute, spec="trait:trait:mean")
+        data = pipeline.run(verbose=False)
+        # assert_allclose(
+        #     data["y"].values[0, :3],
+        #     [
+        #         -2.684_091_161_327_623_7,
+        #         -0.348_755_695_517_044_7,
+        #         -1.429_964_275_028_744_2,
+        #     ],
+        # )
+
+        # y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        # data = {"y": y}
+        # pipeline = Pipeline(data)
+        # pipeline.append(normalize, spec="trait:sample:gaussianize")
+        # data = pipeline.run(verbose=False)
+        # assert_allclose(
+        #     data["y"].values[0, :3],
+        #     [-1.382_994_127_100_638, 0.0, -0.674_489_750_196_081_7],
+        # )

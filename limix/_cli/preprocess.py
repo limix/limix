@@ -54,28 +54,31 @@
 
 #     return data
 
-def _syntax_error_msg(what, syntax, spec):
-    msg = f"{what} syntax error. It should have been\n"
-    msg += f"  {syntax}\n"
-    msg += f"but we received `{spec}`."
-    return msg
 
-
-def where(data, layout, spec):
-    from limix._bits.xarray import query
+def impute(data, layout, spec):
+    import limix
     from limix._data import CONF
 
     ncolons = sum(1 for c in spec if c == ":")
-    if ncolons > 1:
-        _syntax_error_msg("Where", "<TARGET>:<COND>", spec)
+    if ncolons > 2:
+        _syntax_error_msg("Impute", "<TARGET>:<DIM>:<METHOD>", spec)
 
     spec = spec.strip()
     spec = spec + ":" * (1 - ncolons)
-    target, cond = [e.strip() for e in spec.split(":")]
+    target, dim, method = [e.strip() for e in spec.split(":")]
 
     varname = CONF["target_to_varname"][target]
-    data[varname] = query(data[varname], cond)
-    layout.append(target, "filter", data[varname].shape)
+    x = data[varname]
+
+    axis = next(i for i, d in enumerate(x.dims) if d == dim)
+
+    if method == "mean":
+        x = limix.qc.impute.mean_impute(x, axis=axis)
+    else:
+        raise ValueError(f"Unrecognized impute method: {method}.")
+
+    data[varname] = x
+    layout.append(target, "normalize", data[varname].shape)
 
     return data
 
@@ -102,7 +105,27 @@ def normalize(data, layout, spec):
     else:
         raise ValueError(f"Unrecognized normalization method: {method}.")
 
-    data[target] = x
+    data[varname] = x
+    layout.append(target, "normalize", data[varname].shape)
+
+    return data
+
+
+def where(data, layout, spec):
+    from limix._bits.xarray import query
+    from limix._data import CONF
+
+    ncolons = sum(1 for c in spec if c == ":")
+    if ncolons > 1:
+        _syntax_error_msg("Where", "<TARGET>:<COND>", spec)
+
+    spec = spec.strip()
+    spec = spec + ":" * (1 - ncolons)
+    target, cond = [e.strip() for e in spec.split(":")]
+
+    varname = CONF["target_to_varname"][target]
+    data[varname] = query(data[varname], cond)
+    layout.append(target, "filter", data[varname].shape)
 
     return data
 
@@ -131,38 +154,8 @@ def _process_filter_maf(maf, G):
     return G.isel(candidate=ok)
 
 
-def _process_impute(expr, data):
-    import limix
-    from limix._data import to_short_data_name, dim_hint_to_name, dim_name_to_hint
-
-    elems = [e.strip() for e in expr.strip().split(":")]
-    if len(elems) < 2 or len(elems) > 3:
-        raise ValueError("Imputation syntax error.")
-
-    target = to_short_data_name(elems[0])
-    dim = elems[1]
-
-    if len(elems) == 3:
-        method = elems[2]
-    else:
-        method = "mean"
-
-    def in_dim(X, dim):
-        return dim_hint_to_name(dim) in X.dims or dim_name_to_hint(dim) in X.dims
-
-    X = data[target]
-    if not in_dim(X, dim):
-        raise ValueError("Unrecognized dimension: {}.".format(dim))
-
-    if method == "mean":
-        axis = next(i for i in range(len(X.dims)) if in_dim(X, dim))
-        if axis == 0:
-            X = limix.qc.impute.mean_impute(X.T).T
-        else:
-            X = limix.qc.impute.mean_impute(X)
-    else:
-        raise ValueError("Unrecognized imputation method: {}.".format(method))
-
-    data[target] = X
-
-    return data
+def _syntax_error_msg(what, syntax, spec):
+    msg = f"{what} syntax error. It should have been\n"
+    msg += f"  {syntax}\n"
+    msg += f"but we received `{spec}`."
+    return msg

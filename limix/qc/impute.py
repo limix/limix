@@ -1,7 +1,7 @@
-from __future__ import division
+from limix._bits import get_shape
 
 
-def mean_impute(X):
+def mean_impute(X, axis=-1, inplace=False):
     r"""Column-wise impute ``NaN`` values by column mean.
 
     It works well with `Dask`_ array.
@@ -10,6 +10,10 @@ def mean_impute(X):
     ----------
     X : array_like
         Matrix to have its missing values imputed.
+    axis : int, optional
+        Axis value. Defaults to `-1`.
+    inplace : bool, optional
+        Defaults to `False`.
 
     Returns
     -------
@@ -37,56 +41,118 @@ def mean_impute(X):
 
     .. _Dask: https://dask.pydata.org/
     """
-    import dask.array as da
-    import xarray as xr
+    from .._bits import dask, pandas, numpy, xarray
 
-    if isinstance(X, da.Array):
-        X = _impute_dask_array(X)
-
-    elif isinstance(X, xr.DataArray):
-        data = X.data
-
-        if isinstance(data, da.Array):
-            data = _impute_dask_array(data)
-        else:
-            data = _impute_ndarray(data)
-
-        X.data = data
+    if numpy.is_array(X):
+        X = _impute_numpy(X, axis, inplace)
+    elif pandas.is_series(X):
+        X = _impute_pandas_series(X, axis, inplace)
+    elif pandas.is_dataframe(X):
+        X = _impute_pandas_dataframe(X, axis, inplace)
+    elif dask.is_array(X):
+        X = _impute_dask_array(X, axis, inplace)
+    elif dask.is_series(X):
+        raise NotImplementedError()
+    elif dask.is_dataframe(X):
+        X = _impute_dask_dataframe(X, axis, inplace)
+    elif xarray.is_data_array(X):
+        X = _impute_xarray_dataarray(X, axis, inplace)
     else:
         if hasattr(X, "values"):
             x = X.values
         else:
             x = X
-        x = _impute_ndarray(x)
+        X = _impute_numpy(x.copy(), axis, inplace)
 
     return X
 
 
-def _impute_ndarray(x):
+def _impute_numpy(X, axis, inplace):
     from numpy import isnan, nanmean
 
-    m = nanmean(x, axis=0)
+    orig_shape = get_shape(X)
+    if X.ndim == 1:
+        X = X.reshape(orig_shape + (1,))
+
+    if not inplace:
+        X = X.copy()
+    X = X.swapaxes(-1, axis)
+    m = nanmean(X, axis=0)
     for i, mi in enumerate(m):
-        x[isnan(x[:, i]), i] = mi
+        X[isnan(X[:, i]), i] = mi
+
+    X = X.swapaxes(-1, axis)
+
+    return X.reshape(orig_shape)
+
+
+def _impute_pandas_series(x, axis, inplace):
+    if not inplace:
+        x = x.copy()
+
+    a = x.to_numpy()
+    _impute_numpy(a, axis, True)
+    x[:] = a
+
     return x
 
 
-def _impute_dask_array(x):
+def _impute_dask_dataframe(x, axis, inplace):
+    import dask.dataframe as dd
+
+    if inplace:
+        raise NotImplementedError()
+    d = x.to_dask_array(lengths=True)
+    d = _impute_dask_array(d, axis, False)
+    x = dd.from_dask_array(d, columns=x.columns, index=x.index)
+    return x
+
+
+def _impute_pandas_dataframe(x, axis, inplace):
+    if not inplace:
+        x = x.copy()
+
+    a = x.to_numpy()
+    _impute_numpy(a, axis, True)
+    x[:] = a
+
+    return x
+
+
+def _impute_dask_array(x, axis, inplace):
     import dask.array as da
 
+    x = x.swapaxes(-1, axis)
     m = da.nanmean(x, axis=0).compute()
     start = 0
 
     arrs = []
     for i in range(len(x.chunks[1])):
         end = start + x.chunks[1][i]
-        impute = _get_imputer(m[start:end])
+        impute = _get_imputer(m[start:end], inplace)
         arrs.append(x[:, start:end].map_blocks(impute, dtype=float))
         start = end
-    return da.concatenate(arrs, axis=1)
+    return da.concatenate(arrs, axis=1).swapaxes(-1, axis)
 
 
-def _get_imputer(m):
+def _impute_xarray_dataarray(X, axis, inplace):
+    from .._bits import dask
+
+    if not inplace:
+        X = X.copy(deep=True)
+
+    data = X.data
+
+    if dask.is_array(data):
+        data = _impute_dask_array(data, axis, inplace)
+    else:
+        data = _impute_numpy(data, axis, inplace)
+
+    X.data = data
+    return X
+
+
+def _get_imputer(m, inplace):
     from numpy import isnan
 
     def impute(X):
@@ -95,6 +161,9 @@ def _get_imputer(m):
         isn = isnan(A)
         A[:] = 0
         A[isn] = 1
+
+        if not inplace:
+            X = X.copy()
 
         X[isn] = 0
         X += A * m

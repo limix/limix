@@ -12,7 +12,7 @@ class Pipeline(object):
             self._layout.append(target, "initial", self._data[target].shape)
 
         for p in self._process:
-            p["func"](self._data, self._layout, *p["args"], **p["kwargs"])
+            self._data = p["func"](self._data, self._layout, *p["args"], **p["kwargs"])
 
             if self._get_samples().size == 0:
                 print(self._layout.to_string())

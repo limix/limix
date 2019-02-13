@@ -10,7 +10,12 @@ dask
 deco
 pandas
 xarray
-"""
-from . import dask, deco, pandas, xarray
 
-__all__ = ["dask", "xarray", "deco", "pandas"]
+Functions
+---------
+get_shape
+"""
+from . import dask, deco, numpy, pandas, xarray
+from .array import get_shape
+
+__all__ = ["dask", "xarray", "deco", "pandas", "get_shape", "numpy"]

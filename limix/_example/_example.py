@@ -59,6 +59,10 @@ _filenames = {
         "url": "http://rest.s3for.me/limix/example/chrom22_subsample20_maf0.10.bim",
         "sha256": "24824433bef33e17a9f9713868f492c9957efbc585e0010dfcc8536fdf7996d4",
     },
+    "expr_nan.csv": {
+        "url": "http://rest.s3for.me/limix/example/expr_nan.csv",
+        "sha256": "6ec7d2a21dbb2b2e65b0a28cf7f7bdbf6cbb974f9cfd1d653050e6b1aa84dfbb",
+    },
 }
 
 
