@@ -1,40 +1,47 @@
-from limix._bits import dask, numpy, pandas, xarray
+from limix._bits import dask, get_shape, numpy, pandas, xarray
 
 
-def quantile_gaussianize(X, axis=1, inplace=False):
-    r"""Normalize a sequence of values via rank and Normal c.d.f.
+def mean_impute(X, axis=-1, inplace=False):
+    r"""Impute ``NaN`` values.
 
-    It defaults to column-wise normalization.
+    It defaults to column-wise imputation.
 
     Parameters
     ----------
     X : array_like
-        Array of values.
+        Matrix to have its missing values imputed.
     axis : int, optional
-        Axis value. Defaults to `1`.
+        Axis value. Defaults to `-1`.
     inplace : bool, optional
         Defaults to `False`.
 
     Returns
     -------
     array_like
-        Gaussian-normalized values.
+        Imputed array.
 
     Examples
     --------
     .. doctest::
 
-        >>> from limix.qc import quantile_gaussianize
-        >>> from numpy import array_str
+        >>> from numpy.random import RandomState
+        >>> from numpy import nan, array_str
+        >>> from limix.qc import mean_impute
         >>>
-        >>> qg = quantile_gaussianize([-1, 0, 2])
-        >>> print(qg) # doctest: +FLOAT_CMP
-        [-0.67448975  0.          0.67448975]
-    """
-    from numpy import issubdtype, integer, asarray
+        >>> random = RandomState(0)
+        >>> X = random.randn(5, 2)
+        >>> X[0, 0] = nan
+        >>>
+        >>> print(array_str(mean_impute(X), precision=4))
+        [[ 0.9233  0.4002]
+         [ 0.9787  2.2409]
+         [ 1.8676 -0.9773]
+         [ 0.9501 -0.1514]
+         [-0.1032  0.4106]]
 
-    if hasattr(X, "dtype") and issubdtype(X.dtype, integer):
-        raise ValueError("Integer type is not supported.")
+    .. _Dask: https://dask.pydata.org/
+    """
+    from numpy import asarray
 
     if isinstance(X, (tuple, list)):
         if inplace:
@@ -42,128 +49,126 @@ def quantile_gaussianize(X, axis=1, inplace=False):
         X = asarray(X, float)
 
     if numpy.is_array(X):
-        X = _qg_numpy(X, axis, inplace)
+        X = _impute_numpy(X, axis, inplace)
     elif pandas.is_series(X):
-        X = _qg_pandas_series(X, axis, inplace)
+        X = _impute_pandas_series(X, axis, inplace)
     elif pandas.is_dataframe(X):
-        X = _qg_pandas_dataframe(X, axis, inplace)
+        X = _impute_pandas_dataframe(X, axis, inplace)
     elif dask.is_array(X):
-        X = _qg_dask_array(X, axis, inplace)
+        X = _impute_dask_array(X, axis, inplace)
     elif dask.is_series(X):
         raise NotImplementedError()
     elif dask.is_dataframe(X):
-        X = _qg_dask_dataframe(X, axis, inplace)
+        X = _impute_dask_dataframe(X, axis, inplace)
     elif xarray.is_dataarray(X):
-        X = _qg_xarray_dataarray(X, axis, inplace)
+        X = _impute_xarray_dataarray(X, axis, inplace)
     else:
         raise NotImplementedError()
 
     return X
 
 
-def _qg_numpy(X, axis, inplace):
-    from scipy.stats import norm
-    from numpy import isfinite
-    from numpy.ma import masked_invalid
-    from bottleneck import nanrankdata
-    from numpy import apply_along_axis
-    import warnings
+def _impute_numpy(X, axis, inplace):
+    from numpy import isnan, nanmean
 
-    orig_shape = X.shape
+    orig_shape = get_shape(X)
     if X.ndim == 1:
         X = X.reshape(orig_shape + (1,))
 
     if not inplace:
         X = X.copy()
 
-    D = X.swapaxes(1, axis)
-    D = masked_invalid(D)
-    D *= -1
-    D = nanrankdata(D, axis=0)
-    D = D / (isfinite(D).sum(axis=0) + 1)
+    X = X.swapaxes(-1, axis)
+    m = nanmean(X, axis=0)
+    for i, mi in enumerate(m):
+        X[isnan(X[:, i]), i] = mi
 
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=RuntimeWarning)
-        D = apply_along_axis(norm.isf, 0, D)
-
-    D = D.swapaxes(1, axis)
-    X[:] = D
+    X = X.swapaxes(-1, axis)
 
     return X.reshape(orig_shape)
 
 
-def _qg_pandas_series(X, axis, inplace):
-    if not inplace:
-        X = X.copy()
-
-    a = X.to_numpy()
-    _qg_numpy(a, axis, True)
-    X[:] = a
-
-    return X
-
-
-def _qg_pandas_dataframe(x, axis, inplace):
+def _impute_pandas_series(x, axis, inplace):
     if not inplace:
         x = x.copy()
 
     a = x.to_numpy()
-    _qg_numpy(a, axis, True)
+    _impute_numpy(a, axis, True)
     x[:] = a
 
     return x
 
 
-def _qg_dask_array(x, axis, inplace):
-    import dask.array as da
-    from scipy.stats import norm
-    from bottleneck import nanrankdata
-
-    if inplace:
-        raise NotImplementedError()
-
-    x = x.swapaxes(1, axis)
-
-    x = dask.array_shape_reveal(x)
-    shape = da.compute(*x.shape)
-    x = da.ma.masked_array(x)
-    x *= -1
-    x = da.apply_along_axis(_dask_apply, 0, x, nanrankdata, shape[0])
-    x = x / (da.isfinite(x).sum(axis=0) + 1)
-    x = da.apply_along_axis(_dask_apply, 0, x, norm.isf, shape[0])
-
-    return x.swapaxes(1, axis)
-
-
-def _qg_dask_dataframe(x, axis, inplace):
+def _impute_dask_dataframe(x, axis, inplace):
     import dask.dataframe as dd
 
     if inplace:
         raise NotImplementedError()
 
     d = x.to_dask_array(lengths=True)
-    d = _qg_dask_array(d, axis, False)
+    d = _impute_dask_array(d, axis, False)
     x = dd.from_dask_array(d, columns=x.columns, index=x.index)
     return x
 
 
-def _qg_xarray_dataarray(X, axis, inplace):
+def _impute_pandas_dataframe(x, axis, inplace):
+    if not inplace:
+        x = x.copy()
+
+    a = x.to_numpy()
+    _impute_numpy(a, axis, True)
+    x[:] = a
+
+    return x
+
+
+def _impute_dask_array(x, axis, inplace):
+    import dask.array as da
+
+    x = x.swapaxes(-1, axis)
+    m = da.nanmean(x, axis=0).compute()
+    start = 0
+
+    arrs = []
+    for i in range(len(x.chunks[1])):
+        end = start + x.chunks[1][i]
+        impute = _get_imputer(m[start:end], inplace)
+        arrs.append(x[:, start:end].map_blocks(impute, dtype=float))
+        start = end
+    return da.concatenate(arrs, axis=1).swapaxes(-1, axis)
+
+
+def _impute_xarray_dataarray(X, axis, inplace):
     if not inplace:
         X = X.copy(deep=True)
 
     data = X.data
 
     if dask.is_array(data):
-        data = _qg_dask_array(data, axis, inplace)
+        data = _impute_dask_array(data, axis, inplace)
     else:
-        data = _qg_numpy(data, axis, inplace)
+        data = _impute_numpy(data, axis, inplace)
 
     X.data = data
     return X
 
 
-def _dask_apply(x, func1d, length):
-    from numpy import resize
+def _get_imputer(m, inplace):
+    from numpy import isnan
 
-    x = func1d(x)
-    return resize(x, length)
+    def impute(X):
+        A = X.copy()
+
+        isn = isnan(A)
+        A[:] = 0
+        A[isn] = 1
+
+        if not inplace:
+            X = X.copy()
+
+        X[isn] = 0
+        X += A * m
+
+        return X
+
+    return impute
