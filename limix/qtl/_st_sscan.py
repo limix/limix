@@ -7,9 +7,7 @@ from .._display import session_block
 
 
 def st_sscan(G, y, E, M=None, tests=None, verbose=True):
-    """
-    Wrapper function for univariate single-variant association testing
-    using variants of the linear mixed model.
+    """Mixed-model with genetic effect heterogeneity.
 
     Parameters
     ----------
