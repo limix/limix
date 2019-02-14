@@ -128,6 +128,16 @@ def test_pipeline_normalize_nan():
             [nan, -0.345_222_629_722_377_3, -1.429_964_275_028_744_2],
         )
 
+        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        data = {"y": y}
+        pipeline = Pipeline(data)
+        pipeline.append(normalize, spec="trait")
+        data = pipeline.run(verbose=False)
+        assert_allclose(
+            data["y"].values[0, :3],
+            [nan, -0.345_222_629_722_377_3, -1.429_964_275_028_744_2],
+        )
+
 
 def test_pipeline_impute_and_normalize():
 
@@ -140,6 +150,21 @@ def test_pipeline_impute_and_normalize():
         pipeline = Pipeline(data)
         pipeline.append(impute, spec="trait:trait:mean")
         pipeline.append(normalize, spec="trait:trait:gaussianize")
+        data = pipeline.run(verbose=False)
+        assert_allclose(
+            data["y"].values[0, :3],
+            [
+                -0.013_672_943_874_439_595,
+                -0.348_755_695_517_044_7,
+                -1.429_964_275_028_744_2,
+            ],
+        )
+
+        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        data = {"y": y}
+        pipeline = Pipeline(data)
+        pipeline.append(impute, spec="trait::")
+        pipeline.append(normalize, spec="trait:")
         data = pipeline.run(verbose=False)
         assert_allclose(
             data["y"].values[0, :3],

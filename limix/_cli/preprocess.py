@@ -13,7 +13,13 @@ def impute(data, layout, spec):
     varname = CONF["target_to_varname"][target]
     x = data[varname]
 
-    axis = next(i for i, d in enumerate(x.dims) if d == dim)
+    if dim == "":
+        axis = -1
+    else:
+        axis = next(i for i, d in enumerate(x.dims) if d == dim)
+
+    if method == "":
+        method = "mean"
 
     if method == "mean":
         x = limix.qc.mean_impute(x, axis=axis)
@@ -35,7 +41,7 @@ def normalize(data, layout, spec):
         _syntax_error_msg("Normalize", "<TARGET>:<DIM>:<METHOD>", spec)
 
     spec = spec.strip()
-    spec = spec + ":" * (1 - ncolons)
+    spec = spec + ":" * (2 - ncolons)
     target, dim, method = [e.strip() for e in spec.split(":")]
 
     varname = CONF["target_to_varname"][target]
@@ -45,6 +51,9 @@ def normalize(data, layout, spec):
         axis = -1
     else:
         axis = next(i for i, d in enumerate(x.dims) if d == dim)
+
+    if method == "":
+        method = "gaussianize"
 
     if method == "gaussianize":
         x = limix.qc.quantile_gaussianize(x, axis=axis)
