@@ -65,7 +65,7 @@ def _qg_numpy(X, axis, inplace):
     from scipy.stats import norm
     from numpy import isfinite
     from numpy.ma import masked_invalid
-    from bottleneck import nanrankdata
+    from numpy_sugar import nanrankdata
     from numpy import apply_along_axis
     import warnings
 
@@ -79,11 +79,11 @@ def _qg_numpy(X, axis, inplace):
     D = X.swapaxes(1, axis)
     D = masked_invalid(D)
     D *= -1
-    D = nanrankdata(D, axis=0)
-    D = D / (isfinite(D).sum(axis=0) + 1)
 
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
+        D = nanrankdata(D)
+        D = D / (isfinite(D).sum(axis=0) + 1)
         D = apply_along_axis(norm.isf, 0, D)
 
     D = D.swapaxes(1, axis)
@@ -117,7 +117,8 @@ def _qg_pandas_dataframe(x, axis, inplace):
 def _qg_dask_array(x, axis, inplace):
     import dask.array as da
     from scipy.stats import norm
-    from bottleneck import nanrankdata
+    from numpy_sugar import nanrankdata
+    import warnings
 
     if inplace:
         raise NotImplementedError()
@@ -162,6 +163,10 @@ def _qg_xarray_dataarray(X, axis, inplace):
 
 def _dask_apply(x, func1d, length):
     from numpy import resize
+    import warnings
 
-    x = func1d(x)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+        x = func1d(x)
+
     return resize(x, length)

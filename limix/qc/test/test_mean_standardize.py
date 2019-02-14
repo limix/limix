@@ -1,23 +1,68 @@
-from dask.array import from_array
+import pytest
+from numpy import nan
 from limix.qc import mean_standardize
+from numpy import array
 from numpy.random import RandomState
-from numpy.testing import assert_allclose
+from .util import (
+    assert_ndarray_1d,
+    assert_ndarray_2d,
+    assert_pandas_series,
+    assert_pandas_dataframe,
+    assert_dask_array,
+    assert_dask_dataframe,
+    assert_xarray_dataarray,
+)
 
 
-def test_mean_standardize():
-    random = RandomState(0)
-    X = random.randn(5, 3)
+@pytest.fixture
+def data2d():
+    X = RandomState(0).randn(3, 2)
+    X[0, 0] = nan
+    R = array(
+        [[nan, -0.117_142_199_8], [-1.0, 1.279_107_161_9], [1.0, -1.161_964_962_2]]
+    )
+    Rt = array([[nan, 0.0], [-1.0, 1.0], [1.0, -1.0]])
 
-    def assert_correct(X):
-        Y = mean_standardize(X)
-        assert_allclose(Y.mean(), 0, atol=1e-7)
-        assert_allclose(Y.std(), 1, atol=1e-7)
+    samples = [f"sample{i}" for i in range(X.shape[0])]
+    candidates = [f"snp{i}" for i in range(X.shape[1])]
 
-        for axis in [0, 1]:
-            Y = mean_standardize(X, axis=axis)
-            i = (axis + 1) % 2
-            assert_allclose(Y.mean(axis), [0] * X.shape[i], atol=1e-7)
-            assert_allclose(Y.std(axis), [1] * X.shape[i], atol=1e-7)
+    return {"X": X, "R": R, "Rt": Rt, "samples": samples, "candidates": candidates}
 
-    assert_correct(X)
-    assert_correct(from_array(X, chunks=(2, 1)))
+
+@pytest.fixture
+def data1d():
+    X = RandomState(0).randn(3)
+    X[0] = nan
+    R = array([nan, -1.0, 1.0])
+    Rt = array([nan, 0.0, 0.0])
+
+    samples = [f"sample{i}" for i in range(X.shape[0])]
+    return {"X": X, "R": R, "Rt": Rt, "samples": samples, "candidates": None}
+
+
+def test_mean_standardize_ndarray_1d(data1d):
+    assert_ndarray_1d(mean_standardize, data1d)
+
+
+def test_mean_standardize_ndarray_2d(data2d):
+    assert_ndarray_2d(mean_standardize, data2d)
+
+
+def test_mean_standardize_pandas_series(data1d):
+    assert_pandas_series(mean_standardize, data1d)
+
+
+def test_mean_standardize_pandas_dataframe(data2d):
+    assert_pandas_dataframe(mean_standardize, data2d)
+
+
+def test_mean_standardize_dask_array(data2d):
+    assert_dask_array(mean_standardize, data2d, test_inplace=False)
+
+
+def test_mean_standardize_dask_dataframe(data2d):
+    assert_dask_dataframe(mean_standardize, data2d)
+
+
+def test_mean_standardize_xarray_dataarray(data2d):
+    assert_xarray_dataarray(mean_standardize, data2d)
