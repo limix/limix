@@ -4,7 +4,7 @@ from .download import download
 from .estimate_kinship import estimate_kinship
 from .extract import extract
 from .remove import remove
-from .scan import scan
+from .qtl import qtl
 from .see import see
 
 
@@ -39,5 +39,5 @@ cli.add_command(see)
 cli.add_command(estimate_kinship)
 cli.add_command(download)
 cli.add_command(extract)
-cli.add_command(scan)
+cli.add_command(qtl)
 cli.add_command(remove)

@@ -1,5 +1,4 @@
 import click
-import sys
 from ._click import OrderedCommand
 
 
@@ -7,6 +6,7 @@ from ._click import OrderedCommand
 @click.pass_context
 @click.argument("trait")
 @click.argument("genotype")
+@click.argument("env")
 @click.option(
     "--covariates",
     help="Specify the file path to a file containing the covariates.",
@@ -16,14 +16,6 @@ from ._click import OrderedCommand
     "--kinship",
     help="Specify the file path to a file containing the kinship matrix.",
     default=None,
-)
-@click.option(
-    "--lik",
-    help=(
-        "Specify the type of likelihood that will described"
-        " the residual error distribution."
-    ),
-    default="normal",
 )
 @click.option(
     "--where",
@@ -61,23 +53,17 @@ from ._click import OrderedCommand
     "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
 )
 @click.option(
-    "--model",
-    help=("Specify the statistical model to perform the scan."),
-    default="single-trait",
-    type=click.Choice(["single-trait", "struct-lmm"]),
-)
-@click.option(
     "--dry-run/--no-dry-run",
     help="Perform a trial run with no scan taking place.",
     default=False,
 )
-def scan(
+def st_sscan(
     ctx,
     trait,
     genotype,
+    env,
     covariates,
     kinship,
-    lik,
     where,
     filter_missing,
     filter_maf,
@@ -85,52 +71,12 @@ def scan(
     normalize,
     output_dir,
     verbose,
-    model,
     dry_run,
 ):
-    """Perform genome-wide association scan.
-
-    This analysis requires minimally the specification of one phenotype
-    (PHENOTYPES_FILE) and genotype data (GENOTYPE_FILE).
-
-    The --filter option allows for selecting a subset of the original dataset for
-    the analysis. For example,
-
-        --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
-
-    states that only loci of chromosome 3 having a position inside the range (100, 200)
-    will be considered. The --filter option can be used multiple times in the same
-    call. In general, --filter accepts a string of the form
-
-        <DATA-TYPE>: <BOOL-EXPR>
-
-    where <DATA-TYPE> can be phenotype, genotype, or covariate. <BOOL-EXPR> is a boolean
-    expression involving row or column names. Please, consult `pandas.DataFrame.query`
-    function from Pandas package for further information.
-    \f
-
-    Examples
-    --------
-
-    ... doctest::
-
-        # First we perform a quick file inspection. This step is optional but is very
-        # useful to check whether `limix` is able to read them and print out their
-        # metadata.
-        limix show phenotypes.csv
-        limix show genotype.bgen
-        limix show kinship.raw
-
-        # We now perform the analysis, specifying the genotype loci and the phenotype
-        # of interest.
-        limix phenotypes.csv genotype.bgen --kinship-file=kinship.raw \
-            --output-dir=results \
-            --filter="phenotype: col == 'height'" \
-            --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
-    """
     from os import makedirs
-    from os.path import abspath, exists, join
+    from os.path import abspath, exists
     from limix._display import session_block, banner, session_line, indent
+    from limix.qtl import st_sscan
     from limix.io import fetch
     from .pipeline import Pipeline
     from limix._data import conform_dataset
@@ -198,15 +144,14 @@ def scan(
     # if "K" not in data:
     #     data["K"] = None
     # try:
-    #     model = limix.qtl.st_scan(
-    #         data["G"], data["y"], lik, K=data["K"], verbose=verbose
-    #     )
+    st_sscan(data["G"], data["y"], E=data["E"], M=None, tests=None, verbose=verbose)
     # except Exception as e:
     #     print_exc(traceback.format_stack(), e)
     #     sys.exit(1)
 
-    with session_line("Saving results to `{}`... ".format(output_dir)):
-        model.to_csv(join(output_dir, "null.csv"), join(output_dir, "alt.csv"))
+    # with session_line("Saving results to `{}`... ".format(output_dir)):
+    #     model.to_csv(join(output_dir, "null.csv"), join(output_dir, "alt.csv"))
+    # pass
 
 
 def _clean_data_array_repr(arr):
