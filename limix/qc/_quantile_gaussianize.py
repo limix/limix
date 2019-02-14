@@ -118,7 +118,6 @@ def _qg_dask_array(x, axis, inplace):
     import dask.array as da
     from scipy.stats import norm
     from numpy_sugar import nanrankdata
-    import warnings
 
     if inplace:
         raise NotImplementedError()
