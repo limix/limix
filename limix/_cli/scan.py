@@ -1,17 +1,19 @@
 import click
+import sys
+from ._click import OrderedCommand
 
 
-@click.command()
+@click.command(cls=OrderedCommand)
 @click.pass_context
-@click.argument("phenotypes-file")
-@click.argument("genotype-file")
+@click.argument("trait")
+@click.argument("genotype")
 @click.option(
-    "--covariates-file",
+    "--covariates",
     help="Specify the file path to a file containing the covariates.",
     default=None,
 )
 @click.option(
-    "--kinship-file",
+    "--kinship",
     help="Specify the file path to a file containing the kinship matrix.",
     default=None,
 )
@@ -71,10 +73,10 @@ import click
 )
 def scan(
     ctx,
-    phenotypes_file,
-    genotype_file,
-    covariates_file,
-    kinship_file,
+    trait,
+    genotype,
+    covariates,
+    kinship,
     lik,
     where,
     filter_missing,
@@ -127,16 +129,19 @@ def scan(
             --filter="genotype: (chrom == '3') & (pos > 100) & (pos < 200)"
     """
     from os import makedirs
-    from os.path import abspath, exists
+    from os.path import abspath, exists, join
     from limix._display import session_block, banner, session_line, indent
     from limix.io import fetch
     from .pipeline import Pipeline
     from limix._data import conform_dataset
-    from .preprocess import impute as impute_fuc
+    from .preprocess import impute as impute_func
     from .preprocess import normalize as normalize_func
     from .preprocess import where as where_func
 
     print(banner())
+
+    if ctx.obj is None:
+        ctx.obj = {"preprocess": []}
 
     output_dir = abspath(output_dir)
     if not exists(output_dir):
@@ -148,14 +153,14 @@ def scan(
 
     data = {"y": None, "G": None, "K": None}
 
-    data["y"] = fetch("trait", phenotypes_file, verbose)
+    data["y"] = fetch("trait", trait, verbose)
     _print_data_array(data["y"], verbose)
 
-    data["G"] = fetch("genotype", genotype_file, verbose)
+    data["G"] = fetch("genotype", genotype, verbose)
     _print_data_array(data["G"], verbose)
 
-    if kinship_file is not None:
-        data["K"] = fetch("kinship", kinship_file, verbose)
+    if kinship is not None:
+        data["K"] = fetch("kinship", kinship, verbose)
         _print_data_array(data["K"], verbose)
 
     with session_line("Matching samples... "):
@@ -168,25 +173,27 @@ def scan(
             + " Please, check your sample ids."
         )
 
+    oparams = _ordered_params(ctx)
+
     with session_block("preprocessing", disable=not verbose):
         pipeline = Pipeline(data)
+        preproc_params = [
+            i for i in oparams if i[0] in ["impute", "normalize", "where"]
+        ]
 
-        for spec in where:
-            pipeline.append(where_func, spec)
-
-        for spec in normalize:
-            pipeline.append(normalize_func, spec)
+        for p in preproc_params:
+            if p[0] == "where":
+                pipeline.append(where_func, p[1])
+            elif p[0] == "normalize":
+                pipeline.append(normalize_func, p[1])
+            elif p[0] == "impute":
+                pipeline.append(impute_func, p[1])
 
         pipeline.run()
 
-    # with session_block("preprocessing", disable=not verbose):
-    #     data = _preprocessing(
-    #         data, filter, filter_missing, filter_maf, impute, normalize, verbose
-    #     )
-
-    # if dry_run:
-    #     print("Exiting early because of dry-run option.")
-    #     return
+    if dry_run:
+        print("Exiting early because of dry-run option.")
+        return
 
     # if "K" not in data:
     #     data["K"] = None
@@ -198,8 +205,8 @@ def scan(
     #     print_exc(traceback.format_stack(), e)
     #     sys.exit(1)
 
-    # with session_line("Saving results to `{}`... ".format(output_dir)):
-    #     model.to_csv(join(output_dir, "null.csv"), join(output_dir, "alt.csv"))
+    with session_line("Saving results to `{}`... ".format(output_dir)):
+        model.to_csv(join(output_dir, "null.csv"), join(output_dir, "alt.csv"))
 
 
 def _clean_data_array_repr(arr):
@@ -210,3 +217,26 @@ def _clean_data_array_repr(arr):
     txt = txt.replace("<U5 ", "")
     txt = txt.replace("dask.array", "array")
     return txt
+
+
+def _ordered_params(ctx):
+    args_seq = []
+    for p in ctx.param_order:
+        for opt, val in ctx.params.items():
+            if p.name == opt:
+                if isinstance(val, tuple):
+                    v = val[0]
+                    val = val[1:]
+                else:
+                    v = val
+                args_seq.append((opt, v))
+                if isinstance(val, tuple):
+                    if len(val) == 0:
+                        del ctx.params[opt]
+                    else:
+                        ctx.params[opt] = v
+                else:
+                    del ctx.params[opt]
+                break
+            pass
+    return args_seq
