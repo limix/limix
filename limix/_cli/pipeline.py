@@ -1,3 +1,6 @@
+from limix._data import CONF
+
+
 class Pipeline(object):
     def __init__(self, data):
         self._process = []
@@ -8,8 +11,9 @@ class Pipeline(object):
         self._process.append({"func": process, "args": args, "kwargs": kwargs})
 
     def run(self, verbose=True):
-        for target in self._data.keys():
-            self._layout.append(target, "initial", self._data[target].shape)
+        for varname, d in self._data.items():
+            target = CONF["varname_to_target"][varname]
+            self._layout.append(target, "initial", d.shape)
 
         for p in self._process:
             self._data = p["func"](self._data, self._layout, *p["args"], **p["kwargs"])
@@ -36,6 +40,10 @@ class _LayoutChange(object):
         self._steps = ["sentinel"]
 
     def append(self, target, step, shape):
+        if target not in CONF["targets"]:
+            breakpoint()
+            raise ValueError("Invalid target `{}`.".format(target))
+
         if target not in self._targets:
             self._targets[target] = {}
 
@@ -53,7 +61,7 @@ class _LayoutChange(object):
         for step in self._steps[1:]:
             header.append(step)
             for target in self._targets.keys():
-                v = str(self._targets[target].get(step, "n/a"))
+                v = str(self._targets[target].get(step, "..."))
                 shapes[target].append(v)
 
         table.header(header)

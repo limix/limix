@@ -24,7 +24,7 @@ import click
     default="normal",
 )
 @click.option(
-    "--filter",
+    "--where",
     help=(
         "Filtering expression to select which phenotype, genotype loci, and covariates"
         " to use in the analysis. The syntax is `<TARGET>: <COND>`,"
@@ -76,7 +76,7 @@ def scan(
     covariates_file,
     kinship_file,
     lik,
-    filter,
+    where,
     filter_missing,
     filter_maf,
     impute,
@@ -129,10 +129,12 @@ def scan(
     from os import makedirs
     from os.path import abspath, exists
     from limix._display import session_block, banner, session_line, indent
-    from .._fetch import fetch
+    from limix.io import fetch
     from .pipeline import Pipeline
     from limix._data import conform_dataset
-    from .._preprocess import process_filter, process_normalize
+    from .preprocess import impute as impute_fuc
+    from .preprocess import normalize as normalize_func
+    from .preprocess import where as where_func
 
     print(banner())
 
@@ -146,14 +148,14 @@ def scan(
 
     data = {"y": None, "G": None, "K": None}
 
-    data["y"] = fetch(phenotypes_file, "trait", verbose)
+    data["y"] = fetch("trait", phenotypes_file, verbose)
     _print_data_array(data["y"], verbose)
 
-    data["G"] = fetch(genotype_file, "genotype", verbose)
+    data["G"] = fetch("genotype", genotype_file, verbose)
     _print_data_array(data["G"], verbose)
 
     if kinship_file is not None:
-        data["K"] = fetch(kinship_file, "kinship", verbose)
+        data["K"] = fetch("kinship", kinship_file, verbose)
         _print_data_array(data["K"], verbose)
 
     with session_line("Matching samples... "):
@@ -169,13 +171,11 @@ def scan(
     with session_block("preprocessing", disable=not verbose):
         pipeline = Pipeline(data)
 
-        for spec in filter:
-            for target in data.keys():
-                pipeline.append(process_filter, spec, target)
+        for spec in where:
+            pipeline.append(where_func, spec)
 
         for spec in normalize:
-            for target in data.keys():
-                pipeline.append(process_normalize, spec, target)
+            pipeline.append(normalize_func, spec)
 
         pipeline.run()
 

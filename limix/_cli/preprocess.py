@@ -1,60 +1,3 @@
-# def _preprocessing(
-#     data, filter_specs, filter_missing, filter_maf, impute, normalize, verbose
-# ):
-#     # from limix._data import conform_dataset
-#     # from limix._display import session_line
-
-#     pipeline = Pipeline(data)
-
-#     for spec in filter_specs:
-#         # data = _process_filter(f, data)
-#         for target in data.keys():
-#             pipeline.append(_process_filter, spec, target)
-#         # for target in data.keys():
-#         #     layout.append(target, "filter {}".format(i), data[target].shape)
-#         #     if data["y"].sample.size == 0:
-#         #         print(layout.to_string())
-#         #         raise RuntimeError("Exiting early because there is no sample left.")
-
-#     # for i, f in enumerate(filter):
-#     #     data = _process_filter(f, data)
-#     #     for target in data.keys():
-#     #         layout.append(target, "filter {}".format(i), data[target].shape)
-#     #         if data["y"].sample.size == 0:
-#     #             print(layout.to_string())
-#     #             raise RuntimeError("Exiting early because there is no sample left.")
-
-#     # for f in filter_missing:
-#     #     with session_line("Applying `{}`... ".format(f)):
-#     #         _process_filter_missing(f, data)
-#     #         if data["y"].sample.size == 0:
-#     #             print(layout.to_string())
-#     #             raise RuntimeError("Exiting early because there is no sample left.")
-
-#     # if filter_maf is not None:
-#     #     with session_line("Removing candidates with MAF<{}... ".format(filter_maf)):
-#     #         data["G"] = _process_filter_maf(float(filter_maf), data["G"])
-
-#     #     for target in data.keys():
-#     #         layout.append(target, "maf filter", data[target].shape)
-
-#     #     if data["G"].candidate.size == 0:
-#     #         print(layout.to_string())
-#     #         raise RuntimeError("Exiting early because there is no candidate left.")
-
-#     # for imp in impute:
-#     #     with session_line("Imputting missing values (`{}`)... ".format(imp)):
-#     #         data = _process_impute(imp, data)
-
-#     for spec in normalize:
-#         for target in data.keys():
-#             pipeline.append(_process_normalize, spec, target)
-
-#     pipeline.run()
-
-#     return data
-
-
 def impute(data, layout, spec):
     import limix
     from limix._data import CONF
@@ -78,7 +21,7 @@ def impute(data, layout, spec):
         raise ValueError(f"Unrecognized impute method: {method}.")
 
     data[varname] = x
-    layout.append(target, "normalize", data[varname].shape)
+    layout.append(target, "impute", data[varname].shape)
 
     return data
 
@@ -98,7 +41,10 @@ def normalize(data, layout, spec):
     varname = CONF["target_to_varname"][target]
     x = data[varname]
 
-    axis = next(i for i, d in enumerate(x.dims) if d == dim)
+    if dim == "":
+        axis = -1
+    else:
+        axis = next(i for i, d in enumerate(x.dims) if d == dim)
 
     if method == "gaussianize":
         x = limix.qc.quantile_gaussianize(x, axis=axis)
@@ -124,6 +70,7 @@ def where(data, layout, spec):
     target, cond = [e.strip() for e in spec.split(":")]
 
     varname = CONF["target_to_varname"][target]
+
     data[varname] = query(data[varname], cond)
     layout.append(target, "filter", data[varname].shape)
 
