@@ -136,15 +136,13 @@ def _qg_dask_array(x, axis, inplace):
 
 
 def _qg_dask_dataframe(x, axis, inplace):
-    import dask.dataframe as dd
-
     if inplace:
         raise NotImplementedError()
 
     d = x.to_dask_array(lengths=True)
-    d = _qg_dask_array(d, axis, False)
-    x = dd.from_dask_array(d, columns=x.columns, index=x.index)
-    return x
+    orig_chunks = d.chunks
+    d = _qg_dask_array(d, axis, False).rechunk(orig_chunks)
+    return d.to_dask_dataframe(columns=x.columns, index=x.index)
 
 
 def _qg_xarray_dataarray(X, axis, inplace):

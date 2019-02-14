@@ -73,7 +73,7 @@ def impute(data, layout, spec):
     axis = next(i for i, d in enumerate(x.dims) if d == dim)
 
     if method == "mean":
-        x = limix.qc.impute.mean_impute(x, axis=axis)
+        x = limix.qc.mean_impute(x, axis=axis)
     else:
         raise ValueError(f"Unrecognized impute method: {method}.")
 

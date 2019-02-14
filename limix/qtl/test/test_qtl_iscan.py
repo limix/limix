@@ -48,7 +48,7 @@ def test_qtl_interact_paolo_ex():
     # define covs
     covs = sp.ones([pheno.shape[0], 1])
 
-    res = st_iscan(snps, pheno, M=covs, verbose=True)
+    res = st_iscan(snps, pheno, M=covs, verbose=False)
 
     try:
         assert_allclose(
