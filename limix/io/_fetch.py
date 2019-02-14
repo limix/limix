@@ -87,9 +87,11 @@ def _parse_fetch_spec(spec):
     if ncolons > 2:
         raise ValueError("Wrong specification syntax: there were more than two colons.")
 
-    spec = drive + spec
     spec = spec + ":" * (2 - ncolons)
-    spec = dict(zip(["filepath", "filetype", "matrix_spec"], spec.split(":")))
+    filepath, filetype, matrix_spec = spec.split(":")
+    filepath += drive
+
+    spec = {"filepath": filepath, "filetype": filetype, "matrix_spec": matrix_spec}
 
     if spec["filetype"] == "":
         spec["filetype"] = infer_filetype(spec["filepath"])
