@@ -89,7 +89,7 @@ def _parse_fetch_spec(spec):
 
     spec = spec + ":" * (2 - ncolons)
     filepath, filetype, matrix_spec = spec.split(":")
-    filepath += drive
+    filepath = drive + filepath
 
     spec = {"filepath": filepath, "filetype": filetype, "matrix_spec": matrix_spec}
 
