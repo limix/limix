@@ -1,5 +1,6 @@
 import limix
 import pytest
+import sys
 from numpy.testing import (
     assert_allclose,
     assert_array_equal,
@@ -379,3 +380,15 @@ def test_fetch_bed():
             assert_array_equal(G["sample"], _samples)
             assert_equal(G.shape, (274, 49008))
             assert_array_equal(G.dims, ["sample", "candidate"])
+
+
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="for unix only")
+def test_fetch_win_drive_on_unix():
+    with pytest.raises(ValueError):
+        limix.io.fetch("trait", r"C:\Temp\Wrong.csv:csv:row=sample", verbose=False)
+
+
+@pytest.mark.skipif(not sys.platform.startswith("win"), reason="for win only")
+def test_fetch_win_drive_on_win():
+    with pytest.raises(FileNotFoundError):
+        limix.io.fetch("trait", r"C:\Temp\Wrong.csv:csv:row=sample", verbose=False)

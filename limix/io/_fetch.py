@@ -78,11 +78,16 @@ _dispatch = {
 
 
 def _parse_fetch_spec(spec):
+    import os
     from ._detect import infer_filetype
+
+    drive, spec = os.path.splitdrive(spec)
 
     ncolons = sum([1 for c in spec if c == ":"])
     if ncolons > 2:
         raise ValueError("Wrong specification syntax: there were more than two colons.")
+
+    spec = drive + spec
     spec = spec + ":" * (2 - ncolons)
     spec = dict(zip(["filepath", "filetype", "matrix_spec"], spec.split(":")))
 
