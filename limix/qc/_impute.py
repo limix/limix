@@ -1,4 +1,5 @@
 from limix._bits import dask, get_shape, numpy, pandas, xarray
+import warnings
 
 
 def mean_impute(X, axis=-1, inplace=False):
@@ -79,7 +80,9 @@ def _impute_numpy(X, axis, inplace):
         X = X.copy()
 
     X = X.swapaxes(-1, axis)
-    m = nanmean(X, axis=0)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+        m = nanmean(X, axis=0)
     for i, mi in enumerate(m):
         X[isnan(X[:, i]), i] = mi
 

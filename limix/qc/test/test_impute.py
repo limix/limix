@@ -1,18 +1,16 @@
-from copy import copy
-
-import warnings
-import dask.array as da
-import dask.dataframe as dd
-import pandas as pd
 import pytest
-import xarray as xr
 from limix.qc import mean_impute
 from numpy import asarray, nan
 from numpy.random import RandomState
-from numpy.testing import assert_allclose
-from .util import assert_mat_proc, assert_mat_proc_inplace
-
-warnings.simplefilter("ignore", RuntimeWarning)
+from .util import (
+    assert_ndarray_1d,
+    assert_ndarray_2d,
+    assert_pandas_series,
+    assert_pandas_dataframe,
+    assert_dask_array,
+    assert_dask_dataframe,
+    assert_xarray_dataarray,
+)
 
 
 @pytest.fixture
@@ -85,42 +83,28 @@ def data1d():
 
 
 def test_impute_ndarray_1d(data1d):
-    assert_mat_proc(mean_impute, data1d, lambda X, *_: X.copy())
-    assert_mat_proc_inplace(mean_impute, data1d, lambda X, *_: X.copy())
+    assert_ndarray_1d(mean_impute, data1d)
 
 
 def test_impute_ndarray_2d(data2d):
-    assert_mat_proc(mean_impute, data2d, lambda X, *_: X.copy())
-    assert_mat_proc_inplace(mean_impute, data2d, lambda X, *_: X.copy())
+    assert_ndarray_2d(mean_impute, data2d)
 
 
-# def test_impute_pandas_series(data1d):
-#     assert_mat_proc(mean_impute, lambda d: pd.Series(X), data1d)
-#     assert_mat_proc_inplace(mean_impute, lambda d: pd.Series(X), data1d)
+def test_impute_pandas_series(data1d):
+    assert_pandas_series(mean_impute, data1d)
 
 
-# def test_impute_pandas_dataframe(data2d):
-#     assert_mat_proc(
-#         mean_impute, lambda d: pd.DataFrame(X, columns=d["candidates"]), data2d
-#     )
-#     assert_mat_proc_inplace(
-#         mean_impute, lambda d: pd.DataFrame(X, columns=d["candidates"]), data2d
-#     )
+def test_impute_pandas_dataframe(data2d):
+    assert_pandas_dataframe(mean_impute, data2d)
 
 
-# def test_impute_dask_array(data2d):
-#     assert_mat_proc(
-#         mean_impute, lambda d: da.from_array(X.copy(), chunks=2), data2d
-#     )
-#     assert_mat_proc_inplace(
-#         mean_impute, lambda d: da.from_array(X.copy(), chunks=2), data2d
-#     )
+def test_impute_dask_array(data2d):
+    assert_dask_array(mean_impute, data2d)
 
 
-# def test_impute_dask_dataframe(data2d):
-#     assert_mat_proc(mean_impute, lambda d: dd.from_array(X.copy()), data2d)
+def test_impute_dask_dataframe(data2d):
+    assert_dask_dataframe(mean_impute, data2d)
 
 
-# def test_impute_xarray_dataarray(data2d):
-#     assert_mat_proc(mean_impute, lambda d: xr.DataArray(X.copy()), data2d)
-#     assert_mat_proc_inplace(mean_impute, lambda d: xr.DataArray(X.copy()), data2d)
+def test_impute_xarray_dataarray(data2d):
+    assert_xarray_dataarray(mean_impute, data2d)

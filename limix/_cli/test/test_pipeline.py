@@ -77,6 +77,7 @@ def test_pipeline_normalize():
             [-1.382_994_127_100_638, 0.0, -0.674_489_750_196_081_7],
         )
 
+
 def test_pipeline_impute():
 
     with limix.file_example("expr_nan.csv") as filepath:

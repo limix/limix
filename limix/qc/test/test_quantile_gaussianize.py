@@ -1,12 +1,16 @@
-import dask.array as da
-import dask.dataframe as dd
-import pandas as pd
 import pytest
-import xarray as xr
 from limix.qc import quantile_gaussianize as qg
 from numpy import asarray, nan
 from numpy.random import RandomState
-from .util import assert_mat_proc, assert_mat_proc_inplace
+from .util import (
+    assert_ndarray_1d,
+    assert_ndarray_2d,
+    assert_pandas_series,
+    assert_pandas_dataframe,
+    assert_dask_array,
+    assert_dask_dataframe,
+    assert_xarray_dataarray,
+)
 
 
 @pytest.fixture
@@ -50,45 +54,29 @@ def data1d():
     return {"X": X, "R": R, "Rt": Rt, "samples": samples, "candidates": None}
 
 
-def test_quantile_gaussianize_ndarray_1d(data1d):
-    assert_mat_proc(qg, data1d, lambda X, *_: asarray(X).copy())
-    assert_mat_proc_inplace(qg, data1d, lambda X, *_: asarray(X).copy())
+def test_impute_ndarray_1d(data1d):
+    assert_ndarray_1d(qg, data1d)
 
 
-def test_quantile_gaussianize_ndarray_2d(data2d):
-    assert_mat_proc(qg, data2d, lambda X, *_: asarray(X).copy())
-    assert_mat_proc_inplace(qg, data2d, lambda X, *_: asarray(X).copy())
+def test_impute_ndarray_2d(data2d):
+    assert_ndarray_2d(qg, data2d)
 
 
-def test_quantile_gaussianize_pandas_series(data1d):
-    def get(X, samples, _):
-        return pd.Series(X.copy(), index=samples)
-
-    assert_mat_proc(qg, data1d, get)
-    assert_mat_proc_inplace(qg, data1d, get)
+def test_impute_pandas_series(data1d):
+    assert_pandas_series(qg, data1d)
 
 
-def test_quantile_gaussianize_pandas_dataframe(data2d):
-    def get(X, samples, candidates):
-        return pd.DataFrame(X.copy(), index=samples, columns=candidates)
-
-    assert_mat_proc(qg, data2d, get)
-    assert_mat_proc_inplace(qg, data2d, get)
+def test_impute_pandas_dataframe(data2d):
+    assert_pandas_dataframe(qg, data2d)
 
 
-def test_quantile_gaussianize_dask_array(data2d):
-    assert_mat_proc(qg, data2d, lambda X, *_: da.from_array(X.copy(), chunks=2))
+def test_impute_dask_array(data2d):
+    assert_dask_array(qg, data2d, test_inplace=False)
 
 
-def test_quantile_gaussianize_dask_dataframe(data2d):
-    def get(X, samples, candidates):
-        df = pd.DataFrame(X.copy(), index=samples, columns=candidates)
-        df = dd.from_pandas(df, npartitions=2)
-        return df
-
-    assert_mat_proc(qg, data2d, get)
+def test_impute_dask_dataframe(data2d):
+    assert_dask_dataframe(qg, data2d)
 
 
-def test_quantile_gaussianize_xarray_dataarray(data2d):
-    assert_mat_proc(qg, data2d, lambda X, *_: xr.DataArray(X.copy()))
-    assert_mat_proc_inplace(qg, data2d, lambda X, *_: xr.DataArray(X.copy()))
+def test_impute_xarray_dataarray(data2d):
+    assert_xarray_dataarray(qg, data2d)
