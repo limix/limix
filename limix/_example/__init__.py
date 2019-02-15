@@ -1,4 +1,9 @@
-from __future__ import absolute_import
+"""
+_example package
+================
+
+File examples.
+"""
 
 from ._example import file_example
 

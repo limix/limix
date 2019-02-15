@@ -8,6 +8,9 @@ import limix
 @click.option(
     "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
 )
-def extract(ctx, filepath, verbose):
+@click.option(
+    "--dest", help="Destination path.", default=".", type=click.Path(exists=True)
+)
+def extract(ctx, filepath, dest, verbose):
     """Extract a file."""
-    limix.sh.extract(filepath, verbose=verbose)
+    limix.sh.extract(filepath, dest=dest, verbose=verbose)

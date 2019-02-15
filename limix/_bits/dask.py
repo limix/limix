@@ -1,4 +1,4 @@
-from __future__ import absolute_import as _
+__all__ = ["array_shape_reveal", "is_array", "is_series"]
 
 
 def array_shape_reveal(a):
@@ -10,10 +10,32 @@ def array_shape_reveal(a):
     from numpy import any, isnan
     import dask.array as da
 
-    if any(isnan(a.shape)):
+    shape = da.compute(*a.shape)
+    if any(isnan(shape)):
         # Rebuild Dask Array with known chunks
         return da.Array(a.__dask_graph__(), a.name, _get_chunks(a), a.dtype)
     return a
+
+
+def is_array(a):
+    pkg = a.__class__.__module__.split(".")[0]
+    name = a.__class__.__name__
+
+    return pkg == "dask" and name == "Array"
+
+
+def is_series(a):
+    pkg = a.__class__.__module__.split(".")[0]
+    name = a.__class__.__name__
+
+    return pkg == "dask" and name == "Series"
+
+
+def is_dataframe(a):
+    pkg = a.__class__.__module__.split(".")[0]
+    name = a.__class__.__name__
+
+    return pkg == "dask" and name == "DataFrame"
 
 
 def _get_shape_helper(a):

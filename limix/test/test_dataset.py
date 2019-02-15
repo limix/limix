@@ -1,8 +1,7 @@
-from numpy import array, asarray, dtype
+from limix._data import conform_dataset
+from numpy import array, dtype
 from numpy.random import RandomState
 from numpy.testing import assert_, assert_array_equal, assert_equal
-
-from limix._data import conform_dataset
 from pandas import DataFrame, Series
 from xarray import DataArray
 
@@ -54,7 +53,7 @@ def test_dataset_pandas_xarray_dask():
     import dask.array as da
     import dask.dataframe as dd
     import pandas as pd
-    from limix._data._conform import to_dataarray
+    from limix._data import asarray
 
     x = []
 
@@ -96,16 +95,15 @@ def test_dataset_pandas_xarray_dask():
         x.append(DataArray(x[i]))
         x.append(x[-1].chunk(2))
 
-    print()
     for xi in x:
-        y = to_dataarray(xi)
+        y = asarray(xi, "trait", ["sample", "trait"])
         assert_equal(y.dtype, dtype("float64"))
         assert_array_equal(y.shape, (3, 1))
         assert_(isinstance(y, DataArray))
         if isinstance(xi, Series):
-            assert_array_equal(list(xi.index), list(y.coords["dim_0"].values))
+            assert_array_equal(list(xi.index), list(y.coords["sample"].values))
         if isinstance(xi, DataFrame):
-            assert_array_equal(list(xi.columns), list(y.coords["dim_1"].values))
+            assert_array_equal(list(xi.columns), list(y.coords["trait"].values))
 
         is_dask = (
             hasattr(xi, "chunks")
@@ -117,7 +115,7 @@ def test_dataset_pandas_xarray_dask():
         )
 
         assert_equal(is_dask, y.chunks is not None)
-        assert_array_equal(asarray(xi).ravel(), asarray(y).ravel())
+        assert_array_equal(np.asarray(xi).ravel(), np.asarray(y).ravel())
 
 
 def test_dataset_different_size():
@@ -147,180 +145,3 @@ def test_dataset_different_size():
 
     assert_array_equal(data["y"].values, y[:n0])
     assert_array_equal(data["G"].values, G[:n0, :])
-
-
-def test_dataset_underline_prefix():
-
-    data = {
-        "coords": {
-            "trait": {"data": "gene1", "dims": (), "attrs": {}},
-            "_sample": {
-                "data": ["0", "1", "2", "3", "4", "5"],
-                "dims": ("_sample",),
-                "attrs": {},
-            },
-        },
-        "attrs": {},
-        "dims": ("_sample",),
-        "data": [
-            -3.7523451473100002,
-            -0.421128991488,
-            -0.536290093143,
-            -0.9076827328799999,
-            -0.251889685747,
-            -0.602998035829,
-        ],
-        "name": "phenotype",
-    }
-
-    y = DataArray.from_dict(data)
-
-    data = {
-        "coords": {
-            "fid": {
-                "data": [
-                    "HG00111",
-                    "HG00112",
-                    "HG00116",
-                    "HG00121",
-                    "HG00133",
-                    "HG00135",
-                    "HG00142",
-                ],
-                "dims": ("sample",),
-                "attrs": {},
-            },
-            "iid": {
-                "data": [
-                    "HG00111",
-                    "HG00112",
-                    "HG00116",
-                    "HG00121",
-                    "HG00133",
-                    "HG00135",
-                    "HG00142",
-                ],
-                "dims": ("sample",),
-                "attrs": {},
-            },
-            "father": {
-                "data": ["0", "0", "0", "0", "0", "0", "0"],
-                "dims": ("sample",),
-                "attrs": {},
-            },
-            "mother": {
-                "data": ["0", "0", "0", "0", "0", "0", "0"],
-                "dims": ("sample",),
-                "attrs": {},
-            },
-            "gender": {
-                "data": ["0", "0", "0", "0", "0", "0", "0"],
-                "dims": ("sample",),
-                "attrs": {},
-            },
-            "trait": {
-                "data": ["-9", "-9", "-9", "-9", "-9", "-9", "-9"],
-                "dims": ("sample",),
-                "attrs": {},
-            },
-            "i": {"data": [0, 1], "dims": ("candidate",), "attrs": {}},
-            "sample": {
-                "data": [
-                    "HG00111",
-                    "HG00112",
-                    "HG00116",
-                    "HG00121",
-                    "HG00133",
-                    "HG00135",
-                    "HG00142",
-                ],
-                "dims": ("sample",),
-                "attrs": {},
-            },
-            "chrom": {"data": ["22", "22"], "dims": ("candidate",), "attrs": {}},
-            "snp": {
-                "data": ["rs146752890", "rs62224610"],
-                "dims": ("candidate",),
-                "attrs": {},
-            },
-            "cm": {"data": [0.0, 0.0], "dims": ("candidate",), "attrs": {}},
-            "pos": {"data": [16050612, 16051347], "dims": ("candidate",), "attrs": {}},
-            "a0": {"data": ["G", "C"], "dims": ("candidate",), "attrs": {}},
-            "a1": {"data": ["C", "G"], "dims": ("candidate",), "attrs": {}},
-            "candidate": {
-                "data": ["rs146752890", "rs62224610"],
-                "dims": ("candidate",),
-                "attrs": {},
-            },
-        },
-        "attrs": {},
-        "dims": ("sample", "candidate"),
-        "data": [
-            [2.0, 0.0],
-            [1.0, 2.0],
-            [2.0, 2.0],
-            [1.0, 2.0],
-            [2.0, 1.0],
-            [1.0, 1.0],
-            [2.0, 2.0],
-        ],
-        "name": "genotype",
-    }
-
-    G = DataArray.from_dict(data)
-
-    data = conform_dataset(y, G=G)
-    assert_equal(
-        data["y"].coords["sample"][:3].values, ["HG00111", "HG00112", "HG00116"]
-    )
-    assert_equal(data["y"].shape, (6, 1))
-    assert_equal(data["y"].dims, ("sample", "trait"))
-
-    data = {
-        "coords": {
-            "trait": {"data": "gene1", "dims": (), "attrs": {}},
-            "sample": {
-                "data": ["0", "1", "2", "3", "4", "5"],
-                "dims": ("sample",),
-                "attrs": {},
-            },
-        },
-        "attrs": {},
-        "dims": ("sample",),
-        "data": [
-            -3.7523451473100002,
-            -0.421128991488,
-            -0.536290093143,
-            -0.9076827328799999,
-            -0.251889685747,
-            -0.602998035829,
-        ],
-        "name": "phenotype",
-    }
-
-    y = DataArray.from_dict(data)
-    data = conform_dataset(y, G=G)
-    assert_equal(data["y"].shape, (0, 1))
-    assert_equal(data["y"].dims, ("sample", "trait"))
-
-    data = {
-        "coords": {"trait": {"data": "gene1", "dims": (), "attrs": {}}},
-        "attrs": {},
-        "dims": ("sample",),
-        "data": [
-            -3.7523451473100002,
-            -0.421128991488,
-            -0.536290093143,
-            -0.9076827328799999,
-            -0.251889685747,
-            -0.602998035829,
-        ],
-        "name": "phenotype",
-    }
-    y = DataArray.from_dict(data)
-    data = conform_dataset(y, G=G)
-    assert_equal(
-        data["y"].coords["sample"][:3].values, ["HG00111", "HG00112", "HG00116"]
-    )
-    assert_equal(data["y"].shape, (6, 1))
-    assert_equal(data["y"].dims, ("sample", "trait"))

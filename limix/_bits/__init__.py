@@ -1,5 +1,21 @@
-from . import dask
-from . import xarray
-from . import deco
+"""
+_bits module
+============
 
-__all__ = ["dask", "xarray", "deco"]
+Private subpackage for low-level operations.
+
+Modules
+-------
+dask
+deco
+pandas
+xarray
+
+Functions
+---------
+get_shape
+"""
+from . import dask, deco, numpy, pandas, xarray
+from .array import get_shape
+
+__all__ = ["dask", "xarray", "deco", "pandas", "get_shape", "numpy"]

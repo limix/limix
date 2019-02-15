@@ -1,17 +1,12 @@
-from __future__ import unicode_literals
 from collections import Counter
 
-
-from .._bits.dask import array_shape_reveal
-from .._bits.xarray import set_coord
 from .._bits.deco import return_none_if_none
-from ._dataarray import fix_dim_hint, rename_dims
-from ._data import is_data_name, is_short_data_name, to_data_name, get_short_data_names
+from .._bits.xarray import set_coord
+from ._asarray import asarray
+from ._conf import CONF
 
-
-rename_dims = return_none_if_none(rename_dims)
-fix_dim_hint = return_none_if_none(fix_dim_hint)
 set_coord = return_none_if_none(set_coord)
+asarray = return_none_if_none(asarray)
 
 
 def conform_dataset(y, M=None, G=None, K=None):
@@ -90,14 +85,13 @@ def conform_dataset(y, M=None, G=None, K=None):
         >>> with pytest.raises(ValueError):
         ...     conform_dataset(y, G=G, K=K)
     """
-    y = rename_dims(fix_dim_hint(to_dataarray(y)), ["sample", "trait"])
-    M = rename_dims(fix_dim_hint(to_dataarray(M)), ["sample", "covariate"])
-    G = rename_dims(fix_dim_hint(to_dataarray(G)), ["sample", "candidate"])
-    K = rename_dims(fix_dim_hint(to_dataarray(K)), ["sample_0", "sample_1"])
+    y = asarray(y, "trait", CONF["data_dims"]["trait"])
+    M = asarray(M, "covariate", CONF["data_dims"]["covariate"])
+    G = asarray(G, "genotype", CONF["data_dims"]["genotype"])
+    K = asarray(K, "covariance", CONF["data_dims"]["covariance"])
 
-    # Select those variables different than None
-    _locals = locals()
-    data = {k: _locals[k] for k in get_short_data_names() if _locals[k] is not None}
+    data = {"y": y, "M": M, "G": G, "K": K}
+    data = {k: v for k, v in data.items() if v is not None}
 
     sample_dims = [
         t
@@ -112,7 +106,8 @@ def conform_dataset(y, M=None, G=None, K=None):
     ]
 
     data = _fix_samples(data, sample_dims)
-    data = _set_titles(data)
+    for n in data.keys():
+        data[n].name = CONF["varname_to_target"][n]
 
     nsamples = len(data["y"].coords["sample"])
     same_size = all(data[n].coords[d].size == nsamples for n, d in sample_dims)
@@ -125,45 +120,7 @@ def conform_dataset(y, M=None, G=None, K=None):
         _check_uniqueness(data, sample_dims)
         _match_samples(data, sample_dims)
 
-    return {k: data.get(k, None) for k in get_short_data_names()}
-
-
-@return_none_if_none
-def to_dataarray(x):
-    import dask.dataframe as dd
-    import dask.array as da
-    import xarray as xr
-    from numpy import dtype
-    from ._dim import is_dim_hint
-
-    if isinstance(x, (dd.Series, dd.DataFrame)):
-        xidx = x.index.compute()
-        x = da.asarray(x)
-        x = array_shape_reveal(x)
-        x0 = xr.DataArray(x)
-        x0.coords[x0.dims[0]] = xidx
-        if isinstance(x, dd.DataFrame):
-            x0.coords[x0.dims[1]] = x.columns
-        x = x0
-
-    if not isinstance(x, xr.DataArray):
-        x = xr.DataArray(x, encoding={"dtype": "float64"})
-
-    if x.dtype != dtype("float64"):
-        x = x.astype("float64")
-
-    if x.ndim < 2:
-        x = x.expand_dims("dim_1", 1)
-
-    for dim in x.dims:
-        if x.coords[dim].dtype.kind in {"U", "S"}:
-            x.coords[dim] = x.coords[dim].values.astype(object)
-
-    for dim in x.dims:
-        if dim in x.coords and is_dim_hint(dim):
-            del x.coords[dim]
-
-    return x
+    return {k: data.get(k, None) for k in ["y", "M", "G", "K"]}
 
 
 def _default_covariates(samples):
@@ -217,7 +174,6 @@ def _fix_samples(data, sample_dims):
     ]
 
     valid_samples = _infer_samples_index(samples_list)
-    # valid_samples = _infer_samples_index(data, sample_dims, samples)
     for n, d in sample_dims:
         data[n] = set_coord(data[n], d, valid_samples)
 
@@ -253,15 +209,6 @@ def _infer_samples_index(samples_list):
             valid_samples[k] = set_intersection[k]
 
     return valid_samples
-
-
-def _set_titles(data):
-    for n in data.keys():
-        if is_short_data_name(n) or is_data_name(n):
-            data[n].name = to_data_name(n)
-        else:
-            data[n].name = n
-    return data
 
 
 def _fix_covariates(data, samples_same_size):

@@ -20,10 +20,9 @@ def download(url, dest=None, verbose=True, force=False):
 
     filepath = os.path.join(dest, _filename(url))
     if not force and os.path.exists(filepath):
-        warnings.warn(
-            f"File {filepath} already exists. Set `force` to `True` in order to\n"
-            "overwrite the existing file."
-        )
+        msg = f"File {filepath} already exists. Set `force` to `True` in order to\n"
+        msg += "overwrite the existing file."
+        warnings.warn(msg)
         return
 
     with session_line("Downloading {}... ".format(url), disable=not verbose):

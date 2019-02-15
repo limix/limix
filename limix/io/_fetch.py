@@ -1,27 +1,35 @@
-from .._data import is_data_name, get_dims_from_data_name
+from collections import namedtuple
+
+FetchSpec = namedtuple("FetchSpec", ["filepath", "filetype", "matrix_spec"])
 
 
-def fetch(data_name, fetch_spec, verbose=True):
-    from .._data import to_dataarray
-    from .._bits.xarray import hint_aware_sel
+def fetch(target, fetch_spec, verbose=True):
+    from .._data import asarray
+    from .._data import assert_target, assert_filetype
+    from .._data import CONF
 
-    if not is_data_name(data_name):
-        raise ValueError("`{}` is not a valid data name.".format(data_name))
+    assert_target(target)
 
-    filetype = fetch_spec["filetype"]
+    if isinstance(fetch_spec, str):
+        fetch_spec = _parse_fetch_spec(fetch_spec)
 
-    spec = fetch_spec["matrix_spec"]
-    dims = {d: spec[d] for d in ["row", "col"] if d in spec}
+    assert_filetype(fetch_spec.filetype)
 
-    X = _dispatch[data_name][filetype](fetch_spec["filepath"], verbose=verbose)
-    X = to_dataarray(X)
-    X = _read_dims_into(X, dims)
+    X = _dispatch[target][fetch_spec.filetype](fetch_spec.filepath, verbose=verbose)
 
-    if len(spec["sel"]) > 0:
-        X = hint_aware_sel(X, **spec["sel"])
+    matrix_spec = fetch_spec.matrix_spec
+    dims = {d: matrix_spec[d] for d in ["row", "col"] if d in matrix_spec}
+    if len(matrix_spec) == 1:
+        if not hasattr(X, "dims") or all([d not in CONF["dim_names"] for d in X.dims]):
+            dims = _default_dims[target][fetch_spec.filetype]()
 
-    if X.name is None:
-        X.name = data_name
+    X = asarray(X, target, dims)
+
+    if len(matrix_spec["sel"]) > 0:
+        X = X.sel(**matrix_spec["sel"])
+
+    X = asarray(X, target)
+    X.name = target
 
     return X
 
@@ -34,11 +42,14 @@ def _fetch_npy_covariance(filepath, verbose=True):
 
 def _fetch_bed_genotype(filepath, verbose=True):
     from .plink import read
-    from xarray import DataArray
+    from limix._data import asarray
 
     candidates, samples, G = read(filepath, verbose=verbose)
 
-    G = DataArray(G.T, dims=get_dims_from_data_name("genotype"))
+    assert G.shape == (len(candidates), len(samples))
+    G = asarray(G, "genotype", ["candidate", "sample"])
+    # Make sure we return the same matrix layout that has been read.
+    G = G.transpose("candidate", "sample")
 
     for colname in samples.columns:
         G.coords[colname] = ("sample", samples[colname].values)
@@ -53,38 +64,129 @@ def _fetch_bed_genotype(filepath, verbose=True):
     return G
 
 
-def _fetch_bimbam_phenotype(filepath, verbose):
+def _fetch_bimbam_trait(filepath, verbose):
     from .bimbam import read_phenotype
 
     return read_phenotype(filepath, verbose=verbose)
 
 
-def _fetch_csv_phenotype(filepath, verbose):
+def _fetch_csv_trait(filepath, verbose):
     from .csv import read
 
     return read(filepath, verbose=verbose)
 
 
-def _read_dims_into(X, dims):
-    rc = {"row": 0, "col": 1}
-    # If mentioned dims are already in the datarray, just transpose it
-    # if necessary.
-    for axis_name, dim_name in dims.items():
-        try:
-            first = next(i for i in range(len(X.dims)) if X.dims[i] == dim_name)
-        except StopIteration:
-            continue
-        if rc[axis_name] != first:
-            X = X.T
+def _fetch_csv_covariate(filepath, verbose):
+    from .csv import read
 
-    # Se dim names if they were not found already in the dataarray.
-    for axis_name, dim_name in dims.items():
-        X = X.rename({X.dims[rc[axis_name]]: dim_name})
-    return X
+    return read(filepath, verbose=verbose)
+
+
+def _default_csv_covariate_dims():
+    return {"row": "sample", "col": "covariate"}
 
 
 _dispatch = {
     "genotype": {"bed": _fetch_bed_genotype},
-    "trait": {"bimbam-pheno": _fetch_bimbam_phenotype, "csv": _fetch_csv_phenotype},
+    "trait": {"bimbam-pheno": _fetch_bimbam_trait, "csv": _fetch_csv_trait},
     "covariance": {"npy": _fetch_npy_covariance},
+    "covariate": {"csv": _fetch_csv_covariate},
 }
+
+_default_dims = {"covariate": {"csv": _default_csv_covariate_dims}}
+
+
+def _parse_fetch_spec(spec):
+    import os
+    from ._detect import infer_filetype
+
+    drive, spec = os.path.splitdrive(spec)
+
+    ncolons = sum([1 for c in spec if c == ":"])
+    if ncolons > 2:
+        raise ValueError("Wrong specification syntax: there were more than two colons.")
+
+    spec = spec + ":" * (2 - ncolons)
+    filepath, filetype, matrix_spec = spec.split(":")
+    filepath = drive + filepath
+
+    spec = {"filepath": filepath, "filetype": filetype, "matrix_spec": matrix_spec}
+
+    if spec["filetype"] == "":
+        spec["filetype"] = infer_filetype(spec["filepath"])
+    spec["matrix_spec"] = _parse_matrix_spec(spec["matrix_spec"])
+
+    return FetchSpec(**spec)
+
+
+def _number_or_string(val):
+    if "." in val:
+        try:
+            val = float(val)
+            return val
+        except ValueError:
+            pass
+
+    try:
+        val = int(val)
+        return val
+    except ValueError:
+        pass
+
+    enclosed = False
+    if val.startswith("'") and val.endswith("'") and len(val) > 1:
+        enclosed = True
+
+    if val.startswith("'") and val.endswith("'") and len(val) > 1:
+        enclosed = True
+
+    if not enclosed:
+        val = '"' + val + '"'
+
+    return val
+
+
+def _parse_matrix_spec(txt):
+    import re
+
+    parts = _split_matrix_spec(txt)
+    data = {"sel": {}}
+    for p in parts:
+        p = p.strip()
+        if p.startswith("row"):
+            data["row"] = p.split("=")[1]
+        elif p.startswith("col"):
+            data["col"] = p.split("=")[1]
+        else:
+            match = re.match(r"(^[^\[]+)\[(.+)\]$", p)
+            if match is None:
+                raise ValueError("Invalid fetch specification syntax.")
+            # TODO: replace eval for something safer
+            v = _number_or_string(match.group(2))
+            data["sel"].update({match.group(1): eval(v)})
+
+    return data
+
+
+def _split_matrix_spec(txt):
+
+    brackets = 0
+    parts = []
+    j = 0
+    for i in range(len(txt)):
+        if txt[i] == "[":
+            brackets += 1
+        elif txt[i] == "]":
+            brackets -= 1
+        elif txt[i] == "," and brackets == 0:
+            if j == i:
+                raise ValueError("Invalid fetch specification syntax.")
+            parts.append(txt[j:i])
+            j = i + 1
+        if brackets < 0:
+            raise ValueError("Invalid fetch specification syntax.")
+
+    if len(txt[j:]) > 0:
+        parts.append(txt[j:])
+
+    return parts

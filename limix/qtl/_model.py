@@ -120,8 +120,8 @@ class QTLModel(object):
         null = self._get_null_series()
         alt = self._get_alt_dataframe()
 
-        null.to_csv(path_or_buf_null)
-        alt.to_csv(path_or_buf_alt)
+        null.to_csv(path_or_buf_null, header=False)
+        alt.to_csv(path_or_buf_alt, header=False)
 
     def __repr__(self):
         import re

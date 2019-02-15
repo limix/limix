@@ -4,12 +4,12 @@ import pytest
 
 
 def pytest_configure(*_):
+    _compatibility()
     import doctest
     import matplotlib as mpl
 
     mpl.use("agg")
 
-    _compatibility()
     pandas_format()
     doctest.ELLIPSIS_MARKER = "-ignore-"
 
@@ -59,10 +59,3 @@ def _compatibility():
 
     warnings.filterwarnings("ignore", message="numpy.dtype size changed")
     warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
-    warnings.filterwarnings(
-        "ignore",
-        message=(
-            "Using or importing the ABCs from 'collections' instead"
-            " of from 'collections.abc' is deprecated, and in 3.8 it will stop working"
-        ),
-    )

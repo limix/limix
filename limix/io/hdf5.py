@@ -46,7 +46,7 @@ class fetcher(object):
     .. doctest::
 
         >>> from limix.io import hdf5
-        >>> from limix.example import file_example
+        >>> from limix import file_example
         >>> from limix.sh import extract
         >>>
         >>> with file_example("data.h5.bz2") as filepath:

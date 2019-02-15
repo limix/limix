@@ -1,6 +1,7 @@
 import sys
 from time import time
-from ._core import pprint, bold, blue, red, width, wrap_text
+
+from ._core import blue, bold, pprint, red, width, wrap_text
 
 
 def banner():
@@ -21,7 +22,7 @@ def add_title_header(title, df):
 
 
 class session_line(object):
-    r"""Print the elapsed time after the execution of a block of code."""
+    """ Print the elapsed time after the execution of a block of code. """
 
     def __init__(self, desc="Running... ", disable=False):
         self._disable = disable
@@ -36,13 +37,24 @@ class session_line(object):
             sys.stdout.flush()
         return self
 
-    def __exit__(self, *args, **_):
+    def __exit__(self, exception_type, exception_value, traceback):
         from humanfriendly import format_timespan
 
         self.elapsed = time() - self._tstart
+        fail = exception_type is not None
+
         if not self._disable:
-            print("done (%s)." % format_timespan(self.elapsed))
-            sys.stdout.flush()
+            # New line, get back to previous line, and advance cursor to the end
+            # of the line. This allows us to always get back to the right cursor
+            # position, as long as the cursor is still in the correct line.
+            print("\n\033[1A\033[{}C".format(len(self._desc)), end="")
+            if fail:
+                msg = bold(red("failed"))
+                msg += " ({}).".format(format_timespan(self.elapsed))
+                pprint(msg)
+            else:
+                print("done (%s)." % format_timespan(self.elapsed))
+                sys.stdout.flush()
 
 
 class session_block(object):
@@ -75,3 +87,8 @@ class session_block(object):
         if not self._disable:
             msg = wrap_text(msg, width())
             pprint(bold(color(msg)))
+
+
+def indent(txt, size=2):
+    space = " " * size
+    return space + ("\n" + space).join(txt.split("\n"))
