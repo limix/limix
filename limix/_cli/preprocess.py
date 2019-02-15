@@ -1,4 +1,4 @@
-def impute(data, layout, spec):
+def impute(data, spec):
     import limix
     from limix._data import CONF
 
@@ -7,7 +7,7 @@ def impute(data, layout, spec):
         _syntax_error_msg("Impute", "<TARGET>:<DIM>:<METHOD>", spec)
 
     spec = spec.strip()
-    spec = spec + ":" * (1 - ncolons)
+    spec = spec + ":" * (2 - ncolons)
     target, dim, method = [e.strip() for e in spec.split(":")]
 
     varname = CONF["target_to_varname"][target]
@@ -27,12 +27,11 @@ def impute(data, layout, spec):
         raise ValueError(f"Unrecognized impute method: {method}.")
 
     data[varname] = x
-    layout.append(target, "impute", data[varname].shape)
 
     return data
 
 
-def normalize(data, layout, spec):
+def normalize(data, spec):
     import limix
     from limix._data import CONF
 
@@ -61,12 +60,11 @@ def normalize(data, layout, spec):
         raise ValueError(f"Unrecognized normalization method: {method}.")
 
     data[varname] = x
-    layout.append(target, "normalize", data[varname].shape)
 
     return data
 
 
-def where(data, layout, spec):
+def where(data, spec):
     from limix._bits.xarray import query
     from limix._data import CONF
 
@@ -81,33 +79,53 @@ def where(data, layout, spec):
     varname = CONF["target_to_varname"][target]
 
     data[varname] = query(data[varname], cond)
-    layout.append(target, "filter", data[varname].shape)
 
     return data
 
 
-def process_filter_missing(expr, data):
-    elems = [e.strip() for e in expr.strip().split(":")]
-    if len(elems) < 2 or len(elems) > 3:
-        raise ValueError("Missing filter syntax error.")
+def drop_missing(data, spec):
+    from limix._data import CONF
 
-    target = elems[0]
-    dim = elems[1]
+    ncolons = sum(1 for c in spec if c == ":")
+    if ncolons > 2:
+        _syntax_error_msg("Drop-missing", "<TARGET>:<DIM>:<METHOD>", spec)
 
-    if len(elems) == 3:
-        how = elems[2]
-    else:
-        how = "any"
+    spec = spec.strip()
+    spec = spec + ":" * (2 - ncolons)
+    target, dim, method = [e.strip() for e in spec.split(":")]
 
-    data[target] = data[target].dropna(dim, how)
+    if dim == "":
+        if target == "trait":
+            dim = "trait"
+        elif target == "genotype":
+            dim = "candidate"
+        elif target == "covariate":
+            dim = "covariate"
+
+    if method == "":
+        method = "any"
+
+    varname = CONF["target_to_varname"][target]
+    x = data[varname]
+
+    if dim == "":
+        dim = x.dims[-1]
+
+    data[varname] = data[varname].dropna(dim, method)
+
+    return data
 
 
-def _process_filter_maf(maf, G):
-    from limix import compute_maf
+def drop_maf(data, spec):
+    raise NotImplementedError()
 
-    mafs = compute_maf(G)
-    ok = mafs >= maf
-    return G.isel(candidate=ok)
+
+# def _process_filter_maf(maf, G):
+#     from limix import compute_maf
+
+#     mafs = compute_maf(G)
+#     ok = mafs >= maf
+#     return G.isel(candidate=ok)
 
 
 def _syntax_error_msg(what, syntax, spec):

@@ -6,6 +6,7 @@ FetchSpec = namedtuple("FetchSpec", ["filepath", "filetype", "matrix_spec"])
 def fetch(target, fetch_spec, verbose=True):
     from .._data import asarray
     from .._data import assert_target, assert_filetype
+    from .._data import CONF
 
     assert_target(target)
 
@@ -13,10 +14,15 @@ def fetch(target, fetch_spec, verbose=True):
         fetch_spec = _parse_fetch_spec(fetch_spec)
 
     assert_filetype(fetch_spec.filetype)
-    matrix_spec = fetch_spec.matrix_spec
-    dims = {d: matrix_spec[d] for d in ["row", "col"] if d in matrix_spec}
 
     X = _dispatch[target][fetch_spec.filetype](fetch_spec.filepath, verbose=verbose)
+
+    matrix_spec = fetch_spec.matrix_spec
+    dims = {d: matrix_spec[d] for d in ["row", "col"] if d in matrix_spec}
+    if len(matrix_spec) == 1:
+        if not hasattr(X, "dims") or all([d not in CONF["dim_names"] for d in X.dims]):
+            dims = _default_dims[target][fetch_spec.filetype]()
+
     X = asarray(X, target, dims)
 
     if len(matrix_spec["sel"]) > 0:
@@ -58,23 +64,36 @@ def _fetch_bed_genotype(filepath, verbose=True):
     return G
 
 
-def _fetch_bimbam_phenotype(filepath, verbose):
+def _fetch_bimbam_trait(filepath, verbose):
     from .bimbam import read_phenotype
 
     return read_phenotype(filepath, verbose=verbose)
 
 
-def _fetch_csv_phenotype(filepath, verbose):
+def _fetch_csv_trait(filepath, verbose):
     from .csv import read
 
     return read(filepath, verbose=verbose)
 
 
+def _fetch_csv_covariate(filepath, verbose):
+    from .csv import read
+
+    return read(filepath, verbose=verbose)
+
+
+def _default_csv_covariate_dims():
+    return {"row": "sample", "col": "covariate"}
+
+
 _dispatch = {
     "genotype": {"bed": _fetch_bed_genotype},
-    "trait": {"bimbam-pheno": _fetch_bimbam_phenotype, "csv": _fetch_csv_phenotype},
+    "trait": {"bimbam-pheno": _fetch_bimbam_trait, "csv": _fetch_csv_trait},
     "covariance": {"npy": _fetch_npy_covariance},
+    "covariate": {"csv": _fetch_csv_covariate},
 }
+
+_default_dims = {"covariate": {"csv": _default_csv_covariate_dims}}
 
 
 def _parse_fetch_spec(spec):

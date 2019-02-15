@@ -8,7 +8,7 @@ def asarray(x, target, dims=None):
     from ._conf import CONF
     from numpy import issubdtype, integer
 
-    if target not in CONF["data_names"]:
+    if target not in CONF["targets"]:
         raise ValueError(f"Unknown target name: {target}.")
 
     import dask.array as da
