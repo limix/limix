@@ -56,6 +56,8 @@ def normalize(data, spec):
 
     if method == "gaussianize":
         x = limix.qc.quantile_gaussianize(x, axis=axis)
+    elif method == "mean_std":
+        x = limix.qc.mean_standardize(x, axis=axis)
     else:
         raise ValueError(f"Unrecognized normalization method: {method}.")
 

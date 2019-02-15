@@ -19,8 +19,8 @@ from ._click import OrderedCommand
 @click.option(
     "--lik",
     help=(
-        "Specify the type of likelihood that will described"
-        " the residual error distribution."
+        "Specify the type of likelihood that will described the residual error "
+        "distribution. It can be 'normal', 'bernoulli', 'binomial', or 'poisson'."
     ),
     default="normal",
 )
@@ -40,18 +40,21 @@ from ._click import OrderedCommand
     "--where",
     help=(
         "Filtering expression to select which phenotype, genotype loci, and covariates"
-        " to use in the analysis. The syntax is `<TARGET>: <COND>`,"
+        " to use in the analysis. The syntax is <TARGET>:<COND>,"
         " where <COND> is the first argument of the method `DataArray.where`."
     ),
     multiple=True,
 )
 @click.option(
     "--impute",
-    help=("Impute missing values for phenotype, genotype, and covariate."),
+    help=("Impute missing values for phenotype, genotype, and covariate. The syntax is"
+          " <TARGET>:<DIM>:<METHOD>, where <METHOD> can be 'mean'. Defaults to 'mean'"),
     multiple=True,
 )
 @click.option(
-    "--normalize", help=("Normalize phenotype, genotype, and covariate."), multiple=True
+    "--normalize", help=("Normalize phenotype, genotype, and covariate. The syntax is "
+                         "<TARGET>:<DIM>:<METHOD>, where <METHOD> can be 'gaussianize'"
+                         " or 'mean_std'. Defaults to 'gaussianize'."), multiple=True
 )
 @click.option(
     "--output-dir", help="Specify the output directory path.", default="output"
@@ -127,8 +130,9 @@ def st_scan(
         ctx.obj = {"preprocess": []}
 
     output_dir = abspath(output_dir)
-    if not exists(output_dir):
-        makedirs(output_dir, exist_ok=True)
+    if not dry_run:
+        if not exists(output_dir):
+            makedirs(output_dir, exist_ok=True)
 
     def _print_data_array(arr, verbose):
         if verbose:
@@ -182,7 +186,7 @@ def st_scan(
             elif p[0] == "drop_missing":
                 pipeline.append(drop_missing, "drop-missing", p[1])
 
-        pipeline.run()
+        data = pipeline.run()
 
     if dry_run:
         print("Exiting early because of dry-run option.")
