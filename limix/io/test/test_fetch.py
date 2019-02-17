@@ -325,12 +325,11 @@ def test_fetch_csv():
         assert_equal(y.dims, ("sample", "trait"))
 
         spec = f"{filepath}:csv:"
-        with pytest.raises(ValueError):
-            y = limix.io.fetch("trait", spec, verbose=False)
+        y = limix.io.fetch("trait", spec, verbose=False)
 
         spec = f"{filepath}:csv"
-        with pytest.raises(ValueError):
-            y = limix.io.fetch("trait", spec, verbose=False)
+        y = limix.io.fetch("trait", spec, verbose=False)
+
         spec = f"{filepath}:csv:row=samples"
         with pytest.raises(ValueError):
             y = limix.io.fetch("trait", spec, verbose=False)

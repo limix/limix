@@ -86,6 +86,10 @@ def _default_csv_covariate_dims():
     return {"row": "sample", "col": "covariate"}
 
 
+def _default_csv_trait_dims():
+    return {"row": "trait", "col": "sample"}
+
+
 _dispatch = {
     "genotype": {"bed": _fetch_bed_genotype},
     "trait": {"bimbam-pheno": _fetch_bimbam_trait, "csv": _fetch_csv_trait},
@@ -93,7 +97,10 @@ _dispatch = {
     "covariate": {"csv": _fetch_csv_covariate},
 }
 
-_default_dims = {"covariate": {"csv": _default_csv_covariate_dims}}
+_default_dims = {
+    "covariate": {"csv": _default_csv_covariate_dims},
+    "trait": {"csv": _default_csv_trait_dims},
+}
 
 
 def _parse_fetch_spec(spec):
