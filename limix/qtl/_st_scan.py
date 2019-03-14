@@ -6,7 +6,7 @@ from limix._display import session_line
 
 from .._data import conform_dataset
 from .._display import session_block
-from .._data import check_likelihood_name
+from .._data import assert_likelihood
 from ..qc._lik import normalise_extreme_values
 from ._model import QTLModel
 
@@ -169,7 +169,7 @@ def st_scan(G, y, lik, K=None, M=None, verbose=True):
 
     lik_name = lik[0].lower()
     lik = (lik_name,) + lik[1:]
-    check_likelihood_name(lik_name)
+    assert_likelihood(lik_name)
 
     with session_block("qtl analysis", disable=not verbose):
 

@@ -229,7 +229,7 @@ def _process(lmm, lmm0, snps, E0, E1):
 #         lik = (lik,)
 
 #     lik_name = lik[0].lower()
-#     check_likelihood_name(lik_name)
+#     assert_likelihood(lik_name)
 
 #     if Ginter is None:
 #         Ginter = G

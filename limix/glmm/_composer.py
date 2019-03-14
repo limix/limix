@@ -2,7 +2,7 @@ import sys
 
 from . import _cov as user_cov, _mean as user_mean
 from .. import _display
-from .._data import check_likelihood_name
+from .._data import assert_likelihood
 from ..qc._lik import normalise_extreme_values
 
 
@@ -82,7 +82,7 @@ class GLMMComposer(object):
         likname : str
             Likelihood name.
         """
-        check_likelihood_name(likname)
+        assert_likelihood(likname)
         self._likname = likname.lower()
         self._glmm = None
 
@@ -217,9 +217,7 @@ class GLMMComposer(object):
 
 class FixedEffects(object):
     def __init__(self, nsamples):
-        from numpy import arange
-
-        self._sample_idx = arange(nsamples)
+        self._nsamples = nsamples
         self._fixed_effects = {"impl": [], "user": []}
         self._mean = None
 
@@ -244,8 +242,7 @@ class FixedEffects(object):
     def append_offset(self):
         from glimix_core.mean import OffsetMean
 
-        mean = OffsetMean()
-        mean.set_data(self._sample_idx)
+        mean = OffsetMean(self._nsamples)
         self._fixed_effects["impl"].append(mean)
         self._fixed_effects["user"].append(user_mean.OffsetMean(mean))
         self._fixed_effects["user"][-1].name = "offset"
@@ -263,8 +260,7 @@ class FixedEffects(object):
             raise ValueError("Fixed-effect values must be finite.")
 
         m = atleast_2d(m.T).T
-        mean = LinearMean(m.shape[1])
-        mean.set_data(m)
+        mean = LinearMean(m)
 
         n = len(self._fixed_effects["impl"])
         if name is None:
@@ -293,9 +289,7 @@ class FixedEffects(object):
 
 class CovarianceMatrices(object):
     def __init__(self, nsamples):
-        from numpy import arange
-
-        self._sample_idx = arange(nsamples)
+        self._nsamples = nsamples
         self._covariance_matrices = {"impl": [], "user": []}
         self._cov = None
 
@@ -320,8 +314,7 @@ class CovarianceMatrices(object):
     def append_iid_noise(self):
         from glimix_core.cov import EyeCov
 
-        cov = EyeCov()
-        cov.set_data((self._sample_idx, self._sample_idx))
+        cov = EyeCov(self._nsamples)
         self._covariance_matrices["impl"].append(cov)
         self._covariance_matrices["user"].append(user_cov.EyeCov(cov))
         self._covariance_matrices["user"][-1].name = "residual"
@@ -341,7 +334,6 @@ class CovarianceMatrices(object):
             raise ValueError("Covariance-matrix values must be finite.")
 
         cov = GivenCov(K)
-        cov.set_data((self._sample_idx, self._sample_idx))
 
         n = len(self._covariance_matrices["impl"])
         if name is None:

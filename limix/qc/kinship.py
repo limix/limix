@@ -82,12 +82,11 @@ def normalise_covariance(K, out=None):
         trace = da.diag(K).sum()
     elif isinstance(K, xr.DataArray):
         trace = da.diag(K.data).sum()
-        pass
     else:
         K = asarray(K, float)
         trace = K.trace()
 
-    c = (K.shape[0] - 1) / (trace - K.mean(axis=0).sum())
+    c = asarray((K.shape[0] - 1) / (trace - K.mean(axis=0).sum()), float)
     if out is None:
         return K * c
 

@@ -11,10 +11,10 @@ class BaseCov(object):
         self._cov.name = v
 
     def value(self):
-        return self._cov.feed().value()
+        return self._cov.value()
 
     def gradient(self):
-        return self._cov.feed().gradient()
+        return self._cov.gradient()
 
     def variables(self):
         return self._variables()
@@ -54,4 +54,4 @@ class SumCov(BaseCov):
         BaseCov.__init__(self, cov)
 
     def value(self):
-        return self._cov.feed().value()
+        return self._cov.value()

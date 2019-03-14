@@ -15,5 +15,7 @@ def test_qtl_st_sscan():
 
     r = st_sscan(G, y, E, tests=["inter", "assoc"], verbose=False)
     assert_allclose(
-        [r.pvi.item(), r.pva.item()], [0.40750599278681343, 0.4636304356063339]
+        [r.pvi.item(), r.pva.item()],
+        [0.40750599278681343, 0.4636304356063339],
+        rtol=1e-6,
     )

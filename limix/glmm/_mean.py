@@ -11,10 +11,10 @@ class BaseMean(object):
         self._mean.name = v
 
     def value(self):
-        return self._mean.feed().value()
+        return self._mean.value()
 
     def gradient(self):
-        return self._mean.feed().gradient()
+        return self._mean.gradient()
 
     def variables(self):
         return self._variables()
@@ -56,4 +56,4 @@ class SumMean(BaseMean):
         BaseMean.__init__(self, mean)
 
     def value(self):
-        return self._mean.feed().value()
+        return self._mean.value()
