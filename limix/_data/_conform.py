@@ -2,11 +2,11 @@ from collections import Counter
 
 from .._bits.deco import return_none_if_none
 from .._bits.xarray import set_coord
-from ._asarray import asarray
+from ._asarray import asarray as _asarray
 from ._conf import CONF
 
 set_coord = return_none_if_none(set_coord)
-asarray = return_none_if_none(asarray)
+_asarray = return_none_if_none(_asarray)
 
 
 def conform_dataset(y, M=None, G=None, K=None):
@@ -85,10 +85,10 @@ def conform_dataset(y, M=None, G=None, K=None):
         >>> with pytest.raises(ValueError):
         ...     conform_dataset(y, G=G, K=K)
     """
-    y = asarray(y, "trait", CONF["data_dims"]["trait"])
-    M = asarray(M, "covariate", CONF["data_dims"]["covariate"])
-    G = asarray(G, "genotype", CONF["data_dims"]["genotype"])
-    K = asarray(K, "covariance", CONF["data_dims"]["covariance"])
+    y = _asarray(y, "trait", CONF["data_dims"]["trait"])
+    M = _asarray(M, "covariate", CONF["data_dims"]["covariate"])
+    G = _asarray(G, "genotype", CONF["data_dims"]["genotype"])
+    K = _asarray(K, "covariance", CONF["data_dims"]["covariance"])
 
     data = {"y": y, "M": M, "G": G, "K": K}
     data = {k: v for k, v in data.items() if v is not None}
@@ -130,7 +130,7 @@ def _default_covariates(samples):
     M = ones((samples.size, 1))
     M = DataArray(
         M,
-        encoding={"dtype": "float64"},
+        # encoding={"dtype": "float64"},
         dims=["sample", "covariate"],
         coords={"sample": samples, "covariate": asarray(["offset"], dtype=object)},
     )
@@ -151,7 +151,7 @@ def _fix_samples(data, sample_dims):
     ]
     nmin_samples = min(data[n].coords[d].size for n, d in sample_dims)
 
-    if len(samples_list) == 0:
+    if not samples_list:
         data["y"] = take(data["y"], slice(0, nmin_samples), "sample")
         data["y"].coords["sample"] = _default_sample_coords(data["y"].sample.size)
         samples_list.append(data["y"].coords["sample"].values)
@@ -204,7 +204,7 @@ def _infer_samples_index(samples_list):
 
     valid_samples = Counter()
 
-    for i, k in enumerate(set_intersection.keys()):
+    for k in set_intersection.keys():
         if sum(membership_size[0] > 1) <= 1:
             valid_samples[k] = set_intersection[k]
 

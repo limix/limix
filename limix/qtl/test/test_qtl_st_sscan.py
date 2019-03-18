@@ -1,7 +1,6 @@
-from numpy import concatenate, dot, sqrt, asarray, ones, zeros
+from numpy import dot, sqrt, asarray, ones, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose, assert_array_equal
-from pandas import DataFrame
 
 from limix.qtl import st_scan, st_iscan
 from limix.stats import linear_kinship

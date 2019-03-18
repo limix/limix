@@ -1,5 +1,6 @@
-from limix.stats import effsizes_se, lrt_pvalues
 from functools import lru_cache
+
+from limix.stats import effsizes_se, lrt_pvalues
 
 
 class ST_ScanResultFactory:
@@ -126,7 +127,13 @@ class ST_ScanResult:
         msg += "----------\n\n"
         v0 = self.background_variance
         v1 = self.foreground_variance
-        msg += f"  y ~ 𝓝(M𝜶, {v0:.2f}*K + {v1:.2f}*I)\n"
+
+        if self._lik[0] == "normal":
+            msg += f"  𝐲 ~ 𝓝(M𝜶, {v0:.2f}*K + {v1:.2f}*I)\n"
+        else:
+            msg += f"  𝐳 ~ 𝓝(M𝜶, {v0:.2f}*K + {v1:.2f}*I)\n"
+
+        msg += _lik_formulae(self._lik[0])
 
         prefix = "  M = "
         s = " " * len(prefix)
@@ -145,7 +152,13 @@ class ST_ScanResult:
         msg += "  Number of models: 1\n\n"
         msg += "Alt model\n"
         msg += "---------\n\n"
-        msg += f"  y ~ 𝓝(M𝜶 + Gᵢ, {v0:.2f}*K + {v1:.2f}*I)\n"
+
+        if self._lik[0] == "normal":
+            msg += f"  𝐲 ~ 𝓝(M𝜶 + Gᵢ, {v0:.2f}*K + {v1:.2f}*I)\n"
+        else:
+            msg += f"  𝐳 ~ 𝓝(M𝜶 + Gᵢ, {v0:.2f}*K + {v1:.2f}*I)\n"
+
+        msg += _lik_formulae(self._lik[0])
 
         msg += "  Min. p-value: {}\n".format(min(stats["pvalue"]))
         msg += "  First perc. p-value: {}\n".format(percentile(stats["pvalue"], 1))
@@ -153,7 +166,7 @@ class ST_ScanResult:
         msg += "  99th perc. log marg. lik.: {}\n".format(
             percentile(stats["alt lml"], 99)
         )
-        msg += "  Number of models: {}\n".format(stats.shape[0])
+        msg += "  Number of models: {}".format(stats.shape[0])
 
         return msg
 
@@ -281,7 +294,7 @@ class ST_IScanResult:
                 for j, inter in enumerate(inters0):
                     alt.append([i, c, "inter0_" + str(inter), effsizes[j]])
 
-                effsizes = effsizes[j + 1 :]
+                effsizes = effsizes[len(inters0) :]
                 for j, inter in enumerate(inters1):
                     alt.append([i, c, "inter1_" + str(inter), effsizes[j]])
 
@@ -355,332 +368,9 @@ class ST_IScanResult:
         msg += "  99th perc. log marg. lik.: {}\n".format(
             percentile(stats["alt lml"], 99)
         )
-        msg += "  Number of models: {}\n".format(stats.shape[0])
+        msg += "  Number of models: {}".format(stats.shape[0])
 
         return msg
-
-
-# class QTLModel(object):
-#     r"""Result of a QTL analysis.
-
-#     An instance of this class is returned by :func:`limix.qtl.st_scan`.
-#     """
-
-#     def __init__(self, null_lml, alt_lmls, effsizes, null_covariate_effsizes):
-#         self._null_lml = null_lml
-#         self._alt_lmls = alt_lmls
-#         self._effsizes = effsizes
-#         self._null_covariate_effsizes = null_covariate_effsizes
-#         alt_lmls.name = "alt lmls"
-#         effsizes.name = "effsizes"
-
-#     def _get_null_series(self):
-#         from pandas import concat, Series
-
-#         a = self._null_covariate_effsizes
-#         b = Series(data=[self._null_lml], index=["null_lml"])
-#         return concat([a, b])
-
-#     def _get_alt_dataframe(self):
-#         from pandas import DataFrame
-
-#         df = DataFrame({"alt_lmls": self._alt_lmls, "effsizes": self._effsizes})
-#         return df
-
-#     @property
-#     def null_lml(self):
-#         r"""Log of the marginal likelihood under the null hypothesis.
-
-#         Returns
-#         -------
-#         float
-#             Log of marginal likelihood.
-#         """
-#         return self._null_lml
-
-#     @property
-#     def alt_lmls(self):
-#         r"""Log of the marginal likelihoods across tested variants.
-
-#         Returns
-#         -------
-#         array_like
-#             Log of marginal likelihoods.
-#         """
-#         return self._alt_lmls
-
-#     @property
-#     def variant_effsizes(self):
-#         r"""Variant effect-sizes.
-
-#         Returns
-#         -------
-#         array_like
-#             Estimated variant effect sizes.
-#         """
-#         return self._effsizes
-
-#     @property
-#     def variant_pvalues(self):
-#         r"""Variant p-values.
-
-#         Returns
-#         -------
-#         array_like
-#             Association significance between variant and phenotype.
-#         """
-#         from xarray import zeros_like
-
-#         pv = zeros_like(self._alt_lmls)
-#         pv[:] = lrt_pvalues(self.null_lml, self._alt_lmls.values)
-#         pv.name = "pv"
-
-#         return pv
-
-#     @property
-#     def variant_effsizes_se(self):
-#         r"""Standard errors of the variant effect sizes.
-
-#         Returns
-#         -------
-#         array_like
-#             Estimated standard errors of the variant effect sizes.
-#         """
-#         from xarray import zeros_like
-
-#         ese = zeros_like(self._alt_lmls)
-#         ese[:] = effsizes_se(
-#             self.variant_effsizes.values.ravel(), self.variant_pvalues.values.ravel()
-#         )
-#         ese.name = "effsizes std"
-#         return ese
-
-#     @property
-#     def null_covariate_effsizes(self):
-#         r"""Covariate effect-sizes under the null hypothesis.
-
-#         Returns
-#         -------
-#         array_like
-#             Estimated covariant effect sizes under the null hypothesis.
-#         """
-#         return self._null_covariate_effsizes
-
-#     def to_csv(self, path_or_buf_null, path_or_buf_alt):
-
-#         null = self._get_null_series()
-#         alt = self._get_alt_dataframe()
-
-#         null.to_csv(path_or_buf_null, header=False)
-#         alt.to_csv(path_or_buf_alt, header=False)
-
-#     def __repr__(self):
-#         import re
-#         from pandas import DataFrame
-
-#         data = dict(
-#             effsizes=self.variant_effsizes.values.ravel(),
-#             effsizes_se=self.variant_effsizes_se.values.ravel(),
-#             pvalues=self.variant_pvalues.values.ravel(),
-#         )
-
-#         variant_msg = str(DataFrame(data=data).describe())
-
-#         variant_lines = variant_msg.split("\n")
-
-#         pline = variant_lines[1]
-#         count_line = re.sub(r"(\d+)\.0", r" \1.", pline)
-#         while pline != count_line:
-#             pline = count_line
-#             count_line = re.sub(r"(\d+)\.0", r" \1.", pline)
-
-#         variant_lines[1] = re.sub(r"(\d+)\.", r" \1", count_line)
-#         variant_msg = "\n".join(variant_lines)
-
-#         data = self.null_covariate_effsizes
-#         k = data.index.values
-#         v = [[vi] for vi in data.values]
-
-#         df = DataFrame(data=dict(zip(list(k), list(v)))).sort_index(axis=1)
-#         covariate_msg = str(df)
-#         covariate_msg = "\n".join([x[2:] for x in covariate_msg.split("\n")])
-
-#         msg = "Variants\n--------\n" + variant_msg
-#         msg += "\n\nCovariate effect sizes for H0\n"
-#         msg += "-----------------------------\n"
-#         msg += covariate_msg
-
-#         return msg
-
-# def __str__(self):
-#     if PY2:
-#         return self.__unicode__().encode("utf-8")
-#     return self.__repr__()
-
-# def __unicode__(self):
-#     return self.__repr__()
-
-
-# class STIScanResult(object):
-#     def __init__(
-#         self, null_lml, alt0_lmls, alt1_lmls, effsizes0, effsizes1, covariate_effsizes
-#     ):
-#         self._null_lml = null_lml
-#         self._alt0_lmls = alt0_lmls
-#         self._alt1_lmls = alt1_lmls
-#         self._effsizes0 = effsizes0
-#         self._effsizes1 = effsizes1
-#         self._covariate_effsizes = covariate_effsizes
-#         alt0_lmls.name = "alt0 lmls"
-#         alt1_lmls.name = "alt1 lmls"
-#         effsizes0.name = "effsizes0"
-#         effsizes1.name = "effsizes1"
-
-#     def _get_null_series(self):
-#         from pandas import concat, Series
-
-#         a = self._null_covariate_effsizes
-#         b = Series(data=[self._null_lml], index=["null_lml"])
-#         return concat([a, b])
-
-#     def _get_alt_dataframe(self):
-#         from pandas import DataFrame
-
-#         df = DataFrame({"alt_lmls": self._alt_lmls, "effsizes": self._effsizes})
-#         return df
-
-#     @property
-#     def null_lml(self):
-#         r"""Log of the marginal likelihood under the null hypothesis.
-
-#         Returns
-#         -------
-#         float
-#             Log of marginal likelihood.
-#         """
-#         return self._null_lml
-
-#     @property
-#     def alt_lmls(self):
-#         r"""Log of the marginal likelihoods across tested variants.
-
-#         Returns
-#         -------
-#         array_like
-#             Log of marginal likelihoods.
-#         """
-#         return self._alt_lmls
-
-#     @property
-#     def variant_effsizes(self):
-#         r"""Variant effect-sizes.
-
-#         Returns
-#         -------
-#         array_like
-#             Estimated variant effect sizes.
-#         """
-#         return self._effsizes
-
-#     @property
-#     def variant_pvalues(self):
-#         r"""Variant p-values.
-
-#         Returns
-#         -------
-#         array_like
-#             Association significance between variant and phenotype.
-#         """
-#         from xarray import zeros_like
-
-#         pv = zeros_like(self._alt_lmls)
-#         pv[:] = lrt_pvalues(self.null_lml, self._alt_lmls.values)
-#         pv.name = "pv"
-
-#         return pv
-
-#     @property
-#     def variant_effsizes_se(self):
-#         r"""Standard errors of the variant effect sizes.
-
-#         Returns
-#         -------
-#         array_like
-#             Estimated standard errors of the variant effect sizes.
-#         """
-#         from xarray import zeros_like
-
-#         ese = zeros_like(self._alt_lmls)
-#         ese[:] = effsizes_se(
-#             self.variant_effsizes.values.ravel(), self.variant_pvalues.values.ravel()
-#         )
-#         ese.name = "effsizes std"
-#         return ese
-
-#     @property
-#     def null_covariate_effsizes(self):
-#         r"""Covariate effect-sizes under the null hypothesis.
-
-#         Returns
-#         -------
-#         array_like
-#             Estimated covariant effect sizes under the null hypothesis.
-#         """
-#         return self._null_covariate_effsizes
-
-#     def to_csv(self, path_or_buf_null, path_or_buf_alt):
-
-#         null = self._get_null_series()
-#         alt = self._get_alt_dataframe()
-
-#         null.to_csv(path_or_buf_null, header=False)
-#         alt.to_csv(path_or_buf_alt, header=False)
-
-#     def __repr__(self):
-#         import re
-#         from pandas import DataFrame
-
-#         data = dict(
-#             effsizes=self.variant_effsizes.values.ravel(),
-#             effsizes_se=self.variant_effsizes_se.values.ravel(),
-#             pvalues=self.variant_pvalues.values.ravel(),
-#         )
-
-#         variant_msg = str(DataFrame(data=data).describe())
-
-#         variant_lines = variant_msg.split("\n")
-
-#         pline = variant_lines[1]
-#         count_line = re.sub(r"(\d+)\.0", r" \1.", pline)
-#         while pline != count_line:
-#             pline = count_line
-#             count_line = re.sub(r"(\d+)\.0", r" \1.", pline)
-
-#         variant_lines[1] = re.sub(r"(\d+)\.", r" \1", count_line)
-#         variant_msg = "\n".join(variant_lines)
-
-#         data = self.null_covariate_effsizes
-#         k = data.index.values
-#         v = [[vi] for vi in data.values]
-
-#         df = DataFrame(data=dict(zip(list(k), list(v)))).sort_index(axis=1)
-#         covariate_msg = str(df)
-#         covariate_msg = "\n".join([x[2:] for x in covariate_msg.split("\n")])
-
-#         msg = "Variants\n--------\n" + variant_msg
-#         msg += "\n\nCovariate effect sizes for H0\n"
-#         msg += "-----------------------------\n"
-#         msg += covariate_msg
-
-#         return msg
-
-#     def __str__(self):
-#         if py2:
-#             return self.__unicode__().encode("utf-8")
-#         return self.__repr__()
-
-#     def __unicode__(self):
-#         return self.__repr__()
 
 
 def _make_sure_iterabble(x):
@@ -692,63 +382,16 @@ def _make_sure_iterabble(x):
     return x
 
 
-if __name__ == "__main__":
-    import numpy as np
-    from limix._data import conform_dataset
-    from limix._data import asarray as _asarray
+def _lik_formulae(lik):
+    msg = ""
 
-    random = np.random.RandomState(0)
-    G = random.randn(5, 5)
-    E0 = random.randn(5, 1)
-    E1 = random.randn(5, 2)
-    y = random.randn(5)
-    M = random.randn(5, 2)
-    K = random.randn(5, 5)
-    K = K @ K.T
+    if lik == "bernoulli":
+        msg += f"  yᵢ ~ Bern(μᵢ=g(zᵢ)), where g(x)=1/(1+e⁻ˣ)\n"
+    elif lik == "probit":
+        msg += f"  yᵢ ~ Bern(μᵢ=g(zᵢ)), where g(x)=Φ(x)\n"
+    elif lik == "binomial":
+        msg += f"  yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ), where g(x)=1/(1+e⁻ˣ)\n"
+    elif lik == "poisson":
+        msg += f"  yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ\n"
 
-    data = conform_dataset(y, M, G, K)
-    y = data["y"]
-    M = data["M"]
-    M = M.assign_coords(covariate=["offset", 0])
-    G = data["G"]
-    K = data["K"]
-    E0 = _asarray(E0, "inter0", ["sample", "inter"])
-    E1 = _asarray(E1, "inter1", ["sample", "inter"])
-
-    # r = ST_ScanResultFactory("normal", M.covariate, G.candidate)
-
-    # r.set_null(-10.203, random.randn(2), 0.2, 0.6)
-    # r.add_test(0, random.randn(1), -10.0)
-    # r.add_test([1, 2], random.randn(2), -9.0)
-
-    # r = r.create()
-
-    # print(r.foreground_variance)
-    # print(r.background_variance)
-    # print(r.covariate_effsizes)
-    # print()
-    # print(r.alt_effsizes)
-    # print()
-    # print(r.stats)
-    # print()
-    # print(r)
-
-    r = ST_IScanResultFactory(M.covariate, G.candidate, E1.inter, E0.inter)
-    r.set_null(-10.203, random.randn(2), 0.2, 0.6)
-    r.add_test(slice(0, 3), random.randn(1 * 3), -10.2, random.randn(3 * 3), -9.0)
-    r.add_test([3, 4], random.randn(1 * 2), -10.1, random.randn(3 * 2), -9.2)
-
-    r = r.create()
-
-    print(r.foreground_variance)
-    print(r.background_variance)
-    print()
-    print(r.covariate_effsizes)
-    print()
-    print(r.null_effsizes)
-    print()
-    print(r.alt_effsizes)
-    print()
-    print(r.stats)
-    print()
-    print(r)
+    return msg

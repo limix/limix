@@ -194,22 +194,25 @@ We now apply the function :func:`limix.qtl.st_scan` to our dataset
     >>>
     >>> r = st_scan(snps, y, 'normal', M=M, verbose=False)
     >>> print(r)
-    Variants
-    --------
-            effsizes  effsizes_se  pvalues
-    count         4            4        4
-    mean   -0.28530      0.28270  0.51540
-    std     0.37510      0.04897  0.49548
-    min    -0.79864      0.23277  0.02219
-    25%    -0.44725      0.25768  0.12263
-    50%    -0.17812      0.27441  0.53896
-    75%    -0.01616      0.29944  0.93172
-    max     0.01366      0.34920  0.96147
+    Null model
+    ----------
     <BLANKLINE>
-    Covariate effect sizes for H0
-    -----------------------------
-         age   offset
-     0.02016 -0.81859
+      𝐲 ~ 𝓝(M𝜶, 0.32*K + 0.00*I)
+      M = ['offset' 'age']
+      𝜶 = [-0.81858684  0.02015968]
+      Log marg. lik.: -21.218829574364268
+      Number of models: 1
+    <BLANKLINE>
+    Alt model
+    ---------
+    <BLANKLINE>
+      𝐲 ~ 𝓝(M𝜶 + Gᵢ, 0.32*K + 0.00*I)
+      Min. p-value: 0.02219182245364262
+      First perc. p-value: 0.0262094622393102
+      Max. log marg. lik.: -18.60348830672571
+      99th perc. log marg. lik.: -18.651776372344084
+      Number of models: 4
+    <BLANKLINE>
 
 The variable ``r`` is instance of the class :class:`limix.qtl.QTLResult` and stores all
 the results of the analysis.  Printing it as we did above it will show a summary of the
@@ -252,49 +255,41 @@ the function :func:`limix.qtl.st_scan`.
     >>> # Estimate a kinship relationship betweem samples.
     >>> K = linear_kinship(X, verbose=False)
     >>>
-    >>> model = st_scan(X, y, 'normal', K, M=M, verbose=False)
-    >>> print(model.variant_pvalues.to_dataframe().head()) # doctest: +FLOAT_CMP
-                    pv
-    candidate
-    0          0.72152
-    1          0.61718
-    2          0.44223
-    3          0.94542
-    4          0.40416
-    >>> print(model.variant_effsizes.to_dataframe().head()) # doctest: +FLOAT_CMP
-               effsizes
-    candidate
-    0           0.04675
-    1          -0.05855
-    2          -0.09668
-    3           0.00746
-    4           0.12734
-    >>> print(model.variant_effsizes_se.to_dataframe().head()) # doctest: +FLOAT_CMP
-               effsizes std
-    candidate
-    0               0.13116
-    1               0.11713
-    2               0.12582
-    3               0.10899
-    4               0.15264
-    >>> print(model) # doctest: +FLOAT_CMP
-    Variants
-    --------
-           effsizes  effsizes_se  pvalues
-    count        50           50       50
-    mean    0.00412      0.12327  0.51505
-    std     0.12437      0.01564  0.29979
-    min    -0.25728      0.09544  0.01043
-    25%    -0.08632      0.11008  0.31724
-    50%     0.00039      0.12209  0.50611
-    75%     0.07436      0.13173  0.76775
-    max     0.31626      0.16753  0.97555
+    >>> result = st_scan(X, y, 'normal', K, M=M, verbose=False)
+    >>> print(result.stats.head()) # doctest: +FLOAT_CMP
+          null lml   alt lml   pvalue  dof
+    test
+    0    -21.21883 -21.15531  0.72152    1
+    1    -21.21883 -21.09391  0.61718    1
+    2    -21.21883 -20.92358  0.44223    1
+    3    -21.21883 -21.21649  0.94542    1
+    4    -21.21883 -20.87087  0.40416    1
+    >>> print(result.alt_effsizes.head()) # doctest: +FLOAT_CMP
+       test candidate  effsize  effsize se
+    0     0         0  0.04675     0.13116
+    1     1         1 -0.05855     0.11713
+    2     2         2 -0.09668     0.12582
+    3     3         3  0.00746     0.10899
+    4     4         4  0.12734     0.15264
+    >>> print(result) # doctest: +FLOAT_CMP
+    Null model
+    ----------
     <BLANKLINE>
-    Covariate effect sizes for H0
-    -----------------------------
-         age   offset
-     0.02016 -0.81859
-
+      𝐲 ~ 𝓝(M𝜶, 0.32*K + 0.00*I)
+      M = ['offset' 'age']
+      𝜶 = [-0.81858684  0.02015968]
+      Log marg. lik.: -21.21882957624215
+      Number of models: 1
+    <BLANKLINE>
+    Alt model
+    ---------
+    <BLANKLINE>
+      𝐲 ~ 𝓝(M𝜶 + Gᵢ, 0.32*K + 0.00*I)
+      Min. p-value: 0.01042644226036883
+      First perc. p-value: 0.016787533334797423
+      Max. log marg. lik.: -17.93855702329621
+      99th perc. log marg. lik.: -18.28709258817481
+      Number of models: 50
 
 Generalised phenotype
 ~~~~~~~~~~~~~~~~~~~~~
@@ -333,49 +328,44 @@ Poisson distribution.  The matrix ``G`` defines both the five alternative hypoth
     >>>
     >>> candidates = G[:, :5]
     >>> K = linear_kinship(G[:, 5:], verbose=False)
-    >>> model = st_scan(candidates, y, 'poisson', K, verbose=False)
+    >>> result = st_scan(candidates, y, 'poisson', K, verbose=False)
     >>>
-    >>> print(model.variant_pvalues.to_dataframe()) # doctest: +FLOAT_CMP
-                    pv
-    candidate
-    0          0.21645
-    1          0.44194
-    2          0.48394
-    3          0.23413
-    4          0.69534
-    >>> print(model.variant_effsizes.to_dataframe()) # doctest: +FLOAT_CMP
-               effsizes
-    candidate
-    0           1.62727
-    1          -1.02366
-    2          -1.23573
-    3           1.97540
-    4          -0.53729
-    >>> print(model.variant_effsizes_se.to_dataframe()) # doctest: +FLOAT_CMP
-               effsizes std
-    candidate
-    0               1.31655
-    1               1.33129
-    2               1.76537
-    3               1.66030
-    4               1.37198
-    >>> print(model) # doctest: +FLOAT_CMP
-    Variants
-    --------
-           effsizes  effsizes_se  pvalues
-    count         5            5        5
-    mean    0.16120      1.48910  0.41436
-    std     1.52348      0.20859  0.19761
-    min    -1.23573      1.31655  0.21645
-    25%    -1.02366      1.33129  0.23413
-    50%    -0.53729      1.37198  0.44194
-    75%     1.62727      1.66030  0.48394
-    max     1.97540      1.76537  0.69534
+    >>> print(result.stats.head()) # doctest: +FLOAT_CMP
+          null lml   alt lml   pvalue  dof
+    test
+    0    -34.64566 -33.88180  0.21645    1
+    1    -34.64566 -34.35004  0.44194    1
+    2    -34.64566 -34.40067  0.48394    1
+    3    -34.64566 -33.93787  0.23413    1
+    4    -34.64566 -34.56898  0.69534    1
+    >>> print(result.alt_effsizes.head()) # doctest: +FLOAT_CMP
+       test candidate  effsize  effsize se
+    0     0         0  1.62727     1.31655
+    1     1         1 -1.02366     1.33129
+    2     2         2 -1.23573     1.76537
+    3     3         3  1.97540     1.66030
+    4     4         4 -0.53729     1.37198
+    >>> print(result) # doctest: +FLOAT_CMP
+    Null model
+    ----------
     <BLANKLINE>
-    Covariate effect sizes for H0
-    -----------------------------
-      offset
-    -0.01412
+      𝐳 ~ 𝓝(M𝜶, 0.00*K + 0.03*I)
+      yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ
+      M = ['offset']
+      𝜶 = [-0.0141227]
+      Log marg. lik.: -34.645664448446965
+      Number of models: 1
+    <BLANKLINE>
+    Alt model
+    ---------
+    <BLANKLINE>
+      𝐳 ~ 𝓝(M𝜶 + Gᵢ, 0.00*K + 0.03*I)
+      yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ
+      Min. p-value: 0.21645253947712215
+      First perc. p-value: 0.2171596825117883
+      Max. log marg. lik.: -33.88179641668344
+      99th perc. log marg. lik.: -33.88403939629015
+      Number of models: 5
 
 Single-trait with interaction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

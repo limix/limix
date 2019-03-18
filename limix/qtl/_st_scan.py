@@ -1,9 +1,6 @@
-from __future__ import division
-
 import sys
 
-from limix._display import session_line
-
+from .._display import session_line
 from .._data import conform_dataset
 from .._display import session_block
 from .._data import assert_likelihood
@@ -84,78 +81,78 @@ def st_scan(G, y, lik, K=None, M=None, verbose=True):
         >>>
         >>> y = random.poisson(exp(random.randn(n)))
         >>>
-        >>> model = st_scan(candidates, y, 'poisson', K, M=M, verbose=False)
+        >>> result = st_scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
-        >>> model.variant_pvalues.to_dataframe()  # doctest: +FLOAT_CMP
-                         pv
-        candidate
-        rs0        0.554444
-        rs1        0.218996
-        rs2        0.552200
-        >>> model.variant_effsizes.to_dataframe()  # doctest: +FLOAT_CMP
-                   effsizes
-        candidate
-        rs0       -0.130867
-        rs1       -0.315078
-        rs2       -0.143869
-        >>> model.variant_effsizes_se.to_dataframe()  # doctest: +FLOAT_CMP
-                   effsizes std
-        candidate
-        rs0            0.221390
-        rs1            0.256327
-        rs2            0.242013
-        >>> model  # doctest: +FLOAT_CMP
-        Variants
-        --------
-               effsizes  effsizes_se   pvalues
-        count         3            3         3
-        mean  -0.196604     0.239910  0.441880
-        std    0.102807     0.017563  0.193027
-        min   -0.315077     0.221389  0.218996
-        25%   -0.229473     0.231701  0.385598
-        50%   -0.143869     0.242013  0.552200
-        75%   -0.137367     0.249170  0.553322
-        max   -0.130866     0.256326  0.554443
+        >>> result.stats  # doctest: +FLOAT_CMP
+               null lml    alt lml    pvalue  dof
+        test
+        0    -48.736563 -48.561855  0.554443    1
+        1    -48.736563 -47.981093  0.218996    1
+        2    -48.736563 -48.559868  0.552200    1
+        >>> result.alt_effsizes  # doctest: +FLOAT_CMP
+           test candidate   effsize  effsize se
+        0     0       rs0 -0.130867    0.221390
+        1     1       rs1 -0.315079    0.256327
+        2     2       rs2 -0.143869    0.242014
+        >>> print(result)  # doctest: +FLOAT_CMP
+        Null model
+        ----------
         <BLANKLINE>
-        Covariate effect sizes for H0
-        -----------------------------
-              age    offset
-        -0.005568  0.395287
+          𝐳 ~ 𝓝(M𝜶, 0.79*K + 0.00*I)
+          yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ
+          M = ['offset' 'age']
+          𝜶 = [ 0.39528617 -0.00556789]
+          Log marg. lik.: -48.736563230140376
+          Number of models: 1
+        <BLANKLINE>
+        Alt model
+        ---------
+        <BLANKLINE>
+          𝐳 ~ 𝓝(M𝜶 + Gᵢ, 0.79*K + 0.00*I)
+          yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ
+          Min. p-value: 0.21899561824721903
+          First perc. p-value: 0.22565970374303942
+          Max. log marg. lik.: -47.981092939974765
+          99th perc. log marg. lik.: -47.9926684371547
+          Number of models: 3
 
-    >>> from numpy import zeros
-    >>>
-    >>> nsamples = 50
-    >>>
-    >>> X = random.randn(nsamples, 2)
-    >>> G = random.randn(nsamples, 100)
-    >>> K = dot(G, G.T)
-    >>> ntrials = random.randint(1, 100, nsamples)
-    >>> z = dot(G, random.randn(100)) / sqrt(100)
-    >>>
-    >>> successes = zeros(len(ntrials), int)
-    >>> for i, nt in enumerate(ntrials):
-    ...     for _ in range(nt):
-    ...         successes[i] += int(z[i] + 0.5 * random.randn() > 0)
-    >>>
-    >>> result = st_scan(X, successes, ("binomial", ntrials), K, verbose=False)
-    >>> print(result)  # doctest: +FLOAT_CMP
-    Variants
-    --------
-           effsizes  effsizes_se   pvalues
-    count         2            2         2
-    mean   0.227116     0.509575  0.478677
-    std    0.567975     0.031268  0.341791
-    min   -0.174503     0.487466  0.236994
-    25%    0.026307     0.498520  0.357835
-    50%    0.227116     0.509575  0.478677
-    75%    0.427925     0.520630  0.599518
-    max    0.628735     0.531685  0.720359
-    <BLANKLINE>
-    Covariate effect sizes for H0
-    -----------------------------
-       offset
-     0.409570
-
+        >>> from numpy import zeros
+        >>>
+        >>> nsamples = 50
+        >>>
+        >>> X = random.randn(nsamples, 2)
+        >>> G = random.randn(nsamples, 100)
+        >>> K = dot(G, G.T)
+        >>> ntrials = random.randint(1, 100, nsamples)
+        >>> z = dot(G, random.randn(100)) / sqrt(100)
+        >>>
+        >>> successes = zeros(len(ntrials), int)
+        >>> for i, nt in enumerate(ntrials):
+        ...     for _ in range(nt):
+        ...         successes[i] += int(z[i] + 0.5 * random.randn() > 0)
+        >>>
+        >>> result = st_scan(X, successes, ("binomial", ntrials), K, verbose=False)
+        >>> print(result)  # doctest: +FLOAT_CMP
+        Null model
+        ----------
+        <BLANKLINE>
+          𝐳 ~ 𝓝(M𝜶, 1.74*K + 0.15*I)
+          yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ), where g(x)=1/(1+e⁻ˣ)
+          M = ['offset']
+          𝜶 = [0.40956947]
+          Log marg. lik.: -142.9436437096321
+          Number of models: 1
+        <BLANKLINE>
+        Alt model
+        ---------
+        <BLANKLINE>
+          𝐳 ~ 𝓝(M𝜶 + Gᵢ, 1.74*K + 0.15*I)
+          yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ), where g(x)=1/(1+e⁻ˣ)
+          Min. p-value: 0.23699422686919802
+          First perc. p-value: 0.241827874774993
+          Max. log marg. lik.: -142.24445140459548
+          99th perc. log marg. lik.: -142.25080258276773
+          Number of models: 2
 
     Notes
     -----
@@ -213,9 +210,6 @@ def st_scan(G, y, lik, K=None, M=None, verbose=True):
 def _perform_lmm(r, y, M, QS, G, verbose):
     from glimix_core.lmm import LMM
 
-    # from pandas import Series
-    # from xarray import DataArray
-
     lmm = LMM(y, M.values, QS)
 
     lmm.fit(verbose=verbose)
@@ -227,39 +221,20 @@ def _perform_lmm(r, y, M, QS, G, verbose):
 
     r.set_null(null_lml, beta, lmm.v1, lmm.v0)
 
-    # covariates = list(M.coords["covariate"].values)
-    # ncov_effsizes = Series(beta, covariates)
-
     flmm = lmm.get_fast_scanner()
-    if hasattr(G, "data"):
-        values = G.data
-    else:
-        values = G.values
-    alt_lmls, effsizes = flmm.fast_scan(values, verbose=verbose)
+    alt_lmls, effsizes = flmm.fast_scan(G.data, verbose=verbose)
 
     for i, data in enumerate(zip(alt_lmls, effsizes)):
         r.add_test(i, data[1], data[0])
 
     return r.create()
 
-    # coords = {
-    #     k: ("candidate", G.coords[k].values)
-    #     for k in G.coords.keys()
-    #     if G.coords[k].dims[0] == "candidate"
-    # }
 
-    # alt_lmls = DataArray(alt_lmls, dims=["candidate"], coords=coords)
-    # effsizes = DataArray(effsizes, dims=["candidate"], coords=coords)
-
-    # return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
-
-
-def _perform_glmm(y, lik, M, K, QS, G, verbose):
+def _perform_glmm(r, y, lik, M, K, QS, G, verbose):
     from glimix_core.glmm import GLMMExpFam, GLMMNormal
-    from pandas import Series
-    from xarray import DataArray
 
     glmm = GLMMExpFam(y.ravel(), lik, M.values, QS)
+
     glmm.fit(verbose=verbose)
     sys.stdout.flush()
 
@@ -271,26 +246,15 @@ def _perform_glmm(y, lik, M, K, QS, G, verbose):
 
     beta = gnormal.beta
 
-    covariates = list(M.coords["covariate"].values)
-    ncov_effsizes = Series(beta, covariates)
-
     flmm = gnormal.get_fast_scanner()
     flmm.set_scale(1.0)
     null_lml = flmm.null_lml()
 
-    if hasattr(G, "data"):
-        values = G.data
-    else:
-        values = G.values
-    alt_lmls, effsizes = flmm.fast_scan(values, verbose=verbose)
+    r.set_null(null_lml, beta, gnormal.v1, gnormal.v0)
 
-    coords = {
-        k: ("candidate", G.coords[k].values)
-        for k in G.coords.keys()
-        if G.coords[k].dims[0] == "candidate"
-    }
+    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
 
-    alt_lmls = DataArray(alt_lmls, dims=["candidate"], coords=coords)
-    effsizes = DataArray(effsizes, dims=["candidate"], coords=coords)
+    for i, data in enumerate(zip(alt_lmls, effsizes)):
+        r.add_test(i, data[1], data[0])
 
-    return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
+    return r.create()
