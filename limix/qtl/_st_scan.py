@@ -8,11 +8,12 @@ from .._data import conform_dataset
 from .._display import session_block
 from .._data import assert_likelihood
 from ..qc._lik import normalise_extreme_values
-from ._model import QTLModel
+from ._result import ST_ScanResultFactory
 
 
 def st_scan(G, y, lik, K=None, M=None, verbose=True):
-    r""" Single-variant association testing via generalised linear mixed models.
+    """
+    Single-variant association testing via generalised linear mixed models.
 
     It supports Normal (linear mixed model), Bernoulli, Probit, Binomial, and Poisson
     residual errors, defined by ``lik``.
@@ -196,21 +197,24 @@ def st_scan(G, y, lik, K=None, M=None, verbose=True):
 
         y = normalise_extreme_values(data["y"], lik)
 
+        r = ST_ScanResultFactory(lik, M.covariate, G.candidate)
+
         if lik_name == "normal":
-            model = _perform_lmm(y.values, M, QS, G, verbose)
+            r = _perform_lmm(r, y.values, M, QS, G, verbose)
         else:
-            model = _perform_glmm(y.values, lik, M, K, QS, G, verbose)
+            r = _perform_glmm(r, y.values, lik, M, K, QS, G, verbose)
 
         if verbose:
-            print(model)
+            print(r)
 
-        return model
+        return r
 
 
-def _perform_lmm(y, M, QS, G, verbose):
+def _perform_lmm(r, y, M, QS, G, verbose):
     from glimix_core.lmm import LMM
-    from pandas import Series
-    from xarray import DataArray
+
+    # from pandas import Series
+    # from xarray import DataArray
 
     lmm = LMM(y, M.values, QS)
 
@@ -221,8 +225,10 @@ def _perform_lmm(y, M, QS, G, verbose):
 
     beta = lmm.beta
 
-    covariates = list(M.coords["covariate"].values)
-    ncov_effsizes = Series(beta, covariates)
+    r.set_null(null_lml, beta, lmm.v1, lmm.v0)
+
+    # covariates = list(M.coords["covariate"].values)
+    # ncov_effsizes = Series(beta, covariates)
 
     flmm = lmm.get_fast_scanner()
     if hasattr(G, "data"):
@@ -231,16 +237,21 @@ def _perform_lmm(y, M, QS, G, verbose):
         values = G.values
     alt_lmls, effsizes = flmm.fast_scan(values, verbose=verbose)
 
-    coords = {
-        k: ("candidate", G.coords[k].values)
-        for k in G.coords.keys()
-        if G.coords[k].dims[0] == "candidate"
-    }
+    for i, data in enumerate(zip(alt_lmls, effsizes)):
+        r.add_test(i, data[1], data[0])
 
-    alt_lmls = DataArray(alt_lmls, dims=["candidate"], coords=coords)
-    effsizes = DataArray(effsizes, dims=["candidate"], coords=coords)
+    return r.create()
 
-    return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
+    # coords = {
+    #     k: ("candidate", G.coords[k].values)
+    #     for k in G.coords.keys()
+    #     if G.coords[k].dims[0] == "candidate"
+    # }
+
+    # alt_lmls = DataArray(alt_lmls, dims=["candidate"], coords=coords)
+    # effsizes = DataArray(effsizes, dims=["candidate"], coords=coords)
+
+    # return QTLModel(null_lml, alt_lmls, effsizes, ncov_effsizes)
 
 
 def _perform_glmm(y, lik, M, K, QS, G, verbose):

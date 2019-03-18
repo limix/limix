@@ -1,11 +1,116 @@
+import sys
 from limix._display import session_line
 
 from .._data import conform_dataset
+from .._data import asarray as _asarray
 from .._display import session_block
+from ._result import ST_IScanResultFactory
+from .._bits.xarray import is_dataarray
 from collections import OrderedDict
 
 
-def st_iscan(G, y, K=None, M=None, E0=None, E1=None, W_R=None, verbose=True):
+def _repeat(a, repeats, axis=None):
+    try:
+        import dask.array as da
+
+        return da.repeat(a, repeats, axis)
+    except (TypeError, AttributeError):
+        import numpy as np
+
+        return np.repeat(a, repeats, axis)
+
+
+def _cartesian_col(a, b):
+    from dask.array import tile
+
+    na = a.shape[1]
+    nb = b.shape[1]
+
+    a = tile(a, nb)
+    b = _repeat(b, na, axis=1)
+
+    if is_dataarray(a):
+        a = a.data
+
+    if is_dataarray(b):
+        b = b.data
+
+    return a * b
+
+
+def _2d_sel(idx):
+    from collections.abc import Iterable
+
+    if not isinstance(idx, (slice, Iterable)):
+        return [idx]
+
+    return idx
+
+
+def st_iscan(G, y, E1, idx=None, K=None, M=None, E0=None, verbose=True):
+    from glimix_core.lmm import LMM as LMM
+    from numpy import ones, asarray
+    from numpy_sugar.linalg import economic_qs
+    from xarray import concat
+    from numpy_sugar import is_all_finite
+
+    if E0 is None:
+        E0 = ones([G.shape[0], 1])
+
+    E0 = _asarray(E0, "inter0", ["sample", "inter"])
+    E1 = _asarray(E1, "inter1", ["sample", "inter"])
+    E01 = concat([E0, E1], dim="inter")
+
+    data = conform_dataset(y, M, G=G, K=K)
+    y = data["y"]
+    M = data["M"]
+    G = data["G"]
+    K = data["K"]
+
+    if idx is None:
+        idx = range(G.shape[1])
+
+    if not is_all_finite(data["y"]):
+        raise ValueError("Outcome must have finite values only.")
+
+    if not is_all_finite(data["M"]):
+        raise ValueError("Covariates must have finite values only.")
+
+    if data["K"] is not None:
+        if not is_all_finite(data["K"]):
+            raise ValueError("Covariate matrix must have finite values only.")
+        QS = economic_qs(data["K"])
+    else:
+        QS = None
+
+    lmm = LMM(y.values, M.values, QS)
+    lmm.fit(verbose=verbose)
+    sys.stdout.flush()
+
+    r = ST_IScanResultFactory(M.covariate, G.candidate, E1.inter, E0.inter)
+    r.set_null(lmm.lml(), lmm.beta, lmm.v1, lmm.v0)
+    flmm = lmm.get_fast_scanner()
+    for i in idx:
+
+        i = _2d_sel(i)
+        g = G[:, i]
+
+        g0 = _cartesian_col(E0, g)
+        g1 = _cartesian_col(E01, g)
+
+        lml0, effs0 = flmm.scan([asarray(g0, float)], verbose=False)
+        lml1, effs1 = flmm.scan([asarray(g1, float)], verbose=False)
+
+        r.add_test(i, effs0[0], lml0[0], effs1[0], lml1[0])
+
+    r = r.create()
+    if verbose:
+        print(r)
+
+    return r
+
+
+def _st_iscan(G, y, K=None, M=None, E0=None, E1=None, W_R=None, verbose=True):
     r""" Single-variant association interation testing.
 
     Parameters
@@ -42,14 +147,20 @@ def st_iscan(G, y, K=None, M=None, E0=None, E1=None, W_R=None, verbose=True):
     verbose : (bool, optional):
         if True, details such as runtime as displayed.
     """
+    from numpy import asarray
+    from glimix_core.lmm import LMM as LMM2
     from limix_lmm.lmm import LMM
     from limix_lmm.lmm_core import LMMCore
     from limix_core.gp import GP2KronSum, GP2KronSumLR
     from limix_core.covar import FreeFormCov
     from scipy.linalg import eigh
     from numpy import ones, var, concatenate, asarray
+    from numpy_sugar.linalg import economic_qs
 
     lmm0 = None
+    lmm2 = None
+    scan = None
+    scan0 = None
 
     with session_block("single-trait association test", disable=not verbose):
 
@@ -73,14 +184,19 @@ def st_iscan(G, y, K=None, M=None, E0=None, E1=None, W_R=None, verbose=True):
                 Kiy_fun = None
 
             # case 2: low-rank linear model
-            elif W_R is not None:
-                if verbose:
-                    print("Model: low-rank lmm")
-                gp = GP2KronSumLR(Y=y, Cn=FreeFormCov(1), G=W_R, F=M, A=ones((1, 1)))
-                gp.covar.Cr.setCovariance(var(y) * ones((1, 1)))
-                gp.covar.Cn.setCovariance(var(y) * ones((1, 1)))
-                gp.optimize(verbose=verbose)
-                Kiy_fun = gp.covar.solve
+            # elif W_R is not None:
+            #     if verbose:
+            #         print("Model: low-rank lmm")
+            #     gp = GP2KronSumLR(
+            #         Y=asarray(y), Cn=FreeFormCov(1), G=W_R, F=asarray(M), A=ones((1, 1))
+            #     )
+            #     gp.covar.Cr.setCovariance(var(asarray(y)) * ones((1, 1)))
+            #     gp.covar.Cn.setCovariance(var(asarray(y)) * ones((1, 1)))
+            #     gp.optimize(verbose=verbose)
+            #     Kiy_fun = gp.covar.solve
+            #     QS = economic_qs(K)
+            #     lmm2 = LMM2(asarray(y), asarray(M), QS)
+            #     lmm2.fit(verbose=verbose)
 
             # case 3: full-rank linear model
             else:
@@ -91,37 +207,48 @@ def st_iscan(G, y, K=None, M=None, E0=None, E1=None, W_R=None, verbose=True):
                 S_R, U_R = eigh_R
                 add_jitter(S_R)
                 gp = GP2KronSum(
-                    Y=y,
+                    Y=asarray(y),
                     Cg=FreeFormCov(1),
                     Cn=FreeFormCov(1),
                     S_R=S_R,
                     U_R=U_R,
-                    F=M,
+                    F=asarray(M),
                     A=ones((1, 1)),
                 )
-                gp.covar.Cr.setCovariance(0.5 * var(y) * ones((1, 1)))
-                gp.covar.Cn.setCovariance(0.5 * var(y) * ones((1, 1)))
+                QS = economic_qs(K)
+                lmm2 = LMM2(asarray(y), asarray(M), QS)
+                gp.covar.Cr.setCovariance(0.5 * var(asarray(y)) * ones((1, 1)))
+                gp.covar.Cn.setCovariance(0.5 * var(asarray(y)) * ones((1, 1)))
                 gp.optimize(verbose=verbose)
+                lmm2.fit(verbose=verbose)
                 Kiy_fun = gp.covar.solve
 
             if E1 is None:
-                lmm = LMM(y, M, Kiy_fun)
+                lmm = LMM(asarray(y), asarray(M), Kiy_fun)
+                if lmm2 is not None:
+                    scan = lmm2.get_fast_scanner()
                 E1 = None
                 E0 = None
             else:
-                lmm = LMMCore(y, M, Kiy_fun)
+                lmm = LMMCore(asarray(y), asarray(M), Kiy_fun)
+                if lmm2 is not None:
+                    scan = lmm2.get_fast_scanner()
                 if E0 is None:
                     E0 = ones([y.shape[0], 1])
                 if (E0 == 1).sum():
-                    lmm0 = LMM(y, M, Kiy_fun)
+                    lmm0 = LMM(asarray(y), asarray(M), Kiy_fun)
+                    if lmm2 is not None:
+                        scan0 = lmm2.get_fast_scanner()
                 else:
-                    lmm0 = LMMCore(y, M, Kiy_fun)
+                    lmm0 = LMMCore(asarray(y), asarray(M), Kiy_fun)
+                    if lmm2 is not None:
+                        scan0 = lmm2.get_fast_scanner()
                 E1 = concatenate([E0, E1], 1)
 
-    return _process(lmm, lmm0, asarray(G), E0, E1)
+    return _process(scan, scan0, lmm, lmm0, asarray(G), E0, E1)
 
 
-def _process(lmm, lmm0, snps, E0, E1):
+def _process(scan, scan0, lmm, lmm0, snps, E0, E1):
     """
     Parameters
     ----------
@@ -139,8 +266,12 @@ def _process(lmm, lmm0, snps, E0, E1):
     """
     from scipy.stats import chi2
     from pandas import DataFrame
+    from numpy import newaxis, concatenate
 
     if E1 is None:
+
+        if scan is not None:
+            lmls, effsizes = scan.fast_scan(snps)
 
         lmm.process(snps)
         RV = OrderedDict()
@@ -152,10 +283,28 @@ def _process(lmm, lmm0, snps, E0, E1):
     else:
 
         lmm.process(snps, E1)
+
         if (E0 == 1).sum():
             lmm0.process(snps)
+
+            if scan is not None:
+                lmls, effsizes = scan.fast_scan(snps)
+
         else:
+
             lmm0.process(snps, E0)
+
+            # lmls0 = []
+            # effsizes0 = []
+            # if scan0 is not None:
+            #     for i in range(E0.shape[1]):
+            #         e0 = E0[:, i]
+            #         lmlsi, effsizesi = scan.fast_scan(e0[:, newaxis] * snps)
+            #         lmls0.append(lmlsi)
+            #         effsizes0.append(effsizesi)
+
+            #     lmls = concatenate(lmls)
+            #     effsizes = concatenate(effsizes)
 
         # compute pv
         lrt1 = lmm.getLRT()

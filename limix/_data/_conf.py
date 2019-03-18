@@ -1,6 +1,16 @@
 CONF = {
     "likelihoods": set(["normal", "bernoulli", "probit", "binomial", "poisson"]),
-    "targets": set(["trait", "covariate", "covariance", "genotype", "covariate"]),
+    "targets": set(
+        [
+            "trait",
+            "covariate",
+            "covariance",
+            "genotype",
+            "covariate",
+            "inter0",
+            "inter1",
+        ]
+    ),
     "filetypes": set(["csv", "bed"]),
     "dim_axis": {
         "sample": 0,
@@ -26,6 +36,8 @@ CONF = {
         "genotype": ["sample", "candidate"],
         "covariate": ["sample", "covariate"],
         "covariance": ["sample_0", "sample_1"],
+        "inter0": ["sample", "inter"],
+        "inter1": ["sample", "inter"],
     },
     "varname_to_target": {
         "y": "trait",

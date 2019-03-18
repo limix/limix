@@ -408,15 +408,16 @@ variants and environmental covariates defined by the user.
     >>>
     >>> snps = random.randn(n, 100)
     >>>
-    >>> # interaction test
-    >>> res = st_iscan(snps, y[:, newaxis], M=ME, E1=E, verbose=False)
-    >>> print(res.head())  # doctest: +FLOAT_CMP
-           pv1      pv0       pv    beta0  beta0_ste     lrt1     lrt0      lrt
-    0  0.14584  0.06186  0.54644  0.36731    0.19671  3.85044  3.48671  0.36373
-    1  0.81134  0.52514  0.90466  0.13994    0.22022  0.41813  0.40378  0.01435
-    2  0.74902  0.45885  0.86414  0.17079    0.23056  0.57798  0.54871  0.02928
-    3  0.77165  0.79650  0.50141 -0.05915    0.22937  0.51845  0.06650  0.45195
-    4  0.81176  0.64857  0.64725  0.09675    0.21229  0.41709  0.20770  0.20939
+
+# interaction test
+res = st_iscan(snps, y[:, newaxis], M=ME, E1=E, verbose=False)
+print(res.head())  # doctest: +FLOAT_CMP
+       pv1      pv0       pv    beta0  beta0_ste     lrt1     lrt0      lrt
+0  0.14584  0.06186  0.54644  0.36731    0.19671  3.85044  3.48671  0.36373
+1  0.81134  0.52514  0.90466  0.13994    0.22022  0.41813  0.40378  0.01435
+2  0.74902  0.45885  0.86414  0.17079    0.23056  0.57798  0.54871  0.02928
+3  0.77165  0.79650  0.50141 -0.05915    0.22937  0.51845  0.06650  0.45195
+4  0.81176  0.64857  0.64725  0.09675    0.21229  0.41709  0.20770  0.20939
 
 
 The process method returns three sets of P values: (i) ``pv0`` are association test P
@@ -443,15 +444,17 @@ If iter0 is provided,
     >>> # add additive environment as covariate
     >>> ME = concatenate([M, E0, E1], axis=1)
     >>>
-    >>> # interaction test
-    >>> r = st_iscan(snps, y[:, newaxis], M=ME, E1=E1, E0=E0, verbose=False)
-    >>> print(r.head())  # doctest: +FLOAT_CMP
-           pv1      pv0       pv     lrt1     lrt0      lrt
-    0  0.36534  0.22031  0.47451  2.01383  1.50237  0.51146
-    1  0.28558  0.15232  0.49876  2.50648  2.04891  0.45757
-    2  0.18256  0.07701  0.60042  3.40136  3.12700  0.27436
-    3  0.61833  0.57460  0.42139  0.96148  0.31504  0.64644
-    4  0.71350  0.47786  0.67886  0.67515  0.50374  0.17142
+
+
+# interaction test
+r = st_iscan(snps, y[:, newaxis], M=ME, E1=E1, E0=E0, verbose=False)
+print(r.head())  # doctest: +FLOAT_CMP
+       pv1      pv0       pv     lrt1     lrt0      lrt
+0  0.36534  0.22031  0.47451  2.01383  1.50237  0.51146
+1  0.28558  0.15232  0.49876  2.50648  2.04891  0.45757
+2  0.18256  0.07701  0.60042  3.40136  3.12700  0.27436
+3  0.61833  0.57460  0.42139  0.96148  0.31504  0.64644
+4  0.71350  0.47786  0.67886  0.67515  0.50374  0.17142
 
 
 

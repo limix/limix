@@ -29,7 +29,7 @@ def lrt_pvalues(null_lml, alt_lmls, dof=1):
     return clip(pv, epsilon.super_tiny, 1 - epsilon.tiny)
 
 
-def effsizes_se(effsizes, pvalues):
+def effsizes_se(effsizes, pvalues, dof=1):
     r"""Standard errors of the effect sizes.
 
     Parameters
@@ -38,6 +38,8 @@ def effsizes_se(effsizes, pvalues):
         Effect sizes.
     pvalues : array_like
         Association significance corresponding to those effect sizes.
+    dof : int
+        Degrees of freedom.
 
     Returns
     -------
@@ -48,4 +50,4 @@ def effsizes_se(effsizes, pvalues):
     from numpy import abs as npy_abs
     from numpy import sqrt
 
-    return npy_abs(effsizes) / sqrt(chi2(1).isf(pvalues))
+    return npy_abs(effsizes) / sqrt(chi2(dof).isf(pvalues))
