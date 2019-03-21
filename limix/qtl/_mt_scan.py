@@ -57,62 +57,62 @@ def mt_scan(G, Y, M=None, K=None, Ac=None, Asnps=None, Asnps0=None, verbose=True
 
             data = conform_dataset(Y, M, G=G, K=K)
 
-            Y = asarray(data["y"])
-            M = asarray(data["M"])
-            G = asarray(data["G"])
-            K = asarray(data["K"])
+        Y = asarray(data["y"])
+        M = asarray(data["M"])
+        G = asarray(data["G"])
+        K = asarray(data["K"])
 
-            # case 1: multi-trait linear model
-            if K is None:
-                raise ValueError("multi-trait linear model not supported")
+        # case 1: multi-trait linear model
+        if K is None:
+            raise ValueError("multi-trait linear model not supported")
 
-            eigh_R = eigh(K)
+        eigh_R = eigh(K)
 
-            # case 2: full-rank multi-trait linear model
-            S_R, U_R = eigh_R
-            S_R = add_jitter(S_R)
-            gp = GP2KronSum(
-                Y=Y,
-                Cg=FreeFormCov(Y.shape[1]),
-                Cn=FreeFormCov(Y.shape[1]),
-                S_R=eigh_R[0],
-                U_R=eigh_R[1],
-                F=M,
-                A=Ac,
-            )
-            gp.covar.Cr.setCovariance(0.5 * cov(Y.T))
-            gp.covar.Cn.setCovariance(0.5 * cov(Y.T))
-            gp.optimize(verbose=verbose)
+        # case 2: full-rank multi-trait linear model
+        S_R, U_R = eigh_R
+        S_R = add_jitter(S_R)
+        gp = GP2KronSum(
+            Y=Y,
+            Cg=FreeFormCov(Y.shape[1]),
+            Cn=FreeFormCov(Y.shape[1]),
+            S_R=eigh_R[0],
+            U_R=eigh_R[1],
+            F=M,
+            A=Ac,
+        )
+        gp.covar.Cr.setCovariance(0.5 * cov(Y.T))
+        gp.covar.Cn.setCovariance(0.5 * cov(Y.T))
+        gp.optimize(verbose=verbose)
 
-            lmm = MTLMM(Y, F=M, A=Ac, Asnp=Asnps, covar=gp.covar)
-            if Asnps0 is not None:
-                lmm0 = MTLMM(Y, F=M, A=Ac, Asnp=Asnps0, covar=gp.covar)
+        lmm = MTLMM(Y, F=M, A=Ac, Asnp=Asnps, covar=gp.covar)
+        if Asnps0 is not None:
+            lmm0 = MTLMM(Y, F=M, A=Ac, Asnp=Asnps0, covar=gp.covar)
 
-            if Asnps0 is None:
+        if Asnps0 is None:
 
-                lmm.process(G)
-                RV = OrderedDict()
-                RV["pv"] = lmm.getPv()
-                RV["lrt"] = lmm.getLRT()
+            lmm.process(G)
+            RV = OrderedDict()
+            RV["pv"] = lmm.getPv()
+            RV["lrt"] = lmm.getLRT()
 
-            else:
+        else:
 
-                lmm.process(G)
-                lmm0.process(G)
+            lmm.process(G)
+            lmm0.process(G)
 
-                # compute pv
-                lrt1 = lmm.getLRT()
-                lrt0 = lmm0.getLRT()
-                lrt = lrt1 - lrt0
-                pv = chi2(Asnps.shape[1] - Asnps0.shape[1]).sf(lrt)
+            # compute pv
+            lrt1 = lmm.getLRT()
+            lrt0 = lmm0.getLRT()
+            lrt = lrt1 - lrt0
+            pv = chi2(Asnps.shape[1] - Asnps0.shape[1]).sf(lrt)
 
-                RV = OrderedDict()
-                RV["pv1"] = lmm.getPv()
-                RV["pv0"] = lmm0.getPv()
-                RV["pv"] = pv
-                RV["lrt1"] = lrt1
-                RV["lrt0"] = lrt0
-                RV["lrt"] = lrt
+            RV = OrderedDict()
+            RV["pv1"] = lmm.getPv()
+            RV["pv0"] = lmm0.getPv()
+            RV["pv"] = pv
+            RV["lrt1"] = lrt1
+            RV["lrt0"] = lrt0
+            RV["lrt"] = lrt
 
         return DataFrame(RV)
 

@@ -389,6 +389,7 @@ variants and environmental covariates defined by the user.
 
     >>> from numpy import concatenate, newaxis
     >>> from limix.qtl import st_iscan
+    >>>
     >>> # generate interacting variables (environment)
     >>> random = RandomState(1)
     >>> E = random.randn(y.shape[0], 1)
