@@ -5,7 +5,7 @@ from .._data import conform_dataset
 from .._display import session_block
 from .._data import assert_likelihood
 from ..qc._lik import normalise_extreme_values
-from ._result import ST_ScanResultFactory
+from ._result import ScanResultFactory
 
 
 def st_scan(G, y, lik, K=None, M=None, verbose=True):

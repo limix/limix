@@ -1,397 +1,248 @@
-from functools import lru_cache
+from limix._cache import cache
+from limix.stats import lrt_pvalues
 
-from limix.stats import effsizes_se, lrt_pvalues
 
+class ScanResultFactory:
+    def __init__(self, traits, covariates, candidates, envs0, envs1):
+        from numpy import asarray, atleast_1d
 
-class ST_ScanResultFactory:
-    def __init__(self, lik, covariates, candidates):
-        from numpy import asarray
-
-        self._lik = lik
-        self._covariates = asarray(covariates, str)
-        self._candidates = asarray(candidates, str)
         self._tests = []
-        self._null_lml = None
-        self._effsizes = None
-        self._back_var = None
-        self._fore_var = 0.0
+        self._traits = asarray(atleast_1d(traits), str)
+        self._covariates = asarray(atleast_1d(covariates), str)
+        self._candidates = asarray(atleast_1d(candidates), str)
+        self._envs0 = asarray(atleast_1d(envs0), str)
+        self._envs1 = asarray(atleast_1d(envs1), str)
+        self._h0 = {"lml": None, "effsizes": None, "C0": None, "C1": None}
 
-    def set_null(self, null_lml, effsizes, back_var, fore_var=0.0):
-        self._null_lml = null_lml
-        self._effsizes = effsizes
-        self._back_var = back_var
-        self._fore_var = fore_var
+    def set_h0(self, lml, effsizes, C0, C1):
+        from numpy import asarray, atleast_2d
 
-    def add_test(self, cand_idx, alt_effsizes, alt_lml):
-        from numpy import atleast_1d
+        self._h0["lml"] = lml
+        self._h0["effsizes"] = asarray(atleast_2d(effsizes), float)
+        self._h0["C0"] = asarray(atleast_2d(C0), float)
+        self._h0["C1"] = asarray(atleast_2d(C1), float)
+
+    def add_test(self, cand_idx, h1, h2):
+        from numpy import atleast_1d, atleast_2d, asarray
 
         if not isinstance(cand_idx, slice):
-            cand_idx = atleast_1d(cand_idx).ravel()
+            cand_idx = asarray(atleast_1d(cand_idx).ravel(), int)
 
-        alt_effsizes = _make_sure_iterabble(alt_effsizes)
+        def _normalize(h):
+            h = {
+                "lml": float(h["lml"]),
+                "covariate_effsizes": atleast_2d(h["covariate_effsizes"]),
+                "candidate_effsizes": atleast_2d(h["candidate_effsizes"]),
+            }
+            h["covariate_effsizes"] = asarray(h["covariate_effsizes"], float)
+            h["candidate_effsizes"] = asarray(h["candidate_effsizes"], float)
+            return h
 
-        alt = {"lml": alt_lml, "effsizes": alt_effsizes}
+        h1 = _normalize(h1)
+        h2 = _normalize(h2)
 
-        self._tests.append({"idx": cand_idx, "alt": alt})
+        self._tests.append({"idx": cand_idx, "h1": h1, "h2": h2})
 
     def create(self):
-        return ST_ScanResult(
+        return ScanResult(
             self._tests,
-            self._lik,
+            self._traits,
             self._covariates,
             self._candidates,
-            self._null_lml,
-            self._effsizes,
-            {"background": self._back_var, "foreground": self._fore_var},
+            self._h0,
+            self._envs0,
+            self._envs1,
         )
 
 
-class ST_ScanResult:
-    def __init__(
-        self, tests, lik, covariates, candidates, null_lml, effsizes, variances
-    ):
-        from numpy import asarray
-
+class ScanResult:
+    def __init__(self, tests, traits, covariates, candidates, h0, envs0, envs1):
         self._tests = tests
-        self._lik = lik
-        self._covariates = asarray(covariates, str)
-        self._candidates = asarray(candidates, str)
-        self._null_lml = null_lml
-        self._effsizes = effsizes
-        self._back_var = variances["background"]
-        self._fore_var = variances["foreground"]
-
-    @property
-    def foreground_variance(self):
-        return self._fore_var
-
-    @property
-    def background_variance(self):
-        return self._back_var
-
-    @property
-    def stats(self):
-        return self._dataframes["stats"].set_index("test")
-
-    @property
-    def alt_effsizes(self):
-        return self._dataframes["effsizes"]["alt"]
-
-    @property
-    def covariate_effsizes(self):
-        from pandas import DataFrame
-
-        data = zip(self._covariates, self._effsizes)
-        return DataFrame(data, columns=["covariate", "effsizes"]).set_index("covariate")
-
-    @property
-    @lru_cache(maxsize=None)
-    def _dataframes(self):
-        from pandas import DataFrame
-
-        stats = []
-        alt = []
-        for i, test in enumerate(self._tests):
-            idx = test["idx"]
-            candidates = self._candidates[idx]
-
-            alt_lml = test["alt"]["lml"]
-            effsizes = test["alt"]["effsizes"]
-            dof = len(effsizes)
-
-            stats.append([i, self._null_lml, alt_lml, dof])
-            alt += [[i, c, e] for c, e in zip(candidates, list(effsizes))]
-
-        columns = ["test", "null lml", "alt lml", "dof"]
-        stats = DataFrame(stats, columns=columns)
-
-        columns = ["test", "candidate", "effsize"]
-        alt = DataFrame(alt, columns=columns)
-
-        stats["pvalue"] = lrt_pvalues(stats["null lml"], stats["alt lml"], stats["dof"])
-
-        test = alt["test"]
-        df = stats.set_index("test")
-        alt["effsize se"] = effsizes_se(
-            alt["effsize"], df.iloc[test]["pvalue"], df.iloc[test]["dof"]
-        )
-
-        stats = stats[["test", "null lml", "alt lml", "pvalue", "dof"]]
-        return {"stats": stats, "effsizes": {"alt": alt}}
-
-    def __repr__(self):
-        from textwrap import TextWrapper
-        from numpy import percentile, asarray
-
-        msg = "Null model\n"
-        msg += "----------\n\n"
-        v0 = self.background_variance
-        v1 = self.foreground_variance
-
-        if self._lik[0] == "normal":
-            msg += f"  𝐲 ~ 𝓝(M𝜶, {v0:.2f}*K + {v1:.2f}*I)\n"
-        else:
-            msg += f"  𝐳 ~ 𝓝(M𝜶, {v0:.2f}*K + {v1:.2f}*I)\n"
-
-        msg += _lik_formulae(self._lik[0])
-
-        prefix = "  M = "
-        s = " " * len(prefix)
-        wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
-        msg += wrapper.fill(str(self._covariates)) + "\n"
-
-        prefix = "  𝜶 = "
-        s = " " * len(prefix)
-        wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
-
-        effsizes = asarray(self.covariate_effsizes, float).ravel()
-        stats = self.stats
-
-        msg += wrapper.fill(str(effsizes)) + "\n"
-        msg += "  Log marg. lik.: {}\n".format(self._null_lml)
-        msg += "  Number of models: 1\n\n"
-        msg += "Alt model\n"
-        msg += "---------\n\n"
-
-        if self._lik[0] == "normal":
-            msg += f"  𝐲 ~ 𝓝(M𝜶 + Gᵢ, {v0:.2f}*K + {v1:.2f}*I)\n"
-        else:
-            msg += f"  𝐳 ~ 𝓝(M𝜶 + Gᵢ, {v0:.2f}*K + {v1:.2f}*I)\n"
-
-        msg += _lik_formulae(self._lik[0])
-
-        msg += "  Min. p-value: {}\n".format(min(stats["pvalue"]))
-        msg += "  First perc. p-value: {}\n".format(percentile(stats["pvalue"], 1))
-        msg += "  Max. log marg. lik.: {}\n".format(max(stats["alt lml"]))
-        msg += "  99th perc. log marg. lik.: {}\n".format(
-            percentile(stats["alt lml"], 99)
-        )
-        msg += "  Number of models: {}".format(stats.shape[0])
-
-        return msg
-
-
-class ST_IScanResultFactory:
-    def __init__(self, covariates, candidates, inters1, inters0):
-        from numpy import asarray
-
-        self._covariates = asarray(covariates, str)
-        self._candidates = asarray(candidates, str)
-        self._inters0 = asarray(inters0)
-        self._inters1 = asarray(inters1)
-        self._tests = []
-        self._null_lml = None
-        self._effsizes = None
-        self._back_var = None
-        self._fore_var = 0.0
-
-    def set_null(self, null_lml, effsizes, back_var, fore_var=0.0):
-        self._null_lml = null_lml
-        self._effsizes = effsizes
-        self._back_var = back_var
-        self._fore_var = fore_var
-
-    def add_test(self, cand_idx, null_effsizes, null_lml, alt_effsizes, alt_lml):
-        from numpy import atleast_1d
-
-        if not isinstance(cand_idx, slice):
-            cand_idx = atleast_1d(cand_idx).ravel()
-
-        null_effsizes = _make_sure_iterabble(null_effsizes)
-        alt_effsizes = _make_sure_iterabble(alt_effsizes)
-
-        null = {"lml": null_lml, "effsizes": null_effsizes}
-        alt = {"lml": alt_lml, "effsizes": alt_effsizes}
-
-        self._tests.append({"idx": cand_idx, "null": null, "alt": alt})
-
-    def create(self):
-        return ST_IScanResult(
-            self._covariates,
-            self._candidates,
-            self._inters1,
-            self._inters0,
-            self._tests,
-            self._null_lml,
-            self._effsizes,
-            {"background": self._back_var, "foreground": self._fore_var},
-        )
-
-
-class ST_IScanResult:
-    def __init__(
-        self,
-        covariates,
-        candidates,
-        inters1,
-        inters0,
-        tests,
-        null_lml,
-        effsizes,
-        variances,
-    ):
+        self._traits = traits
         self._covariates = covariates
         self._candidates = candidates
-        self._inters0 = inters0
-        self._inters1 = inters1
-        self._tests = tests
-        self._null_lml = null_lml
-        self._effsizes = effsizes
-        self._back_var = variances["background"]
-        self._fore_var = variances["foreground"]
-
-    @property
-    def foreground_variance(self):
-        return self._fore_var
-
-    @property
-    def background_variance(self):
-        return self._back_var
+        self._envs0 = envs0
+        self._envs1 = envs1
+        self._h0 = h0
 
     @property
     def stats(self):
         return self._dataframes["stats"].set_index("test")
 
     @property
-    def null_effsizes(self):
-        return self._dataframes["effsizes"]["null"]
+    def effsizes(self):
+        return self._dataframes["effsizes"]
 
     @property
-    def alt_effsizes(self):
-        return self._dataframes["effsizes"]["alt"]
-
-    @property
-    def covariate_effsizes(self):
+    def _h0_dataframe(self):
         from pandas import DataFrame
 
-        data = zip(self._covariates, self._effsizes)
-        return DataFrame(data, columns=["covariate", "effsizes"]).set_index("covariate")
+        covariates = list(self._covariates)
+
+        h0 = []
+        for i, trait in enumerate(self._traits):
+            for j, c in enumerate(covariates):
+                h0.append([trait, "covariate", c, self._h0["effsizes"][i, j]])
+
+        columns = ["trait", "effect_type", "effect_name", "effsize"]
+        return DataFrame(h0, columns=columns)
 
     @property
-    @lru_cache(maxsize=None)
-    def _dataframes(self):
+    def _h1_dataframe(self):
         from pandas import DataFrame
         from itertools import product
 
-        inters0 = list(self._inters0)
-        inters1 = list(self._inters1)
+        covariates = list(self._covariates)
+        envs0 = list(self._envs0)
+
+        h1 = []
+        for i, test in enumerate(self._tests):
+            candidates = list(self._candidates[test["idx"]])
+
+            effsizes = test["h1"]["covariate_effsizes"]
+            for j, trait in enumerate(self._traits):
+                for l, c in enumerate(covariates):
+                    v = [i, trait, "covariate", c, None, effsizes[j, l]]
+                    h1.append(v)
+
+            effsizes = test["h1"]["candidate_effsizes"]
+            for j, trait in enumerate(self._traits):
+                for l, ce in enumerate(product(candidates, envs0)):
+                    env_name = "env0_" + str(ce[1])
+                    v = [i, trait, "candidate", ce[0], env_name, effsizes[j, l]]
+                    h1.append(v)
+
+        columns = ["test", "trait", "effect_type", "effect_name", "env", "effsize"]
+        return DataFrame(h1, columns=columns)
+
+    @property
+    def _h2_dataframe(self):
+        from pandas import DataFrame
+        from itertools import product
+
+        envs0 = list(self._envs0)
+        envs1 = list(self._envs1)
+        covariates = list(self._covariates)
+
+        h2 = []
+        for i, test in enumerate(self._tests):
+            candidates = list(self._candidates[test["idx"]])
+
+            effsizes = test["h2"]["covariate_effsizes"]
+            for j, trait in enumerate(self._traits):
+                for l, c in enumerate(covariates):
+                    v = [i, trait, "covariate", c, None, effsizes[j, l]]
+                    h2.append(v)
+
+            effsizes = test["h2"]["candidate_effsizes"]
+            off = 0
+            for j, trait in enumerate(self._traits):
+                for l, ce in enumerate(product(candidates, envs0)):
+                    env_name = "env0_" + str(ce[1])
+                    v = [i, trait, "candidate", ce[0], env_name, effsizes[j, off + l]]
+                    h2.append(v)
+
+            off = len(candidates) * len(envs0)
+            for j, trait in enumerate(self._traits):
+                for l, ce in enumerate(product(candidates, envs1)):
+                    env_name = "env1_" + str(ce[1])
+                    v = [i, trait, "candidate", ce[0], env_name, effsizes[j, off + l]]
+                    h2.append(v)
+
+        columns = ["test", "trait", "effect_type", "effect_name", "env", "effsize"]
+        return DataFrame(h2, columns=columns)
+
+    @property
+    def _stats_dataframe(self):
+        from pandas import DataFrame
 
         stats = []
-        null = []
-        alt = []
         for i, test in enumerate(self._tests):
-            idx = test["idx"]
-            candidates = list(self._candidates[idx])
+            dof10 = test["h1"]["candidate_effsizes"].size
+            dof20 = test["h2"]["candidate_effsizes"].size
+            dof21 = dof20 - dof10
+            stats.append(
+                [
+                    i,
+                    self._h0["lml"],
+                    test["h1"]["lml"],
+                    test["h2"]["lml"],
+                    dof10,
+                    dof20,
+                    dof21,
+                ]
+            )
 
-            effsizes = list(test["null"]["effsizes"])
-
-            for ci, eff in zip(list(product(candidates, inters0)), effsizes):
-                null.append([i, ci[0], "inter0_" + str(ci[1]), eff])
-
-            effsizes = list(test["alt"]["effsizes"])
-            for c in candidates:
-
-                for j, inter in enumerate(inters0):
-                    alt.append([i, c, "inter0_" + str(inter), effsizes[j]])
-
-                effsizes = effsizes[len(inters0) :]
-                for j, inter in enumerate(inters1):
-                    alt.append([i, c, "inter1_" + str(inter), effsizes[j]])
-
-            dof = len(test["alt"]["effsizes"]) - len(test["null"]["effsizes"])
-            null_dof = len(test["null"]["effsizes"])
-
-            stats.append([i, test["null"]["lml"], test["alt"]["lml"], dof, null_dof])
-
-        columns = ["test", "null lml", "alt lml", "dof", "null dof"]
+        columns = ["test", "lml0", "lml1", "lml2", "dof10", "dof20", "dof21"]
         stats = DataFrame(stats, columns=columns)
 
-        columns = ["test", "candidate", "inter", "effsize"]
-        null = DataFrame(null, columns=columns)
+        stats["pv10"] = lrt_pvalues(stats["lml0"], stats["lml1"], stats["dof10"])
+        stats["pv20"] = lrt_pvalues(stats["lml0"], stats["lml2"], stats["dof20"])
+        stats["pv21"] = lrt_pvalues(stats["lml1"], stats["lml2"], stats["dof21"])
 
-        columns = ["test", "candidate", "inter", "effsize"]
-        alt = DataFrame(alt, columns=columns)
+        return stats
 
-        stats["pvalue"] = lrt_pvalues(stats["null lml"], stats["alt lml"], stats["dof"])
-        stats["null pvalue"] = lrt_pvalues(
-            self._null_lml, stats["null lml"], stats["null dof"]
-        )
+    @property
+    @cache
+    def _dataframes(self):
+        h0 = self._h0_dataframe
+        h1 = self._h1_dataframe
+        h2 = self._h2_dataframe
+        stats = self._stats_dataframe
 
-        test = null["test"]
-        df = stats.set_index("test")
-        null["effsize se"] = effsizes_se(
-            null["effsize"], df.iloc[test]["null pvalue"], df.iloc[test]["null dof"]
-        )
-        del stats["null pvalue"]
-        del stats["null dof"]
-
-        test = alt["test"]
-        df = stats.set_index("test")
-        alt["effsize se"] = effsizes_se(
-            alt["effsize"], df.iloc[test]["pvalue"], df.iloc[test]["dof"]
-        )
-
-        return {"stats": stats, "effsizes": {"null": null, "alt": alt}}
+        return {"stats": stats, "effsizes": {"h0": h0, "h1": h1, "h2": h2}}
 
     def __repr__(self):
-        from textwrap import TextWrapper
-        from numpy import percentile, asarray
+        return ""
+        # from textwrap import TextWrapper
+        # from numpy import percentile, asarray
 
-        msg = "Null model\n"
-        msg += "----------\n\n"
-        v0 = self.background_variance
-        v1 = self.foreground_variance
-        msg += f"  y ~ 𝓝(M𝜶 + (E₀⊙Gᵢ)𝞫, {v0:.2f}*K + {v1:.2f}*I)\n"
+        # msg = "Null model\n"
+        # msg += "----------\n\n"
+        # v0 = self.background_variance
+        # v1 = self.foreground_variance
+        # msg += f"  y ~ 𝓝(M𝜶 + (E₀⊙Gᵢ)𝞫, {v0:.2f}*K + {v1:.2f}*I)\n"
 
-        prefix = "  M = "
-        s = " " * len(prefix)
-        wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
-        msg += wrapper.fill(str(self._covariates)) + "\n"
+        # prefix = "  M = "
+        # s = " " * len(prefix)
+        # wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
+        # msg += wrapper.fill(str(self._covariates)) + "\n"
 
-        prefix = "  𝜶 = "
-        s = " " * len(prefix)
-        wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
+        # prefix = "  𝜶 = "
+        # s = " " * len(prefix)
+        # wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
 
-        effsizes = asarray(self.covariate_effsizes, float).ravel()
-        stats = self.stats
+        # effsizes = asarray(self.covariate_effsizes, float).ravel()
+        # stats = self.stats
 
-        msg += wrapper.fill(str(effsizes)) + "\n"
-        msg += "  Log marg. lik.: {}\n".format(self._null_lml)
-        msg += "  Number of models: {}\n\n".format(stats.shape[0])
-        msg += "Alt model\n"
-        msg += "---------\n\n"
-        msg += f"  y ~ 𝓝(M𝜶 + (E₀⊙Gᵢ)𝞫₀ + (E₁⊙Gᵢ)𝞫₁, {v0:.2f}*K + {v1:.2f}*I)\n"
+        # msg += wrapper.fill(str(effsizes)) + "\n"
+        # msg += "  Log marg. lik.: {}\n".format(self._null_lml)
+        # msg += "  Number of models: {}\n\n".format(stats.shape[0])
+        # msg += "Alt model\n"
+        # msg += "---------\n\n"
+        # msg += f"  y ~ 𝓝(M𝜶 + (E₀⊙Gᵢ)𝞫₀ + (E₁⊙Gᵢ)𝞫₁, {v0:.2f}*K + {v1:.2f}*I)\n"
 
-        msg += "  Min. p-value: {}\n".format(min(stats["pvalue"]))
-        msg += "  First perc. p-value: {}\n".format(percentile(stats["pvalue"], 1))
-        msg += "  Max. log marg. lik.: {}\n".format(max(stats["alt lml"]))
-        msg += "  99th perc. log marg. lik.: {}\n".format(
-            percentile(stats["alt lml"], 99)
-        )
-        msg += "  Number of models: {}".format(stats.shape[0])
+        # msg += "  Min. p-value: {}\n".format(min(stats["pvalue"]))
+        # msg += "  First perc. p-value: {}\n".format(percentile(stats["pvalue"], 1))
+        # msg += "  Max. log marg. lik.: {}\n".format(max(stats["alt lml"]))
+        # msg += "  99th perc. log marg. lik.: {}\n".format(
+        #     percentile(stats["alt lml"], 99)
+        # )
+        # msg += "  Number of models: {}".format(stats.shape[0])
 
-        return msg
-
-
-def _make_sure_iterabble(x):
-    from collections.abc import Iterable
-
-    if not isinstance(x, Iterable):
-        return [x]
-
-    return x
+        # return msg
 
 
-def _lik_formulae(lik):
-    msg = ""
+# def _lik_formulae(lik):
+#     msg = ""
 
-    if lik == "bernoulli":
-        msg += f"  yᵢ ~ Bern(μᵢ=g(zᵢ)), where g(x)=1/(1+e⁻ˣ)\n"
-    elif lik == "probit":
-        msg += f"  yᵢ ~ Bern(μᵢ=g(zᵢ)), where g(x)=Φ(x)\n"
-    elif lik == "binomial":
-        msg += f"  yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ), where g(x)=1/(1+e⁻ˣ)\n"
-    elif lik == "poisson":
-        msg += f"  yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ\n"
+#     if lik == "bernoulli":
+#         msg += f"  yᵢ ~ Bern(μᵢ=g(zᵢ)), where g(x)=1/(1+e⁻ˣ)\n"
+#     elif lik == "probit":
+#         msg += f"  yᵢ ~ Bern(μᵢ=g(zᵢ)), where g(x)=Φ(x)\n"
+#     elif lik == "binomial":
+#         msg += f"  yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ), where g(x)=1/(1+e⁻ˣ)\n"
+#     elif lik == "poisson":
+#         msg += f"  yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ\n"
 
-    return msg
+#     return msg

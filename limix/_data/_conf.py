@@ -9,6 +9,8 @@ CONF = {
             "covariate",
             "inter0",
             "inter1",
+            "env0",
+            "env1",
         ]
     ),
     "filetypes": set(["csv", "bed"]),
@@ -38,6 +40,8 @@ CONF = {
         "covariance": ["sample_0", "sample_1"],
         "inter0": ["sample", "inter"],
         "inter1": ["sample", "inter"],
+        "env0": ["sample", "env"],
+        "env1": ["sample", "env"],
     },
     "varname_to_target": {
         "y": "trait",

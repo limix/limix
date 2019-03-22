@@ -4,7 +4,7 @@ from limix._display import session_line
 from .._data import conform_dataset
 from .._data import asarray as _asarray
 from .._display import session_block
-from ._result import ST_IScanResultFactory
+from ._result import ScanResultFactory
 from .._bits.xarray import is_dataarray
 
 
