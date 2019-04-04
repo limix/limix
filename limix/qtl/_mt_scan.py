@@ -2,8 +2,7 @@ import sys
 
 from limix._display import session_line
 
-from .._data import assert_likelihood
-from .._data import asarray as _asarray, conform_dataset
+from .._data import asarray as _asarray, assert_likelihood, conform_dataset
 from .._display import session_block
 from ._result import ScanResultFactory
 
@@ -40,12 +39,34 @@ def mt_scan(
     - H₀ vs H₂: testing for [vec(A₁) vec(A₂)] ≠ 0
     - H₁ vs H₂: testing for vec(A₂) ≠ 0
 
+    It supports generalised linear mixed models (GLMM) when a single trait is used.
+    In this case, the following likelihoods are implemented:
+    - Bernoulli
+    - Probit
+    - Binomial
+    - Poisson
+
+    Formally, let p(𝜇) be one of the supported probability distributions where 𝜇 is
+    its mean. The H₀ model is defined as follows::
+
+        yᵢ ∼ p(𝜇=g(fᵢ)) for 𝐟 ∼ 𝓝(M𝐛, v₀K + v₁I).
+
+    g(⋅) is the corresponding canonical link function for the Bernoulli, Binomial, and
+    Poisson likelihoods. The Probit likelihood, on the other hand, is a Bernoulli
+    likelihood with probit link function.
+
     Parameters
     ----------
     G : n×m array_like
         Genetic candidates.
     Y : n×p array_like
         p phenotype values for n samples.
+    lik : tuple, "normal", "bernoulli", "probit", "binomial", "poisson"
+        Sample likelihood describing the residual distribution.
+        Either a tuple or a string specifiying the likelihood is required. The Normal,
+        Bernoulli, Probit, and Poisson likelihoods can be selected by providing a
+        string. Binomial likelihood on the other hand requires a tuple because of the
+        number of trials: ``("binomial", array_like)``. Defaults to ``"normal"``.
     idx : list
         List of candidate indices that defines the set of candidates to be used in the
         tests.
@@ -117,11 +138,116 @@ def mt_scan(
         >>>
         >>> idx = [[0, 1], 2, [3]]
         >>> r = mt_scan(G, Y, idx=idx, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
+
+    .. doctest::
+
+        >>> from numpy import dot, exp, sqrt, ones
+        >>> from numpy.random import RandomState
+        >>> from pandas import DataFrame
+        >>> import pandas as pd
+        >>> from limix.qtl import st_scan
+        >>>
+        >>> random = RandomState(1)
+        >>> pd.options.display.float_format = "{:9.6f}".format
+        >>>
+        >>> n = 30
+        >>> p = 3
+        >>> samples_index = range(n)
+        >>>
+        >>> M = DataFrame(dict(offset=ones(n), age=random.randint(10, 60, n)))
+        >>> M.index = samples_index
+        >>>
+        >>> X = random.randn(n, 100)
+        >>> K = dot(X, X.T)
+        >>>
+        >>> candidates = random.randn(n, p)
+        >>> candidates = DataFrame(candidates, index=samples_index,
+        ...                                    columns=['rs0', 'rs1', 'rs2'])
+        >>>
+        >>> y = random.poisson(exp(random.randn(n)))
+        >>>
+        >>> result = st_scan(candidates, y, 'poisson', K, M=M, verbose=False)
+        >>>
+        >>> result.stats  # doctest: +FLOAT_CMP
+               null lml    alt lml    pvalue  dof
+        test
+        0    -48.736563 -48.561855  0.554443    1
+        1    -48.736563 -47.981093  0.218996    1
+        2    -48.736563 -48.559868  0.552200    1
+        >>> result.alt_effsizes  # doctest: +FLOAT_CMP
+           test candidate   effsize  effsize se
+        0     0       rs0 -0.130867    0.221390
+        1     1       rs1 -0.315079    0.256327
+        2     2       rs2 -0.143869    0.242014
+        >>> print(result)  # doctest: +FLOAT_CMP
+        Null model
+        ----------
+        <BLANKLINE>
+          𝐳 ~ 𝓝(M𝜶, 0.79*K + 0.00*I)
+          yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ
+          M = ['offset' 'age']
+          𝜶 = [ 0.39528617 -0.00556789]
+          Log marg. lik.: -48.736563230140376
+          Number of models: 1
+        <BLANKLINE>
+        Alt model
+        ---------
+        <BLANKLINE>
+          𝐳 ~ 𝓝(M𝜶 + Gᵢ, 0.79*K + 0.00*I)
+          yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ
+          Min. p-value: 0.21899561824721903
+          First perc. p-value: 0.22565970374303942
+          Max. log marg. lik.: -47.981092939974765
+          99th perc. log marg. lik.: -47.9926684371547
+          Number of models: 3
+
+        >>> from numpy import zeros
+        >>>
+        >>> nsamples = 50
+        >>>
+        >>> X = random.randn(nsamples, 2)
+        >>> G = random.randn(nsamples, 100)
+        >>> K = dot(G, G.T)
+        >>> ntrials = random.randint(1, 100, nsamples)
+        >>> z = dot(G, random.randn(100)) / sqrt(100)
+        >>>
+        >>> successes = zeros(len(ntrials), int)
+        >>> for i, nt in enumerate(ntrials):
+        ...     for _ in range(nt):
+        ...         successes[i] += int(z[i] + 0.5 * random.randn() > 0)
+        >>>
+        >>> result = st_scan(X, successes, ("binomial", ntrials), K, verbose=False)
+        >>> print(result)  # doctest: +FLOAT_CMP
+        Null model
+        ----------
+        <BLANKLINE>
+          𝐳 ~ 𝓝(M𝜶, 1.74*K + 0.15*I)
+          yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ), where g(x)=1/(1+e⁻ˣ)
+          M = ['offset']
+          𝜶 = [0.40956947]
+          Log marg. lik.: -142.9436437096321
+          Number of models: 1
+        <BLANKLINE>
+        Alt model
+        ---------
+        <BLANKLINE>
+          𝐳 ~ 𝓝(M𝜶 + Gᵢ, 1.74*K + 0.15*I)
+          yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ), where g(x)=1/(1+e⁻ˣ)
+          Min. p-value: 0.23699422686919802
+          First perc. p-value: 0.241827874774993
+          Max. log marg. lik.: -142.24445140459548
+          99th perc. log marg. lik.: -142.25080258276773
+          Number of models: 2
+
+    Notes
+    -----
+    It will raise a ``ValueError`` exception if non-finite values are passed. Please,
+    refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
     from numpy_sugar.linalg import economic_qs
     from xarray import concat
     from ._assert import assert_finite
-    from numpy import eye, sqrt, asarray, empty
+    from numpy import eye, asarray, empty
 
     if not isinstance(lik, (tuple, list)):
         lik = (lik,)
@@ -130,7 +256,7 @@ def mt_scan(
     lik = (lik_name,) + lik[1:]
     assert_likelihood(lik_name)
 
-    with session_block("qtl analysis", disable=not verbose):
+    with session_block("QTL analysis", disable=not verbose):
 
         with session_line("Normalising input... ", disable=not verbose):
 
@@ -142,22 +268,20 @@ def mt_scan(
         K = data["K"]
 
         assert_finite(Y, M, K)
+        ntraits = Y.shape[1]
 
         if A is None:
-            A = eye(Y.shape[1])
+            A = eye(ntraits)
 
         if A1 is None:
-            A1 = eye(Y.shape[1])
+            A1 = eye(ntraits)
 
         if A0 is None:
-            A0 = empty((Y.shape[1], 0))
+            A0 = empty((ntraits, 0))
 
         A0 = _asarray(A0, "env0", ["sample", "env"])
         A1 = _asarray(A1, "env1", ["sample", "env"])
         A01 = concat([A0, A1], dim="env")
-
-        if idx is None:
-            idx = range(G.shape[1])
 
         if K is not None:
             QS = economic_qs(K)
@@ -165,9 +289,12 @@ def mt_scan(
             QS = None
 
         if lik_name == "normal":
-            scanner, C0, C1 = _perform_multitrait(Y, A, M, QS, verbose)
+            if ntraits == 1:
+                scanner, C0, C1 = _st_lmm(Y, M, QS, verbose)
+            else:
+                scanner, C0, C1 = _mt_lmm(Y, A, M, QS, verbose)
         else:
-            scanner, C0, C1 = _perform_glmm(Y.values.ravel(), lik, M, QS, verbose)
+            scanner, C0, C1 = _st_glmm(Y.values.ravel(), lik, M, QS, verbose)
 
         r = ScanResultFactory(
             "normal",
@@ -183,17 +310,27 @@ def mt_scan(
             C1,
         )
 
-        for i in idx:
+        if idx is None and ntraits == 1:
+            r1 = scanner.fast_scan(G, verbose)
+            for i in range(G.shape[1]):
+                h1 = _normalise_scan_names({k: v[i] for k, v in r1.items()})
+                h2 = h1
+                r.add_test(i, h1, h2)
+        else:
+            if idx is None:
+                idx = range(G.shape[1])
 
-            i = _2d_sel(i)
-            g = asarray(G[:, i], float)
+            for i in idx:
 
-            r1 = scanner.scan(A0, g)
-            r2 = scanner.scan(A01, g)
+                i = _2d_sel(i)
+                g = asarray(G[:, i], float)
 
-            h1 = _normalise_scan_names(r1)
-            h2 = _normalise_scan_names(r2)
-            r.add_test(i, h1, h2)
+                r1 = scanner.scan(A0, g)
+                r2 = scanner.scan(A01, g)
+
+                h1 = _normalise_scan_names(r1)
+                h2 = _normalise_scan_names(r2)
+                r.add_test(i, h1, h2)
 
         r = r.create()
         if verbose:
@@ -238,7 +375,11 @@ class ScannerWrapper:
     def null_beta_se(self):
         from numpy import sqrt
 
-        return (sqrt(self._scanner.null_beta_covariance.diagonal()),)
+        se = sqrt(self._scanner.null_beta_covariance.diagonal())
+        return se
+
+    def fast_scan(self, G, verbose):
+        return self._scanner.fast_scan(G, verbose=verbose)
 
     def scan(self, A, G):
         from glimix_core.lmm import FastScanner
@@ -249,7 +390,21 @@ class ScannerWrapper:
         return self._scanner.scan(A, G)
 
 
-def _perform_multitrait(Y, A, M, QS, verbose):
+def _st_lmm(Y, M, QS, verbose):
+    from glimix_core.lmm import LMM
+
+    lmm = LMM(Y.values, M.values, QS, restricted=False)
+    lmm.fit(verbose=verbose)
+    sys.stdout.flush()
+
+    v0 = lmm.v0
+    v1 = lmm.v1
+    scanner = ScannerWrapper(lmm.get_fast_scanner())
+
+    return scanner, v0, v1
+
+
+def _mt_lmm(Y, A, M, QS, verbose):
     from glimix_core.lmm import Kron2Sum
     from numpy_sugar.linalg import ddot
     from numpy import sqrt, zeros
@@ -270,7 +425,7 @@ def _perform_multitrait(Y, A, M, QS, verbose):
     return scanner, C0, C1
 
 
-def _perform_glmm(y, lik, M, QS, verbose):
+def _st_glmm(y, lik, M, QS, verbose):
     from glimix_core.glmm import GLMMExpFam, GLMMNormal
 
     glmm = GLMMExpFam(y.ravel(), lik, M.values, QS)

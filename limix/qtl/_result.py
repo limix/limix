@@ -85,20 +85,20 @@ class ScanResultFactory:
         if not isinstance(cand_idx, slice):
             cand_idx = asarray(atleast_1d(cand_idx).ravel(), int)
 
+        def _2d_shape(x):
+            x = asarray(x, float)
+            x = atleast_2d(x.T).T
+            return x
+
         def _normalize(h):
-            h = {
+            return {
                 "lml": float(h["lml"]),
-                "covariate_effsizes": atleast_2d(h["covariate_effsizes"]),
-                "candidate_effsizes": atleast_2d(h["candidate_effsizes"]),
-                "covariate_effsizes_se": atleast_2d(h["covariate_effsizes_se"]),
-                "candidate_effsizes_se": atleast_2d(h["candidate_effsizes_se"]),
+                "covariate_effsizes": _2d_shape(h["covariate_effsizes"]),
+                "candidate_effsizes": _2d_shape(h["candidate_effsizes"]),
+                "covariate_effsizes_se": _2d_shape(h["covariate_effsizes_se"]),
+                "candidate_effsizes_se": _2d_shape(h["candidate_effsizes_se"]),
                 "scale": float(h["scale"]),
             }
-            h["covariate_effsizes"] = asarray(h["covariate_effsizes"], float)
-            h["candidate_effsizes"] = asarray(h["candidate_effsizes"], float)
-            h["covariate_effsizes_se"] = asarray(h["covariate_effsizes_se"], float)
-            h["candidate_effsizes_se"] = asarray(h["candidate_effsizes_se"], float)
-            return h
 
         h1 = _normalize(h1)
         h2 = _normalize(h2)

@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import scipy as sp
-
-
 class BF:
     r"""
     Calculates log Bayes factor between two models with different sets of environments included returning evidence for model 2 relative to model 1
@@ -32,7 +27,6 @@ class BF:
         >>> from limix.model.struct_lmm import BF
         >>> random = RandomState(1)
         >>>
-        >>> # generate data
         >>> n = 50 # number samples
         >>> k1 = 10 # number environments for model 1
         >>> k2 = 0 # number environments for model 2
@@ -62,21 +56,20 @@ class BF:
                 self.W = self.Env1
 
     def calc_lml(self, Env):
-        from limix_core.covar import FreeFormCov
-        from limix_core.gp import GP2KronSumLR
+        from numpy import ones, concatenate
+        from glimix_core.lmm import LMM
+        from numpy_sugar.linalg import economic_qs_linear
 
-        _covs = sp.concatenate([self.F, self.W, self.x], 1)
+        _covs = concatenate([self.F, self.W, self.x], 1)
         if Env.shape[1] == 0:
-            xoE = sp.ones(self.x.shape)
+            xoE = ones(self.x.shape)
         else:
             xoE = self.x * Env
-        gp = GP2KronSumLR(Y=self.y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)
-        gp.covar.Cr.setCovariance(1e-4 * sp.ones((1, 1)))
-        gp.covar.Cn.setCovariance(0.02 * sp.ones((1, 1)))
-        gp.optimize(verbose=False)
-        lml = -gp.LML()
 
-        return lml
+        QS = economic_qs_linear(xoE)
+        gp = LMM(self.y, _covs, QS, restricted=True)
+        gp.fit(verbose=False)
+        return gp.lml()
 
     def calc_bf(self):
         lml_model_1 = self.calc_lml(self.Env1)
