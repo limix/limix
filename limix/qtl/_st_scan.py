@@ -9,7 +9,9 @@ from ..qc._lik import normalise_extreme_values
 from ._result import ScanResultFactory
 
 
-def st_scan(G, y, lik, idx=None, K=None, M=None, verbose=True):
+def st_scan(
+    G, y, lik, idx=None, K=None, M=None, A=None, A0=None, A1=None, verbose=True
+):
     """
     Single-variant association testing via generalised linear mixed models.
 
