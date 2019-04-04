@@ -3,12 +3,13 @@ import sys
 from .._display import session_line
 from .._data import conform_dataset
 from .._display import session_block
+from ._assert import assert_finite
 from .._data import assert_likelihood
 from ..qc._lik import normalise_extreme_values
 from ._result import ScanResultFactory
 
 
-def st_scan(G, y, lik, K=None, M=None, verbose=True):
+def st_scan(G, y, lik, idx=None, K=None, M=None, verbose=True):
     """
     Single-variant association testing via generalised linear mixed models.
 
@@ -179,27 +180,19 @@ def st_scan(G, y, lik, K=None, M=None, verbose=True):
         G = data["G"]
         K = data["K"]
 
-        if not is_all_finite(y):
-            raise ValueError("Outcome must have finite values only.")
-
-        if not is_all_finite(M):
-            raise ValueError("Covariates must have finite values only.")
+        assert_finite(y, M, K)
 
         if K is not None:
-            if not is_all_finite(K):
-                raise ValueError("Covariate matrix must have finite values only.")
             QS = economic_qs(K)
         else:
             QS = None
 
         y = normalise_extreme_values(data["y"], lik)
 
-        r = ST_ScanResultFactory(lik, M.covariate, G.candidate)
-
         if lik_name == "normal":
-            r = _perform_lmm(r, y.values, M, QS, G, verbose)
+            r = _perform_lmm(y, idx, M, QS, G, verbose)
         else:
-            r = _perform_glmm(r, y.values, lik, M, K, QS, G, verbose)
+            r = _perform_glmm(y, lik, idx, M, K, QS, G, verbose)
 
         if verbose:
             print(r)
@@ -207,22 +200,36 @@ def st_scan(G, y, lik, K=None, M=None, verbose=True):
         return r
 
 
-def _perform_lmm(r, y, M, QS, G, verbose):
+def _perform_lmm(y, idx, M, QS, G, verbose):
     from glimix_core.lmm import LMM
+    from numpy import sqrt
 
-    lmm = LMM(y, M.values, QS)
+    lmm = LMM(y.values, M.values, QS)
 
     lmm.fit(verbose=verbose)
     sys.stdout.flush()
 
-    null_lml = lmm.lml()
+    scanner = lmm.get_fast_scanner()
 
+    r = ScanResultFactory(
+        "normal",
+        y.trait,
+        M.covariate,
+        G.candidate,
+        [],
+        ["0"],
+        scanner.null_lml(),
+        scanner.null_beta,
+        sqrt(scanner.null_beta_covariance.diagonal()),
+        lmm.v0,
+        lmm.v1,
+    )
+
+    null_lml = lmm.lml()
     beta = lmm.beta
 
-    r.set_null(null_lml, beta, lmm.v1, lmm.v0)
-
-    flmm = lmm.get_fast_scanner()
-    alt_lmls, effsizes = flmm.fast_scan(G.data, verbose=verbose)
+    # r.set_null(null_lml, beta, lmm.v1, lmm.v0)
+    alt_lmls, effsizes = scanner.fast_scan(G.data, verbose=verbose)
 
     for i, data in enumerate(zip(alt_lmls, effsizes)):
         r.add_test(i, data[1], data[0])
@@ -230,7 +237,7 @@ def _perform_lmm(r, y, M, QS, G, verbose):
     return r.create()
 
 
-def _perform_glmm(r, y, lik, M, K, QS, G, verbose):
+def _perform_glmm(y, lik, idx, M, K, QS, G, verbose):
     from glimix_core.glmm import GLMMExpFam, GLMMNormal
 
     glmm = GLMMExpFam(y.ravel(), lik, M.values, QS)
@@ -246,13 +253,13 @@ def _perform_glmm(r, y, lik, M, K, QS, G, verbose):
 
     beta = gnormal.beta
 
-    flmm = gnormal.get_fast_scanner()
-    flmm.set_scale(1.0)
-    null_lml = flmm.null_lml()
+    scanner = gnormal.get_fast_scanner()
+    scanner.set_scale(1.0)
+    null_lml = scanner.null_lml()
 
     r.set_null(null_lml, beta, gnormal.v1, gnormal.v0)
 
-    alt_lmls, effsizes = flmm.fast_scan(G.values, verbose=verbose)
+    alt_lmls, effsizes = scanner.fast_scan(G.values, verbose=verbose)
 
     for i, data in enumerate(zip(alt_lmls, effsizes)):
         r.add_test(i, data[1], data[0])

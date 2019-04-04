@@ -12,7 +12,7 @@ class SModelResult:
         self._covariates = asarray(atleast_1d(covariates), str)
         self._lml = float(lml)
         self._beta = atleast_1d(asarray(beta, float).T).T
-        self._beta_var = atleast_1d(asarray(beta_se, float).T).T
+        self._beta_se = atleast_1d(asarray(beta_se, float).T).T
         self._C0 = atleast_2d(asarray(C0, float))
         self._C1 = atleast_2d(asarray(C1, float))
 
@@ -35,7 +35,7 @@ class SModelResult:
 
         effsizes = []
         B = unvec(self._beta, (len(self._covariates), -1))
-        Bvar = unvec(self._beta_var, (len(self._covariates), -1))
+        Bvar = unvec(self._beta_se, (len(self._covariates), -1))
         for i, trait in enumerate(self._traits):
             for j, c in enumerate(self._covariates):
                 effsizes.append([trait, c, B[j, i], Bvar[j, i]])
