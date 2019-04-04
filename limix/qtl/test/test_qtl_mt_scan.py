@@ -1,5 +1,6 @@
+import pytest
 import scipy.stats as st
-from numpy import argmin, array, concatenate, dot, eye, kron, reshape, sqrt, zeros
+from numpy import argmin, array, concatenate, dot, eye, kron, reshape, sqrt, zeros, nan
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 from pandas import DataFrame
@@ -243,6 +244,40 @@ def test_qtl_st_scan_gmm_binomial():
     result = mt_scan(X, successes, ("binomial", ntrials), verbose=False)
     pv = result.stats["pv20"]
     assert_allclose(pv, [0.38010406141, 1.6679817550561325e-21], rtol=1e-5, atol=1e-5)
+
+
+def test_qtl_finite():
+    random = RandomState(0)
+    nsamples = 50
+
+    X = random.randn(50, 2)
+    G = random.randn(50, 100)
+    K = dot(G, G.T)
+    ntrials = random.randint(1, 100, nsamples)
+    z = dot(G, random.randn(100)) / sqrt(100)
+
+    successes = zeros(len(ntrials), int)
+    for i, nt in enumerate(ntrials):
+        for _ in range(nt):
+            successes[i] += int(z[i] + 0.5 * random.randn() > 0)
+
+    successes = successes.astype(float)
+    ntrials = ntrials.astype(float)
+
+    successes[0] = nan
+    with pytest.raises(ValueError):
+        mt_scan(X, successes, ("binomial", ntrials), K, verbose=False)
+    successes[0] = 1.0
+
+    K[0, 0] = nan
+    with pytest.raises(ValueError):
+        mt_scan(X, successes, ("binomial", ntrials), K, verbose=False)
+    K[0, 0] = 1.0
+
+    X[0, 0] = nan
+    with pytest.raises(ValueError):
+        mt_scan(X, successes, ("binomial", ntrials), K, verbose=False)
+    X[0, 0] = 1.0
 
 
 def vec(x):
