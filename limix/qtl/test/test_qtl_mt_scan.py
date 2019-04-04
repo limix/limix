@@ -1,8 +1,21 @@
 import pytest
 import scipy.stats as st
-from numpy import argmin, array, concatenate, dot, eye, kron, reshape, sqrt, zeros, nan
+from numpy import (
+    ones,
+    argmin,
+    array,
+    concatenate,
+    dot,
+    eye,
+    kron,
+    reshape,
+    sqrt,
+    zeros,
+    nan,
+    asarray,
+)
 from numpy.random import RandomState
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_array_equal
 from pandas import DataFrame
 
 from limix.qc import normalise_covariance
