@@ -16,6 +16,16 @@ The documentation can be found at https://limix.readthedocs.io.
 
 ## Install
 
+## Development 3.0.0 release
+
+With the development releases you can help us test the new features we are implementing:
+
+```bash
+pip install git+https://github.com/limix/limix.git@develop
+```
+
+## Stable release
+
 Installation is easy and works on macOS, Linux, and Windows:
 
 ```bash
