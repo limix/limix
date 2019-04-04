@@ -7,12 +7,17 @@ from .._display import session_block
 from ._result import ScanResultFactory
 
 
-def mt_scan(G, Y, idx=None, K=None, M=None, A=None, A1=None, A0=None, verbose=True):
-    from glimix_core.lmm import RKron2Sum
+def mt_scan(G, Y, idx=None, K=None, M=None, A=None, A0=None, A1=None, verbose=True):
+    r"""
+    H0: vec(Y) ~ N((AxM)vec(B), C0*K + C1*I)
+    H1: vec(Y) ~ N((AxM)vec(beta_1i)+(A0xGi)vec(alpha_1i), s_1i(C0*K + C1*I))
+    H2: vec(Y) ~ N((AxM)vec(beta_2i)+([A0 A1]xGi)vec(alpha_2i), s_2i(C0*K + C1*I))
+    """
+    from glimix_core.lmm import Kron2Sum
     from numpy_sugar.linalg import economic_qs, ddot
     from xarray import concat
-    from numpy_sugar import is_all_finite
-    from numpy import eye, sqrt, asarray, empty, concatenate
+    from ._assert import assert_finite
+    from numpy import eye, sqrt, asarray, empty
 
     with session_block("qtl analysis", disable=not verbose):
 
@@ -24,6 +29,8 @@ def mt_scan(G, Y, idx=None, K=None, M=None, A=None, A1=None, A0=None, verbose=Tr
         M = data["M"]
         G = data["G"]
         K = data["K"]
+
+        assert_finite(Y, M, K)
 
         if A is None:
             A = eye(Y.shape[1])
@@ -41,42 +48,59 @@ def mt_scan(G, Y, idx=None, K=None, M=None, A=None, A1=None, A0=None, verbose=Tr
         if idx is None:
             idx = range(G.shape[1])
 
-        if not is_all_finite(data["y"]):
-            raise ValueError("Outcome must have finite values only.")
-
-        if not is_all_finite(data["M"]):
-            raise ValueError("Covariates must have finite values only.")
-
         if K is not None:
-            if not is_all_finite(K):
-                raise ValueError("Covariate matrix must have finite values only.")
             QS = economic_qs(K)
         else:
             QS = None
 
-        X = ddot(QS[0][0], sqrt(QS[1]))
-        lmm = RKron2Sum(Y.values, A, M.values, X)
+        KG = ddot(QS[0][0], sqrt(QS[1]))
+        lmm = Kron2Sum(Y.values, A, M.values, KG, restricted=False)
         lmm.fit(verbose=verbose)
         sys.stdout.flush()
 
-        flmm = lmm.get_fast_scanner()
-        r = MT_ScanResultFactory(Y.trait, M.covariate, G.candidate, A1.env, A0.env)
-        r.set_null(flmm.null_lml(), flmm.null_effsizes())
+        scanner = lmm.get_fast_scanner()
+        r = ScanResultFactory(
+            "normal",
+            Y.trait,
+            M.covariate,
+            G.candidate,
+            A0.env,
+            A1.env,
+            scanner.null_lml(),
+            scanner.null_beta,
+            sqrt(scanner.null_beta_covariance.diagonal()),
+            lmm.C0,
+            lmm.C1,
+        )
+
         for i in idx:
 
             i = _2d_sel(i)
             g = asarray(G[:, i], float)
 
-            lml0, _, effs0_g = flmm.scan(A0, g)
-            lml1, _, effs1_g = flmm.scan(A01, g)
+            r1 = scanner.scan(A0, g)
+            r2 = scanner.scan(A01, g)
 
-            r.add_test(i, effs0_g, lml0, effs1_g, lml1)
+            h1 = _normalise_scan_names(r1)
+            h2 = _normalise_scan_names(r2)
+            r.add_test(i, h1, h2)
 
         r = r.create()
         if verbose:
             print(r)
 
         return r
+
+
+def _normalise_scan_names(r):
+    return {
+        "lml": r["lml"],
+        "covariate_effsizes": r["effsizes0"],
+        "covariate_effsizes_se": r["effsizes0_se"],
+        "candidate_effsizes": r["effsizes1"],
+        "candidate_effsizes_se": r["effsizes1_se"],
+        "scale": r["scale"],
+    }
 
 
 def _2d_sel(idx):
