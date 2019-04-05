@@ -1,5 +1,5 @@
-from limix._cache import cache
 from limix._bits import unvec
+from limix._cache import cache
 from limix.stats import lrt_pvalues
 
 
@@ -15,6 +15,10 @@ class SModelResult:
         self._beta_se = atleast_1d(asarray(beta_se, float).T).T
         self._C0 = atleast_2d(asarray(C0, float))
         self._C1 = atleast_2d(asarray(C1, float))
+
+    @property
+    def likelihood(self):
+        return self._lik
 
     @property
     def lml(self):
@@ -308,57 +312,70 @@ class ScanResult:
 
         return {"stats": stats, "effsizes": {"h1": h1, "h2": h2}}
 
+    def _repr_two_hypothesis(self):
+        from numpy import asarray, isnan
+
+        lik = self._h0.likelihood
+        effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
+        effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
+        stats = self.stats
+
+        msg = "Null model\n"
+        msg += "----------\n\n"
+        v0 = self.h0.variances["fore_covariance"].item()
+        v1 = self.h0.variances["back_covariance"].item()
+        if lik == "normal":
+            var = "𝐲"
+        else:
+            var = "𝐳"
+        if isnan(v0):
+            msg += f"{var} ~ 𝓝(𝙼𝜶, {v1:.4f}⋅𝙸)"
+        else:
+            msg += f"{var} ~ 𝓝(𝙼𝜶, {v0:.4f}⋅𝙺 + {v1:.4f}⋅𝙸)"
+        msg += _lik_formulae(self._h0.likelihood)
+
+        msg += _item_repr("𝙼     = ", self._covariates)
+        msg += _item_repr("𝜶     = ", effsizes)
+        msg += _item_repr("se(𝜶) = ", effsizes_se)
+
+        msg += "lml   = {}\n\n".format(self.h0.lml)
+
+        msg += "Alt model\n"
+        msg += "---------\n\n"
+        if isnan(v0):
+            msg += f"{var} ~ 𝓝(𝙼𝜶 + 𝙶𝞫, {v1:.4f}⋅𝙸)"
+        else:
+            msg += f"{var} ~ 𝓝(𝙼𝜶 + 𝙶𝞫, {v0:.4f}⋅𝙺 + {v1:.4f}⋅𝙸)"
+        msg += _lik_formulae(self._h0.likelihood)
+
+        msg += "min(pv)  = {}\n".format(min(stats["pv20"]))
+        msg += "max(lml) = {}\n".format(max(stats["lml2"]))
+
+        return msg
+
     def __repr__(self):
-        return ""
-        # from textwrap import TextWrapper
-        # from numpy import percentile, asarray
-
-        # msg = "Null model\n"
-        # msg += "----------\n\n"
-        # v0 = self.background_variance
-        # v1 = self.foreground_variance
-        # msg += f"  y ~ 𝓝(M𝜶 + (E₀⊙Gᵢ)𝞫, {v0:.2f}*K + {v1:.2f}*I)\n"
-
-        # prefix = "  M = "
-        # s = " " * len(prefix)
-        # wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
-        # msg += wrapper.fill(str(self._covariates)) + "\n"
-
-        # prefix = "  𝜶 = "
-        # s = " " * len(prefix)
-        # wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
-
-        # effsizes = asarray(self.covariate_effsizes, float).ravel()
-        # stats = self.stats
-
-        # msg += wrapper.fill(str(effsizes)) + "\n"
-        # msg += "  Log marg. lik.: {}\n".format(self._null_lml)
-        # msg += "  Number of models: {}\n\n".format(stats.shape[0])
-        # msg += "Alt model\n"
-        # msg += "---------\n\n"
-        # msg += f"  y ~ 𝓝(M𝜶 + (E₀⊙Gᵢ)𝞫₀ + (E₁⊙Gᵢ)𝞫₁, {v0:.2f}*K + {v1:.2f}*I)\n"
-
-        # msg += "  Min. p-value: {}\n".format(min(stats["pvalue"]))
-        # msg += "  First perc. p-value: {}\n".format(percentile(stats["pvalue"], 1))
-        # msg += "  Max. log marg. lik.: {}\n".format(max(stats["alt lml"]))
-        # msg += "  99th perc. log marg. lik.: {}\n".format(
-        #     percentile(stats["alt lml"], 99)
-        # )
-        # msg += "  Number of models: {}".format(stats.shape[0])
-
-        # return msg
+        return self._repr_two_hypothesis()
 
 
-# def _lik_formulae(lik):
-#     msg = ""
+def _item_repr(prefix, item):
+    from textwrap import TextWrapper
 
-#     if lik == "bernoulli":
-#         msg += f"  yᵢ ~ Bern(μᵢ=g(zᵢ)), where g(x)=1/(1+e⁻ˣ)\n"
-#     elif lik == "probit":
-#         msg += f"  yᵢ ~ Bern(μᵢ=g(zᵢ)), where g(x)=Φ(x)\n"
-#     elif lik == "binomial":
-#         msg += f"  yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ), where g(x)=1/(1+e⁻ˣ)\n"
-#     elif lik == "poisson":
-#         msg += f"  yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ\n"
+    s = " " * len(prefix)
+    wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
+    return wrapper.fill(str(item)) + "\n"
 
-#     return msg
+
+def _lik_formulae(lik):
+    msg = ""
+
+    if lik == "bernoulli":
+        msg += f" for yᵢ ~ Bern(μᵢ=g(zᵢ)) and g(x)=1/(1+e⁻ˣ)\n"
+    elif lik == "probit":
+        msg += f" for yᵢ ~ Bern(μᵢ=g(zᵢ)) and g(x)=Φ(x)\n"
+    elif lik == "binomial":
+        msg += f" for yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ) and g(x)=1/(1+e⁻ˣ)\n"
+    elif lik == "poisson":
+        msg += f" for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ\n"
+    else:
+        msg += "\n"
+    return msg

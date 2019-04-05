@@ -39,7 +39,7 @@ def scan(
     - H₀ vs H₂: testing for [vec(A₁) vec(A₂)] ≠ 0
     - H₁ vs H₂: testing for vec(A₂) ≠ 0
 
-    It supports generalised linear mixed models (GLMM) when a single trait is used.
+    It supports generalized linear mixed models (GLMM) when a single trait is used.
     In this case, the following likelihoods are implemented:
     - Bernoulli
     - Probit
@@ -297,7 +297,7 @@ def scan(
             scanner, C0, C1 = _st_glmm(Y.values.ravel(), lik, M, QS, verbose)
 
         r = ScanResultFactory(
-            "normal",
+            lik_name,
             Y.trait,
             M.covariate,
             G.candidate,
@@ -397,7 +397,10 @@ def _st_lmm(Y, M, QS, verbose):
     lmm.fit(verbose=verbose)
     sys.stdout.flush()
 
-    v0 = lmm.v0
+    if QS is None:
+        v0 = None
+    else:
+        v0 = lmm.v0
     v1 = lmm.v1
     scanner = ScannerWrapper(lmm.get_fast_scanner())
 

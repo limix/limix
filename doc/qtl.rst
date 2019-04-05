@@ -3,13 +3,13 @@ Quantitative trait locus
 ************************
 
 Introduction
-^^^^^^^^^^^^
+============
 
 Every genetic model considered here is an instance of **generalized linear mixed model**
 (GLMM).
 It consists in four main components [St16]_:
 
-- A linear predictor, 𝐳 = M𝛃 + X𝐮.
+- A linear predictor, 𝐳 = M𝛃 + 𝚇𝐮.
 - The distribution of the random effects, 𝐮 ∼ 𝓝(𝟎, Σ).
 - The residual distribution, yᵢ | 𝐮.
 - The link function, g(𝜇ᵢ) = zᵢ.
@@ -33,12 +33,12 @@ A notable instance of the above model is the **linear mixed model** (LMM). It co
 of the identity link function, g(𝜇ᵢ) = 𝜇ᵢ, and of normally distributed residuals, yᵢ |
 𝐮 ∼ 𝓝(𝜇ᵢ, 𝜎ᵢ²) [Mc11]_. It is more commonly described by the equation ::
 
-    𝐲 = M𝛃 + X𝐮 + 𝛆, (1)
+    𝐲 = M𝛃 + 𝚇𝐮 + 𝛆, (1)
 
 for which 𝜀ᵢ∼𝓝(0, 𝜎ᵢ²).  The random variables 𝐮 and 𝛆 are independent from each
-other as well as 𝜀ᵢ and 𝜀ⱼ for i≠j.  Defining 𝐯 = X𝐮 leads to ::
+other as well as 𝜀ᵢ and 𝜀ⱼ for i≠j.  Defining 𝐯 = 𝚇𝐮 leads to ::
 
-    𝐯 ∼ 𝓝(𝟎, XΣXᵀ).
+    𝐯 ∼ 𝓝(𝟎, 𝚇Σ𝚇ᵀ).
 
 There is another even simpler instance of GLMM that is also used in genetic analysis:
 a **linear model** (LM) is merely a LMM without the random effects::
@@ -52,293 +52,246 @@ estimated.
 As an example, let us define two parameters that will describe the overall variances of
 the random effects and of the residual effects::
 
-    Σ = v₀I₀ and 𝜎ᵢ² = v₁.
+    Σ = 𝓋₀𝙸₀ and 𝜎ᵢ² = 𝓋₁.
 
 If we assume a LMM, this example of model can be described by Eq. (1) for which
 ::
 
-    𝐯∼𝓝(𝟎, v₀XXᵀ) and 𝛆∼𝓝(𝟎, v₁I₁).
+    𝐯∼𝓝(𝟎, 𝓋₀𝚇𝚇ᵀ) and 𝛆∼𝓝(𝟎, 𝓋₁𝙸₁).
 
 Therefore we have a model with three parameters: an array of effect sizes 𝛃 and
-variances v₀ and v₁. If X contains the normalized SNP genotypes of the samples, XXᵀ is
+variances 𝓋₀ and 𝓋₁. If 𝚇 contains the normalized SNP genotypes of the samples, 𝚇𝚇ᵀ is
 an estimation of the genetic relationship between the samples [Wa17]_.
 
 Statistical test
-^^^^^^^^^^^^^^^^
+================
 
 We use the **likelihood ratio test** (LRT) approach [LR18]_ to assess the significance
 of the association
 between genetic variants and the phenotype.
-It is based on the ratio between the marginal likelihood of the null and alternative
-models:
+It is based on the ratio between the marginal likelihood of the null 𝓗₀ and alternative
+𝓗₁ models, for which the simpler model 𝓗₀ is defined by constraint one or more
+parameters if the alternative model 𝓗₁.
+
+The parameter inference is done via the maximum likelihood estimation (MLE) approach
+[ML18]_, for which the marginal likelihood p(𝐲 | 𝙼, 𝚇; 𝛉) is maximized over the
+parameters set 𝛉.
+Let 𝛉₀ and 𝛉₁ be the optimal parameters set under the null and alternative models.
+The likelihood ratio statistics is give by ::
+
+    -2 log(p(𝐲| 𝙼, 𝚇; 𝛉₀) / p(𝐲| 𝙼, 𝚇; 𝛉₁)),
+
+which asymptotically follows a χ² distribution [Wh14]_.
+We will make use of the LRT approach in the next sections for flag significant genetic
+associations.
+
+Single-trait association
+========================
+
+We first consider that the observed phenotype is described by additive effects from
+covariates and genetic components. Any deviation from that is assumed to be captured by
+the residual distribution. Let 𝙼 be a matrix of covariates and let 𝙶 be a matrix of
+genetic variants that we suspect might have some effect on the phenotype. Therefore, we
+have the linear model:
 
 .. math::
 
-    \mathcal H₀: 𝛉₀\\
-    \mathcal H₁: 𝛉₁
-
-where 𝛉₀ is fit under the null model and
-𝛉₁ is fit under the alternative model.
-The parameter inference is done via the maximum likelihood estimation (MLE) approach
-[ML18]_::
-
-    \boldsymbol{\hat{\theta}} = \underset{𝛉}{\mathrm{argmax}}~~
-        p(𝐲 | M, X; 𝛉).
-
-The likelihood ratio is then equal to ::
-
-    \frac{p(𝐲| M, X; \boldsymbol{\hat{\theta₀}})}
-        {p(𝐲| M, X; \boldsymbol{\hat{\theta₁}})}.
-
-which will define the p-value of that comparison.
-
-Single-trait association
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-We first consider that the observed phenotype is described by additive effects from
-covariates and genetic components, and any deviation from that is captured by the
-assumed residual distribution and/or an over-dispersion component.  Let :math:`\mathbf
-M` be a matrix of covariates and let \mathbf G be a matrix of genetic variants
-that we suspect might have some effect on the phenotype.  Therefore, we have the linear
-model::
-
-    𝐲 = \underbrace{M\boldsymbol\alpha}_{\text{covariates}}+
-    \underbrace{\mathbf G𝛃}_{\text{genetics}}+
-    \underbrace{𝛆}_{\text{noise}},\\
-    \text{where}~~𝛆∼𝓝(𝟎, v₁I),~~~~~~
+    𝐲 = \underbrace{𝙼𝛂}_{\text{covariates}}+
+        \underbrace{𝙶𝛃}_{\text{genetics}}+
+        \underbrace{𝛆}_{\text{noise}},\\
+        \text{where}~~𝛆∼𝓝(𝟎, 𝓋₁𝙸),~~~~~~
 
 and we wish to compare the following hypotheses::
 
-    \mathcal H₀: 𝛃 = 0\\
-    \mathcal H₁: 𝛃 ≠ 0
+    𝓗₀: 𝛃 = 𝟎
+    𝓗₁: 𝛃 ≠ 𝟎
 
-Note that the parameters of the above model are the covariate effect sizes,
-\boldsymbol\alpha, the effect sizes of a set of genetic variants,
-𝛃, and the variance v₁ of the noise variable.  Under the
-null hypothesis, we set 𝛃=𝟎 and fit the rest of the
-parameters.  Under the alternative hypothesis, we learn all the parameters.  At the end,
-we compare the marginal likelihoods via the likelihood ratio test.
+Note that the parameters of the above model are the covariate effect sizes, 𝛂, the
+effect sizes of a set of genetic variants, 𝛃, and the variance 𝓋₁ of the noise
+variable.  Under the null hypothesis, we set 𝛃=𝟎 and fit the rest of the parameters.
+Under the alternative hypothesis, we learn all the parameters. At the end, we compare
+the marginal likelihoods via the likelihood ratio test.
 
-Let us first generate a random dataset having a phenotype, covariates, and a set of
+Let us first generate a random data set having a phenotype, covariates, and a set of
 genetic candidates.
 
 .. doctest::
 
+    >>> from numpy import ones, stack
     >>> from numpy.random import RandomState
-    >>> from numpy import dot, ones, stack
     >>> from pandas import DataFrame
     >>>
     >>> random = RandomState(1)
     >>>
-    >>> # 25 samples
-    >>> n = 25
+    >>> # sample size
+    >>> n = 100
     >>>
-    >>> # genetic variants
-    >>> snps = (random.rand(n, 4) < 0.2).astype(float)
-    >>>
-    >>> #phenotype
-    >>> y = random.randn(n)
-    >>>
-    >>> # offset
-    >>> offset = ones(n)
-    >>> # age
+    >>> # covariates
+    >>> offset = ones(n) * random.randn()
     >>> age = random.randint(16, 75, n)
+    >>> M = stack((offset, age), axis=1)
     >>> M = DataFrame(stack([offset, age], axis=1), columns=["offset", "age"])
+    >>> M["sample"] = [f"sample{i}" for i in range(n)]
+    >>> M = M.set_index("sample")
     >>> print(M.head())
-        offset      age
-    0  1.00000 49.00000
-    1  1.00000 18.00000
-    2  1.00000 36.00000
-    3  1.00000 35.00000
-    4  1.00000 64.00000
+              offset      age
+    sample
+    sample0  1.62435 25.00000
+    sample1  1.62435 27.00000
+    sample2  1.62435 21.00000
+    sample3  1.62435 31.00000
+    sample4  1.62435 16.00000
+    >>> # genetic variants
+    >>> G = random.randn(n, 4)
+    >>>
+    >>> # sampling the phenotype
+    >>> alpha = random.randn(2)
+    >>> beta = random.randn(4)
+    >>> eps = random.randn(n)
+    >>> y = M @ alpha + G @ beta + eps
 
-We now apply the function :func:`limix.qtl.scan` to our dataset
+We now apply the function :func:`limix.qtl.scan` to our data set
 
 .. doctest::
 
     >>> from limix.qtl import scan
     >>>
-    >>> r = scan(snps, y, 'normal', M=M, verbose=False)
-    >>> print(r)
+    >>> r = scan(G, y, "normal", M=M, verbose=False)
+    >>> print(r) # doctest: +FLOAT_CMP
     Null model
     ----------
     <BLANKLINE>
-      𝐲 ~ 𝓝(M𝜶, 0.32*K + 0.00*I)
-      M = ['offset' 'age']
-      𝜶 = [-0.81858684  0.02015968]
-      Log marg. lik.: -21.218829574364268
-      Number of models: 1
+    𝐲 ~ 𝓝(𝙼𝜶, 4.1151⋅𝙸)
+    𝙼     = ['offset' 'age']
+    𝜶     = [-1.60130331  0.17922863]
+    se(𝜶) = [0.33382518 0.01227417]
+    lml   = -212.62741096350612
     <BLANKLINE>
     Alt model
     ---------
     <BLANKLINE>
-      𝐲 ~ 𝓝(M𝜶 + Gᵢ, 0.32*K + 0.00*I)
-      Min. p-value: 0.02219182245364262
-      First perc. p-value: 0.0262094622393102
-      Max. log marg. lik.: -18.60348830672571
-      99th perc. log marg. lik.: -18.651776372344084
-      Number of models: 4
+    𝐲 ~ 𝓝(𝙼𝜶 + 𝙶𝞫, 4.1151⋅𝙸)
+    min(pv)  = 1.1393322396400358e-28
+    max(lml) = -150.92692722389341
     <BLANKLINE>
 
-The variable ``r`` is instance of the class :class:`limix.qtl.QTLResult` and stores all
+The variable ``r`` is instance of the class :class:`limix.qtl.ScanResult` and stores all
 the results of the analysis.  Printing it as we did above it will show a summary of the
 results.
 
-Suppose we also have access to the whole genotype of our samples, X, and
-we want to use them to account for population structure and cryptic relatedness in our
-data (CITE).  Since the number of genetic variants in X is commonly
-larger than the number of samples, and because we are not acctually interested in their
-effect sizes, we will include it in our model as a random component.  We now have a
-**linear mixed model**:
+Suppose we also have access to the whole genotype of our samples, 𝚇, and we want to use
+them to account for population structure and cryptic relatedness in our data [Ho13]_.
+Since the number of genetic variants in 𝚇 is commonly larger than the number of
+samples, and because we are not actually interested in their effect sizes, we will
+include it in our model as a random component. We now have a **linear mixed model**:
 
 .. math::
 
-    𝐲 = \underbrace{M\boldsymbol\alpha}_{\text{covariates}}+
-    \underbrace{\mathbf G𝛃}_{\text{genetics}}+
-    \underbrace{X𝐮}_{\text{pop. struct.}}+
-    \underbrace{𝛆}_{\text{noise}},\\
-    \text{where}~~
-        𝐮∼𝓝(𝟎, v₀I₀) ~~\text{and}
-    ~~𝛆∼𝓝(𝟎, v₁I₁).
+    𝐲 = \underbrace{𝙼𝛂}_{\text{covariates}}+
+        \underbrace{𝙶𝛃}_{\text{genetics}}+
+        \underbrace{𝚇𝐮}_{\text{pop. struct.}}+
+        \underbrace{𝛆}_{\text{noise}},\\
+        \text{where}~~
+            𝐮∼𝓝(𝟎, 𝓋₀𝙸₀) ~~\text{and}
+            ~~𝛆∼𝓝(𝟎, 𝓋₁𝙸₁).
 
-It is important to note that 𝐯=X𝐮 can be equivalenty
-described by a multivariate Normal distribution with a covariance proportional to
-\mathbf K = XXᵀ::
+It is important to note that 𝐯=𝚇𝐮 can be equivalently described by a multivariate
+Normal distribution with a covariance proportional to 𝙺 = 𝚇𝚇ᵀ::
 
-    𝐯 ∼ 𝓝(𝟎, v₀\mathbf K).
+    𝐯 ∼ 𝓝(𝟎, 𝓋₀𝙺).
 
-We perform the analysis again now using also the covariance \mathbf K by calling
-the function :func:`limix.qtl.scan`.
+We make use of the function :func:`limix.stats.linear_kinship` to define the covariance
+matrix 𝙺, and call :func:`limix.qtl.scan` to perform the analysis.
 
 .. doctest::
 
     >>> from limix.stats import linear_kinship
+    >>> from numpy import zeros
     >>>
     >>> # Whole genotype of each sample.
     >>> X = random.randn(n, 50)
-    >>> # Estimate a kinship relationship betweem samples.
+    >>> # Estimate a kinship relationship between samples.
     >>> K = linear_kinship(X, verbose=False)
+    >>> # Update the phenotype
+    >>> y += random.multivariate_normal(zeros(n), K)
     >>>
-    >>> result = scan(X, y, 'normal', K, M=M, verbose=False)
-    >>> print(result.stats.head()) # doctest: +FLOAT_CMP
-          null lml   alt lml   pvalue  dof
-    test
-    0    -21.21883 -21.15531  0.72152    1
-    1    -21.21883 -21.09391  0.61718    1
-    2    -21.21883 -20.92358  0.44223    1
-    3    -21.21883 -21.21649  0.94542    1
-    4    -21.21883 -20.87087  0.40416    1
-    >>> print(result.alt_effsizes.head()) # doctest: +FLOAT_CMP
-       test candidate  effsize  effsize se
-    0     0         0  0.04675     0.13116
-    1     1         1 -0.05855     0.11713
-    2     2         2 -0.09668     0.12582
-    3     3         3  0.00746     0.10899
-    4     4         4  0.12734     0.15264
-    >>> print(result) # doctest: +FLOAT_CMP
+    >>> r = scan(X, y, "normal", K, 𝙼=M, verbose=False)
+    >>> print(r) # doctest: +FLOAT_CMP
     Null model
     ----------
     <BLANKLINE>
-      𝐲 ~ 𝓝(M𝜶, 0.32*K + 0.00*I)
-      M = ['offset' 'age']
-      𝜶 = [-0.81858684  0.02015968]
-      Log marg. lik.: -21.21882957624215
-      Number of models: 1
+    𝐲 ~ 𝓝(𝙼𝜶, 1.5632⋅𝙺 + 3.2301⋅𝙸)
+    𝙼     = ['offset' 'age']
+    𝜶     = [-1.88025701  0.19028836]
+    se(𝜶) = [0.327493   0.01222069]
+    lml   = -215.9781119592618
     <BLANKLINE>
     Alt model
     ---------
     <BLANKLINE>
-      𝐲 ~ 𝓝(M𝜶 + Gᵢ, 0.32*K + 0.00*I)
-      Min. p-value: 0.01042644226036883
-      First perc. p-value: 0.016787533334797423
-      Max. log marg. lik.: -17.93855702329621
-      99th perc. log marg. lik.: -18.28709258817481
-      Number of models: 50
+    𝐲 ~ 𝓝(𝙼𝜶 + 𝙶𝞫, 1.5632⋅𝙺 + 3.2301⋅𝙸)
+    min(pv)  = 0.014200670407257475
+    max(lml) = -212.97159992879634
+    <BLANKLINE>
 
-Generalised phenotype
-~~~~~~~~~~~~~~~~~~~~~
+Non-normal phenotype
+====================
 
 If the residuals of the phenotype does not follow a Normal distribution, then we might
-consider perform analysis using a **generalised linear mixed model**.  Let us consider
-Poisson distributed residuals::
+consider performing the analysis using a **generalized linear mixed model**. Let us
+consider Poisson distributed residuals::
 
-    yᵢ | 𝐳 ∼ \text{Bernoulli}(g(𝜇ᵢ)=zᵢ).
+    yᵢ | 𝐳 ∼ Poisson(g(𝜇ᵢ)=zᵢ),
 
-In the latter case, the 𝛆 can be used to describe the
-dispersion between samples not fully captured by the residual distribution.
+where the latent phenotype is described by ::
 
-The following example applies :func:`limix.qtl.scan` to perform five likelihood ratio
-tests for association with an outcome vector ``y`` having residual errors that follow a
-Poisson distribution.  The matrix ``G`` defines both the five alternative hypotheses
-(the first five columns) and the covariance matrix (the remaining columns).
+    𝐳 = M𝛃 + 𝚇𝐮 + 𝛆,
+
+for ::
+
+    𝐮 ∼ 𝓝(𝟎, 𝓋₀𝙸₀) and 𝛆 ∼ 𝓝(𝟎, 𝓋₁𝙸₁).
+
+Note that the term 𝛆 in the above model is not the residual variable, as it were in the
+Eq. (1).
+The term 𝛆 is used to account for the so-called over-dispersion, i.e., when the residual
+distribution is not sufficient to explain the variability of yᵢ.
 
 .. doctest::
 
-    >>> from numpy import exp, sqrt
-    >>> from numpy.random import RandomState
-    >>> from limix.qtl import scan
+    >>> from numpy import exp
     >>>
-    >>> random = RandomState(0)
-    >>>
-    >>> G = random.randn(25, 50) / sqrt(50)
-    >>> beta = 0.01 * random.randn(50)
-    >>>
-    >>> z = dot(G, beta) + 0.1 * random.randn(25)
-    >>> z += dot(G[:, 0], 1) # causal SNP
-    >>>
+    >>> z = (y - y.mean()) / y.std()
     >>> y = random.poisson(exp(z))
     >>>
-    >>> candidates = G[:, :5]
-    >>> K = linear_kinship(G[:, 5:], verbose=False)
-    >>> result = scan(candidates, y, 'poisson', K, verbose=False)
-    >>>
-    >>> print(result.stats.head()) # doctest: +FLOAT_CMP
-          null lml   alt lml   pvalue  dof
-    test
-    0    -34.64566 -33.88180  0.21645    1
-    1    -34.64566 -34.35004  0.44194    1
-    2    -34.64566 -34.40067  0.48394    1
-    3    -34.64566 -33.93787  0.23413    1
-    4    -34.64566 -34.56898  0.69534    1
-    >>> print(result.alt_effsizes.head()) # doctest: +FLOAT_CMP
-       test candidate  effsize  effsize se
-    0     0         0  1.62727     1.31655
-    1     1         1 -1.02366     1.33129
-    2     2         2 -1.23573     1.76537
-    3     3         3  1.97540     1.66030
-    4     4         4 -0.53729     1.37198
-    >>> print(result) # doctest: +FLOAT_CMP
+    >>> r = scan(G, y, "poisson", K, M=M, verbose=False)
+    >>> print(r) # doctest: +FLOAT_CMP
     Null model
     ----------
     <BLANKLINE>
-      𝐳 ~ 𝓝(M𝜶, 0.00*K + 0.03*I)
-      yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ
-      M = ['offset']
-      𝜶 = [-0.0141227]
-      Log marg. lik.: -34.645664448446965
-      Number of models: 1
+    𝐳 ~ 𝓝(𝙼𝜶, 0.1130⋅𝙺 + 0.1399⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
+    𝙼     = ['offset' 'age']
+    𝜶     = [-1.41641657  0.05496353]
+    se(𝜶) = [0.20205719 0.0060997 ]
+    lml   = -151.15802462780184
     <BLANKLINE>
     Alt model
     ---------
     <BLANKLINE>
-      𝐳 ~ 𝓝(M𝜶 + Gᵢ, 0.00*K + 0.03*I)
-      yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ
-      Min. p-value: 0.21645253947712215
-      First perc. p-value: 0.2171596825117883
-      Max. log marg. lik.: -33.88179641668344
-      99th perc. log marg. lik.: -33.88403939629015
-      Number of models: 5
+    𝐳 ~ 𝓝(𝙼𝜶 + 𝙶𝞫, 0.1130⋅𝙺 + 0.1399⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
+    min(pv)  = 0.0043703676206795945
+    max(lml) = -147.09645209561475
+    <BLANKLINE>
 
 Single-trait with interaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=============================
 
 The following linear mixed model is considered::
 
     \mathbf{y} =
     \underbrace{M𝛃}_
             {\substack{\text{fixed effects}\\ \text{without interaction}}}+
-    \underbrace{(\mathbf G\odot\mathbf E₀)𝛃₀}_{\mathrm G\times\mathrm E₀} +
-    \underbrace{\mathbf G\odot\mathbf E₁𝛃₁}_{\mathrm G\times\mathrm E₁} +
+    \underbrace{(\mathbf G\odot𝙴₀)𝛃₀}_{𝙶\times\mathrm E₀} +
+    \underbrace{\mathbf G\odot𝙴₁𝛃₁}_{𝙶\times\mathrm E₁} +
     \underbrace{X\mathbf{u}}_{\text{random effects}}+
     \underbrace{\boldsymbol{𝜀}}_{\text{residual}}.
 
@@ -348,7 +301,7 @@ variants and environmental covariates defined by the user.
 .. doctest::
 
     >>> from numpy import concatenate, newaxis
-    >>> from limix.qtl import stᵢscan
+    >>> from limix.qtl import scan
     >>>
     >>> # generate interacting variables (environment)
     >>> random = RandomState(1)
@@ -379,7 +332,7 @@ values (\boldsymbol{\alpha}≠{0} when \boldsymbol{\beta}={0}), (ii)
 returned.
 
 If ``E0`` is not specified, a column-vector of ones is considered.  In this case the
-\mathbf G\odot\mathbf E₀ term reduces to an additive genetic effect, and thus
+\mathbf G\odot𝙴₀ term reduces to an additive genetic effect, and thus
 the test corresponds to a standard gxe test.
 
 If iter0 is provided,
@@ -410,7 +363,7 @@ print(r.head())  # doctest: +FLOAT_CMP
 
 
 StructLMM
-^^^^^^^^^
+=========
 
 StructLMM can be use to test for interaction with multiple environments or to test for
 association of genetic variants while accounting for GxE interactions.
@@ -421,7 +374,7 @@ The StructLMM model is
     \mathbf{y}=
     \underbrace{\mathbf{M}𝛃}_{\text{covariates}}+
     \underbrace{\mathbf{x}\odot\boldsymbol\gamma}_{\text{genetics}}+
-    \underbrace{\mathbf E𝐮}_{\text{random effects}}+
+    \underbrace{𝙴𝐮}_{\text{random effects}}+
     \underbrace{𝛆}_{\text{noise}},
 
 where
@@ -429,10 +382,10 @@ where
 .. math::
     \boldsymbol\gamma∼𝓝(𝟎,
     𝜎²_g(\underbrace{(1-\rho)\mathbf 1}_{\text{persistent}}
-        + \underbrace{\rho\mathbf E\mathbf Eᵀ}_{\text{GxE}}),\\
-    𝐮∼𝓝(𝟎, v₀I),
+        + \underbrace{\rho𝙴𝙴ᵀ}_{\text{GxE}}),\\
+    𝐮∼𝓝(𝟎, 𝓋₀𝙸),
     ~~\text{and}~~
-    𝛆∼𝓝(𝟎, v₁I).
+    𝛆∼𝓝(𝟎, 𝓋₁𝙸).
 
 .. doctest::
 
@@ -484,7 +437,7 @@ The random effect component is defined by
 
 .. math::
 
-    \text{vec}(\mathbf U)∼𝓝(𝟎, \mathbf C₀\otimes\mathbf K)
+    \text{vec}(\mathbf U)∼𝓝(𝟎, \mathbf C₀\otimes 𝙺)
 
 and the residuals by
 
@@ -578,3 +531,6 @@ and an any-vs-same effect test.
 .. [Wa17]  Wang, B., Sverdlov, S., & Thompson, E. (2017). Efficient estimation of
            realized kinship from single nucleotide polymorphism genotypes. Genetics,
            205(3), 1063-1078.
+.. [Wh14]  White, H. (2014). Asymptotic theory for econometricians. Academic press.
+.. [Ho13]  Hoffman, G. E. (2013). Correcting for population structure and kinship using
+           the linear mixed model: theory and extensions. PloS one, 8(10), e75707.
