@@ -10,60 +10,46 @@ Every genetic model considered here is an instance of **generalised linear mixed
 (GLMM).
 It consists in four main components [St16]_:
 
-    - A linear predictor, :math:`\mathbf z = \mathbf M\boldsymbol\beta + \mathbf
-      X\mathbf u`.
-    - The distribution of the random effects, :math:`\mathbf u \sim \mathcal N(\mathbf
-      0, \boldsymbol\Sigma)`.
+    - A linear predictor, 𝐳 = M𝛃 + X𝐮.
+    - The distribution of the random effects, 𝐮 ∼ 𝓝(𝟎, Σ).
     - The distribution of the outcome conditioned on the random effects (also known as
-      the residual distribution), :math:`y_i | \mathbf u`.
-    - The link function, :math:`g(\mu_i) = z_i`.
+      the residual distribution), yᵢ | 𝐮.
+    - The link function, g(𝜇ᵢ) = zᵢ.
 
-The term :math:`\mu_i` represents the mean of :math:`y_i` conditioned on :math:`\mathbf
-u`:
+The term 𝜇ᵢ represents the mean of yᵢ conditioned on 𝐮::
 
-.. math::
+    𝜇ᵢ = \mathbb E[yᵢ | 𝐮].
 
-    \mu_i = \mathbb E[y_i | \mathbf u].
-
-The role of the link function is to scale the domain of :math:`z_i`, which ranges from
-:math:`-\infty` to :math:`+infty`, to the redisual distrubution parameter :math:`\mu_i`.
-For example, the mean of a Bernoulli distribution is bounded within :math:`[0, 1]`, and
-therefore requires a link function to translate values of :math:`z_i` into values of
-:math:`\mu_i`.
+The role of the link function is to scale the domain of zᵢ, which ranges from
+-∞ to +∞, to the residual distribution parameter 𝜇ᵢ.
+For example, the mean of a Bernoulli distribution is bounded within [0, 1], and
+therefore requires a link function to translate values of zᵢ into values of
+𝜇ᵢ.
 
 The distribution of the outcome, conditioned on the random effects, has to be one from
-the exponential family [Ef18]_ having mean :math:`\mu_i`:
+the exponential family [Ef18]_ having mean 𝜇ᵢ::
 
-.. math::
-
-    y_i | \mathbf u \sim \text{ExpFam}(\mu_i).
+    yᵢ | 𝐮 ∼ \text{ExpFam}(𝜇ᵢ).
 
 A notable instance of the above model is the **linear mixed model** (LMM).
-It consists of the identity link function, :math:`g(\mu_i) = \mu_i`, and of normally
-distributed residuals, :math:`y_i | \mathbf u \sim \mathcal N(\mu_i, \sigma_i^2)`
+It consists of the identity link function, g(𝜇ᵢ) = 𝜇ᵢ, and of normally
+distributed residuals, yᵢ | 𝐮 ∼ 𝓝(𝜇ᵢ, 𝜎ᵢ²)
 [Mc11]_.
-It is more commonly described by the equation
+It is more commonly described by the equation ::
 
-.. math::
-    :label: eq_lmm
+    𝐲 = M𝛃 + X𝐮 + 𝛆,
 
-    \mathbf y = \mathbf M\boldsymbol\beta + \mathbf X\mathbf u + \boldsymbol\epsilon,
+for which 𝜀ᵢ∼𝓝(0, 𝜎ᵢ²).  The random variables
+𝐮 and 𝛆 are independent from each other as
+well as 𝜀ᵢ and 𝜀ⱼ for i≠j.  Defining
+𝐯 = X𝐮 leads to ::
 
-for which :math:`\epsilon_i\sim\mathcal N(0, \sigma_i^2)`.  The random variables
-:math:`\mathbf u` and :math:`\boldsymbol\epsilon` are independent from each other as
-well as :math:`\epsilon_i` and :math:`\epsilon_j` for :math:`i\neq j`.  Defining
-:math:`\mathbf v = \mathbf X\mathbf u` leads to
-
-.. math::
-
-    \mathbf v \sim \mathcal(\mathbf 0, \mathbf X\boldsymbol\Sigma\mathbf X^{\intercal}).
+    𝐯 ∼ 𝓝(𝟎, XΣXᵀ).
 
 There is another even simpler instance of GLMM that is also used in genetic analysis:
-a **linear model** (LM) is merely a LMM without the random effects:
+a **linear model** (LM) is merely a LMM without the random effects::
 
-.. math::
-
-    \mathbf y = \mathbf M\boldsymbol\beta + \boldsymbol\epsilon.
+    𝐲 = M𝛃 + 𝛆.
 
 The above models are used to establish a statiscal tests to find significant association
 between genetic loci and phenotype.
@@ -71,23 +57,18 @@ For that, their parameters have to be estimated.
 
 As an example, let us define two parameters that will describe the overall variances of
 the random effects
-and of the residual effects:
+and of the residual effects::
 
-.. math::
-
-    \boldsymbol\Sigma = v_0\mathbf I_0 ~~\text{and}~~
-    \sigma_i^2 = v_1.
+    Σ = v₀I₀ and 𝜎ᵢ² = v₁.
 
 If we assume a LMM, this example of model can be described by Eq. :eq:`eq_lmm` for which
+::
 
-.. math::
-
-    \mathbf v\sim\mathcal N(\mathbf 0, v_0\mathbf X\mathbf X^{\intercal}) ~~\text{and}~~
-    \boldsymbol\epsilon\sim\mathcal N(\mathbf 0, v_1\mathbf I_1).
+    𝐯∼𝓝(𝟎, v₀XXᵀ) and 𝛆∼𝓝(𝟎, v₁I₁).
 
 Therefore we have a model with three parameters: an array of effect sizes
-:math:`\boldsymbol\beta`
-and variances :math:`v_0` and :math:`v_1`.
+𝛃
+and variances v₀ and v₁.
 
 Statistical test
 ^^^^^^^^^^^^^^^^
@@ -100,25 +81,21 @@ models:
 
 .. math::
 
-    \mathcal H_0: \boldsymbol\theta_0\\
-    \mathcal H_1: \boldsymbol\theta_1
+    \mathcal H₀: 𝛉₀\\
+    \mathcal H₁: 𝛉₁
 
-where :math:`\boldsymbol\theta_0` is fit under the null model and
-:math:`\boldsymbol\theta_1` is fit under the alternative model.
+where 𝛉₀ is fit under the null model and
+𝛉₁ is fit under the alternative model.
 The parameter inference is done via the maximum likelihood estimation (MLE) approach
-[ML18]_:
+[ML18]_::
 
-.. math::
+    \boldsymbol{\hat{\theta}} = \underset{𝛉}{\mathrm{argmax}}~~
+        p(𝐲 | M, X; 𝛉).
 
-    \boldsymbol{\hat{\theta}} = \underset{\boldsymbol\theta}{\mathrm{argmax}}~~
-        p(\mathbf y | \mathbf M, \mathbf X; \boldsymbol\theta).
+The likelihood ratio is then equal to ::
 
-The likelihood ratio is then equal to
-
-.. math::
-
-    \frac{p(\mathbf y| \mathbf M, \mathbf X; \boldsymbol{\hat{\theta_0}})}
-        {p(\mathbf y| \mathbf M, \mathbf X; \boldsymbol{\hat{\theta_1}})}.
+    \frac{p(𝐲| M, X; \boldsymbol{\hat{\theta₀}})}
+        {p(𝐲| M, X; \boldsymbol{\hat{\theta₁}})}.
 
 which will define the p-value of that comparison.
 
@@ -128,28 +105,24 @@ Single-trait association
 We first consider that the observed phenotype is described by additive effects from
 covariates and genetic components, and any deviation from that is captured by the
 assumed residual distribution and/or an over-dispersion component.  Let :math:`\mathbf
-M` be a matrix of covariates and let :math:`\mathbf G` be a matrix of genetic variants
+M` be a matrix of covariates and let \mathbf G be a matrix of genetic variants
 that we suspect might have some effect on the phenotype.  Therefore, we have the linear
-model
+model::
 
-.. math::
+    𝐲 = \underbrace{M\boldsymbol\alpha}_{\text{covariates}}+
+    \underbrace{\mathbf G𝛃}_{\text{genetics}}+
+    \underbrace{𝛆}_{\text{noise}},\\
+    \text{where}~~𝛆∼𝓝(𝟎, v₁I),~~~~~~
 
-    \mathbf y = \underbrace{\mathbf M\boldsymbol\alpha}_{\text{covariates}}+
-    \underbrace{\mathbf G\boldsymbol\beta}_{\text{genetics}}+
-    \underbrace{\boldsymbol\epsilon}_{\text{noise}},\\
-    \text{where}~~\boldsymbol\epsilon\sim\mathcal N(\mathbf 0, v_1\mathbf I),~~~~~~
+and we wish to compare the following hypotheses::
 
-and we wish to compare the following hypotheses:
-
-.. math::
-
-    \mathcal H_0: \boldsymbol\beta = 0\\
-    \mathcal H_1: \boldsymbol\beta \neq 0
+    \mathcal H₀: 𝛃 = 0\\
+    \mathcal H₁: 𝛃 ≠ 0
 
 Note that the parameters of the above model are the covariate effect sizes,
-:math:`\boldsymbol\alpha`, the effect sizes of a set of genetic variants,
-:math:`\boldsymbol\beta`, and the variance :math:`v_1` of the noise variable.  Under the
-null hypothesis, we set :math:`\boldsymbol\beta=\mathbf 0` and fit the rest of the
+\boldsymbol\alpha, the effect sizes of a set of genetic variants,
+𝛃, and the variance v₁ of the noise variable.  Under the
+null hypothesis, we set 𝛃=𝟎 and fit the rest of the
 parameters.  Under the alternative hypothesis, we learn all the parameters.  At the end,
 we compare the marginal likelihoods via the likelihood ratio test.
 
@@ -218,32 +191,30 @@ The variable ``r`` is instance of the class :class:`limix.qtl.QTLResult` and sto
 the results of the analysis.  Printing it as we did above it will show a summary of the
 results.
 
-Suppose we also have access to the whole genotype of our samples, :math:`\mathbf X`, and
+Suppose we also have access to the whole genotype of our samples, X, and
 we want to use them to account for population structure and cryptic relatedness in our
-data (CITE).  Since the number of genetic variants in :math:`\mathbf X` is commonly
+data (CITE).  Since the number of genetic variants in X is commonly
 larger than the number of samples, and because we are not acctually interested in their
 effect sizes, we will include it in our model as a random component.  We now have a
 **linear mixed model**:
 
 .. math::
 
-    \mathbf y = \underbrace{\mathbf M\boldsymbol\alpha}_{\text{covariates}}+
-    \underbrace{\mathbf G\boldsymbol\beta}_{\text{genetics}}+
-    \underbrace{\mathbf X\mathbf u}_{\text{pop. struct.}}+
-    \underbrace{\boldsymbol\epsilon}_{\text{noise}},\\
+    𝐲 = \underbrace{M\boldsymbol\alpha}_{\text{covariates}}+
+    \underbrace{\mathbf G𝛃}_{\text{genetics}}+
+    \underbrace{X𝐮}_{\text{pop. struct.}}+
+    \underbrace{𝛆}_{\text{noise}},\\
     \text{where}~~
-        \mathbf u\sim\mathcal N(\mathbf 0, v_0\mathbf I_0) ~~\text{and}
-    ~~\boldsymbol\epsilon\sim\mathcal N(\mathbf 0, v_1\mathbf I_1).
+        𝐮∼𝓝(𝟎, v₀I₀) ~~\text{and}
+    ~~𝛆∼𝓝(𝟎, v₁I₁).
 
-It is important to note that :math:`\mathbf v=\mathbf X\mathbf u` can be equivalenty
+It is important to note that 𝐯=X𝐮 can be equivalenty
 described by a multivariate Normal distribution with a covariance proportional to
-:math:`\mathbf K = \mathbf X\mathbf X^{\intercal}`:
+\mathbf K = XXᵀ::
 
-.. math::
+    𝐯 ∼ 𝓝(𝟎, v₀\mathbf K).
 
-    \mathbf v \sim \mathcal N(\mathbf 0, v_0\mathbf K).
-
-We perform the analysis again now using also the covariance :math:`\mathbf K` by calling
+We perform the analysis again now using also the covariance \mathbf K by calling
 the function :func:`limix.qtl.scan`.
 
 .. doctest::
@@ -296,13 +267,11 @@ Generalised phenotype
 
 If the residuals of the phenotype does not follow a Normal distribution, then we might
 consider perform analysis using a **generalised linear mixed model**.  Let us consider
-Poisson distributed residuals:
+Poisson distributed residuals::
 
-.. math::
+    yᵢ | 𝐳 ∼ \text{Bernoulli}(g(𝜇ᵢ)=zᵢ).
 
-    y_i | \mathbf z \sim \text{Bernoulli}(g(\mu_i)=z_i).
-
-In the latter case, the :math:`\boldsymbol\epsilon` can be used to describe the
+In the latter case, the 𝛆 can be used to describe the
 dispersion between samples not fully captured by the residual distribution.
 
 The following example applies :func:`limix.qtl.scan` to perform five likelihood ratio
@@ -370,17 +339,15 @@ Poisson distribution.  The matrix ``G`` defines both the five alternative hypoth
 Single-trait with interaction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following linear mixed model is considered:
-
-.. math::
+The following linear mixed model is considered::
 
     \mathbf{y} =
-    \underbrace{\mathbf M\boldsymbol\beta}_
+    \underbrace{M𝛃}_
             {\substack{\text{fixed effects}\\ \text{without interaction}}}+
-    \underbrace{(\mathbf G\odot\mathbf E_0)\boldsymbol\beta_0}_{\mathrm G\times\mathrm E_0} +
-    \underbrace{\mathbf G\odot\mathbf E_1\boldsymbol\beta_1}_{\mathrm G\times\mathrm E_1} +
-    \underbrace{\mathbf X\mathbf{u}}_{\text{random effects}}+
-    \underbrace{\boldsymbol{\epsilon}}_{\text{residual}}.
+    \underbrace{(\mathbf G\odot\mathbf E₀)𝛃₀}_{\mathrm G\times\mathrm E₀} +
+    \underbrace{\mathbf G\odot\mathbf E₁𝛃₁}_{\mathrm G\times\mathrm E₁} +
+    \underbrace{X\mathbf{u}}_{\text{random effects}}+
+    \underbrace{\boldsymbol{𝜀}}_{\text{residual}}.
 
 The **GxE** terms are also fixed effects but encoding the interations between genetic
 variants and environmental covariates defined by the user.
@@ -388,7 +355,7 @@ variants and environmental covariates defined by the user.
 .. doctest::
 
     >>> from numpy import concatenate, newaxis
-    >>> from limix.qtl import st_iscan
+    >>> from limix.qtl import stᵢscan
     >>>
     >>> # generate interacting variables (environment)
     >>> random = RandomState(1)
@@ -401,7 +368,7 @@ variants and environmental covariates defined by the user.
     >>>
 
 # interaction test
-res = st_iscan(snps, y[:, newaxis], M=ME, E1=E, verbose=False)
+res = stᵢscan(snps, y[:, newaxis], M=ME, E1=E, verbose=False)
 print(res.head())  # doctest: +FLOAT_CMP
        pv1      pv0       pv    beta0  beta0_ste     lrt1     lrt0      lrt
 0  0.14584  0.06186  0.54644  0.36731    0.19671  3.85044  3.48671  0.36373
@@ -412,14 +379,14 @@ print(res.head())  # doctest: +FLOAT_CMP
 
 
 The process method returns three sets of P values: (i) ``pv0`` are association test P
-values (:math:`\boldsymbol{\alpha}\neq{0}` when :math:`\boldsymbol{\beta}={0}`), (ii)
+values (\boldsymbol{\alpha}≠{0} when \boldsymbol{\beta}={0}), (ii)
 ``pv1`` are association + interaction P values (:math:`\left[\boldsymbol{\beta},
-\boldsymbol{\alpha}\right]\neq{0}`) and (iii) ``pv`` are interaction P values
-(:math:`\boldsymbol{\alpha}\neq{0}`).  The effect sizes of the association test are also
+\boldsymbol{\alpha}\right]≠{0}`) and (iii) ``pv`` are interaction P values
+(\boldsymbol{\alpha}≠{0}).  The effect sizes of the association test are also
 returned.
 
 If ``E0`` is not specified, a column-vector of ones is considered.  In this case the
-:math:`\mathbf G\odot\mathbf E_0` term reduces to an additive genetic effect, and thus
+\mathbf G\odot\mathbf E₀ term reduces to an additive genetic effect, and thus
 the test corresponds to a standard gxe test.
 
 If iter0 is provided,
@@ -438,7 +405,7 @@ If iter0 is provided,
 
 
 # interaction test
-r = st_iscan(snps, y[:, newaxis], M=ME, E1=E1, E0=E0, verbose=False)
+r = stᵢscan(snps, y[:, newaxis], M=ME, E1=E1, E0=E0, verbose=False)
 print(r.head())  # doctest: +FLOAT_CMP
        pv1      pv0       pv     lrt1     lrt0      lrt
 0  0.36534  0.22031  0.47451  2.01383  1.50237  0.51146
@@ -457,21 +424,22 @@ association of genetic variants while accounting for GxE interactions.
 The StructLMM model is
 
 .. math::
+
     \mathbf{y}=
-    \underbrace{\mathbf{M}\boldsymbol\beta}_{\text{covariates}}+
+    \underbrace{\mathbf{M}𝛃}_{\text{covariates}}+
     \underbrace{\mathbf{x}\odot\boldsymbol\gamma}_{\text{genetics}}+
-    \underbrace{\mathbf E\mathbf u}_{\text{random effects}}+
-    \underbrace{\boldsymbol\epsilon}_{\text{noise}},
+    \underbrace{\mathbf E𝐮}_{\text{random effects}}+
+    \underbrace{𝛆}_{\text{noise}},
 
 where
 
 .. math::
-    \boldsymbol\gamma\sim\mathcal N(\mathbf 0,
-    \sigma^2_g(\underbrace{(1-\rho)\mathbf 1}_{\text{persistent}}
-        + \underbrace{\rho\mathbf E\mathbf E^{\intercal}}_{\text{GxE}}),\\
-    \mathbf u\sim\mathcal N(\mathbf 0, v_0\mathbf I),
+    \boldsymbol\gamma∼𝓝(𝟎,
+    𝜎²_g(\underbrace{(1-\rho)\mathbf 1}_{\text{persistent}}
+        + \underbrace{\rho\mathbf E\mathbf Eᵀ}_{\text{GxE}}),\\
+    𝐮∼𝓝(𝟎, v₀I),
     ~~\text{and}~~
-    \boldsymbol\epsilon\sim\mathcal N(\mathbf 0, v_1\mathbf I).
+    𝛆∼𝓝(𝟎, v₁I).
 
 .. doctest::
 
@@ -504,43 +472,43 @@ Therefore, its equation
 .. math::
 
     \text{vec}(\mathbf{Y}) =
-    \underbrace{(\mathbf A_c \otimes \mathbf M) \text{vec}(\mathbf B_c)}_{\text{covariates}}+
+    \underbrace{(\mathbf A_c \otimes M) \text{vec}(\mathbf B_c)}_{\text{covariates}}+
     \underbrace{(\mathbf A_g \otimes \mathbf G) \text{vec}(\mathbf B_g)}_{\text{genetics}}+
     \underbrace{\text{vec}(\mathbf U)}_{\text{random effect}}+
     \underbrace{\text{vec}(\boldsymbol\Psi)}_{\text{noise}}
 
 is equivalent to Eq. :eq:`eq_lmm` but structured in a different way.
-The columns of :math:`\mathbf Y` correspond to the different traits being
+The columns of \mathbf Y correspond to the different traits being
 considered.
-The columns of :math:`\mathbf Y` are stacked over each other and is denoted by
-:math:`\text{vec}(\mathbf Y)`.
+The columns of \mathbf Y are stacked over each other and is denoted by
+\text{vec}(\mathbf Y).
 This is a linear transformation called vectorization [Ve19]_, and helps us
 describe the model in a more concise manner.
 
-The matrices :math:`\mathbf A_c` and :math:`\mathbf A_g` are design matrices for
+The matrices \mathbf A_c and \mathbf A_g are design matrices for
 the covariates and genetic variants, respectively.
 The random effect component is defined by
 
 .. math::
 
-    \text{vec}(\mathbf U)\sim\mathcal N(\mathbf 0, \mathbf C_0\otimes\mathbf K)
+    \text{vec}(\mathbf U)∼𝓝(𝟎, \mathbf C₀\otimes\mathbf K)
 
 and the residuals by
 
 .. math::
 
-    \text{vec}(\boldsymbol\Psi)\sim\mathcal N(\mathbf 0, \mathbf C_1\otimes\mathbf I_n).
+    \text{vec}(\boldsymbol\Psi)∼𝓝(𝟎, \mathbf C₁\otimesI_n).
 
-As before, :math:`\mathbf M` is the covariates matrix and :math:`\mathbf G` is the
+As before, M is the covariates matrix and \mathbf G is the
 matrix of genetic variants.
-The matrices :math:`\mathbf C_0` and :math:`\mathbf C_1` are two matrix-parameters and,
+The matrices \mathbf C₀ and \mathbf C₁ are two matrix-parameters and,
 us such, are fitted during the likelihood maximisation.
 
 Any-effect association test
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 An any-effect association test corresponds to testing
-:math:`\boldsymbol\beta\neq\mathbf 0` with :math:`\mathbf A_g = \mathbf I`.
+𝛃≠𝟎 with \mathbf A_g = I.
 
 .. doctest::
 
