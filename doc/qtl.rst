@@ -2,47 +2,41 @@
 Quantitative trait locus
 ************************
 
-
 Introduction
 ^^^^^^^^^^^^
 
-Every genetic model considered here is an instance of **generalised linear mixed model**
+Every genetic model considered here is an instance of **generalized linear mixed model**
 (GLMM).
 It consists in four main components [St16]_:
 
-    - A linear predictor, 𝐳 = M𝛃 + X𝐮.
-    - The distribution of the random effects, 𝐮 ∼ 𝓝(𝟎, Σ).
-    - The distribution of the outcome conditioned on the random effects (also known as
-      the residual distribution), yᵢ | 𝐮.
-    - The link function, g(𝜇ᵢ) = zᵢ.
+- A linear predictor, 𝐳 = M𝛃 + X𝐮.
+- The distribution of the random effects, 𝐮 ∼ 𝓝(𝟎, Σ).
+- The residual distribution, yᵢ | 𝐮.
+- The link function, g(𝜇ᵢ) = zᵢ.
 
 The term 𝜇ᵢ represents the mean of yᵢ conditioned on 𝐮::
 
-    𝜇ᵢ = \mathbb E[yᵢ | 𝐮].
+    𝜇ᵢ = E[yᵢ|𝐮].
 
-The role of the link function is to scale the domain of zᵢ, which ranges from
--∞ to +∞, to the residual distribution parameter 𝜇ᵢ.
-For example, the mean of a Bernoulli distribution is bounded within [0, 1], and
-therefore requires a link function to translate values of zᵢ into values of
+The role of the link function is to scale the domain of zᵢ, which ranges from -∞ to +∞,
+to the residual distribution parameter 𝜇ᵢ. For example, the mean of a Bernoulli
+distribution is bounded within [0, 1], and therefore requires a link function to
+translate values of zᵢ into values of
 𝜇ᵢ.
 
 The distribution of the outcome, conditioned on the random effects, has to be one from
 the exponential family [Ef18]_ having mean 𝜇ᵢ::
 
-    yᵢ | 𝐮 ∼ \text{ExpFam}(𝜇ᵢ).
+    yᵢ|𝐮 ∼ ExpFam(𝜇ᵢ).
 
-A notable instance of the above model is the **linear mixed model** (LMM).
-It consists of the identity link function, g(𝜇ᵢ) = 𝜇ᵢ, and of normally
-distributed residuals, yᵢ | 𝐮 ∼ 𝓝(𝜇ᵢ, 𝜎ᵢ²)
-[Mc11]_.
-It is more commonly described by the equation ::
+A notable instance of the above model is the **linear mixed model** (LMM). It consists
+of the identity link function, g(𝜇ᵢ) = 𝜇ᵢ, and of normally distributed residuals, yᵢ |
+𝐮 ∼ 𝓝(𝜇ᵢ, 𝜎ᵢ²) [Mc11]_. It is more commonly described by the equation ::
 
-    𝐲 = M𝛃 + X𝐮 + 𝛆,
+    𝐲 = M𝛃 + X𝐮 + 𝛆, (1)
 
-for which 𝜀ᵢ∼𝓝(0, 𝜎ᵢ²).  The random variables
-𝐮 and 𝛆 are independent from each other as
-well as 𝜀ᵢ and 𝜀ⱼ for i≠j.  Defining
-𝐯 = X𝐮 leads to ::
+for which 𝜀ᵢ∼𝓝(0, 𝜎ᵢ²).  The random variables 𝐮 and 𝛆 are independent from each
+other as well as 𝜀ᵢ and 𝜀ⱼ for i≠j.  Defining 𝐯 = X𝐮 leads to ::
 
     𝐯 ∼ 𝓝(𝟎, XΣXᵀ).
 
@@ -51,24 +45,23 @@ a **linear model** (LM) is merely a LMM without the random effects::
 
     𝐲 = M𝛃 + 𝛆.
 
-The above models are used to establish a statiscal tests to find significant association
-between genetic loci and phenotype.
-For that, their parameters have to be estimated.
+The above models are used to establish a statistical tests to find significant
+association between genetic loci and phenotype. For that, their parameters have to be
+estimated.
 
 As an example, let us define two parameters that will describe the overall variances of
-the random effects
-and of the residual effects::
+the random effects and of the residual effects::
 
     Σ = v₀I₀ and 𝜎ᵢ² = v₁.
 
-If we assume a LMM, this example of model can be described by Eq. :eq:`eq_lmm` for which
+If we assume a LMM, this example of model can be described by Eq. (1) for which
 ::
 
     𝐯∼𝓝(𝟎, v₀XXᵀ) and 𝛆∼𝓝(𝟎, v₁I₁).
 
-Therefore we have a model with three parameters: an array of effect sizes
-𝛃
-and variances v₀ and v₁.
+Therefore we have a model with three parameters: an array of effect sizes 𝛃 and
+variances v₀ and v₁. If X contains the normalized SNP genotypes of the samples, XXᵀ is
+an estimation of the genetic relationship between the samples [Wa17]_.
 
 Statistical test
 ^^^^^^^^^^^^^^^^
@@ -582,3 +575,6 @@ and an any-vs-same effect test.
 .. [Ve19]  Wikipedia contributors. (2018, September 11). Vectorization (mathematics).
            In Wikipedia, The Free Encyclopedia. Retrieved 16:18, November 28, 2018,
            from https://en.wikipedia.org/w/index.php?title=Vectorization_(mathematics)&oldid=859035294
+.. [Wa17]  Wang, B., Sverdlov, S., & Thompson, E. (2017). Efficient estimation of
+           realized kinship from single nucleotide polymorphism genotypes. Genetics,
+           205(3), 1063-1078.
