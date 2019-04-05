@@ -119,9 +119,6 @@ def estimate(y, lik, K, M=None, verbose=True):
         if lik_name == "bernoulli":
             e += pi * pi / 3
 
-        if lik_name == "normal":
-            v = method.fixed_effects_variance
-        else:
-            v = var(method.mean())
+        v = var(method.mean())
 
         return g / (v + g + e)

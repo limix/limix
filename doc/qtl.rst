@@ -186,13 +186,13 @@ genetic candidates.
     3  1.00000 35.00000
     4  1.00000 64.00000
 
-We now apply the function :func:`limix.qtl.st_scan` to our dataset
+We now apply the function :func:`limix.qtl.scan` to our dataset
 
 .. doctest::
 
-    >>> from limix.qtl import st_scan
+    >>> from limix.qtl import scan
     >>>
-    >>> r = st_scan(snps, y, 'normal', M=M, verbose=False)
+    >>> r = scan(snps, y, 'normal', M=M, verbose=False)
     >>> print(r)
     Null model
     ----------
@@ -244,7 +244,7 @@ described by a multivariate Normal distribution with a covariance proportional t
     \mathbf v \sim \mathcal N(\mathbf 0, v_0\mathbf K).
 
 We perform the analysis again now using also the covariance :math:`\mathbf K` by calling
-the function :func:`limix.qtl.st_scan`.
+the function :func:`limix.qtl.scan`.
 
 .. doctest::
 
@@ -255,7 +255,7 @@ the function :func:`limix.qtl.st_scan`.
     >>> # Estimate a kinship relationship betweem samples.
     >>> K = linear_kinship(X, verbose=False)
     >>>
-    >>> result = st_scan(X, y, 'normal', K, M=M, verbose=False)
+    >>> result = scan(X, y, 'normal', K, M=M, verbose=False)
     >>> print(result.stats.head()) # doctest: +FLOAT_CMP
           null lml   alt lml   pvalue  dof
     test
@@ -305,7 +305,7 @@ Poisson distributed residuals:
 In the latter case, the :math:`\boldsymbol\epsilon` can be used to describe the
 dispersion between samples not fully captured by the residual distribution.
 
-The following example applies :func:`limix.qtl.st_scan` to perform five likelihood ratio
+The following example applies :func:`limix.qtl.scan` to perform five likelihood ratio
 tests for association with an outcome vector ``y`` having residual errors that follow a
 Poisson distribution.  The matrix ``G`` defines both the five alternative hypotheses
 (the first five columns) and the covariance matrix (the remaining columns).
@@ -314,7 +314,7 @@ Poisson distribution.  The matrix ``G`` defines both the five alternative hypoth
 
     >>> from numpy import exp, sqrt
     >>> from numpy.random import RandomState
-    >>> from limix.qtl import st_scan
+    >>> from limix.qtl import scan
     >>>
     >>> random = RandomState(0)
     >>>
@@ -328,7 +328,7 @@ Poisson distribution.  The matrix ``G`` defines both the five alternative hypoth
     >>>
     >>> candidates = G[:, :5]
     >>> K = linear_kinship(G[:, 5:], verbose=False)
-    >>> result = st_scan(candidates, y, 'poisson', K, verbose=False)
+    >>> result = scan(candidates, y, 'poisson', K, verbose=False)
     >>>
     >>> print(result.stats.head()) # doctest: +FLOAT_CMP
           null lml   alt lml   pvalue  dof
@@ -544,14 +544,14 @@ An any-effect association test corresponds to testing
 
 .. doctest::
 
-    >>> from limix.qtl import mt_scan
+    >>> from limix.qtl import scan
     >>> from numpy import eye
     >>>
     >>> p = 4
     >>> Y = random.randn(y.shape[0], p)
     >>>
     >>> Asnps = eye(p)
-    >>> r = mt_scan(G, Y, M=M, Asnps=Asnps, K=K, verbose=False)
+    >>> r = scan(G, Y, M=M, Asnps=Asnps, K=K, verbose=False)
     >>> print(r.head())  # doctest: +FLOAT_CMP
             pv      lrt
     0  0.79718  1.66438
@@ -577,7 +577,7 @@ are ``sp.eye(P)`` and ``sp.ones([P, 1])``, respectively.
 .. doctest::
 
     >>> Asnps0 = eye(p)
-    >>> r = mt_scan(G, Y, K=K, Ac=None, Asnps=Asnps, Asnps0=Asnps0, verbose=False)
+    >>> r = scan(G, Y, K=K, Ac=None, Asnps=Asnps, Asnps0=Asnps0, verbose=False)
     >>> print(r.head())  # doctest: +FLOAT_CMP
            pv1      pv0       pv     lrt1     lrt0      lrt
     0  0.79947  0.79947      nan  1.65169  1.65169  0.00000

@@ -47,14 +47,20 @@ from ._click import OrderedCommand
 )
 @click.option(
     "--impute",
-    help=("Impute missing values for phenotype, genotype, and covariate. The syntax is"
-          " <TARGET>:<DIM>:<METHOD>, where <METHOD> can be 'mean'. Defaults to 'mean'"),
+    help=(
+        "Impute missing values for phenotype, genotype, and covariate. The syntax is"
+        " <TARGET>:<DIM>:<METHOD>, where <METHOD> can be 'mean'. Defaults to 'mean'"
+    ),
     multiple=True,
 )
 @click.option(
-    "--normalize", help=("Normalize phenotype, genotype, and covariate. The syntax is "
-                         "<TARGET>:<DIM>:<METHOD>, where <METHOD> can be 'gaussianize'"
-                         " or 'mean_std'. Defaults to 'gaussianize'."), multiple=True
+    "--normalize",
+    help=(
+        "Normalize phenotype, genotype, and covariate. The syntax is "
+        "<TARGET>:<DIM>:<METHOD>, where <METHOD> can be 'gaussianize'"
+        " or 'mean_std'. Defaults to 'gaussianize'."
+    ),
+    multiple=True,
 )
 @click.option(
     "--output-dir", help="Specify the output directory path.", default="output"
@@ -67,7 +73,7 @@ from ._click import OrderedCommand
     help="Perform a trial run with no scan taking place.",
     default=False,
 )
-def st_scan(
+def scan(
     ctx, trait, genotype, covariate, kinship, lik, output_dir, verbose, dry_run, **_
 ):
     """ Single-variant association testing via mixed models.
@@ -115,7 +121,7 @@ def st_scan(
     from os.path import abspath, exists, join
     import traceback
     from limix._display import session_block, banner, session_line, indent, print_exc
-    from limix.qtl import st_scan
+    from limix.qtl import scan
     from limix.io import fetch
     from .pipeline import Pipeline
     from limix._data import conform_dataset
@@ -195,7 +201,7 @@ def st_scan(
     if "K" not in data:
         data["K"] = None
     try:
-        res = st_scan(
+        res = scan(
             data["G"], data["y"], lik=lik, K=data["K"], M=data["M"], verbose=verbose
         )
     except Exception as e:

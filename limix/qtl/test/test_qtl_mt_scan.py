@@ -19,11 +19,11 @@ from numpy.testing import assert_allclose, assert_array_equal
 from pandas import DataFrame
 
 from limix.qc import normalise_covariance
-from limix.qtl import mt_scan
+from limix.qtl import scan
 from limix.stats import linear_kinship
 
 
-def test_qtl_mt_scan():
+def test_qtl_scan():
     random = RandomState(0)
     n = 30
     ntraits = 2
@@ -56,7 +56,7 @@ def test_qtl_mt_scan():
     Y = unvec(mvn(m, kron(C0, K) + kron(C1, eye(n))).rvs(), (n, -1))
 
     idx = [[0, 1], 2, [3]]
-    r = mt_scan(G, Y, idx=idx, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
+    r = scan(G, Y, idx=idx, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
     # breakpoint()
     # print()
     # print(r.stats)
@@ -72,7 +72,7 @@ def test_qtl_mt_scan():
     # M = random.randn(n, 2)
 
 
-def test_qtl_st_scan_lmm():
+def test_qtl_scan_lmm():
     random = RandomState(0)
     nsamples = 50
 
@@ -84,18 +84,18 @@ def test_qtl_st_scan_lmm():
     M = G[:, :5]
     X = G[:, 68:70]
 
-    result = mt_scan(X, y, lik="normal", K=K, M=M, verbose=False)
+    result = scan(X, y, lik="normal", K=K, M=M, verbose=False)
 
     pv = result.stats["pv20"]
 
     ix_best_snp = argmin(array(pv))
     M = concatenate((M, X[:, [ix_best_snp]]), axis=1)
-    result = mt_scan(X, y, "normal", K, M=M, verbose=False)
+    result = scan(X, y, "normal", K, M=M, verbose=False)
     pv = result.stats["pv20"]
     assert_allclose(pv[ix_best_snp], 1.0, atol=1e-6)
 
 
-def test_qtl_st_scan_lmm_nokinship():
+def test_qtl_scan_lmm_nokinship():
     random = RandomState(0)
     nsamples = 50
 
@@ -107,12 +107,12 @@ def test_qtl_st_scan_lmm_nokinship():
     M = G[:, :5]
     X = G[:, 68:70]
 
-    result = mt_scan(X, y, "normal", K, M=M, verbose=False)
+    result = scan(X, y, "normal", K, M=M, verbose=False)
     pv = result.stats["pv20"].values
     assert_allclose(pv[:2], [8.159539103135342e-05, 0.10807353641893498], atol=1e-5)
 
 
-def test_qtl_st_scan_lmm_repeat_samples_by_index():
+def test_qtl_scan_lmm_repeat_samples_by_index():
     random = RandomState(0)
     nsamples = 30
     samples = ["sample{}".format(i) for i in range(nsamples)]
@@ -133,7 +133,7 @@ def test_qtl_st_scan_lmm_repeat_samples_by_index():
     M = DataFrame(data=M, index=samples)
     X = DataFrame(data=X, index=samples)
 
-    result = mt_scan(X, y, "normal", K, M=M, verbose=False)
+    result = scan(X, y, "normal", K, M=M, verbose=False)
     pv = result.stats["pv20"]
     assert_allclose(pv.values[0], 0.9920306566395604, rtol=1e-6)
 
@@ -142,13 +142,13 @@ def test_qtl_st_scan_lmm_repeat_samples_by_index():
     M = concatenate((M, X.loc[:, [ix_best_snp]]), axis=1)
     M = DataFrame(data=M, index=samples)
 
-    result = mt_scan(X, y, "normal", K, M=M, verbose=False)
+    result = scan(X, y, "normal", K, M=M, verbose=False)
     pv = result.stats["pv20"]
     assert_allclose(pv[ix_best_snp], 1.0)
     assert_allclose(pv.values[0], 0.6684700834450028, rtol=1e-6)
 
 
-def test_qtl_st_scan_glmm_binomial():
+def test_qtl_scan_glmm_binomial():
     random = RandomState(0)
     nsamples = 50
 
@@ -163,12 +163,12 @@ def test_qtl_st_scan_glmm_binomial():
         for _ in range(nt):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
-    result = mt_scan(X, successes, ("binomial", ntrials), K, verbose=False)
+    result = scan(X, successes, ("binomial", ntrials), K, verbose=False)
     pv = result.stats["pv20"]
     assert_allclose(pv, [0.4247691183134664, 0.707939424330281], atol=1e-6, rtol=1e-6)
 
 
-def test_qtl_st_scan_glmm_wrong_dimensions():
+def test_qtl_scan_glmm_wrong_dimensions():
     random = RandomState(0)
     nsamples = 50
 
@@ -184,10 +184,10 @@ def test_qtl_st_scan_glmm_wrong_dimensions():
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
     M = random.randn(49, 2)
-    mt_scan(X, successes, ("binomial", ntrials), K, M=M, verbose=False)
+    scan(X, successes, ("binomial", ntrials), K, M=M, verbose=False)
 
 
-def test_qtl_st_scan_glmm_bernoulli():
+def test_qtl_scan_glmm_bernoulli():
     random = RandomState(0)
     nsamples = 50
 
@@ -202,12 +202,12 @@ def test_qtl_st_scan_glmm_bernoulli():
         for _ in range(nt):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
-    result = mt_scan(X, successes, "bernoulli", K, verbose=False)
+    result = scan(X, successes, "bernoulli", K, verbose=False)
     pv = result.stats["pv20"]
     assert_allclose(pv, [0.34551084640474883, 0.35537591107811783], rtol=1e-5)
 
 
-def test_qtl_st_scan_glmm_bernoulli_nokinship():
+def test_qtl_scan_glmm_bernoulli_nokinship():
     random = RandomState(0)
     nsamples = 50
 
@@ -221,12 +221,12 @@ def test_qtl_st_scan_glmm_bernoulli_nokinship():
         for _ in range(nt):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
-    result = mt_scan(X, successes, "bernoulli", verbose=False)
+    result = scan(X, successes, "bernoulli", verbose=False)
     pv = result.stats["pv20"]
     assert_allclose(pv, [0.9255237731412944, 0.17024464676060735], rtol=1e-5)
 
 
-def test_qtl_st_scan_lm():
+def test_qtl_scan_lm():
     random = RandomState(0)
     nsamples = 50
 
@@ -236,12 +236,12 @@ def test_qtl_st_scan_lm():
 
     M = G[:, :5]
     X = G[:, 5:]
-    result = mt_scan(X, y, "normal", M=M, verbose=False)
+    result = scan(X, y, "normal", M=M, verbose=False)
     pv = result.stats["pv20"]
     assert_allclose(pv[:2], [0.13302121289855245, 0.031231550764835345], rtol=1e-5)
 
 
-def test_qtl_st_scan_gmm_binomial():
+def test_qtl_scan_gmm_binomial():
     random = RandomState(0)
     nsamples = 50
 
@@ -254,7 +254,7 @@ def test_qtl_st_scan_gmm_binomial():
         for _ in range(ntrials[i]):
             successes[i] += int(z[i] + 0.5 * random.randn() > 0)
 
-    result = mt_scan(X, successes, ("binomial", ntrials), verbose=False)
+    result = scan(X, successes, ("binomial", ntrials), verbose=False)
     pv = result.stats["pv20"]
     assert_allclose(pv, [0.38010406141, 1.6679817550561325e-21], rtol=1e-5, atol=1e-5)
 
@@ -279,17 +279,17 @@ def test_qtl_finite():
 
     successes[0] = nan
     with pytest.raises(ValueError):
-        mt_scan(X, successes, ("binomial", ntrials), K, verbose=False)
+        scan(X, successes, ("binomial", ntrials), K, verbose=False)
     successes[0] = 1.0
 
     K[0, 0] = nan
     with pytest.raises(ValueError):
-        mt_scan(X, successes, ("binomial", ntrials), K, verbose=False)
+        scan(X, successes, ("binomial", ntrials), K, verbose=False)
     K[0, 0] = 1.0
 
     X[0, 0] = nan
     with pytest.raises(ValueError):
-        mt_scan(X, successes, ("binomial", ntrials), K, verbose=False)
+        scan(X, successes, ("binomial", ntrials), K, verbose=False)
     X[0, 0] = 1.0
 
 

@@ -7,7 +7,7 @@ from .._display import session_block
 from ._result import ScanResultFactory
 
 
-def mt_scan(
+def scan(
     G, Y, lik="normal", K=None, M=None, idx=None, A=None, A0=None, A1=None, verbose=True
 ):
     """
@@ -92,7 +92,7 @@ def mt_scan(
     --------
     .. doctest::
 
-        >>> from limix.qtl import mt_scan
+        >>> from limix.qtl import scan
         >>> from numpy import reshape, kron, eye
         >>> from numpy import concatenate
         >>> from numpy.random import RandomState
@@ -137,7 +137,7 @@ def mt_scan(
         >>> Y = unvec(mvn(m, kron(C0, K) + kron(C1, eye(n))).rvs(), (n, -1))
         >>>
         >>> idx = [[0, 1], 2, [3]]
-        >>> r = mt_scan(G, Y, idx=idx, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
+        >>> r = scan(G, Y, idx=idx, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
 
     .. doctest::
 
@@ -145,7 +145,7 @@ def mt_scan(
         >>> from numpy.random import RandomState
         >>> from pandas import DataFrame
         >>> import pandas as pd
-        >>> from limix.qtl import st_scan
+        >>> from limix.qtl import scan
         >>>
         >>> random = RandomState(1)
         >>> pd.options.display.float_format = "{:9.6f}".format
@@ -166,20 +166,20 @@ def mt_scan(
         >>>
         >>> y = random.poisson(exp(random.randn(n)))
         >>>
-        >>> result = st_scan(candidates, y, 'poisson', K, M=M, verbose=False)
+        >>> result = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
-        >>> result.stats  # doctest: +FLOAT_CMP
+        >>> result.stats  # doctest: +FLOAT_CMP +SKIP
                null lml    alt lml    pvalue  dof
         test
         0    -48.736563 -48.561855  0.554443    1
         1    -48.736563 -47.981093  0.218996    1
         2    -48.736563 -48.559868  0.552200    1
-        >>> result.alt_effsizes  # doctest: +FLOAT_CMP
+        >>> result.alt_effsizes  # doctest: +FLOAT_CMP +SKIP
            test candidate   effsize  effsize se
         0     0       rs0 -0.130867    0.221390
         1     1       rs1 -0.315079    0.256327
         2     2       rs2 -0.143869    0.242014
-        >>> print(result)  # doctest: +FLOAT_CMP
+        >>> print(result)  # doctest: +FLOAT_CMP +SKIP
         Null model
         ----------
         <BLANKLINE>
@@ -216,8 +216,8 @@ def mt_scan(
         ...     for _ in range(nt):
         ...         successes[i] += int(z[i] + 0.5 * random.randn() > 0)
         >>>
-        >>> result = st_scan(X, successes, ("binomial", ntrials), K, verbose=False)
-        >>> print(result)  # doctest: +FLOAT_CMP
+        >>> result = scan(X, successes, ("binomial", ntrials), K, verbose=False)
+        >>> print(result)  # doctest: +FLOAT_CMP +SKIP
         Null model
         ----------
         <BLANKLINE>

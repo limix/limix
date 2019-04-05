@@ -1,6 +1,6 @@
 import click
 from .st_sscan import st_sscan
-from .st_scan import st_scan
+from .scan import scan
 
 
 # @click.command(cls=OrderedCommand)
@@ -25,5 +25,5 @@ def qtl(ctx):
     pass
 
 
-qtl.add_command(st_scan)
+qtl.add_command(scan)
 qtl.add_command(st_sscan)
