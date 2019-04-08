@@ -270,16 +270,16 @@ distribution is not sufficient to explain the variability of yᵢ.
     <BLANKLINE>
     𝐳 ~ 𝓝(𝙼𝜶, 0.1130⋅𝙺 + 0.1399⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
     𝙼     = ['offset' 'age']
-    𝜶     = [-1.41641657  0.05496353]
-    se(𝜶) = [0.20205719 0.0060997 ]
-    lml   = -151.15802462780184
+    𝜶     = [-1.41641664  0.05496354]
+    se(𝜶) = [0.2020572 0.0060997]
+    lml   = -151.15802807711944
     <BLANKLINE>
     Alt model
     ---------
     <BLANKLINE>
     𝐳 ~ 𝓝(𝙼𝜶 + 𝙶𝞫, 0.1130⋅𝙺 + 0.1399⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
-    min(pv)  = 0.0043703676206795945
-    max(lml) = -147.09645209561475
+    min(pv)  = 0.004370366590054564
+    max(lml) = -147.09645533116503
     <BLANKLINE>
 
 Single-trait with interaction

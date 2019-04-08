@@ -204,7 +204,7 @@ def test_qtl_scan_glmm_bernoulli():
 
     result = scan(X, successes, "bernoulli", K, verbose=False)
     pv = result.stats["pv20"]
-    assert_allclose(pv, [0.34551084640474883, 0.35537591107811783], rtol=1e-5)
+    assert_allclose(pv, [0.34545196133488565, 0.3553914023889331], rtol=1e-5)
 
 
 def test_qtl_scan_glmm_bernoulli_nokinship():
