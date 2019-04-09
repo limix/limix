@@ -301,46 +301,28 @@ class ScanResult:
         return msg
 
     def _repr_three_hypothesis(self):
-        from numpy import asarray, isnan, stack
-        from texttable import Texttable
-        from ._aligned import Aligned
+        from numpy import asarray
 
         lik = self._h0.likelihood
+        covariates = self._covariates
+        lml = self._h0.lml
         effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
         effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
         stats = self.stats
         v0 = self.h0.variances["fore_covariance"].item()
         v1 = self.h0.variances["back_covariance"].item()
 
-        msg = _part0("Hypothesis 0", None, lik, v0, v1, False)
-        aligned = Aligned()
-        aligned.add_item("M", self._covariates)
-        aligned.add_item("𝜶", effsizes)
-        aligned.add_item("se(𝜶)", effsizes_se)
-        aligned.add_item("lml", self.h0.lml)
-        msg += aligned.draw() + "\n"
+        msg = _draw_hypothesis_zero(lik, v0, v1, covariates, effsizes, effsizes_se, lml)
 
-        msg += _part0("Hypothesis 1", " + (𝙶⊙𝙴₀)𝛃₀", lik, v0, v1, True)
-        lml1 = stats["lml1"].describe().iloc[1:]
-        table = Table(["lml"], index=lml1.index)
-        table.set_values(lml1.values)
-        msg += "\n" + table.draw() + "\n\n"
+        msg += _section("Hypothesis 1", " + (𝙶⊙𝙴₀)𝛃₀", lik, v0, v1, True)
+        msg += _draw_alt_hypothesis_table(1, self.stats, self.effsizes)
 
-        msg += _part0("Hypothesis 2", " + (𝙶⊙𝙴₀)𝛃₀ + (𝙶⊙𝙴₁)𝛃₁", lik, v0, v1, True)
-        msg += "max(lml)   = {}\n".format(max(stats["lml2"]))
+        msg += _section("Hypothesis 2", " + (𝙶⊙𝙴₀)𝛃₀ + (𝙶⊙𝙴₁)𝛃₁", lik, v0, v1, True)
+        msg += _draw_alt_hypothesis_table(2, self.stats, self.effsizes)
 
-        msg += "\n"
-        msg += _title("Likelihood-ratio test p-values")
-
-        pv10 = stats["pv10"].describe().iloc[1:]
-        pv20 = stats["pv20"].describe().iloc[1:]
-        pv21 = stats["pv21"].describe().iloc[1:]
-
-        table = Table(["𝓗₀ vs 𝓗₁", "𝓗₀ vs 𝓗₂", "𝓗₁ vs 𝓗₂"], index=pv10.index)
-        pvs = stack((pv10.values, pv20.values, pv21.values), axis=1)
-        table.set_values(pvs)
-        msg += table.draw()
-
+        msg += _draw_lrt_section(
+            ["𝓗₀ vs 𝓗₁", "𝓗₀ vs 𝓗₂", "𝓗₁ vs 𝓗₂"], ["pv10", "pv20", "pv21"], stats
+        )
         return msg
 
     def __repr__(self):
@@ -383,7 +365,7 @@ def _title(title):
     return msg
 
 
-def _part0(model_name, cand_term, lik, v0, v1, scale):
+def _section(model_name, cand_term, lik, v0, v1, scale):
     from numpy import isnan
 
     msg = _title(model_name)
@@ -407,4 +389,48 @@ def _part0(model_name, cand_term, lik, v0, v1, scale):
     else:
         msg += f"{var} ~ 𝓝(𝙼𝜶{cand_term}, {left}{v0:.4f}⋅𝙺 + {v1:.4f}⋅𝙸{right})"
     msg += _lik_formulae(lik)
+    return msg
+
+
+def _draw_hypothesis_zero(lik, v0, v1, covariates, effsizes, effsizes_se, lml):
+    from ._aligned import Aligned
+
+    msg = _section("Hypothesis 0", None, lik, v0, v1, False)
+    aligned = Aligned()
+    aligned.add_item("M", covariates)
+    aligned.add_item("𝜶", effsizes)
+    aligned.add_item("se(𝜶)", effsizes_se)
+    aligned.add_item("lml", lml)
+    msg += aligned.draw() + "\n"
+    return msg
+
+
+def _describe(df, field):
+    return df[field].describe().iloc[1:]
+
+
+def _describe_index():
+    return ["mean", "std", "min", "25%", "50%", "75%", "max"]
+
+
+def _draw_alt_hypothesis_table(hyp_num, stats, effsizes):
+    cols = ["lml", "cov. effsizes", "cand. effsizes"]
+    table = Table(cols, index=_describe_index())
+    table.add_column(_describe(stats, f"lml{hyp_num}"))
+    df = effsizes[f"h{hyp_num}"]
+    table.add_column(_describe(df[df["effect_type"] == "covariate"], "effsize"))
+    table.add_column(_describe(df[df["effect_type"] == "candidate"], "effsize"))
+    return "\n" + table.draw() + "\n\n"
+
+
+def _draw_lrt_section(test_titles, pv_names, stats):
+    msg = _title("Likelihood-ratio test p-values")
+
+    table = Table(test_titles, index=_describe_index())
+
+    for name in pv_names:
+        pv = stats[name].describe().iloc[1:]
+        table.add_column(pv)
+
+    msg += table.draw()
     return msg
