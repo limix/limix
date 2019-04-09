@@ -41,13 +41,64 @@ def test_qtl_iscan_three_hypothesis():
     alpha0 = random.randn(E0.shape[1])
     alpha1 = random.randn(E1.shape[1])
 
-    mvn = st.multivariate_normal
+    mvn = random.multivariate_normal
     y = _normalize(M @ beta) + _normalize(E0 @ alpha0) + _normalize(E1 @ alpha1)
-    y += _normalize(mvn(zeros(n), K + eye(n)).rvs())
+    y += _normalize(mvn(zeros(n), K + eye(n)))
 
     idx = [[0, 1], 2, [3]]
     r = iscan(G, y, idx=idx, K=K, M=M, E0=E0, E1=E1, verbose=False)
-    print()
+    print(r)
+
+
+def test_qtl_iscan_two_hypothesis_1vs0():
+    random = RandomState(4)
+    n = 30
+    ncovariates = 3
+
+    M = random.randn(n, ncovariates)
+
+    E0 = random.randint(0, 2, (n, 1)).astype(float)
+
+    G = random.randn(n, 4)
+
+    K = random.randn(n, n + 1)
+    K = normalise_covariance(K @ K.T)
+
+    beta = random.randn(ncovariates)
+    alpha0 = random.randn(E0.shape[1])
+
+    mvn = random.multivariate_normal
+    y = _normalize(M @ beta) + _normalize(E0 @ alpha0)
+    y += _normalize(mvn(zeros(n), K + eye(n)))
+
+    idx = [[0, 1], 2, [3]]
+    r = iscan(G, y, idx=idx, K=K, M=M, E0=E0, verbose=False)
+    print(r)
+
+
+def test_qtl_iscan_two_hypothesis_2vs0():
+    random = RandomState(4)
+    n = 30
+    ncovariates = 3
+
+    M = random.randn(n, ncovariates)
+
+    E1 = random.randint(0, 2, (n, 2)).astype(float)
+
+    G = random.randn(n, 4)
+
+    K = random.randn(n, n + 1)
+    K = normalise_covariance(K @ K.T)
+
+    beta = random.randn(ncovariates)
+    alpha1 = random.randn(E1.shape[1])
+
+    mvn = random.multivariate_normal
+    y = _normalize(M @ beta) + _normalize(E1 @ alpha1)
+    y += _normalize(mvn(zeros(n), K + eye(n)))
+
+    idx = [[0, 1], 2, [3]]
+    r = iscan(G, y, idx=idx, K=K, M=M, E1=E1, verbose=False)
     print(r)
 
 

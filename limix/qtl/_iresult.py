@@ -259,45 +259,29 @@ class ScanResult:
 
         return {"stats": stats, "effsizes": {"h1": h1, "h2": h2}}
 
-    def _repr_two_hypothesis(self):
-        from numpy import asarray, isnan
+    def _repr_two_hypothesis(self, alt_hyp):
+        from numpy import asarray
 
         lik = self._h0.likelihood
+        covariates = self._covariates
+        lml = self._h0.lml
         effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
         effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
         stats = self.stats
-
-        msg = "Null model\n"
-        msg += "----------\n\n"
         v0 = self.h0.variances["fore_covariance"].item()
         v1 = self.h0.variances["back_covariance"].item()
-        if lik == "normal":
-            var = "𝐲"
+
+        msg = _draw_hypothesis_zero(lik, v0, v1, covariates, effsizes, effsizes_se, lml)
+
+        if alt_hyp == 1:
+            msg += _section("Hypothesis 1", " + (𝙶⊙𝙴₀)𝛃₀", lik, v0, v1, True)
+            col = "𝓗₀ vs 𝓗₁"
         else:
-            var = "𝐳"
-        if isnan(v0):
-            msg += f"{var} ~ 𝓝(𝙼𝜶, {v1:.4f}⋅𝙸)"
-        else:
-            msg += f"{var} ~ 𝓝(𝙼𝜶, {v0:.4f}⋅𝙺 + {v1:.4f}⋅𝙸)"
-        msg += _lik_formulae(self._h0.likelihood)
+            msg += _section("Hypothesis 2", " + (𝙶⊙𝙴₁)𝛃₁", lik, v0, v1, True)
+            col = "𝓗₀ vs 𝓗₂"
+        msg += _draw_alt_hypothesis_table(alt_hyp, self.stats, self.effsizes)
 
-        msg += _item_repr("𝙼     = ", self._covariates)
-        msg += _item_repr("𝜶     = ", effsizes)
-        msg += _item_repr("se(𝜶) = ", effsizes_se)
-
-        msg += "lml   = {}\n\n".format(self.h0.lml)
-
-        msg += "Alt model\n"
-        msg += "---------\n\n"
-        if isnan(v0):
-            msg += f"{var} ~ 𝓝(𝙼𝜶 + 𝙶𝞫, {v1:.4f}⋅𝙸)"
-        else:
-            msg += f"{var} ~ 𝓝(𝙼𝜶 + 𝙶𝞫, {v0:.4f}⋅𝙺 + {v1:.4f}⋅𝙸)"
-        msg += _lik_formulae(self._h0.likelihood)
-
-        msg += "min(pv)  = {}\n".format(min(stats["pv20"]))
-        msg += "max(lml) = {}\n".format(max(stats["lml2"]))
-
+        msg += _draw_lrt_section([col], [f"pv{alt_hyp}0"], stats)
         return msg
 
     def _repr_three_hypothesis(self):
@@ -326,12 +310,12 @@ class ScanResult:
         return msg
 
     def __repr__(self):
-        if len(self._envs0) > 0 and len(self._envs1) == 0:
-            return self._repr_two_hypothesis()
+        if len(self._envs0) > 0 and len(self._envs0) == len(self._envs1):
+            return self._repr_two_hypothesis(1)
         elif len(self._envs0) > 0 and len(self._envs1) > 0:
             return self._repr_three_hypothesis()
-        elif len(self._envs0) == 0 and len(self._envs1) > 0:
-            return self._repr_two_hypothesis()
+        elif len(self._envs0) == 0 and len(self._envs1) > len(self._envs0):
+            return self._repr_two_hypothesis(2)
         raise ValueError("There is no environment to interact with.")
 
 
