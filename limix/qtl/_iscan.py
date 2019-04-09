@@ -53,7 +53,7 @@ def iscan(G, y, lik="normal", K=None, M=None, idx=None, E0=None, E1=None, verbos
         if lik_name == "normal":
             scanner, v0, v1 = _lmm(Y.values.ravel(), M.values, QS, verbose)
         else:
-            scanner, v0, v1 = _glmm(Y.values.rave(), lik, M.values, QS, verbose)
+            scanner, v0, v1 = _glmm(Y.values.ravel(), lik, M.values, QS, verbose)
 
         r = IScanResultFactory(
             lik_name,

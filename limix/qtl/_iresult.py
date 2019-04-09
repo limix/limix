@@ -57,7 +57,7 @@ class IScanResultFactory:
         self._tests.append({"idx": cand_idx, "h1": h1, "h2": h2})
 
     def create(self):
-        return ScanResult(
+        return IScanResult(
             self._tests,
             self._traits,
             self._covariates,
@@ -68,7 +68,7 @@ class IScanResultFactory:
         )
 
 
-class ScanResult:
+class IScanResult:
     def __init__(self, tests, traits, covariates, candidates, h0, envs0, envs1):
         self._tests = tests
         self._traits = traits
