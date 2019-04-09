@@ -385,6 +385,7 @@ class ScannerWrapper:
         from glimix_core.lmm import FastScanner
 
         if isinstance(self._scanner, FastScanner):
+            assert A.shape[1] == 0
             return self._scanner.scan(G)
 
         return self._scanner.scan(A, G)

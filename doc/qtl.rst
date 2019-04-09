@@ -234,8 +234,8 @@ matrix 𝙺, and call :func:`limix.qtl.scan` to perform the analysis.
     max(lml) = -212.97159992879634
     <BLANKLINE>
 
-Non-normal phenotype
-====================
+Non-normal trait association
+============================
 
 If the residuals of the phenotype does not follow a Normal distribution, then we might
 consider performing the analysis using a **generalized linear mixed model**. Let us
@@ -245,7 +245,7 @@ consider Poisson distributed residuals::
 
 where the latent phenotype is described by ::
 
-    𝐳 = M𝛃 + 𝚇𝐮 + 𝛆,
+    𝐳 = 𝙼𝛃 + 𝚇𝐮 + 𝛆,
 
 for ::
 
@@ -287,16 +287,29 @@ Single-trait with interaction
 
 The following linear mixed model is considered::
 
-    \mathbf{y} =
-    \underbrace{M𝛃}_
-            {\substack{\text{fixed effects}\\ \text{without interaction}}}+
-    \underbrace{(\mathbf G\odot𝙴₀)𝛃₀}_{𝙶\times\mathrm E₀} +
-    \underbrace{\mathbf G\odot𝙴₁𝛃₁}_{𝙶\times\mathrm E₁} +
-    \underbrace{X\mathbf{u}}_{\text{random effects}}+
-    \underbrace{\boldsymbol{𝜀}}_{\text{residual}}.
+    𝐲 = 𝙼𝛂 + (𝙶⊙𝙴₀)𝛃₀ + (𝙶⊙𝙴₁)𝛃₁ + 𝚇𝐮 + 𝛆,
+    where 𝐮∼𝓝(𝟎, 𝓋₀𝙸₀) and 𝛆∼𝓝(𝟎, 𝓋₁𝙸₁).
 
-The **GxE** terms are also fixed effects but encoding the interations between genetic
-variants and environmental covariates defined by the user.
+The operator ⊙ works as follows::
+
+    𝙰⊙𝙱 = [𝙰₀𝙱₀ ... 𝙰₀𝙱ₙ 𝙰₁𝙱₀ ... 𝙰₁𝙱ₙ ... 𝙰ₘ𝙱ₙ]
+
+Therefore, the terms 𝙶⊙𝙴₀ and 𝙶⊙𝙴₁ can be understood as interaction terms between
+genetics, 𝙶, and environments, 𝙴₀ and 𝙴₁.
+
+We define three hypotheses from the above linear mixed model::
+
+    𝓗₀: 𝛃₀=𝟎 and 𝛃₁=𝟎
+    𝓗₁: 𝛃₀≠𝟎 and 𝛃₁=𝟎
+    𝓗₂: 𝛃₀≠𝟎 and 𝛃₁≠𝟎
+
+The hypothesis 𝓗₀ is for no-interaction, 𝓗₁ is for interaction with environments
+encoded in 𝙴₀, and 𝓗₂ is for interaction with environments encoded in 𝙴₀ and 𝙴₁.
+We perform three statistical tests:
+
+- 𝓗₀ (null) vs 𝓗₁ (alternative)
+- 𝓗₀ (null) vs 𝓗₂ (alternative)
+- 𝓗₁ (null) vs 𝓗₂ (alternative)
 
 .. doctest::
 
@@ -332,7 +345,7 @@ values (\boldsymbol{\alpha}≠{0} when \boldsymbol{\beta}={0}), (ii)
 returned.
 
 If ``E0`` is not specified, a column-vector of ones is considered.  In this case the
-\mathbf G\odot𝙴₀ term reduces to an additive genetic effect, and thus
+𝙶\odot𝙴₀ term reduces to an additive genetic effect, and thus
 the test corresponds to a standard gxe test.
 
 If iter0 is provided,
@@ -371,7 +384,7 @@ The StructLMM model is
 
 .. math::
 
-    \mathbf{y}=
+    𝐲=
     \underbrace{\mathbf{M}𝛃}_{\text{covariates}}+
     \underbrace{\mathbf{x}\odot\boldsymbol\gamma}_{\text{genetics}}+
     \underbrace{𝙴𝐮}_{\text{random effects}}+
@@ -419,7 +432,7 @@ Therefore, its equation
 
     \text{vec}(\mathbf{Y}) =
     \underbrace{(\mathbf A_c \otimes M) \text{vec}(\mathbf B_c)}_{\text{covariates}}+
-    \underbrace{(\mathbf A_g \otimes \mathbf G) \text{vec}(\mathbf B_g)}_{\text{genetics}}+
+    \underbrace{(\mathbf A_g \otimes 𝙶) \text{vec}(\mathbf B_g)}_{\text{genetics}}+
     \underbrace{\text{vec}(\mathbf U)}_{\text{random effect}}+
     \underbrace{\text{vec}(\boldsymbol\Psi)}_{\text{noise}}
 
@@ -445,7 +458,7 @@ and the residuals by
 
     \text{vec}(\boldsymbol\Psi)∼𝓝(𝟎, \mathbf C₁\otimesI_n).
 
-As before, M is the covariates matrix and \mathbf G is the
+As before, M is the covariates matrix and 𝙶 is the
 matrix of genetic variants.
 The matrices \mathbf C₀ and \mathbf C₁ are two matrix-parameters and,
 us such, are fitted during the likelihood maximisation.

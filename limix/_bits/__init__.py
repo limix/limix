@@ -16,6 +16,16 @@ Functions
 get_shape
 """
 from . import dask, deco, numpy, pandas, xarray
-from .array import get_shape, unvec, vec
+from .array import cdot, get_shape, unvec, vec
 
-__all__ = ["dask", "xarray", "deco", "pandas", "get_shape", "numpy", "vec", "unvec"]
+__all__ = [
+    "dask",
+    "xarray",
+    "deco",
+    "pandas",
+    "get_shape",
+    "numpy",
+    "vec",
+    "unvec",
+    "cdot",
+]

@@ -1,26 +1,25 @@
 import pytest
 import scipy.stats as st
+from limix.qc import normalise_covariance
+from limix.qtl import scan
+from limix.stats import linear_kinship
 from numpy import (
-    ones,
     argmin,
     array,
+    asarray,
     concatenate,
     dot,
     eye,
     kron,
+    nan,
+    ones,
     reshape,
     sqrt,
     zeros,
-    nan,
-    asarray,
 )
 from numpy.random import RandomState
 from numpy.testing import assert_allclose, assert_array_equal
 from pandas import DataFrame
-
-from limix.qc import normalise_covariance
-from limix.qtl import scan
-from limix.stats import linear_kinship
 
 
 def test_qtl_scan():
