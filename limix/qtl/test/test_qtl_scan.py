@@ -22,7 +22,34 @@ from numpy.testing import assert_allclose
 from pandas import DataFrame
 
 
-def test_qtl_scan_three_hypotheses():
+def test_qtl_scan_st():
+    random = RandomState(0)
+    n = 30
+    ncovariates = 3
+
+    M = random.randn(n, ncovariates)
+
+    v0 = random.rand()
+    v1 = random.rand()
+
+    G = random.randn(n, 4)
+
+    K = random.randn(n, n + 1)
+    K = normalise_covariance(K @ K.T)
+
+    beta = random.randn(ncovariates)
+    alpha = random.randn(G.shape[1])
+
+    mvn = st.multivariate_normal
+    m = M @ beta + G @ alpha
+    y = mvn(m, v0 * K + v1 * eye(n)).rvs()
+
+    idx = [[0, 1], 2, [3]]
+    r = scan(G, y, idx=idx, K=K, M=M, verbose=False)
+    print(r)
+
+
+def test_qtl_scan_three_hypotheses_mt():
     random = RandomState(0)
     n = 30
     ntraits = 2
@@ -59,7 +86,7 @@ def test_qtl_scan_three_hypotheses():
     print(r)
 
 
-def test_qtl_scan_two_hypotheses():
+def test_qtl_scan_two_hypotheses_mt():
     random = RandomState(0)
     n = 30
     ntraits = 2

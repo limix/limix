@@ -1,11 +1,14 @@
 from limix._cache import cache
 from limix.stats import lrt_pvalues
-from ._draw import draw_title, draw_model, draw_alt_hyp_table, draw_lrt_table
+
 from ._aligned import Aligned
+from ._draw import draw_alt_hyp_table, draw_lrt_table, draw_model, draw_title
 
 
 class ScanResult:
-    def __init__(self, tests, traits, covariates, candidates, h0, envs0, envs1):
+    def __init__(
+        self, tests, traits, covariates, candidates, h0, envs0, envs1, single_trait
+    ):
         self._tests = tests
         self._traits = traits
         self._covariates = covariates
@@ -13,6 +16,7 @@ class ScanResult:
         self._envs0 = envs0
         self._envs1 = envs1
         self._h0 = h0
+        self._single_trait = single_trait
 
     @property
     def stats(self):
@@ -196,6 +200,18 @@ class ScanResult:
         return {"stats": stats, "effsizes": {"h1": h1, "h2": h2}}
 
     def _covariance_expr(self):
+        from numpy import isnan
+
+        if self._single_trait:
+            v0 = self.h0.variances["fore_covariance"].item()
+            v1 = self.h0.variances["back_covariance"].item()
+
+            if isnan(v0):
+                covariance = f"{v1:.3f}⋅𝙸"
+            else:
+                covariance = f"{v0:.3f}⋅𝙺 + {v1:.3f}⋅𝙸"
+            return covariance
+
         return "C₀⊗𝙺 + C₁⊗𝙸"
 
     def _repr_three_hypothesis(self):
@@ -215,17 +231,17 @@ class ScanResult:
         diagC1 = df["back_covariance"]
 
         msg = draw_title("Hypothesis 0")
-        msg += draw_model(lik, "(A⊗𝙼)𝜶", "C₀⊗𝙺 + C₁⊗𝙸") + "\n"
+        msg += draw_model(lik, "(A⊗𝙼)𝛃", "C₀⊗𝙺 + C₁⊗𝙸") + "\n"
         msg += _draw_hyp0_summary(
             traits, covariates, effsizes, effsizes_se, lml, diagC0, diagC1
         )
 
         msg += draw_title("Hypothesis 1")
-        msg += draw_model(lik, "(A⊗𝙼)𝜶 + (A₀⊗G)𝜶₀", "s(C₀⊗𝙺 + C₁⊗𝙸)")
+        msg += draw_model(lik, "(A⊗𝙼)𝛃 + (A₀⊗G)𝜶₀", "s(C₀⊗𝙺 + C₁⊗𝙸)")
         msg += draw_alt_hyp_table(1, self.stats, self.effsizes)
 
         msg += draw_title("Hypothesis 2")
-        msg += draw_model(lik, "(A⊗𝙼)𝜶 + (A₀⊗G)𝜶₀ + (A₁⊗G)𝜶₁", "s(C₀⊗𝙺 + C₁⊗𝙸)")
+        msg += draw_model(lik, "(A⊗𝙼)𝛃 + (A₀⊗G)𝜶₀ + (A₁⊗G)𝜶₁", "s(C₀⊗𝙺 + C₁⊗𝙸)")
         msg += draw_alt_hyp_table(2, self.stats, self.effsizes)
 
         msg += draw_title("Likelihood-ratio test p-values")
@@ -252,16 +268,16 @@ class ScanResult:
         covariance = self._covariance_expr()
 
         msg = draw_title("Hypothesis 0")
-        msg += draw_model(lik, "(A⊗𝙼)𝜶", "C₀⊗𝙺 + C₁⊗𝙸") + "\n"
+        msg += draw_model(lik, "(A⊗𝙼)𝛃", "C₀⊗𝙺 + C₁⊗𝙸") + "\n"
         msg += _draw_hyp0_summary(
             traits, covariates, effsizes, effsizes_se, lml, diagC0, diagC1
         )
 
         if alt_hyp == 1:
-            mean = "𝙼𝜶 + (A₀⊗G)𝜶₀"
+            mean = "(A⊗𝙼)𝛃 + (A₀⊗G)𝜶₀"
             col = "𝓗₀ vs 𝓗₁"
         else:
-            mean = "𝙼𝜶 + (A₁⊗G)𝜶₁"
+            mean = "(A⊗𝙼)𝛃 + (A₁⊗G)𝜶₁"
             col = "𝓗₀ vs 𝓗₂"
 
         msg += draw_title(f"Hypothesis {alt_hyp}")
@@ -272,10 +288,52 @@ class ScanResult:
         msg += draw_lrt_table([col], [f"pv{alt_hyp}0"], stats)
         return msg
 
+    def _repr_single_trait(self):
+        from numpy import asarray
+
+        traits = self._h0.traits
+        lik = self._h0.likelihood
+        covariates = self._covariates
+        lml = self._h0.lml
+        effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
+        effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
+        stats = self.stats
+
+        df = self.h0.variances
+        df = df[df["trait0"] == df["trait1"]]
+
+        covariance = self._covariance_expr()
+
+        msg = draw_title("Hypothesis 0")
+        msg += draw_model(lik, "𝙼𝛃", covariance) + "\n"
+        msg += _draw_hyp0_summary_single_trait(
+            traits, covariates, effsizes, effsizes_se, lml
+        )
+
+        msg += draw_title(f"Hypothesis 1")
+        msg += draw_model(lik, "𝙼𝛃 + G𝜶", f"s({covariance})")
+        msg += draw_alt_hyp_table(2, self.stats, self.effsizes)
+
+        msg += draw_title("Likelihood-ratio test p-values")
+        msg += draw_lrt_table(["𝓗₀ vs 𝓗₁"], [f"pv20"], stats)
+        return msg
+
     def __repr__(self):
+        if self._single_trait:
+            return self._repr_single_trait()
         if len(self._envs0) == 0:
             return self._repr_two_hypothesis(2)
         return self._repr_three_hypothesis()
+
+
+def _draw_hyp0_summary_single_trait(traits, covariates, effsizes, effsizes_se, lml):
+    aligned = Aligned()
+    aligned.add_item("traits", traits)
+    aligned.add_item("M", covariates)
+    aligned.add_item("𝜶", effsizes)
+    aligned.add_item("se(𝜶)", effsizes_se)
+    aligned.add_item("lml", lml)
+    return aligned.draw() + "\n"
 
 
 def _draw_hyp0_summary(traits, covariates, effsizes, effsizes_se, lml, diagC0, diagC1):

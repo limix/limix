@@ -270,9 +270,6 @@ def scan(
         assert_finite(Y, M, K)
         ntraits = Y.shape[1]
 
-        if A is None:
-            A = eye(ntraits)
-
         if A1 is None:
             A1 = eye(ntraits)
 
@@ -289,11 +286,15 @@ def scan(
             QS = None
 
         if lik_name == "normal":
-            if ntraits == 1:
+            if A is None:
                 scanner, C0, C1 = _st_lmm(Y, M, QS, verbose)
             else:
                 scanner, C0, C1 = _mt_lmm(Y, A, M, QS, verbose)
         else:
+            if A is not None:
+                msg = "Non-normal likelihood inference has not been implemented for"
+                msg += " multiple traits yet."
+                raise ValueError(msg)
             scanner, C0, C1 = _st_glmm(Y.values.ravel(), lik, M, QS, verbose)
 
         r = ScanResultFactory(
@@ -308,6 +309,7 @@ def scan(
             scanner.null_beta_se,
             C0,
             C1,
+            A is None,
         )
 
         if idx is None and ntraits == 1:
@@ -385,7 +387,7 @@ class ScannerWrapper:
         from glimix_core.lmm import FastScanner
 
         if isinstance(self._scanner, FastScanner):
-            assert A.shape[1] == 0
+            assert A.shape[1] == 0 or (A.shape[1] == 1 and A[0, 0] == 1.0)
             return self._scanner.scan(G)
 
         return self._scanner.scan(A, G)

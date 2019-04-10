@@ -1,9 +1,11 @@
-from limix._cache import cache
 from limix._bits import unvec
+from limix._cache import cache
 
 
 class SModelResult:
-    def __init__(self, lik, traits, covariates, lml, beta, beta_se, C0, C1):
+    def __init__(
+        self, lik, traits, covariates, lml, beta, beta_se, C0, C1, single_trait=True
+    ):
         from numpy import asarray, atleast_1d, atleast_2d
 
         self._lik = lik
@@ -14,6 +16,7 @@ class SModelResult:
         self._beta_se = atleast_1d(asarray(beta_se, float).T).T
         self._C0 = atleast_2d(asarray(C0, float))
         self._C1 = atleast_2d(asarray(C1, float))
+        self._single_trait = single_trait
 
     @property
     def traits(self):
