@@ -16,28 +16,28 @@ def scan(
     Let n, c, and p be the number of samples, covariates, and traits, respectively.
     The outcome variable Y is a n×p matrix distributed according to ::
 
-        vec(Y) ~ N((A ⊗ M) vec(B), K₀ = C₀ ⊗ K + C₁ ⊗ I) under H₀.
+        vec(Y) ~ N((A ⊗ M) vec(𝚨), K₀ = C₀ ⊗ K + C₁ ⊗ I) under H₀.
 
     A and M are design matrices of dimensions p×p and n×c provided by the user,
     where X is the usual matrix of covariates commonly used in single-trait models.
-    B is a c×p matrix of fixed-effect sizes per trait.
+    𝚨 is a c×p matrix of fixed-effect sizes per trait.
     C₀ and C₁ are both symmetric matrices of dimensions p×p, for which C₁ is
     guaranteed by our implementation to be of full rank.
-    The parameters of the H₀ model are the matrices B, C₀, and C₁.
+    The parameters of the H₀ model are the matrices 𝚨, C₀, and C₁.
 
     The additional models H₁ and H₂ are define as ::
 
-        vec(Y) ~ N((A ⊗ M) vec(B) + (A₀ ⊗ Gᵢ) vec(A₁), s⋅K₀)
+        vec(Y) ~ N((A ⊗ M) vec(𝚨) + (A₀ ⊗ Gᵢ) vec(𝚩₁), s⋅K₀)
 
     and ::
 
-        vec(Y) ~ N((A ⊗ M) vec(B) + (A₀ ⊗ Gᵢ) vec(A₁) + (A₁ ⊗ Gᵢ) vec(A₂), s⋅K₀)
+        vec(Y) ~ N((A ⊗ M) vec(𝚨) + (A₀ ⊗ Gᵢ) vec(𝚩₁) + (A₁ ⊗ Gᵢ) vec(𝚩₂), s⋅K₀)
 
     It performs likelihood-ratio tests for the following cases, where the first
     hypothesis is the null one while the second hypothesis is the alternative one:
-    - H₀ vs H₁: testing for vec(A₁) ≠ 0 while vec(A₂) = 0
-    - H₀ vs H₂: testing for [vec(A₁) vec(A₂)] ≠ 0
-    - H₁ vs H₂: testing for vec(A₂) ≠ 0
+    - H₀ vs H₁: testing for vec(𝚩₁) ≠ 0 while vec(𝚩₂) = 0
+    - H₀ vs H₂: testing for [vec(𝚩₁) vec(𝚩₂)] ≠ 0
+    - H₁ vs H₂: testing for vec(𝚩₂) ≠ 0
 
     It supports generalized linear mixed models (GLMM) when a single trait is used.
     In this case, the following likelihoods are implemented:
@@ -49,7 +49,7 @@ def scan(
     Formally, let p(𝜇) be one of the supported probability distributions where 𝜇 is
     its mean. The H₀ model is defined as follows::
 
-        yᵢ ∼ p(𝜇=g(fᵢ)) for 𝐟 ∼ 𝓝(M𝐛, v₀K + v₁I).
+        yᵢ ∼ p(𝜇=g(zᵢ)) for 𝐳 ∼ 𝓝(..., ...).
 
     g(⋅) is the corresponding canonical link function for the Bernoulli, Binomial, and
     Poisson likelihoods. The Probit likelihood, on the other hand, is a Bernoulli
@@ -256,6 +256,10 @@ def scan(
     lik = (lik_name,) + lik[1:]
     assert_likelihood(lik_name)
 
+    if A is None:
+        if A0 is not None or A1 is not None:
+            raise ValueError("You cannot define `A0` or `A1` without defining `A`.")
+
     with session_block("QTL analysis", disable=not verbose):
 
         with session_line("Normalising input... ", disable=not verbose):
@@ -270,20 +274,15 @@ def scan(
         assert_finite(Y, M, K)
         ntraits = Y.shape[1]
 
-        if A1 is None:
-            A1 = eye(ntraits)
-
-        if A0 is None:
-            A0 = empty((ntraits, 0))
-
-        A0 = _asarray(A0, "env0", ["sample", "env"])
-        A1 = _asarray(A1, "env1", ["sample", "env"])
-        A01 = concat([A0, A1], dim="env")
-
         if K is not None:
             QS = economic_qs(K)
         else:
             QS = None
+
+        if A is None:
+            _single_trait_scan(lik, Y, M, G, QS)
+        else:
+            _multi_trait_scan(lik, Y, M, G, QS, A, A0, A1)
 
         if lik_name == "normal":
             if A is None:
@@ -339,6 +338,51 @@ def scan(
             print(r)
 
         return r
+
+
+def _single_trait_scan(lik, Y, M, G, QS):
+    pass
+
+
+def _multi_trait_scan(lik, Y, M, G, QS, A, A0, A1, verbose):
+    from xarray import concat
+    from numpy import eye, asarray, empty
+
+    ntraits = Y.shape[1]
+
+    if A1 is None:
+        A1 = eye(ntraits)
+
+    if A0 is None:
+        A0 = empty((ntraits, 0))
+
+    A0 = _asarray(A0, "env0", ["sample", "env"])
+    A1 = _asarray(A1, "env1", ["sample", "env"])
+    A01 = concat([A0, A1], dim="env")
+
+    if lik[0] == "normal":
+        scanner, C0, C1 = _mt_lmm(Y, M, QS, verbose)
+    else:
+        msg = "Non-normal likelihood inference has not been implemented for"
+        msg += " multiple traits yet."
+        raise ValueError(msg)
+
+    scanner, C0, C1 = _mt_lmm(Y.values.ravel(), lik, M, QS, verbose)
+
+    r = ScanResultFactory(
+        lik[0],
+        Y.trait,
+        M.covariate,
+        G.candidate,
+        A0.env,
+        A1.env,
+        scanner.null_lml,
+        scanner.null_beta,
+        scanner.null_beta_se,
+        C0,
+        C1,
+        A is None,
+    )
 
 
 def _normalise_scan_names(r):

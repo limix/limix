@@ -310,12 +310,12 @@ class ScanResult:
             traits, covariates, effsizes, effsizes_se, lml
         )
 
-        msg += draw_title(f"Hypothesis 1")
+        msg += draw_title(f"Hypothesis 2")
         msg += draw_model(lik, "𝙼𝜶 + G𝛃", f"s({covariance})")
         msg += draw_alt_hyp_table(2, self.stats, self.effsizes)
 
         msg += draw_title("Likelihood-ratio test p-values")
-        msg += draw_lrt_table(["𝓗₀ vs 𝓗₁"], [f"pv20"], stats)
+        msg += draw_lrt_table(["𝓗₀ vs 𝓗₂"], [f"pv20"], stats)
         return msg
 
     def __repr__(self):

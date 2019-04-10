@@ -409,17 +409,71 @@ We perform three statistical tests:
 - 𝓗₀ (null) vs 𝓗₂ (alternative)
 - 𝓗₁ (null) vs 𝓗₂ (alternative)
 
+Here is an example.
+
 .. doctest::
 
     >>> from numpy import concatenate, newaxis
     >>> from limix.qtl import iscan
     >>>
-    >>> # generate interacting variables (environment)
+    >>> # Generate interacting variables (environment)
+    >>> E0 = random.randn(y.shape[0], 1)
     >>> E1 = random.randn(y.shape[0], 1)
     >>>
-    >>> r = iscan(G, y, "normal", K, M, E1=E1, verbose=False)
+    >>> r = iscan(G, y, "normal", K, M, E0=E0, E1=E1, verbose=False)
     >>> print(r) # doctest: +FLOAT_CMP
-
+        Hypothesis 0
+    ============
+    <BLANKLINE>
+    𝐲 ~ 𝓝(𝙼𝜶, 0.423⋅𝙺 + 2.036⋅𝙸)
+    <BLANKLINE>
+    M     = ['offset' 'age']
+    𝜶     = [-1.19963667  0.08637111]
+    se(𝜶) = [0.24957295 0.00926164]
+    lml   = -185.62082015737917
+    <BLANKLINE>
+    Hypothesis 1
+    ============
+    <BLANKLINE>
+    𝐲 ~ 𝓝(𝙼𝜶 + (𝙶⊙𝙴₀)𝛃₀, s(0.423⋅𝙺 + 2.036⋅𝙸))
+    <BLANKLINE>
+              lml       cov. effsizes   cand. effsizes
+    --------------------------------------------------
+    mean   -1.840e+02      -5.681e-01        2.820e-01
+    std     1.927e+00       7.006e-01        2.339e-01
+    min    -1.855e+02      -1.242e+00        8.344e-02
+    25%    -1.854e+02      -1.222e+00        1.122e-01
+    50%    -1.847e+02      -5.571e-01        2.257e-01
+    75%    -1.833e+02       8.675e-02        3.955e-01
+    max    -1.814e+02       8.863e-02        5.930e-01
+    <BLANKLINE>
+    Hypothesis 1
+    ============
+    <BLANKLINE>
+    𝐲 ~ 𝓝(𝙼𝜶 + (𝙶⊙𝙴₀)𝛃₀ + (𝙶⊙𝙴₁)𝛃₁, s(0.423⋅𝙺 + 2.036⋅𝙸))
+    <BLANKLINE>
+              lml       cov. effsizes   cand. effsizes
+    --------------------------------------------------
+    mean   -1.835e+02      -5.766e-01        1.562e-01
+    std     2.383e+00       7.106e-01        2.695e-01
+    min    -1.853e+02      -1.287e+00       -2.883e-01
+    25%    -1.850e+02      -1.235e+00        7.698e-02
+    50%    -1.844e+02      -5.601e-01        1.271e-01
+    75%    -1.829e+02       8.702e-02        2.036e-01
+    max    -1.801e+02       8.981e-02        6.683e-01
+    <BLANKLINE>
+    Likelihood-ratio test p-values
+    ==============================
+    <BLANKLINE>
+           𝓗₀ vs 𝓗₁    𝓗₀ vs 𝓗₂    𝓗₁ vs 𝓗₂
+    ----------------------------------------
+    mean   2.910e-01   3.395e-01   4.384e-01
+    std    3.013e-01   3.136e-01   3.073e-01
+    min    3.477e-03   3.820e-03   1.071e-01
+    25%    4.998e-02   1.350e-01   2.512e-01
+    50%    2.763e-01   3.186e-01   4.127e-01
+    75%    5.173e-01   5.230e-01   5.998e-01
+    max    6.077e-01   7.169e-01   8.212e-01
 
 .. rubric:: References
 

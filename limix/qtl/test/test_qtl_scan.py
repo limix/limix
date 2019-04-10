@@ -45,8 +45,17 @@ def test_qtl_scan_st():
     y = mvn(m, v0 * K + v1 * eye(n)).rvs()
 
     idx = [[0, 1], 2, [3]]
+    breakpoint()
     r = scan(G, y, idx=idx, K=K, M=M, verbose=False)
     print(r)
+    print(r.stats.head())
+    print(r.effsizes["h1"].head())
+    print(r.effsizes["h2"].head())
+    print(r.h0.traits)
+    print(r.h0.likelihood)
+    print(r.h0.lml)
+    print(r.h0.effsizes)
+    print(r.h0.variances)
 
 
 def test_qtl_scan_three_hypotheses_mt():

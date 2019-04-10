@@ -1,26 +1,8 @@
-import pytest
 import scipy.stats as st
 from limix.qc import normalise_covariance
 from limix.qtl import iscan
-from limix.stats import linear_kinship
-from numpy import (
-    argmin,
-    array,
-    asarray,
-    concatenate,
-    dot,
-    exp,
-    eye,
-    kron,
-    nan,
-    ones,
-    reshape,
-    sqrt,
-    zeros,
-)
+from numpy import exp, eye, zeros
 from numpy.random import RandomState
-from numpy.testing import assert_allclose, assert_array_equal
-from pandas import DataFrame
 
 
 def _test_qtl_iscan_three_hypotheses(lik):
