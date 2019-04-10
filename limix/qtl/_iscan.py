@@ -5,7 +5,7 @@ from limix._display import session_line
 from .._bits import unvec
 from .._data import asarray as _asarray, assert_likelihood, conform_dataset
 from .._display import session_block
-from ._iresult import IScanResultFactory
+from ._result import IScanResultFactory
 
 
 def iscan(G, y, lik="normal", K=None, M=None, idx=None, E0=None, E1=None, verbose=True):
