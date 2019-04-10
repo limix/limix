@@ -2,6 +2,9 @@ from limix._bits import unvec
 from limix._cache import cache
 from limix.stats import lrt_pvalues
 
+from ._aligned import Aligned
+from ._table import Table
+
 
 class SModelResult:
     def __init__(self, lik, traits, covariates, lml, beta, beta_se, C0, C1):
@@ -15,6 +18,10 @@ class SModelResult:
         self._beta_se = atleast_1d(asarray(beta_se, float).T).T
         self._C0 = atleast_2d(asarray(C0, float))
         self._C1 = atleast_2d(asarray(C1, float))
+
+    @property
+    def traits(self):
+        return self._traits
 
     @property
     def likelihood(self):
@@ -312,57 +319,113 @@ class ScanResult:
 
         return {"stats": stats, "effsizes": {"h1": h1, "h2": h2}}
 
-    def _repr_two_hypothesis(self):
-        from numpy import asarray, isnan
+    def _repr_three_hypothesis(self):
+        from numpy import asarray
 
         lik = self._h0.likelihood
+        covariates = self._covariates
+        lml = self._h0.lml
         effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
         effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
         stats = self.stats
+        # v0 = self.h0.variances["fore_covariance"]
+        # v1 = self.h0.variances["back_covariance"]
 
-        msg = "Null model\n"
-        msg += "----------\n\n"
-        v0 = self.h0.variances["fore_covariance"].item()
-        v1 = self.h0.variances["back_covariance"].item()
-        if lik == "normal":
-            var = "𝐲"
+        msg = draw_title("Hypothesis 0")
+        msg += draw_model(lik, "(A⊗𝙼)𝜶", "C₀⊗𝙺 + C₁⊗𝙸")
+        msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
+
+        msg += draw_title("Hypothesis 1")
+        msg += draw_model(lik, "(A⊗𝙼)𝜶 + (A₀⊗G)𝜶₀", "s(C₀⊗𝙺 + C₁⊗𝙸)")
+        msg += draw_alt_hyp_table(1, self.stats, self.effsizes)
+
+        msg += draw_title("Hypothesis 2")
+        msg += draw_model(lik, "(A⊗𝙼)𝜶 + (A₀⊗G)𝜶₀ + (A₁⊗G)𝜶₁", "s(C₀⊗𝙺 + C₁⊗𝙸)")
+        msg += draw_alt_hyp_table(2, self.stats, self.effsizes)
+
+        msg += draw_title("Likelihood-ratio test p-values")
+        cols = ["𝓗₀ vs 𝓗₁", "𝓗₀ vs 𝓗₂", "𝓗₁ vs 𝓗₂"]
+        msg += draw_lrt_table(cols, ["pv10", "pv20", "pv21"], stats)
+        return msg
+
+    def _repr_two_hypothesis(self, alt_hyp):
+        from numpy import asarray
+
+        lik = self._h0.likelihood
+        covariates = self._covariates
+        lml = self._h0.lml
+        effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
+        effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
+        stats = self.stats
+        # v0 = self.h0.variances["fore_covariance"].item()
+        # v1 = self.h0.variances["back_covariance"].item()
+
+        covariance = self._covariance_expr()
+
+        msg = draw_title("Hypothesis 0")
+        msg += draw_model(lik, "(A⊗𝙼)𝜶", "C₀⊗𝙺 + C₁⊗𝙸")
+        msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
+
+        if alt_hyp == 1:
+            mean = "𝙼𝜶 + (A₀⊗G)𝜶₀"
+            col = "𝓗₀ vs 𝓗₁"
         else:
-            var = "𝐳"
-        if isnan(v0):
-            msg += f"{var} ~ 𝓝(𝙼𝜶, {v1:.4f}⋅𝙸)"
-        else:
-            msg += f"{var} ~ 𝓝(𝙼𝜶, {v0:.4f}⋅𝙺 + {v1:.4f}⋅𝙸)"
-        msg += _lik_formulae(self._h0.likelihood)
+            mean = "𝙼𝜶 + (A₁⊗G)𝜶₁"
+            col = "𝓗₀ vs 𝓗₂"
 
-        msg += _item_repr("𝙼     = ", self._covariates)
-        msg += _item_repr("𝜶     = ", effsizes)
-        msg += _item_repr("se(𝜶) = ", effsizes_se)
+        msg += draw_title(f"Hypothesis {alt_hyp}")
+        msg += draw_model(lik, mean, f"s({covariance})")
+        msg += draw_alt_hyp_table(alt_hyp, self.stats, self.effsizes)
 
-        msg += "lml   = {}\n\n".format(self.h0.lml)
-
-        msg += "Alt model\n"
-        msg += "---------\n\n"
-        if isnan(v0):
-            msg += f"{var} ~ 𝓝(𝙼𝜶 + 𝙶𝞫, {v1:.4f}⋅𝙸)"
-        else:
-            msg += f"{var} ~ 𝓝(𝙼𝜶 + 𝙶𝞫, {v0:.4f}⋅𝙺 + {v1:.4f}⋅𝙸)"
-        msg += _lik_formulae(self._h0.likelihood)
-
-        msg += "min(pv)  = {}\n".format(min(stats["pv20"]))
-        msg += "max(lml) = {}\n".format(max(stats["lml2"]))
-
+        msg += draw_title("Likelihood-ratio test p-values")
+        msg += draw_lrt_table([col], [f"pv{alt_hyp}0"], stats)
         return msg
 
     def __repr__(self):
-        return self._repr_two_hypothesis()
+        if len(self._envs0) > 0 and len(self._envs0) == len(self._envs1):
+            return self._repr_two_hypothesis(1)
+        elif len(self._envs0) > 0 and len(self._envs1) > 0:
+            return self._repr_three_hypothesis()
+        elif len(self._envs0) == 0 and len(self._envs1) > len(self._envs0):
+            return self._repr_two_hypothesis(2)
+        raise ValueError("There is no alternative hypothesis.")
 
 
-def _item_repr(prefix, item):
-    from textwrap import TextWrapper
+def draw_title(title):
+    msg = f"{title}\n"
+    msg += "=" * len(title) + "\n\n"
+    return msg
 
-    s = " " * len(prefix)
-    wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
-    return wrapper.fill(str(item)) + "\n"
+
+def draw_model(lik, mean, covariance):
+    if lik == "normal":
+        var = "𝐲"
+    else:
+        var = "𝐳"
+
+    msg = f"{var} ~ 𝓝({mean}, {covariance})"
+    msg += _lik_formulae(lik)
+    return msg
+
+
+def draw_alt_hyp_table(hyp_num, stats, effsizes):
+    cols = ["lml", "cov. effsizes", "cand. effsizes"]
+    table = Table(cols, index=_describe_index())
+    table.add_column(_describe(stats, f"lml{hyp_num}"))
+    df = effsizes[f"h{hyp_num}"]
+    table.add_column(_describe(df[df["effect_type"] == "covariate"], "effsize"))
+    table.add_column(_describe(df[df["effect_type"] == "candidate"], "effsize"))
+    return "\n" + table.draw() + "\n\n"
+
+
+def draw_lrt_table(test_titles, pv_names, stats):
+    table = Table(test_titles, index=_describe_index())
+
+    for name in pv_names:
+        pv = stats[name].describe().iloc[1:]
+        table.add_column(pv)
+
+    return table.draw()
 
 
 def _lik_formulae(lik):
@@ -379,3 +442,20 @@ def _lik_formulae(lik):
     else:
         msg += "\n"
     return msg
+
+
+def _describe(df, field):
+    return df[field].describe().iloc[1:]
+
+
+def _describe_index():
+    return ["mean", "std", "min", "25%", "50%", "75%", "max"]
+
+
+def _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml):
+    aligned = Aligned()
+    aligned.add_item("M", covariates)
+    aligned.add_item("𝜶", effsizes)
+    aligned.add_item("se(𝜶)", effsizes_se)
+    aligned.add_item("lml", lml)
+    return aligned.draw() + "\n"

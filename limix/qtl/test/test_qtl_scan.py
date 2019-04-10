@@ -22,7 +22,7 @@ from numpy.testing import assert_allclose, assert_array_equal
 from pandas import DataFrame
 
 
-def test_qtl_scan():
+def test_qtl_scan_three_hypotheses():
     random = RandomState(0)
     n = 30
     ntraits = 2
@@ -56,6 +56,7 @@ def test_qtl_scan():
 
     idx = [[0, 1], 2, [3]]
     r = scan(G, Y, idx=idx, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
+    print(r)
     # breakpoint()
     # print()
     # print(r.stats)

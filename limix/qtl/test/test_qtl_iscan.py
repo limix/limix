@@ -23,7 +23,7 @@ from numpy.testing import assert_allclose, assert_array_equal
 from pandas import DataFrame
 
 
-def _test_qtl_iscan_three_hypothesis(lik):
+def _test_qtl_iscan_three_hypotheses(lik):
     random = RandomState(0)
     n = 30
     ncovariates = 3
@@ -62,15 +62,15 @@ def _test_qtl_iscan_three_hypothesis(lik):
     print(r)
 
 
-def test_qtl_iscan_three_hypothesis():
-    _test_qtl_iscan_three_hypothesis("normal")
-    _test_qtl_iscan_three_hypothesis("poisson")
-    _test_qtl_iscan_three_hypothesis("bernoulli")
-    _test_qtl_iscan_three_hypothesis("probit")
-    _test_qtl_iscan_three_hypothesis("binomial")
+def test_qtl_iscan_three_hypotheses():
+    _test_qtl_iscan_three_hypotheses("normal")
+    _test_qtl_iscan_three_hypotheses("poisson")
+    _test_qtl_iscan_three_hypotheses("bernoulli")
+    _test_qtl_iscan_three_hypotheses("probit")
+    _test_qtl_iscan_three_hypotheses("binomial")
 
 
-def test_qtl_iscan_two_hypothesis_1vs0():
+def test_qtl_iscan_two_hypotheses_1vs0():
     random = RandomState(4)
     n = 30
     ncovariates = 3
@@ -96,7 +96,7 @@ def test_qtl_iscan_two_hypothesis_1vs0():
     print(r)
 
 
-def test_qtl_iscan_two_hypothesis_2vs0():
+def test_qtl_iscan_two_hypotheses_2vs0():
     random = RandomState(4)
     n = 30
     ncovariates = 3

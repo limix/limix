@@ -1,8 +1,14 @@
 from limix._cache import cache
 from limix.stats import lrt_pvalues
 
-from ._result import SModelResult
-from ._table import Table
+from ._aligned import Aligned
+from ._result import (
+    SModelResult,
+    draw_alt_hyp_table,
+    draw_lrt_table,
+    draw_model,
+    draw_title,
+)
 
 
 class IScanResultFactory:
@@ -259,30 +265,18 @@ class IScanResult:
 
         return {"stats": stats, "effsizes": {"h1": h1, "h2": h2}}
 
-    def _repr_two_hypothesis(self, alt_hyp):
-        from numpy import asarray
+    def _covariance_expr(self):
+        from numpy import isnan
 
-        lik = self._h0.likelihood
-        covariates = self._covariates
-        lml = self._h0.lml
-        effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
-        effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
-        stats = self.stats
         v0 = self.h0.variances["fore_covariance"].item()
         v1 = self.h0.variances["back_covariance"].item()
 
-        msg = _draw_hypothesis_zero(lik, v0, v1, covariates, effsizes, effsizes_se, lml)
-
-        if alt_hyp == 1:
-            msg += _section("Hypothesis 1", " + (𝙶⊙𝙴₀)𝛃₀", lik, v0, v1, True)
-            col = "𝓗₀ vs 𝓗₁"
+        if isnan(v0):
+            covariance = f"{v1:.4f}⋅𝙸"
         else:
-            msg += _section("Hypothesis 2", " + (𝙶⊙𝙴₁)𝛃₁", lik, v0, v1, True)
-            col = "𝓗₀ vs 𝓗₂"
-        msg += _draw_alt_hypothesis_table(alt_hyp, self.stats, self.effsizes)
+            covariance = f"{v0:.4f}⋅𝙺 + {v1:.4f}⋅𝙸"
 
-        msg += _draw_lrt_section([col], [f"pv{alt_hyp}0"], stats)
-        return msg
+        return covariance
 
     def _repr_three_hypothesis(self):
         from numpy import asarray
@@ -293,20 +287,55 @@ class IScanResult:
         effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
         effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
         stats = self.stats
-        v0 = self.h0.variances["fore_covariance"].item()
-        v1 = self.h0.variances["back_covariance"].item()
 
-        msg = _draw_hypothesis_zero(lik, v0, v1, covariates, effsizes, effsizes_se, lml)
+        covariance = self._covariance_expr()
 
-        msg += _section("Hypothesis 1", " + (𝙶⊙𝙴₀)𝛃₀", lik, v0, v1, True)
-        msg += _draw_alt_hypothesis_table(1, self.stats, self.effsizes)
+        msg = draw_title("Hypothesis 0")
+        msg += draw_model(lik, "𝙼𝜶", covariance)
+        msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
 
-        msg += _section("Hypothesis 2", " + (𝙶⊙𝙴₀)𝛃₀ + (𝙶⊙𝙴₁)𝛃₁", lik, v0, v1, True)
-        msg += _draw_alt_hypothesis_table(2, self.stats, self.effsizes)
+        msg += draw_title("Hypothesis 1")
+        msg += draw_model(lik, "𝙼𝜶 + (𝙶⊙𝙴₀)𝛃₀", f"s({covariance})")
+        msg += draw_alt_hyp_table(1, self.stats, self.effsizes)
 
-        msg += _draw_lrt_section(
-            ["𝓗₀ vs 𝓗₁", "𝓗₀ vs 𝓗₂", "𝓗₁ vs 𝓗₂"], ["pv10", "pv20", "pv21"], stats
-        )
+        msg += draw_title("Hypothesis 1")
+        msg += draw_model(lik, "𝙼𝜶 + (𝙶⊙𝙴₀)𝛃₀ + (𝙶⊙𝙴₁)𝛃₁", f"s({covariance})")
+        msg += draw_alt_hyp_table(2, self.stats, self.effsizes)
+
+        msg += draw_title("Likelihood-ratio test p-values")
+        cols = ["𝓗₀ vs 𝓗₁", "𝓗₀ vs 𝓗₂", "𝓗₁ vs 𝓗₂"]
+        msg += draw_lrt_table(cols, ["pv10", "pv20", "pv21"], stats)
+        return msg
+
+    def _repr_two_hypothesis(self, alt_hyp):
+        from numpy import asarray
+
+        lik = self._h0.likelihood
+        covariates = self._covariates
+        lml = self._h0.lml
+        effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
+        effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
+        stats = self.stats
+
+        covariance = self._covariance_expr()
+
+        msg = draw_title("Hypothesis 0")
+        msg += draw_model(lik, "𝙼𝜶", covariance)
+        msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
+
+        if alt_hyp == 1:
+            mean = "𝙼𝜶 + (𝙶⊙𝙴₀)𝛃₀"
+            col = "𝓗₀ vs 𝓗₁"
+        else:
+            mean = "𝙼𝜶 + (𝙶⊙𝙴₁)𝛃₁"
+            col = "𝓗₀ vs 𝓗₂"
+
+        msg += draw_title(f"Hypothesis {alt_hyp}")
+        msg += draw_model(lik, mean, f"s({covariance})")
+        msg += draw_alt_hyp_table(alt_hyp, self.stats, self.effsizes)
+
+        msg += draw_title("Likelihood-ratio test p-values")
+        msg += draw_lrt_table([col], [f"pv{alt_hyp}0"], stats)
         return msg
 
     def __repr__(self):
@@ -319,102 +348,10 @@ class IScanResult:
         raise ValueError("There is no environment to interact with.")
 
 
-def _item_repr(prefix, item):
-    from textwrap import TextWrapper
-
-    s = " " * len(prefix)
-    wrapper = TextWrapper(initial_indent=prefix, width=88, subsequent_indent=s)
-    return wrapper.fill(str(item)) + "\n"
-
-
-def _lik_formulae(lik):
-    msg = ""
-
-    if lik == "bernoulli":
-        msg += f" for yᵢ ~ Bern(μᵢ=g(zᵢ)) and g(x)=1/(1+e⁻ˣ)\n"
-    elif lik == "probit":
-        msg += f" for yᵢ ~ Bern(μᵢ=g(zᵢ)) and g(x)=Φ(x)\n"
-    elif lik == "binomial":
-        msg += f" for yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ) and g(x)=1/(1+e⁻ˣ)\n"
-    elif lik == "poisson":
-        msg += f" for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ\n"
-    else:
-        msg += "\n"
-    return msg
-
-
-def _title(title):
-    msg = f"{title}\n"
-    msg += "=" * len(title) + "\n\n"
-    return msg
-
-
-def _section(model_name, cand_term, lik, v0, v1, scale):
-    from numpy import isnan
-
-    msg = _title(model_name)
-    if lik == "normal":
-        var = "𝐲"
-    else:
-        var = "𝐳"
-
-    if cand_term is None:
-        cand_term = ""
-
-    if scale:
-        left = "s("
-        right = ")"
-    else:
-        left = ""
-        right = ""
-
-    if isnan(v0):
-        msg += f"{var} ~ 𝓝(𝙼𝜶{cand_term}, {left}{v1:.4f}⋅𝙸{right})"
-    else:
-        msg += f"{var} ~ 𝓝(𝙼𝜶{cand_term}, {left}{v0:.4f}⋅𝙺 + {v1:.4f}⋅𝙸{right})"
-    msg += _lik_formulae(lik)
-    return msg
-
-
-def _draw_hypothesis_zero(lik, v0, v1, covariates, effsizes, effsizes_se, lml):
-    from ._aligned import Aligned
-
-    msg = _section("Hypothesis 0", None, lik, v0, v1, False)
+def _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml):
     aligned = Aligned()
     aligned.add_item("M", covariates)
     aligned.add_item("𝜶", effsizes)
     aligned.add_item("se(𝜶)", effsizes_se)
     aligned.add_item("lml", lml)
-    msg += aligned.draw() + "\n"
-    return msg
-
-
-def _describe(df, field):
-    return df[field].describe().iloc[1:]
-
-
-def _describe_index():
-    return ["mean", "std", "min", "25%", "50%", "75%", "max"]
-
-
-def _draw_alt_hypothesis_table(hyp_num, stats, effsizes):
-    cols = ["lml", "cov. effsizes", "cand. effsizes"]
-    table = Table(cols, index=_describe_index())
-    table.add_column(_describe(stats, f"lml{hyp_num}"))
-    df = effsizes[f"h{hyp_num}"]
-    table.add_column(_describe(df[df["effect_type"] == "covariate"], "effsize"))
-    table.add_column(_describe(df[df["effect_type"] == "candidate"], "effsize"))
-    return "\n" + table.draw() + "\n\n"
-
-
-def _draw_lrt_section(test_titles, pv_names, stats):
-    msg = _title("Likelihood-ratio test p-values")
-
-    table = Table(test_titles, index=_describe_index())
-
-    for name in pv_names:
-        pv = stats[name].describe().iloc[1:]
-        table.add_column(pv)
-
-    msg += table.draw()
-    return msg
+    return aligned.draw() + "\n"
