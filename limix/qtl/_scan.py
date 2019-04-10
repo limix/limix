@@ -4,7 +4,7 @@ from limix._display import session_line
 
 from .._data import asarray as _asarray, assert_likelihood, conform_dataset
 from .._display import session_block
-from ._result import ScanResultFactory
+from ._result import MTScanResultFactory, STScanResultFactory
 
 
 def scan(
@@ -249,6 +249,7 @@ def scan(
     from ._assert import assert_finite
     from numpy import eye, asarray, empty
 
+    breakpoint()
     if not isinstance(lik, (tuple, list)):
         lik = (lik,)
 
@@ -272,7 +273,6 @@ def scan(
         K = data["K"]
 
         assert_finite(Y, M, K)
-        ntraits = Y.shape[1]
 
         if K is not None:
             QS = economic_qs(K)
@@ -280,71 +280,86 @@ def scan(
             QS = None
 
         if A is None:
-            _single_trait_scan(lik, Y, M, G, QS)
+            _single_trait_scan(idx, lik, Y, M, G, QS, verbose)
         else:
-            _multi_trait_scan(lik, Y, M, G, QS, A, A0, A1)
+            _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1)
 
-        if lik_name == "normal":
-            if A is None:
-                scanner, C0, C1 = _st_lmm(Y, M, QS, verbose)
-            else:
-                scanner, C0, C1 = _mt_lmm(Y, A, M, QS, verbose)
-        else:
-            if A is not None:
-                msg = "Non-normal likelihood inference has not been implemented for"
-                msg += " multiple traits yet."
-                raise ValueError(msg)
-            scanner, C0, C1 = _st_glmm(Y.values.ravel(), lik, M, QS, verbose)
+        # if lik_name == "normal":
+        #     if A is None:
+        #         scanner, C0, C1 = _st_lmm(Y, M, QS, verbose)
+        #     else:
+        #         scanner, C0, C1 = _mt_lmm(Y, A, M, QS, verbose)
+        # else:
+        #     if A is not None:
+        #         msg = "Non-normal likelihood inference has not been implemented for"
+        #         msg += " multiple traits yet."
+        #         raise ValueError(msg)
+        #     scanner, C0, C1 = _st_glmm(Y.values.ravel(), lik, M, QS, verbose)
 
-        r = ScanResultFactory(
-            lik_name,
-            Y.trait,
-            M.covariate,
-            G.candidate,
-            A0.env,
-            A1.env,
-            scanner.null_lml,
-            scanner.null_beta,
-            scanner.null_beta_se,
-            C0,
-            C1,
-            A is None,
-        )
+        # if idx is None and ntraits == 1:
+        #     r1 = scanner.fast_scan(G, verbose)
+        #     for i in range(G.shape[1]):
+        #         h1 = _normalise_scan_names({k: v[i] for k, v in r1.items()})
+        #         h2 = h1
+        #         r.add_test(i, h1, h2)
+        # else:
+        #     if idx is None:
+        #         idx = range(G.shape[1])
 
-        if idx is None and ntraits == 1:
-            r1 = scanner.fast_scan(G, verbose)
-            for i in range(G.shape[1]):
-                h1 = _normalise_scan_names({k: v[i] for k, v in r1.items()})
-                h2 = h1
-                r.add_test(i, h1, h2)
-        else:
-            if idx is None:
-                idx = range(G.shape[1])
+        #     for i in idx:
 
-            for i in idx:
+        #         i = _2d_sel(i)
+        #         g = asarray(G[:, i], float)
 
-                i = _2d_sel(i)
-                g = asarray(G[:, i], float)
+        #         r1 = scanner.scan(A0, g)
+        #         r2 = scanner.scan(A01, g)
 
-                r1 = scanner.scan(A0, g)
-                r2 = scanner.scan(A01, g)
+        #         h1 = _normalise_scan_names(r1)
+        #         h2 = _normalise_scan_names(r2)
+        #         r.add_test(i, h1, h2)
 
-                h1 = _normalise_scan_names(r1)
-                h2 = _normalise_scan_names(r2)
-                r.add_test(i, h1, h2)
-
-        r = r.create()
-        if verbose:
-            print(r)
+        # r = r.create()
+        # if verbose:
+        #     print(r)
 
         return r
 
 
-def _single_trait_scan(lik, Y, M, G, QS):
+def _single_trait_scan(idx, lik, Y, M, G, QS, verbose):
+    from numpy import asarray
+
+    if lik[0] == "normal":
+        scanner, v0, v1 = _st_lmm(Y.values.ravel(), M.values, QS, verbose)
+    else:
+        scanner, v0, v1 = _st_glmm(Y.values.ravel(), lik, M.values, QS, verbose)
     pass
 
+    r = STScanResultFactory(
+        lik[0],
+        Y.trait,
+        M.covariate,
+        G.candidate,
+        scanner.null_lml,
+        scanner.null_beta,
+        scanner.null_beta_se,
+        v0,
+        v1,
+    )
 
-def _multi_trait_scan(lik, Y, M, G, QS, A, A0, A1, verbose):
+    if idx is None:
+        r1 = scanner.fast_scan(G, verbose)
+        for i in range(G.shape[1]):
+            h1 = _normalise_scan_names({k: v[i] for k, v in r1.items()})
+            r.add_test(i, h1)
+    else:
+        for i in idx:
+            i = _2d_sel(i)
+            r1 = scanner.scan(asarray(G[:, i], float))
+            r.add_test(i, _normalise_scan_names(r1))
+    return r
+
+
+def _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1, verbose):
     from xarray import concat
     from numpy import eye, asarray, empty
 
@@ -361,15 +376,13 @@ def _multi_trait_scan(lik, Y, M, G, QS, A, A0, A1, verbose):
     A01 = concat([A0, A1], dim="env")
 
     if lik[0] == "normal":
-        scanner, C0, C1 = _mt_lmm(Y, M, QS, verbose)
+        scanner, C0, C1 = _mt_lmm(Y, A, M, QS, verbose)
     else:
         msg = "Non-normal likelihood inference has not been implemented for"
         msg += " multiple traits yet."
         raise ValueError(msg)
 
-    scanner, C0, C1 = _mt_lmm(Y.values.ravel(), lik, M, QS, verbose)
-
-    r = ScanResultFactory(
+    r = MTScanResultFactory(
         lik[0],
         Y.trait,
         M.covariate,
@@ -381,8 +394,10 @@ def _multi_trait_scan(lik, Y, M, G, QS, A, A0, A1, verbose):
         scanner.null_beta_se,
         C0,
         C1,
-        A is None,
+        False,
     )
+
+    return r
 
 
 def _normalise_scan_names(r):
@@ -440,7 +455,7 @@ class ScannerWrapper:
 def _st_lmm(Y, M, QS, verbose):
     from glimix_core.lmm import LMM
 
-    lmm = LMM(Y.values, M.values, QS, restricted=False)
+    lmm = LMM(Y, M, QS, restricted=False)
     lmm.fit(verbose=verbose)
     sys.stdout.flush()
 

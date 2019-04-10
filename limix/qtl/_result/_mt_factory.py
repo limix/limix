@@ -1,8 +1,8 @@
-from ._result import ScanResult
-from ._simple import SModelResult
+from ._mt_result import MTScanResult
+from ._mt_simple import MTSimpleModelResult
 
 
-class ScanResultFactory:
+class MTScanResultFactory:
     def __init__(
         self,
         lik,
@@ -16,12 +16,11 @@ class ScanResultFactory:
         beta_se,
         C0,
         C1,
-        single_trait=True,
     ):
         from numpy import asarray, atleast_1d
 
-        self._h0 = SModelResult(
-            lik, traits, covariates, lml, beta, beta_se, C0, C1, single_trait
+        self._h0 = MTSimpleModelResult(
+            lik, traits, covariates, lml, beta, beta_se, C0, C1
         )
         self._tests = []
         self._traits = asarray(atleast_1d(traits), str)
@@ -29,7 +28,6 @@ class ScanResultFactory:
         self._candidates = asarray(atleast_1d(candidates), str)
         self._envs0 = asarray(atleast_1d(envs0), str)
         self._envs1 = asarray(atleast_1d(envs1), str)
-        self._single_trait = single_trait
 
     def add_test(self, cand_idx, h1, h2):
         from numpy import atleast_1d, atleast_2d, asarray
@@ -58,7 +56,7 @@ class ScanResultFactory:
         self._tests.append({"idx": cand_idx, "h1": h1, "h2": h2})
 
     def create(self):
-        return ScanResult(
+        return MTScanResult(
             self._tests,
             self._traits,
             self._covariates,
@@ -66,5 +64,4 @@ class ScanResultFactory:
             self._h0,
             self._envs0,
             self._envs1,
-            self._single_trait,
         )
