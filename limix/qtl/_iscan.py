@@ -71,19 +71,26 @@ def iscan(G, y, lik="normal", K=None, M=None, idx=None, E0=None, E1=None, verbos
 
         if idx is None:
 
+            assert E1.shape[1] > 0
+            idx = range(G.shape[1])
+
             if E0.shape[1] == 0:
                 r1 = scanner.fast_scan(G, verbose)
-            else:
-                r1 = scanner.scan(G, E0, verbose)
 
-            if E1.shape[1] == 0:
-                r2 = r1
-            else:
-                r2 = scanner.scan(G, E01, verbose)
+            for i in idx:
+                i = _2d_sel(i)
+                g = asarray(G[:, i], float)
 
-            for i in range(G.shape[1]):
-                h1 = _normalise_scan_names({k: v[i] for k, v in r1.items()})
-                h2 = _normalise_scan_names({k: v[i] for k, v in r2.items()})
+                if E0.shape[1] > 0:
+                    r1 = scanner.scan(g, E0)
+                    h1 = _normalise_scan_names(r1)
+                else:
+                    h1 = _normalise_scan_names({k: v[i] for k, v in r1.items()})
+                    h1["covariate_effsizes"] = h1["covariate_effsizes"].ravel()
+                    h1["covariate_effsizes_se"] = h1["covariate_effsizes_se"].ravel()
+
+                r2 = scanner.scan(g, E01)
+                h2 = _normalise_scan_names(r2)
                 r.add_test(i, h1, h2)
         else:
             for i in idx:

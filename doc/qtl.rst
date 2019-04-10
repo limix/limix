@@ -176,6 +176,44 @@ We now apply the function :func:`limix.qtl.scan` to our data set
     >>>
     >>> r = scan(G, y, "normal", M=M, verbose=False)
     >>> print(r) # doctest: +FLOAT_CMP
+    Hypothesis 0
+    ============
+    <BLANKLINE>
+    𝐲 ~ 𝓝(𝙼𝜶, 4.115⋅𝙸)
+    <BLANKLINE>
+    traits = ['0']
+    M      = ['offset' 'age']
+    𝜶      = [-1.60130331  0.17922863]
+    se(𝜶)  = [0.33382518 0.01227417]
+    lml    = -212.62741096350612
+    <BLANKLINE>
+    Hypothesis 1
+    ============
+    <BLANKLINE>
+    𝐲 ~ 𝓝(𝙼𝜶 + G𝛃, s(4.115⋅𝙸))
+    <BLANKLINE>
+              lml       cov. effsizes   cand. effsizes
+    --------------------------------------------------
+    mean   -1.965e+02      -7.056e-01       -6.597e-01
+    std     3.037e+01       9.470e-01        8.287e-01
+    min    -2.125e+02      -1.648e+00       -1.891e+00
+    25%    -2.118e+02      -1.585e+00       -7.375e-01
+    50%    -2.112e+02      -6.789e-01       -3.283e-01
+    75%    -1.959e+02       1.793e-01       -2.505e-01
+    max    -1.509e+02       1.838e-01       -9.122e-02
+    <BLANKLINE>
+    Likelihood-ratio test p-values
+    ==============================
+    <BLANKLINE>
+           𝓗₀ vs 𝓗₁
+    ----------------
+    mean   2.206e-01
+    std    3.160e-01
+    min    1.139e-28
+    25%    4.727e-02
+    50%    9.740e-02
+    75%    2.707e-01
+    max    6.876e-01
 
 The variable ``r`` is instance of the class :class:`limix.qtl.ScanResult` and stores all
 the results of the analysis.  Printing it as we did above it will show a summary of the
@@ -221,22 +259,44 @@ matrix 𝙺, and call :func:`limix.qtl.scan` to perform the analysis.
     >>>
     >>> r = scan(X, y, "normal", K, 𝙼=M, verbose=False)
     >>> print(r) # doctest: +FLOAT_CMP
-    Null model
-    ----------
+    Hypothesis 0
+    ============
     <BLANKLINE>
-    𝐲 ~ 𝓝(𝙼𝜶, 1.5632⋅𝙺 + 3.2301⋅𝙸)
-    𝙼     = ['offset' 'age']
-    𝜶     = [-1.88025701  0.19028836]
-    se(𝜶) = [0.327493   0.01222069]
-    lml   = -215.9781119592618
+    𝐲 ~ 𝓝(𝙼𝜶, 1.563⋅𝙺 + 3.230⋅𝙸)
     <BLANKLINE>
-    Alt model
-    ---------
+    traits = ['0']
+    M      = ['offset' 'age']
+    𝜶      = [-1.88025701  0.19028836]
+    se(𝜶)  = [0.327493   0.01222069]
+    lml    = -215.9781119592618
     <BLANKLINE>
-    𝐲 ~ 𝓝(𝙼𝜶 + 𝙶𝞫, 1.5632⋅𝙺 + 3.2301⋅𝙸)
-    min(pv)  = 0.014200670407257475
-    max(lml) = -212.97159992879634
+    Hypothesis 1
+    ============
     <BLANKLINE>
+    𝐲 ~ 𝓝(𝙼𝜶 + G𝛃, s(1.563⋅𝙺 + 3.230⋅𝙸))
+    <BLANKLINE>
+              lml       cov. effsizes   cand. effsizes
+    --------------------------------------------------
+    mean   -2.155e+02      -8.458e-01        1.528e-02
+    std     6.543e-01       1.042e+00        2.794e-01
+    min    -2.160e+02      -2.003e+00       -6.968e-01
+    25%    -2.159e+02      -1.880e+00       -1.639e-01
+    50%    -2.157e+02      -8.101e-01        1.708e-02
+    75%    -2.153e+02       1.903e-01        1.986e-01
+    max    -2.130e+02       1.939e-01        5.594e-01
+    <BLANKLINE>
+    Likelihood-ratio test p-values
+    ==============================
+    <BLANKLINE>
+           𝓗₀ vs 𝓗₁
+    ----------------
+    mean   4.925e-01
+    std    3.016e-01
+    min    1.420e-02
+    25%    2.309e-01
+    50%    4.699e-01
+    75%    7.179e-01
+    max    9.997e-01
 
 Non-normal trait association
 ============================
@@ -275,22 +335,44 @@ distribution is not sufficient to explain the variability of yᵢ.
     >>>
     >>> r = scan(G, y, "poisson", K, M=M, verbose=False)
     >>> print(r) # doctest: +FLOAT_CMP
-    Null model
-    ----------
+    Hypothesis 0
+    ============
     <BLANKLINE>
-    𝐳 ~ 𝓝(𝙼𝜶, 0.1130⋅𝙺 + 0.1399⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
-    𝙼     = ['offset' 'age']
-    𝜶     = [-1.41641664  0.05496354]
-    se(𝜶) = [0.2020572 0.0060997]
-    lml   = -151.15802807711944
+    𝐳 ~ 𝓝(𝙼𝜶, 0.113⋅𝙺 + 0.140⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
     <BLANKLINE>
-    Alt model
-    ---------
+    traits = ['0']
+    M      = ['offset' 'age']
+    𝜶      = [-1.41641664  0.05496354]
+    se(𝜶)  = [0.2020572 0.0060997]
+    lml    = -151.15802807711944
     <BLANKLINE>
-    𝐳 ~ 𝓝(𝙼𝜶 + 𝙶𝞫, 0.1130⋅𝙺 + 0.1399⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
-    min(pv)  = 0.004370366590054564
-    max(lml) = -147.09645533116503
+    Hypothesis 1
+    ============
     <BLANKLINE>
+    𝐳 ~ 𝓝(𝙼𝜶 + G𝛃, s(0.113⋅𝙺 + 0.140⋅𝙸)) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
+    <BLANKLINE>
+              lml       cov. effsizes   cand. effsizes
+    --------------------------------------------------
+    mean   -1.499e+02      -6.808e-01       -1.158e-01
+    std     1.910e+00       7.867e-01        1.525e-01
+    min    -1.511e+02      -1.439e+00       -3.197e-01
+    25%    -1.511e+02      -1.413e+00       -1.854e-01
+    50%    -1.507e+02      -6.731e-01       -8.427e-02
+    75%    -1.494e+02       5.495e-02       -1.461e-02
+    max    -1.471e+02       5.524e-02        2.517e-02
+    <BLANKLINE>
+    Likelihood-ratio test p-values
+    ==============================
+    <BLANKLINE>
+           𝓗₀ vs 𝓗₁
+    ----------------
+    mean   4.376e-01
+    std    4.096e-01
+    min    4.370e-03
+    25%    1.307e-01
+    50%    4.643e-01
+    75%    7.712e-01
+    max    8.176e-01
 
 Single-trait with interaction
 =============================
@@ -330,17 +412,13 @@ We perform three statistical tests:
 .. doctest::
 
     >>> from numpy import concatenate, newaxis
-    >>> from limix.qtl import scan
+    >>> from limix.qtl import iscan
     >>>
     >>> # generate interacting variables (environment)
-    >>> random = RandomState(1)
-    >>> E = random.randn(y.shape[0], 1)
+    >>> E1 = random.randn(y.shape[0], 1)
     >>>
-    >>> # add additive environment as covariate
-    >>> ME = concatenate([M, E], axis=1)
-    >>>
-    >>> snps = random.randn(n, 100)
-    >>>
+    >>> r = iscan(G, y, "normal", K, M, E1=E1, verbose=False)
+    >>> print(r) # doctest: +FLOAT_CMP
 
 
 .. rubric:: References

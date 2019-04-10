@@ -58,7 +58,11 @@ def _test_qtl_iscan_three_hypotheses(lik):
         ntrials = random.randint(0, 30, len(y))
         y = random.binomial(ntrials, 1 / (1 + exp(-y)))
         lik = (lik, ntrials)
+
     r = iscan(G, y, lik=lik, idx=idx, K=K, M=M, E0=E0, E1=E1, verbose=False)
+    print(r)
+
+    r = iscan(G, y, lik=lik, idx=idx, K=K, M=M, E1=E1, verbose=False)
     print(r)
 
 
@@ -93,6 +97,9 @@ def test_qtl_iscan_two_hypotheses():
 
     idx = [[0, 1], 2, [3]]
     r = iscan(G, y, idx=idx, K=K, M=M, E1=E1, verbose=False)
+    print(r)
+
+    r = iscan(G, y, K=K, M=M, E1=E1, verbose=False)
     print(r)
 
 
