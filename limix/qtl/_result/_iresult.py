@@ -18,21 +18,21 @@ class IScanResult:
     @property
     def stats(self):
         """
-        TODO
+        Statistics.
         """
         return self._dataframes["stats"].set_index("test")
 
     @property
     def effsizes(self):
         """
-        TODO
+        Effect sizes.
         """
         return self._dataframes["effsizes"]
 
     @property
     def h0(self):
         """
-        TODO
+        Hypothesis zero.
         """
         return self._h0
 
@@ -203,9 +203,9 @@ class IScanResult:
         v1 = self.h0.variances["back_covariance"].item()
 
         if isnan(v0):
-            covariance = f"{v1:.4f}⋅𝙸"
+            covariance = f"{v1:.3f}⋅𝙸"
         else:
-            covariance = f"{v0:.4f}⋅𝙺 + {v1:.4f}⋅𝙸"
+            covariance = f"{v0:.3f}⋅𝙺 + {v1:.3f}⋅𝙸"
 
         return covariance
 
@@ -222,7 +222,7 @@ class IScanResult:
         covariance = self._covariance_expr()
 
         msg = draw_title("Hypothesis 0")
-        msg += draw_model(lik, "𝙼𝜶", covariance)
+        msg += draw_model(lik, "𝙼𝜶", covariance) + "\n"
         msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
 
         msg += draw_title("Hypothesis 1")
@@ -251,7 +251,7 @@ class IScanResult:
         covariance = self._covariance_expr()
 
         msg = draw_title("Hypothesis 0")
-        msg += draw_model(lik, "𝙼𝜶", covariance)
+        msg += draw_model(lik, "𝙼𝜶", covariance) + "\n"
         msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
 
         if alt_hyp == 1:
@@ -270,13 +270,9 @@ class IScanResult:
         return msg
 
     def __repr__(self):
-        if len(self._envs0) > 0 and len(self._envs0) == len(self._envs1):
-            return self._repr_two_hypothesis(1)
-        elif len(self._envs0) > 0 and len(self._envs1) > 0:
-            return self._repr_three_hypothesis()
-        elif len(self._envs0) == 0 and len(self._envs1) > len(self._envs0):
+        if len(self._envs0) == 0:
             return self._repr_two_hypothesis(2)
-        raise ValueError("There is no environment to interact with.")
+        return self._repr_three_hypothesis()
 
 
 def _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml):

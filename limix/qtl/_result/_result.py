@@ -17,21 +17,21 @@ class ScanResult:
     @property
     def stats(self):
         """
-        TODO
+        Statistics.
         """
         return self._dataframes["stats"].set_index("test")
 
     @property
     def effsizes(self):
         """
-        TODO
+        Effect sizes.
         """
         return self._dataframes["effsizes"]
 
     @property
     def h0(self):
         """
-        TODO
+        Hypothesis zero.
         """
         return self._h0
 
@@ -196,26 +196,29 @@ class ScanResult:
         return {"stats": stats, "effsizes": {"h1": h1, "h2": h2}}
 
     def _covariance_expr(self):
-        # v0 = self.h0.variances["fore_covariance"].item()
-        # v1 = self.h0.variances["back_covariance"].item()
-
         return "C₀⊗𝙺 + C₁⊗𝙸"
 
     def _repr_three_hypothesis(self):
         from numpy import asarray
 
+        traits = self._h0.traits
         lik = self._h0.likelihood
         covariates = self._covariates
         lml = self._h0.lml
         effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
         effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
         stats = self.stats
-        # v0 = self.h0.variances["fore_covariance"]
-        # v1 = self.h0.variances["back_covariance"]
+
+        df = self.h0.variances
+        df = df[df["trait0"] == df["trait1"]]
+        diagC0 = df["fore_covariance"]
+        diagC1 = df["back_covariance"]
 
         msg = draw_title("Hypothesis 0")
-        msg += draw_model(lik, "(A⊗𝙼)𝜶", "C₀⊗𝙺 + C₁⊗𝙸")
-        msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
+        msg += draw_model(lik, "(A⊗𝙼)𝜶", "C₀⊗𝙺 + C₁⊗𝙸") + "\n"
+        msg += _draw_hyp0_summary(
+            traits, covariates, effsizes, effsizes_se, lml, diagC0, diagC1
+        )
 
         msg += draw_title("Hypothesis 1")
         msg += draw_model(lik, "(A⊗𝙼)𝜶 + (A₀⊗G)𝜶₀", "s(C₀⊗𝙺 + C₁⊗𝙸)")
@@ -233,20 +236,26 @@ class ScanResult:
     def _repr_two_hypothesis(self, alt_hyp):
         from numpy import asarray
 
+        traits = self._h0.traits
         lik = self._h0.likelihood
         covariates = self._covariates
         lml = self._h0.lml
         effsizes = asarray(self.h0.effsizes["effsize"], float).ravel()
         effsizes_se = asarray(self.h0.effsizes["effsize_se"], float).ravel()
         stats = self.stats
-        # v0 = self.h0.variances["fore_covariance"].item()
-        # v1 = self.h0.variances["back_covariance"].item()
+
+        df = self.h0.variances
+        df = df[df["trait0"] == df["trait1"]]
+        diagC0 = df["fore_covariance"]
+        diagC1 = df["back_covariance"]
 
         covariance = self._covariance_expr()
 
         msg = draw_title("Hypothesis 0")
-        msg += draw_model(lik, "(A⊗𝙼)𝜶", "C₀⊗𝙺 + C₁⊗𝙸")
-        msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
+        msg += draw_model(lik, "(A⊗𝙼)𝜶", "C₀⊗𝙺 + C₁⊗𝙸") + "\n"
+        msg += _draw_hyp0_summary(
+            traits, covariates, effsizes, effsizes_se, lml, diagC0, diagC1
+        )
 
         if alt_hyp == 1:
             mean = "𝙼𝜶 + (A₀⊗G)𝜶₀"
@@ -264,19 +273,22 @@ class ScanResult:
         return msg
 
     def __repr__(self):
-        if len(self._envs0) > 0 and len(self._envs0) == len(self._envs1):
-            return self._repr_two_hypothesis(1)
-        elif len(self._envs0) > 0 and len(self._envs1) > 0:
-            return self._repr_three_hypothesis()
-        elif len(self._envs0) == 0 and len(self._envs1) > len(self._envs0):
+        if len(self._envs0) == 0:
             return self._repr_two_hypothesis(2)
-        raise ValueError("There is no alternative hypothesis.")
+        return self._repr_three_hypothesis()
 
 
-def _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml):
+def _draw_hyp0_summary(traits, covariates, effsizes, effsizes_se, lml, diagC0, diagC1):
+    from numpy import asarray
+
+    diagC0 = asarray(diagC0, float)
+    diagC1 = asarray(diagC1, float)
     aligned = Aligned()
+    aligned.add_item("traits", traits)
     aligned.add_item("M", covariates)
     aligned.add_item("𝜶", effsizes)
     aligned.add_item("se(𝜶)", effsizes_se)
+    aligned.add_item("diag(C₀)", diagC0)
+    aligned.add_item("diag(C₁)", diagC1)
     aligned.add_item("lml", lml)
     return aligned.draw() + "\n"

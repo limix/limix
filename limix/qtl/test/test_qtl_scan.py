@@ -59,44 +59,7 @@ def test_qtl_scan_three_hypotheses():
     print(r)
 
 
-def test_qtl_iscan_two_hypotheses_1vs0():
-    random = RandomState(0)
-    n = 30
-    ntraits = 2
-    ncovariates = 3
-
-    A = random.randn(ntraits, ntraits)
-    A = A @ A.T
-    M = random.randn(n, ncovariates)
-
-    C0 = random.randn(ntraits, ntraits)
-    C0 = C0 @ C0.T
-
-    C1 = random.randn(ntraits, ntraits)
-    C1 = C1 @ C1.T
-
-    G = random.randn(n, 4)
-
-    A0 = random.randn(ntraits, 1)
-    A1 = random.randn(ntraits, 2)
-    A01 = concatenate((A0, A1), axis=1)
-
-    K = random.randn(n, n + 1)
-    K = normalise_covariance(K @ K.T)
-
-    beta = vec(random.randn(ntraits, ncovariates))
-    alpha = vec(random.randn(A01.shape[1], G.shape[1]))
-
-    mvn = st.multivariate_normal
-    m = kron(A, M) @ beta + kron(A01, G) @ alpha
-    Y = unvec(mvn(m, kron(C0, K) + kron(C1, eye(n))).rvs(), (n, -1))
-
-    idx = [[0, 1], 2, [3]]
-    r = scan(G, Y, idx=idx, K=K, M=M, A=A, A0=A0, verbose=False)
-    print(r)
-
-
-def test_qtl_iscan_two_hypotheses_2vs0():
+def test_qtl_scan_two_hypotheses():
     random = RandomState(0)
     n = 30
     ntraits = 2

@@ -70,33 +70,7 @@ def test_qtl_iscan_three_hypotheses():
     _test_qtl_iscan_three_hypotheses("binomial")
 
 
-def test_qtl_iscan_two_hypotheses_1vs0():
-    random = RandomState(4)
-    n = 30
-    ncovariates = 3
-
-    M = random.randn(n, ncovariates)
-
-    E0 = random.randint(0, 2, (n, 1)).astype(float)
-
-    G = random.randn(n, 4)
-
-    K = random.randn(n, n + 1)
-    K = normalise_covariance(K @ K.T)
-
-    beta = random.randn(ncovariates)
-    alpha0 = random.randn(E0.shape[1])
-
-    mvn = random.multivariate_normal
-    y = _normalize(M @ beta) + _normalize(E0 @ alpha0)
-    y += _normalize(mvn(zeros(n), K + eye(n)))
-
-    idx = [[0, 1], 2, [3]]
-    r = iscan(G, y, idx=idx, K=K, M=M, E0=E0, verbose=False)
-    print(r)
-
-
-def test_qtl_iscan_two_hypotheses_2vs0():
+def test_qtl_iscan_two_hypotheses():
     random = RandomState(4)
     n = 30
     ncovariates = 3
