@@ -231,17 +231,17 @@ class ScanResult:
         diagC1 = df["back_covariance"]
 
         msg = draw_title("Hypothesis 0")
-        msg += draw_model(lik, "(A⊗𝙼)𝛃", "C₀⊗𝙺 + C₁⊗𝙸") + "\n"
+        msg += draw_model(lik, "(A⊗𝙼)𝛂", "C₀⊗𝙺 + C₁⊗𝙸") + "\n"
         msg += _draw_hyp0_summary(
             traits, covariates, effsizes, effsizes_se, lml, diagC0, diagC1
         )
 
         msg += draw_title("Hypothesis 1")
-        msg += draw_model(lik, "(A⊗𝙼)𝛃 + (A₀⊗G)𝜶₀", "s(C₀⊗𝙺 + C₁⊗𝙸)")
+        msg += draw_model(lik, "(A⊗𝙼)𝛂 + (A₀⊗G)𝛃₀", "s(C₀⊗𝙺 + C₁⊗𝙸)")
         msg += draw_alt_hyp_table(1, self.stats, self.effsizes)
 
         msg += draw_title("Hypothesis 2")
-        msg += draw_model(lik, "(A⊗𝙼)𝛃 + (A₀⊗G)𝜶₀ + (A₁⊗G)𝜶₁", "s(C₀⊗𝙺 + C₁⊗𝙸)")
+        msg += draw_model(lik, "(A⊗𝙼)𝛂 + (A₀⊗G)𝛃₀ + (A₁⊗G)𝛃₁", "s(C₀⊗𝙺 + C₁⊗𝙸)")
         msg += draw_alt_hyp_table(2, self.stats, self.effsizes)
 
         msg += draw_title("Likelihood-ratio test p-values")
@@ -268,16 +268,16 @@ class ScanResult:
         covariance = self._covariance_expr()
 
         msg = draw_title("Hypothesis 0")
-        msg += draw_model(lik, "(A⊗𝙼)𝛃", "C₀⊗𝙺 + C₁⊗𝙸") + "\n"
+        msg += draw_model(lik, "(A⊗𝙼)𝜶", "C₀⊗𝙺 + C₁⊗𝙸") + "\n"
         msg += _draw_hyp0_summary(
             traits, covariates, effsizes, effsizes_se, lml, diagC0, diagC1
         )
 
         if alt_hyp == 1:
-            mean = "(A⊗𝙼)𝛃 + (A₀⊗G)𝜶₀"
+            mean = "(A⊗𝙼)𝜶 + (A₀⊗G)𝛃₀"
             col = "𝓗₀ vs 𝓗₁"
         else:
-            mean = "(A⊗𝙼)𝛃 + (A₁⊗G)𝜶₁"
+            mean = "(A⊗𝙼)𝜶 + (A₁⊗G)𝛃₁"
             col = "𝓗₀ vs 𝓗₂"
 
         msg += draw_title(f"Hypothesis {alt_hyp}")
@@ -305,13 +305,13 @@ class ScanResult:
         covariance = self._covariance_expr()
 
         msg = draw_title("Hypothesis 0")
-        msg += draw_model(lik, "𝙼𝛃", covariance) + "\n"
+        msg += draw_model(lik, "𝙼𝜶", covariance) + "\n"
         msg += _draw_hyp0_summary_single_trait(
             traits, covariates, effsizes, effsizes_se, lml
         )
 
         msg += draw_title(f"Hypothesis 1")
-        msg += draw_model(lik, "𝙼𝛃 + G𝜶", f"s({covariance})")
+        msg += draw_model(lik, "𝙼𝜶 + G𝛃", f"s({covariance})")
         msg += draw_alt_hyp_table(2, self.stats, self.effsizes)
 
         msg += draw_title("Likelihood-ratio test p-values")

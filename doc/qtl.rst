@@ -9,7 +9,7 @@ Every genetic model considered here is an instance of **generalized linear mixed
 (GLMM).
 It consists in four main components [St16]_:
 
-- A linear predictor, 𝐳 = M𝛃 + 𝚇𝐮.
+- A linear predictor, 𝐳 = M𝛂 + 𝚇𝐮.
 - The distribution of the random effects, 𝐮 ∼ 𝓝(𝟎, Σ).
 - The residual distribution, yᵢ | 𝐮.
 - The link function, g(𝜇ᵢ) = zᵢ.
@@ -40,7 +40,7 @@ of the identity link function, g(𝜇ᵢ) = 𝜇ᵢ, and of normally distributed
 .. math::
     :label: lmm
 
-    𝐲 = 𝙼𝛃 + 𝚇𝐮 + 𝛆,
+    𝐲 = 𝙼𝛂 + 𝚇𝐮 + 𝛆,
 
 for which 𝜀ᵢ∼𝓝(0, 𝜎ᵢ²).  The random variables 𝐮 and 𝛆 are independent from each
 other as well as 𝜀ᵢ and 𝜀ⱼ for i≠j.  Defining 𝐯 = 𝚇𝐮 leads to:
@@ -54,7 +54,7 @@ a **linear model** (LM) is merely a LMM without the random effects:
 
 .. math::
 
-    𝐲 = 𝙼𝛃 + 𝛆.
+    𝐲 = 𝙼𝛂 + 𝛆.
 
 The above models are used to establish a statistical tests to find significant
 association between genetic loci and phenotype. For that, their parameters have to be
