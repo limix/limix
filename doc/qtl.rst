@@ -181,13 +181,12 @@ We now apply the function :func:`limix.qtl.scan` to our data set
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶, 4.115⋅𝙸)
     <BLANKLINE>
-    traits = ['0']
-    M      = ['offset' 'age']
-    𝜶      = [-1.60130331  0.17922863]
-    se(𝜶)  = [0.33382518 0.01227417]
-    lml    = -212.62741096350612
+    M     = ['offset' 'age']
+    𝜶     = [-1.60130331  0.17922863]
+    se(𝜶) = [0.33382518 0.01227417]
+    lml   = -212.62741096350612
     <BLANKLINE>
-    Hypothesis 1
+    Hypothesis 2
     ============
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶 + G𝛃, s(4.115⋅𝙸))
@@ -205,7 +204,7 @@ We now apply the function :func:`limix.qtl.scan` to our data set
     Likelihood-ratio test p-values
     ==============================
     <BLANKLINE>
-           𝓗₀ vs 𝓗₁
+           𝓗₀ vs 𝓗₂
     ----------------
     mean   2.206e-01
     std    3.160e-01
@@ -264,13 +263,12 @@ matrix 𝙺, and call :func:`limix.qtl.scan` to perform the analysis.
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶, 1.563⋅𝙺 + 3.230⋅𝙸)
     <BLANKLINE>
-    traits = ['0']
-    M      = ['offset' 'age']
-    𝜶      = [-1.88025701  0.19028836]
-    se(𝜶)  = [0.327493   0.01222069]
-    lml    = -215.9781119592618
+    M     = ['offset' 'age']
+    𝜶     = [-1.88025701  0.19028836]
+    se(𝜶) = [0.327493   0.01222069]
+    lml   = -215.9781119592618
     <BLANKLINE>
-    Hypothesis 1
+    Hypothesis 2
     ============
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶 + G𝛃, s(1.563⋅𝙺 + 3.230⋅𝙸))
@@ -288,7 +286,7 @@ matrix 𝙺, and call :func:`limix.qtl.scan` to perform the analysis.
     Likelihood-ratio test p-values
     ==============================
     <BLANKLINE>
-           𝓗₀ vs 𝓗₁
+           𝓗₀ vs 𝓗₂
     ----------------
     mean   4.925e-01
     std    3.016e-01
@@ -340,13 +338,12 @@ distribution is not sufficient to explain the variability of yᵢ.
     <BLANKLINE>
     𝐳 ~ 𝓝(𝙼𝜶, 0.113⋅𝙺 + 0.140⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
     <BLANKLINE>
-    traits = ['0']
-    M      = ['offset' 'age']
-    𝜶      = [-1.41641664  0.05496354]
-    se(𝜶)  = [0.2020572 0.0060997]
-    lml    = -151.15802807711944
+    M     = ['offset' 'age']
+    𝜶     = [-1.41641664  0.05496354]
+    se(𝜶) = [0.2020572 0.0060997]
+    lml   = -151.15802807711944
     <BLANKLINE>
-    Hypothesis 1
+    Hypothesis 2
     ============
     <BLANKLINE>
     𝐳 ~ 𝓝(𝙼𝜶 + G𝛃, s(0.113⋅𝙺 + 0.140⋅𝙸)) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
@@ -364,7 +361,7 @@ distribution is not sufficient to explain the variability of yᵢ.
     Likelihood-ratio test p-values
     ==============================
     <BLANKLINE>
-           𝓗₀ vs 𝓗₁
+           𝓗₀ vs 𝓗₂
     ----------------
     mean   4.376e-01
     std    4.096e-01
@@ -422,7 +419,7 @@ Here is an example.
     >>>
     >>> r = iscan(G, y, "normal", K, M, E0=E0, E1=E1, verbose=False)
     >>> print(r) # doctest: +FLOAT_CMP
-        Hypothesis 0
+    Hypothesis 0
     ============
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶, 0.423⋅𝙺 + 2.036⋅𝙸)
