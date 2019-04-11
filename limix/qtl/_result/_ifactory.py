@@ -19,7 +19,9 @@ class IScanResultFactory:
     ):
         from numpy import asarray, atleast_1d
 
-        self._h0 = SModelResult(lik, traits, covariates, lml, beta, beta_se, C0, C1)
+        self._h0 = STSimpleModelResult(
+            lik, traits, covariates, lml, beta, beta_se, C0, C1
+        )
         self._tests = []
         self._traits = asarray(atleast_1d(traits), str)
         self._covariates = asarray(atleast_1d(covariates), str)
