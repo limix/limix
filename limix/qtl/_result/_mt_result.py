@@ -149,6 +149,9 @@ class MTScanResult:
     def _stats_dataframe(self):
         from pandas import DataFrame
 
+        if len(self._envs0) == 0:
+            return self._stats_dataframe_h2_only
+
         stats = []
         for i, test in enumerate(self._tests):
             dof10 = test["h1"]["candidate_effsizes"].size
@@ -188,13 +191,32 @@ class MTScanResult:
         return stats
 
     @property
+    def _stats_dataframe_h2_only(self):
+        from pandas import DataFrame
+
+        stats = []
+        for i, test in enumerate(self._tests):
+            dof20 = test["h2"]["candidate_effsizes"].size
+            stats.append(
+                [i, self._h0.lml, test["h2"]["lml"], dof20, test["h2"]["scale"]]
+            )
+
+        columns = ["test", "lml0", "lml2", "dof20", "scale2"]
+        stats = DataFrame(stats, columns=columns)
+
+        stats["pv20"] = lrt_pvalues(stats["lml0"], stats["lml2"], stats["dof20"])
+
+        return stats
+
+    @property
     @cache
     def _dataframes(self):
-        h1 = self._h1_dataframe
         h2 = self._h2_dataframe
         stats = self._stats_dataframe
-
-        return {"stats": stats, "effsizes": {"h1": h1, "h2": h2}}
+        r = {"stats": stats, "effsizes": {"h2": h2}}
+        if len(self._envs0) > 0:
+            r["effsizes"]["h1"] = self._h1_dataframe
+        return r
 
     def _repr_three_hypothesis(self):
         from numpy import asarray

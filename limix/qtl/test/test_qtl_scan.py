@@ -6,23 +6,22 @@ from limix.stats import linear_kinship
 from numpy import (
     argmin,
     array,
-    asarray,
     concatenate,
     dot,
     eye,
     kron,
     nan,
-    ones,
     reshape,
     sqrt,
     zeros,
+    exp,
 )
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 from pandas import DataFrame
 
 
-def test_qtl_scan_st():
+def _test_qtl_scan_st(lik):
     random = RandomState(0)
     n = 30
     ncovariates = 3
@@ -45,7 +44,19 @@ def test_qtl_scan_st():
     y = mvn(m, v0 * K + v1 * eye(n))
 
     idx = [[0, 1], 2, [3]]
-    r = scan(G, y, idx=idx, K=K, M=M, verbose=False)
+
+    if lik == "poisson":
+        y = random.poisson(exp(y))
+    elif lik == "bernoulli":
+        y = random.binomial(1, 1 / (1 + exp(-y)))
+    elif lik == "probit":
+        y = random.binomial(1, st.norm.cdf(y))
+    elif lik == "binomial":
+        ntrials = random.randint(0, 30, len(y))
+        y = random.binomial(ntrials, 1 / (1 + exp(-y)))
+        lik = (lik, ntrials)
+
+    r = scan(G, y, lik=lik, idx=idx, K=K, M=M, verbose=False)
     print(r)
     print(r.stats.head())
     print(r.effsizes["h2"].head())
@@ -54,6 +65,14 @@ def test_qtl_scan_st():
     print(r.h0.lml)
     print(r.h0.effsizes)
     print(r.h0.variances)
+
+
+def test_qtl_scan_st():
+    _test_qtl_scan_st("normal")
+    _test_qtl_scan_st("poisson")
+    _test_qtl_scan_st("bernoulli")
+    _test_qtl_scan_st("probit")
+    _test_qtl_scan_st("binomial")
 
 
 def test_qtl_scan_three_hypotheses_mt():

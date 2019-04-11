@@ -50,10 +50,11 @@ class MTScanResultFactory:
                 "scale": float(h["scale"]),
             }
 
-        h1 = _normalize(h1)
-        h2 = _normalize(h2)
+        r = {"idx": cand_idx, "h2": _normalize(h2)}
+        if h1 is not None:
+            r["h1"] = _normalize(h1)
 
-        self._tests.append({"idx": cand_idx, "h1": h1, "h2": h2})
+        self._tests.append(r)
 
     def create(self):
         return MTScanResult(

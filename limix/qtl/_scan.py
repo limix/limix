@@ -281,41 +281,7 @@ def scan(
         if A is None:
             r = _single_trait_scan(idx, lik, Y, M, G, QS, verbose)
         else:
-            r = _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1)
-
-        # if lik_name == "normal":
-        #     if A is None:
-        #         scanner, C0, C1 = _st_lmm(Y, M, QS, verbose)
-        #     else:
-        #         scanner, C0, C1 = _mt_lmm(Y, A, M, QS, verbose)
-        # else:
-        #     if A is not None:
-        #         msg = "Non-normal likelihood inference has not been implemented for"
-        #         msg += " multiple traits yet."
-        #         raise ValueError(msg)
-        #     scanner, C0, C1 = _st_glmm(Y.values.ravel(), lik, M, QS, verbose)
-
-        # if idx is None and ntraits == 1:
-        #     r1 = scanner.fast_scan(G, verbose)
-        #     for i in range(G.shape[1]):
-        #         h1 = _normalise_scan_names({k: v[i] for k, v in r1.items()})
-        #         h2 = h1
-        #         r.add_test(i, h1, h2)
-        # else:
-        #     if idx is None:
-        #         idx = range(G.shape[1])
-
-        #     for i in idx:
-
-        #         i = _2d_sel(i)
-        #         g = asarray(G[:, i], float)
-
-        #         r1 = scanner.scan(A0, g)
-        #         r2 = scanner.scan(A01, g)
-
-        #         h1 = _normalise_scan_names(r1)
-        #         h2 = _normalise_scan_names(r2)
-        #         r.add_test(i, h1, h2)
+            r = _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1, verbose)
 
         r = r.create()
         if verbose:
@@ -388,18 +354,33 @@ def _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1, verbose):
         G.candidate,
         A0.env,
         A1.env,
-        scanner.null_lml,
+        scanner.null_lml(),
         scanner.null_beta,
         scanner.null_beta_se,
         C0,
         C1,
-        False,
     )
+
+    if idx is None:
+        idx = range(G.shape[1])
+    for i in idx:
+
+        i = _2d_sel(i)
+        g = asarray(G[:, i], float)
+
+        if A0.shape[1] == 0:
+            h1 = None
+        else:
+            h1 = _normalise_scan_names(scanner.scan(A0, g))
+
+        h2 = _normalise_scan_names(scanner.scan(A01, g))
+        r.add_test(i, h1, h2)
 
     return r
 
 
 def _st_lmm(Y, M, QS, verbose):
+    from numpy import nan
     from glimix_core.lmm import LMM
 
     lmm = LMM(Y, M, QS, restricted=False)
@@ -407,7 +388,7 @@ def _st_lmm(Y, M, QS, verbose):
     sys.stdout.flush()
 
     if QS is None:
-        v0 = None
+        v0 = nan
     else:
         v0 = lmm.v0
 
@@ -417,19 +398,25 @@ def _st_lmm(Y, M, QS, verbose):
 
 
 def _st_glmm(y, lik, M, QS, verbose):
+    from numpy import nan
     from glimix_core.glmm import GLMMExpFam, GLMMNormal
 
-    glmm = GLMMExpFam(y.ravel(), lik, M.values, QS)
+    glmm = GLMMExpFam(y, lik, M, QS)
 
     glmm.fit(verbose=verbose)
-    v0 = glmm.v0
+
+    if QS is None:
+        v0 = nan
+    else:
+        v0 = glmm.v0
+
     v1 = glmm.v1
     sys.stdout.flush()
 
     eta = glmm.site.eta
     tau = glmm.site.tau
 
-    gnormal = GLMMNormal(eta, tau, M.values, QS)
+    gnormal = GLMMNormal(eta, tau, M, QS)
     gnormal.fit(verbose=verbose)
 
     return gnormal.get_fast_scanner(), v0, v1
