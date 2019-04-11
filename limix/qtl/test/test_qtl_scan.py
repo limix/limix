@@ -8,13 +8,13 @@ from numpy import (
     array,
     concatenate,
     dot,
+    exp,
     eye,
     kron,
     nan,
     reshape,
     sqrt,
     zeros,
-    exp,
 )
 from numpy.random import RandomState
 from numpy.testing import assert_allclose

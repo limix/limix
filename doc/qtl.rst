@@ -12,7 +12,7 @@ It consists in four main components [St16]_:
 - A linear predictor, 𝐳 = M𝛂 + 𝚇𝐮.
 - The distribution of the random effects, 𝐮 ∼ 𝓝(𝟎, Σ).
 - The residual distribution, yᵢ | 𝐮.
-- The link function, g(𝜇ᵢ) = zᵢ.
+- The link function, 𝜇ᵢ = g(zᵢ).
 
 The term 𝜇ᵢ represents the mean of yᵢ conditioned on 𝐮:
 
@@ -34,7 +34,7 @@ the exponential family [Ef18]_ having mean 𝜇ᵢ:
     yᵢ|𝐮 ∼ 𝙴𝚡𝚙𝙵𝚊𝚖(𝜇ᵢ).
 
 A notable instance of the above model is the **linear mixed model** (LMM). It consists
-of the identity link function, g(𝜇ᵢ) = 𝜇ᵢ, and of normally distributed residuals, yᵢ |
+of the identity link function, 𝜇ᵢ = g(𝜇ᵢ), and of normally distributed residuals, yᵢ |
 𝐮 ∼ 𝓝(𝜇ᵢ, 𝜎ᵢ²) [Mc11]_. It is more commonly described by the equation
 
 .. math::
@@ -71,7 +71,19 @@ If we assume a LMM, this example of model can be described by Eq. :eq:`lmm` for 
 
 .. math::
 
-    𝐯∼𝓝(𝟎, 𝓋₀𝚇𝚇ᵀ) ~~\text{and}~~ 𝛆∼𝓝(𝟎, 𝓋₁𝙸₁).
+    𝐮 ∼ 𝓝(𝟎, 𝓋₀𝙸₀) ~~\text{and}~~ 𝛆 ∼ 𝓝(𝟎, 𝓋₁𝙸₁).
+
+Equivalently, we have
+
+.. math::
+
+    𝐲 = 𝙼𝛂 + 𝐯 + 𝛆,
+
+for which
+
+.. math::
+
+    𝐯 ∼ 𝓝(𝟎, 𝓋₀𝚇𝚇ᵀ) ~~\text{and}~~ 𝛆 ∼ 𝓝(𝟎, 𝓋₁𝙸₁).
 
 Therefore we have a model with three parameters: an array of effect sizes 𝛃 and
 variances 𝓋₀ and 𝓋₁. If 𝚇 contains the normalized SNP genotypes of the samples, 𝚇𝚇ᵀ is
@@ -98,7 +110,7 @@ The likelihood ratio statistics is give by
     -2 \log(p(𝐲| 𝙼, 𝚇; 𝛉₀) / p(𝐲| 𝙼, 𝚇; 𝛉₁)),
 
 which asymptotically follows a χ² distribution [Wh14]_.
-We will make use of the LRT approach in the next sections for flag significant genetic
+We will make use of the LRT approach in the next sections to flag significant genetic
 associations.
 
 Single-trait association
@@ -214,10 +226,6 @@ We now apply the function :func:`limix.qtl.scan` to our data set
     75%    2.707e-01
     max    6.876e-01
 
-The variable ``r`` is instance of the class :class:`limix.qtl.ScanResult` and stores all
-the results of the analysis.  Printing it as we did above it will show a summary of the
-results.
-
 Suppose we also have access to the whole genotype of our samples, 𝚇, and we want to use
 them to account for population structure and cryptic relatedness in our data [Ho13]_.
 Since the number of genetic variants in 𝚇 is commonly larger than the number of
@@ -305,7 +313,7 @@ consider Poisson distributed residuals:
 
 .. math::
 
-    yᵢ | 𝐳 ∼ 𝙿𝚘𝚒𝚜𝚜𝚘𝚗(g(𝜇ᵢ)=zᵢ),
+    yᵢ | 𝐳 ∼ 𝙿𝚘𝚒𝚜𝚜𝚘𝚗(𝜇ᵢ=g(zᵢ)),
 
 where the latent phenotype is described by
 
@@ -471,6 +479,116 @@ Here is an example.
     50%    2.763e-01   3.186e-01   4.127e-01
     75%    5.173e-01   5.230e-01   5.998e-01
     max    6.077e-01   7.169e-01   8.212e-01
+
+
+Multi-trait association
+=======================
+
+LMM can also be used to jointly model multiple traits.
+Let n, c, and p be the number of samples, covariates, and traits, respectively.
+The outcome variable 𝚈 is a n×p matrix distributed according to
+
+..  math ::
+    :label: mtlmm
+
+    𝚟𝚎𝚌(𝚈) ∼ 𝓝((𝙰 ⊗ 𝙼) 𝚟𝚎𝚌(𝐀), 𝙲₀ ⊗ 𝚇𝚇ᵀ + 𝙲₁ ⊗ 𝙸).
+
+𝙰 and 𝙼 are design matrices of dimensions p×p and n×c provided by the user,
+where 𝙼 is the usual matrix of covariates commonly used in single-trait models.
+𝐀 is a c×p matrix of fixed-effect sizes per trait.
+𝚇 is a n×r matrix provided by the user and I is a n×n identity matrices.
+𝙲₀ and 𝙲₁ are both symmetric matrices of dimensions p×p, for which 𝙲₁ is
+guaranteed by our implementation to be of full rank.
+The parameters of this model are the matrices 𝐀, 𝙲₀, and 𝙲₁.
+𝚟𝚎𝚌(⋅) is a function that stacks the columns of the provided matrix into a vector
+[Ve19]_.
+
+Let 𝐲=𝚟𝚎𝚌(𝚈) and 𝛂=𝚟𝚎𝚌(𝐀).
+We can extend the model in Eq. :eq:`mtlmm` to represent three different hypotheses:
+
+..  math ::
+
+    𝐲 ∼ 𝓝((𝙰 ⊗ 𝙼)𝛂 + (𝙰₀ ⊗ 𝙶)𝛃₀ + (𝙰₁ ⊗ 𝙶)𝛃₁, 𝙲₀ ⊗ 𝚇𝚇ᵀ + 𝙲₁ ⊗ 𝙸);
+
+the hypotheses being
+
+.. math::
+
+    𝓗₀: 𝛃₀=𝟎 ~~\text{and}~~ 𝛃₁=𝟎\\
+    𝓗₁: 𝛃₀≠𝟎 ~~\text{and}~~ 𝛃₁=𝟎\\
+    𝓗₂: 𝛃₀≠𝟎 ~~\text{and}~~ 𝛃₁≠𝟎
+
+as before.
+Here is an example.
+
+.. doctest::
+
+    >>> from numpy import eye
+    >>>
+    >>> p = 2
+    >>> Y = random.randn(n, p)
+    >>> A = random.randn(p, p)
+    >>> A = A @ A.T
+    >>> A0 = ones((p, 1))
+    >>> A1 = eye(p)
+    >>>
+    >>> r = scan(G, Y, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
+    >>> print(r) # doctest: +FLOAT_CMP
+    Hypothesis 0
+    ============
+    <BLANKLINE>
+    𝐲 ~ 𝓝((A⊗𝙼)𝛂, C₀⊗𝙺 + C₁⊗𝙸)
+    <BLANKLINE>
+    traits   = ['0' '1']
+    M        = ['offset' 'age']
+    𝜶        = [ 0.09229834 -0.00451447  0.08203757 -0.00490855]
+    se(𝜶)    = [0.66245171 0.02459029 1.4805868  0.0549752 ]
+    diag(C₀) = [0.03068486 0.15277005]
+    diag(C₁) = [0.91525788 0.73468958]
+    lml      = -272.63387738981123
+    <BLANKLINE>
+    Hypothesis 1
+    ============
+    <BLANKLINE>
+    𝐲 ~ 𝓝((A⊗𝙼)𝛂 + (A₀⊗G)𝛃₀, s(C₀⊗𝙺 + C₁⊗𝙸))
+    <BLANKLINE>
+              lml       cov. effsizes   cand. effsizes
+    --------------------------------------------------
+    mean   -2.721e+02       2.188e-02       -3.858e-02
+    std     9.367e-01       5.382e-02        6.399e-02
+    min    -2.726e+02      -9.966e-02       -1.300e-01
+    25%    -2.726e+02      -4.444e-03       -5.465e-02
+    50%    -2.726e+02      -3.068e-03       -2.092e-02
+    75%    -2.721e+02       7.092e-02       -4.847e-03
+    max    -2.707e+02       1.052e-01        1.754e-02
+    <BLANKLINE>
+    Hypothesis 2
+    ============
+    <BLANKLINE>
+    𝐲 ~ 𝓝((A⊗𝙼)𝛂 + (A₀⊗G)𝛃₀ + (A₁⊗G)𝛃₁, s(C₀⊗𝙺 + C₁⊗𝙸))
+    <BLANKLINE>
+              lml       cov. effsizes   cand. effsizes
+    --------------------------------------------------
+    mean   -2.720e+02       2.510e-02       -1.678e-02
+    std     9.694e-01       6.002e-02        3.885e-02
+    min    -2.726e+02      -1.153e-01       -8.548e-02
+    25%    -2.726e+02      -4.567e-03       -2.619e-02
+    50%    -2.724e+02      -3.812e-03       -1.026e-02
+    75%    -2.718e+02       8.650e-02       -4.020e-03
+    max    -2.706e+02       1.047e-01        5.879e-02
+    <BLANKLINE>
+    Likelihood-ratio test p-values
+    ==============================
+    <BLANKLINE>
+           𝓗₀ vs 𝓗₁    𝓗₀ vs 𝓗₂    𝓗₁ vs 𝓗₂
+    ----------------------------------------
+    mean   6.103e-01   7.724e-01   8.847e-01
+    std    3.794e-01   3.562e-01   1.356e-01
+    min    5.063e-02   2.461e-01   7.078e-01
+    25%    5.439e-01   7.073e-01   8.142e-01
+    50%    7.572e-01   9.238e-01   9.156e-01
+    75%    8.235e-01   9.889e-01   9.861e-01
+    max    8.762e-01   9.960e-01   9.998e-01
 
 .. rubric:: References
 
