@@ -40,18 +40,16 @@ def test_qtl_scan_st():
     beta = random.randn(ncovariates)
     alpha = random.randn(G.shape[1])
 
-    mvn = st.multivariate_normal
+    mvn = random.multivariate_normal
     m = M @ beta + G @ alpha
-    y = mvn(m, v0 * K + v1 * eye(n)).rvs()
+    y = mvn(m, v0 * K + v1 * eye(n))
 
     idx = [[0, 1], 2, [3]]
-    breakpoint()
     r = scan(G, y, idx=idx, K=K, M=M, verbose=False)
     print(r)
     print(r.stats.head())
-    print(r.effsizes["h1"].head())
     print(r.effsizes["h2"].head())
-    print(r.h0.traits)
+    print(r.h0.trait)
     print(r.h0.likelihood)
     print(r.h0.lml)
     print(r.h0.effsizes)
@@ -86,9 +84,9 @@ def test_qtl_scan_three_hypotheses_mt():
     beta = vec(random.randn(ntraits, ncovariates))
     alpha = vec(random.randn(A01.shape[1], G.shape[1]))
 
-    mvn = st.multivariate_normal
+    mvn = random.multivariate_normal
     m = kron(A, M) @ beta + kron(A01, G) @ alpha
-    Y = unvec(mvn(m, kron(C0, K) + kron(C1, eye(n))).rvs(), (n, -1))
+    Y = unvec(mvn(m, kron(C0, K) + kron(C1, eye(n))), (n, -1))
 
     idx = [[0, 1], 2, [3]]
     r = scan(G, Y, idx=idx, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
@@ -123,9 +121,9 @@ def test_qtl_scan_two_hypotheses_mt():
     beta = vec(random.randn(ntraits, ncovariates))
     alpha = vec(random.randn(A01.shape[1], G.shape[1]))
 
-    mvn = st.multivariate_normal
+    mvn = random.multivariate_normal
     m = kron(A, M) @ beta + kron(A01, G) @ alpha
-    Y = unvec(mvn(m, kron(C0, K) + kron(C1, eye(n))).rvs(), (n, -1))
+    Y = unvec(mvn(m, kron(C0, K) + kron(C1, eye(n))), (n, -1))
 
     idx = [[0, 1], 2, [3]]
     r = scan(G, Y, idx=idx, K=K, M=M, A=A, A1=A1, verbose=False)

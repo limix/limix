@@ -2,7 +2,7 @@ from limix._cache import cache
 from limix.stats import lrt_pvalues
 
 from ._aligned import Aligned
-from ._result import draw_alt_hyp_table, draw_lrt_table, draw_model, draw_title
+from ._draw import draw_alt_hyp_table, draw_lrt_table, draw_model, draw_title
 
 
 class IScanResult:

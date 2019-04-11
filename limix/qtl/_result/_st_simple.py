@@ -9,14 +9,14 @@ class STSimpleModelResult:
         self._trait = str(trait)
         self._covariates = asarray(atleast_1d(covariates), str)
         self._lml = float(lml)
-        self._beta = atleast_1d(asarray(beta, float).T).T
-        self._beta_se = atleast_1d(asarray(beta_se, float).T).T
+        self._beta = asarray(beta, float).ravel()
+        self._beta_se = asarray(beta_se, float).ravel()
         self._v0 = float(v0)
         self._v1 = float(v1)
 
     @property
-    def traits(self):
-        return self._traits
+    def trait(self):
+        return self._trait
 
     @property
     def likelihood(self):
@@ -46,7 +46,7 @@ class STSimpleModelResult:
         columns = ["trait", "covariate", "effsize", "effsize_se"]
         df0 = DataFrame(effsizes, columns=columns)
 
-        variances = [self._trait, self._v0, self._v1]
+        variances = [[self._trait, self._v0, self._v1]]
         columns = ["trait", "fore_covariance", "back_covariance"]
         df1 = DataFrame(variances, columns=columns)
 

@@ -249,7 +249,6 @@ def scan(
     from ._assert import assert_finite
     from numpy import eye, asarray, empty
 
-    breakpoint()
     if not isinstance(lik, (tuple, list)):
         lik = (lik,)
 
@@ -280,9 +279,9 @@ def scan(
             QS = None
 
         if A is None:
-            _single_trait_scan(idx, lik, Y, M, G, QS, verbose)
+            r = _single_trait_scan(idx, lik, Y, M, G, QS, verbose)
         else:
-            _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1)
+            r = _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1)
 
         # if lik_name == "normal":
         #     if A is None:
@@ -318,9 +317,9 @@ def scan(
         #         h2 = _normalise_scan_names(r2)
         #         r.add_test(i, h1, h2)
 
-        # r = r.create()
-        # if verbose:
-        #     print(r)
+        r = r.create()
+        if verbose:
+            print(r)
 
         return r
 
@@ -336,10 +335,10 @@ def _single_trait_scan(idx, lik, Y, M, G, QS, verbose):
 
     r = STScanResultFactory(
         lik[0],
-        Y.trait,
+        Y.trait.item(),
         M.covariate,
         G.candidate,
-        scanner.null_lml,
+        scanner.null_lml(),
         scanner.null_beta,
         scanner.null_beta_se,
         v0,
@@ -349,13 +348,13 @@ def _single_trait_scan(idx, lik, Y, M, G, QS, verbose):
     if idx is None:
         r1 = scanner.fast_scan(G, verbose)
         for i in range(G.shape[1]):
-            h1 = _normalise_scan_names({k: v[i] for k, v in r1.items()})
-            r.add_test(i, h1)
+            h2 = _normalise_scan_names({k: v[i] for k, v in r1.items()})
+            r.add_test(i, h2)
     else:
         for i in idx:
             i = _2d_sel(i)
-            r1 = scanner.scan(asarray(G[:, i], float))
-            r.add_test(i, _normalise_scan_names(r1))
+            h2 = _normalise_scan_names(scanner.scan(asarray(G[:, i], float)))
+            r.add_test(i, h2)
     return r
 
 
@@ -400,58 +399,6 @@ def _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1, verbose):
     return r
 
 
-def _normalise_scan_names(r):
-    return {
-        "lml": r["lml"],
-        "covariate_effsizes": r["effsizes0"],
-        "covariate_effsizes_se": r["effsizes0_se"],
-        "candidate_effsizes": r["effsizes1"],
-        "candidate_effsizes_se": r["effsizes1_se"],
-        "scale": r["scale"],
-    }
-
-
-def _2d_sel(idx):
-    from collections.abc import Iterable
-
-    if not isinstance(idx, (slice, Iterable)):
-        return [idx]
-
-    return idx
-
-
-class ScannerWrapper:
-    def __init__(self, scanner):
-        self._scanner = scanner
-
-    @property
-    def null_lml(self):
-        return self._scanner.null_lml()
-
-    @property
-    def null_beta(self):
-        return self._scanner.null_beta
-
-    @property
-    def null_beta_se(self):
-        from numpy import sqrt
-
-        se = sqrt(self._scanner.null_beta_covariance.diagonal())
-        return se
-
-    def fast_scan(self, G, verbose):
-        return self._scanner.fast_scan(G, verbose=verbose)
-
-    def scan(self, A, G):
-        from glimix_core.lmm import FastScanner
-
-        if isinstance(self._scanner, FastScanner):
-            assert A.shape[1] == 0 or (A.shape[1] == 1 and A[0, 0] == 1.0)
-            return self._scanner.scan(G)
-
-        return self._scanner.scan(A, G)
-
-
 def _st_lmm(Y, M, QS, verbose):
     from glimix_core.lmm import LMM
 
@@ -463,31 +410,10 @@ def _st_lmm(Y, M, QS, verbose):
         v0 = None
     else:
         v0 = lmm.v0
+
     v1 = lmm.v1
-    scanner = ScannerWrapper(lmm.get_fast_scanner())
 
-    return scanner, v0, v1
-
-
-def _mt_lmm(Y, A, M, QS, verbose):
-    from glimix_core.lmm import Kron2Sum
-    from numpy_sugar.linalg import ddot
-    from numpy import sqrt, zeros
-
-    if QS is None:
-        KG = zeros((Y.shape[0], 1))
-    else:
-        KG = ddot(QS[0][0], sqrt(QS[1]))
-
-    lmm = Kron2Sum(Y.values, A, M.values, KG, restricted=False)
-    lmm.fit(verbose=verbose)
-    sys.stdout.flush()
-
-    C0 = lmm.C0
-    C1 = lmm.C1
-    scanner = ScannerWrapper(lmm.get_fast_scanner())
-
-    return scanner, C0, C1
+    return lmm.get_fast_scanner(), v0, v1
 
 
 def _st_glmm(y, lik, M, QS, verbose):
@@ -506,6 +432,44 @@ def _st_glmm(y, lik, M, QS, verbose):
     gnormal = GLMMNormal(eta, tau, M.values, QS)
     gnormal.fit(verbose=verbose)
 
-    scanner = ScannerWrapper(gnormal.get_fast_scanner())
+    return gnormal.get_fast_scanner(), v0, v1
 
-    return scanner, v0, v1
+
+def _mt_lmm(Y, A, M, QS, verbose):
+    from glimix_core.lmm import Kron2Sum
+    from numpy_sugar.linalg import ddot
+    from numpy import sqrt, zeros
+
+    if QS is None:
+        KG = zeros((Y.shape[0], 1))
+    else:
+        KG = ddot(QS[0][0], sqrt(QS[1]))
+
+    lmm = Kron2Sum(Y.values, A, M.values, KG, restricted=False)
+    lmm.fit(verbose=verbose)
+    sys.stdout.flush()
+
+    C0 = lmm.C0
+    C1 = lmm.C1
+
+    return lmm.get_fast_scanner(), C0, C1
+
+
+def _2d_sel(idx):
+    from collections.abc import Iterable
+
+    if not isinstance(idx, (slice, Iterable)):
+        return [idx]
+
+    return idx
+
+
+def _normalise_scan_names(r):
+    return {
+        "lml": r["lml"],
+        "covariate_effsizes": r["effsizes0"],
+        "covariate_effsizes_se": r["effsizes0_se"],
+        "candidate_effsizes": r["effsizes1"],
+        "candidate_effsizes_se": r["effsizes1_se"],
+        "scale": r["scale"],
+    }

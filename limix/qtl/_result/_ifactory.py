@@ -1,5 +1,5 @@
 from ._iresult import IScanResult
-from ._simple import SModelResult
+from ._st_simple import STSimpleModelResult
 
 
 class IScanResultFactory:
