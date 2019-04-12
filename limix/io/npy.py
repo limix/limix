@@ -1,11 +1,6 @@
 from .._display import session_line as _session_line
 
 
-def see(filepath, verbose=True):
-    # TODO: document
-    print(read(filepath, verbose=verbose))
-
-
 def read(filepath, verbose=True):
     from numpy import load
 
@@ -16,3 +11,7 @@ def read(filepath, verbose=True):
 def save(filepath, X, verbose=True):
     with _session_line("Saving {}...".format(filepath), disable=not verbose):
         save(filepath, X)
+
+
+def _see(filepath, verbose=True):
+    print(read(filepath, verbose=verbose))

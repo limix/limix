@@ -1,5 +1,6 @@
 def read_phenotype(filepath, verbose=True):
-    r"""Read a BIMBAM phenotype file.
+    """
+    Read a BIMBAM phenotype file.
 
     Parameters
     ----------
@@ -49,8 +50,9 @@ def read_phenotype(filepath, verbose=True):
     return df
 
 
-def see_phenotype(filepath, verbose=True):
-    """Shows a summary of a BIMBAM phenotype file.
+def _see_phenotype(filepath, verbose=True):
+    """
+    Shows a summary of a BIMBAM phenotype file.
 
     Parameters
     ----------

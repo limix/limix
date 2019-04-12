@@ -1,5 +1,6 @@
 def read(filepath, metadata_file=None, sample_file=None, verbose=True):
-    r"""Read a given BGEN file.
+    """
+    Read a given BGEN file.
 
     Parameters
     ----------

@@ -10,21 +10,13 @@ I/O module
 
     limix.io.bgen.read
     limix.io.bimbam.read_phenotype
-    limix.io.bimbam.see_phenotype
     limix.io.csv.read
-    limix.io.csv.see
     limix.io.gen.read
-    limix.io.hdf5.fetch
-    limix.io.hdf5.fetcher
     limix.io.hdf5.read_limix
-    limix.io.hdf5.see
     limix.io.npy.read
     limix.io.npy.save
-    limix.io.npy.see
-    limix.io.plink.read
-    limix.io.plink.see_bed
-    limix.io.plink.see_kinship
     limix.io.plink.fetch_dosage
+    limix.io.plink.read
 
 Quality control
 ===============

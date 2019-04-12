@@ -1,4 +1,5 @@
 import limix
+from limix.io._fetch import fetch
 import pytest
 import sys
 from numpy.testing import (
@@ -291,7 +292,7 @@ def test_fetch_csv():
     with limix.file_example("expr.csv") as filepath:
 
         spec = f"{filepath}:csv:row=trait,trait[gene1]"
-        y = limix.io.fetch("trait", spec, verbose=False)
+        y = fetch("trait", spec, verbose=False)
 
         assert_string_equal(y.name, "trait")
         assert_array_equal(y["sample"], _samples)
@@ -300,7 +301,7 @@ def test_fetch_csv():
         assert_array_equal(y.coords, ["trait", "sample"])
 
         spec = f"{filepath}:csv:row=trait,trait[gene11]"
-        y = limix.io.fetch("trait", spec, verbose=False)
+        y = fetch("trait", spec, verbose=False)
 
         assert_string_equal(y.name, "trait")
         assert_array_equal(y["sample"], _samples)
@@ -308,43 +309,43 @@ def test_fetch_csv():
         assert_allclose(y.values[:2, 0], [0.798_312_717_19, 0.237_496_587_19])
 
         spec = f"{filepath}:csv:row=trait"
-        y = limix.io.fetch("trait", spec, verbose=False)
+        y = fetch("trait", spec, verbose=False)
 
         assert_string_equal(y.name, "trait")
         assert_array_equal(y["sample"], _samples)
         assert_equal(y.shape, (274, 11))
 
         spec = f"{filepath}:csv:row=trait,col=sample"
-        y = limix.io.fetch("trait", spec, verbose=False)
+        y = fetch("trait", spec, verbose=False)
         assert_equal(y.shape, (274, 11))
         assert_equal(y.dims, ("sample", "trait"))
 
         spec = f"{filepath}:csv:row=sample,col=trait"
-        y = limix.io.fetch("trait", spec, verbose=False)
+        y = fetch("trait", spec, verbose=False)
         assert_equal(y.shape, (11, 274))
         assert_equal(y.dims, ("sample", "trait"))
 
         spec = f"{filepath}:csv:"
-        y = limix.io.fetch("trait", spec, verbose=False)
+        y = fetch("trait", spec, verbose=False)
 
         spec = f"{filepath}:csv"
-        y = limix.io.fetch("trait", spec, verbose=False)
+        y = fetch("trait", spec, verbose=False)
 
         spec = f"{filepath}:csv:row=samples"
         with pytest.raises(ValueError):
-            y = limix.io.fetch("trait", spec, verbose=False)
+            y = fetch("trait", spec, verbose=False)
 
         spec = "wrong_filepath:csv:row=sample"
         with pytest.raises(FileNotFoundError):
-            y = limix.io.fetch("trait", spec, verbose=False)
+            y = fetch("trait", spec, verbose=False)
 
         spec = f"{filepath}:csv:row=sample,col=trait"
         with pytest.raises(ValueError):
-            y = limix.io.fetch("traits", spec, verbose=False)
+            y = fetch("traits", spec, verbose=False)
 
         spec = f"{filepath}:csvs:row=sample,col=trait"
         with pytest.raises(ValueError):
-            y = limix.io.fetch("trait", spec, verbose=False)
+            y = fetch("trait", spec, verbose=False)
 
 
 def test_fetch_bed():
@@ -373,7 +374,7 @@ def test_fetch_bed():
         ]
 
         for spec in specs:
-            G = limix.io.fetch("genotype", spec, verbose=False)
+            G = fetch("genotype", spec, verbose=False)
 
             assert_string_equal(G.name, "genotype")
             assert_array_equal(G["sample"], _samples)
@@ -384,10 +385,10 @@ def test_fetch_bed():
 @pytest.mark.skipif(sys.platform.startswith("win"), reason="for unix only")
 def test_fetch_win_drive_on_unix():
     with pytest.raises(ValueError):
-        limix.io.fetch("trait", r"C:\Temp\Wrong.csv:csv:row=sample", verbose=False)
+        fetch("trait", r"C:\Temp\Wrong.csv:csv:row=sample", verbose=False)
 
 
 @pytest.mark.skipif(not sys.platform.startswith("win"), reason="for win only")
 def test_fetch_win_drive_on_win():
     with pytest.raises(FileNotFoundError):
-        limix.io.fetch("trait", r"C:\Temp\Wrong.csv:csv:row=sample", verbose=False)
+        fetch("trait", r"C:\Temp\Wrong.csv:csv:row=sample", verbose=False)

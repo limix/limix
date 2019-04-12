@@ -2,13 +2,30 @@
 I/O module
 **********
 
-BGEN reader
-===========
+BIMBAM
+======
 
 .. doctest::
 
     >>> import limix
     >>>
+    >>> url = "http://rest.s3for.me/limix/example/phenotype.gemma"
+    >>> filepath = limix.sh.download(url, verbose=False)
+    >>> print(limix.io.bimbam.read_phenotype(filepath, verbose=False))
+    _trait         0        1        2
+    _sample
+    0        1.20000 -0.30000 -1.50000
+    1            nan  1.50000  0.30000
+    2        2.70000  1.10000      nan
+    3       -0.20000 -0.70000  0.80000
+    4        3.30000  2.40000  2.10000
+    >>> limix.sh.remove(filepath)
+
+BGEN reader
+===========
+
+.. doctest::
+
     >>> url = "http://rest.s3for.me/bgen-reader/haplotypes.bgen"
     >>> filepath = limix.sh.download(url, verbose=False)
     >>>

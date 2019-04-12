@@ -3,6 +3,7 @@ import os
 import limix
 from limix._cli.pipeline import Pipeline
 from limix._cli.preprocess import normalize, where, impute
+from limix.io._fetch import fetch
 from numpy import nan
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
@@ -41,7 +42,7 @@ def test_pipeline_where_filter():
         filepath = os.path.join(folder, "chrom22_subsample20_maf0.10")
 
         for shape, spec in zip(shapes, specs):
-            G = limix.io.fetch("genotype", f"{filepath}", verbose=False)
+            G = fetch("genotype", f"{filepath}", verbose=False)
             y = random.randn(G.shape[0])
             data = {"G": G, "y": y}
             pipeline = Pipeline(data)
@@ -57,7 +58,7 @@ def test_pipeline_normalize():
         folder = os.path.dirname(filepath)
         filepath = os.path.join(folder, "expr.csv")
 
-        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        y = fetch("trait", f"{filepath}::row=trait", verbose=False)
         data = {"y": y}
         pipeline = Pipeline(data)
         pipeline.append(normalize, "normalize", spec="trait:trait:gaussianize")
@@ -71,7 +72,7 @@ def test_pipeline_normalize():
             ],
         )
 
-        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        y = fetch("trait", f"{filepath}::row=trait", verbose=False)
         data = {"y": y}
         pipeline = Pipeline(data)
         pipeline.append(normalize, "normalize", spec="trait:sample:gaussianize")
@@ -88,7 +89,7 @@ def test_pipeline_impute():
         folder = os.path.dirname(filepath)
         filepath = os.path.join(folder, "expr_nan.csv")
 
-        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        y = fetch("trait", f"{filepath}::row=trait", verbose=False)
         data = {"y": y}
         pipeline = Pipeline(data)
         pipeline.append(impute, "impute", spec="trait:trait:mean")
@@ -104,14 +105,14 @@ def test_pipeline_normalize_nan():
         folder = os.path.dirname(filepath)
         filepath = os.path.join(folder, "expr_nan.csv")
 
-        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        y = fetch("trait", f"{filepath}::row=trait", verbose=False)
         data = {"y": y}
         pipeline = Pipeline(data)
         pipeline.append(normalize, "normalize", spec="trait:sample:gaussianize")
         data = pipeline.run(verbose=False)
         assert_allclose(data["y"].values[0, :3], [nan, 0.0, -0.841_621_233_572_914_3])
 
-        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        y = fetch("trait", f"{filepath}::row=trait", verbose=False)
         data = {"y": y}
         pipeline = Pipeline(data)
         pipeline.append(normalize, "normalize", spec="trait:trait:gaussianize")
@@ -121,7 +122,7 @@ def test_pipeline_normalize_nan():
             [nan, -0.345_222_629_722_377_3, -1.429_964_275_028_744_2],
         )
 
-        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        y = fetch("trait", f"{filepath}::row=trait", verbose=False)
         data = {"y": y}
         pipeline = Pipeline(data)
         pipeline.append(normalize, "normalize", spec="trait::gaussianize")
@@ -131,7 +132,7 @@ def test_pipeline_normalize_nan():
             [nan, -0.345_222_629_722_377_3, -1.429_964_275_028_744_2],
         )
 
-        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        y = fetch("trait", f"{filepath}::row=trait", verbose=False)
         data = {"y": y}
         pipeline = Pipeline(data)
         pipeline.append(normalize, "normalize", spec="trait")
@@ -148,7 +149,7 @@ def test_pipeline_impute_and_normalize():
         folder = os.path.dirname(filepath)
         filepath = os.path.join(folder, "expr_nan.csv")
 
-        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        y = fetch("trait", f"{filepath}::row=trait", verbose=False)
         data = {"y": y}
         pipeline = Pipeline(data)
         pipeline.append(impute, "impute", spec="trait:trait:mean")
@@ -163,7 +164,7 @@ def test_pipeline_impute_and_normalize():
             ],
         )
 
-        y = limix.io.fetch("trait", f"{filepath}::row=trait", verbose=False)
+        y = fetch("trait", f"{filepath}::row=trait", verbose=False)
         data = {"y": y}
         pipeline = Pipeline(data)
         pipeline.append(impute, "impute", spec="trait::")

@@ -46,10 +46,10 @@ Lets first download the dataset.
     >>> import limix
     >>>
     >>> url = "http://rest.s3for.me/limix/smith08.hdf5.bz2"
-    >>> limix.sh.download(url, verbose=False)
-    >>> filename = limix.sh.extract("smith08.hdf5.bz2", verbose=False)
+    >>> filepath = limix.sh.download(url, verbose=False)
+    >>> filepath = limix.sh.extract(filepath, verbose=False)
     >>> # This dataset in the old limix format.
-    >>> data = limix.io.hdf5.read_limix(filename)
+    >>> data = limix.io.hdf5.read_limix(filepath)
     >>> Y = data['phenotype']
     >>> G_all = data['genotype']
 

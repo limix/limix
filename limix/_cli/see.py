@@ -33,24 +33,24 @@ def see(ctx, filepath, show_chunks, header, verbose):
         filepath, filetype = limix.io.detect_file_type(filepath)
 
     if filetype == "hdf5":
-        limix.io.hdf5.see(filepath, show_chunks=show_chunks)
+        limix.io.hdf5._see(filepath, show_chunks=show_chunks)
 
     elif filetype == "csv":
-        limix.io.csv.see(filepath, verbose=verbose, header=header)
+        limix.io.csv._see(filepath, verbose=verbose, header=header)
 
     elif filetype == "grm.raw":
-        r = limix.io.plink.see_kinship(filepath, verbose)
+        r = limix.io.plink._see_kinship(filepath, verbose)
         limix.plot.show()
         return r
 
     elif filetype == "bed":
-        limix.io.plink.see_bed(filepath, verbose)
+        limix.io.plink._see_bed(filepath, verbose)
 
     elif filetype == "bimbam-pheno":
-        limix.io.bimbam.see_phenotype(filepath, verbose)
+        limix.io.bimbam._see_phenotype(filepath, verbose)
 
     elif filetype == "npy":
-        limix.io.npy.see(filepath, verbose)
+        limix.io.npy._see(filepath, verbose)
 
     elif filetype == "image":
         r = limix.plot.image(filepath)

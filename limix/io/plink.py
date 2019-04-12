@@ -1,5 +1,5 @@
 def read(prefix, verbose=True):
-    r"""
+    """
     Read PLINK files into Pandas data frames.
 
     Parameters
@@ -7,7 +7,7 @@ def read(prefix, verbose=True):
     prefix : str
         Path prefix to the set of PLINK files.
     verbose : bool
-        `True` for progress information; `False` otherwise.
+        ``True`` for progress information; ``False`` otherwise.
 
     Returns
     -------
@@ -92,11 +92,24 @@ def read(prefix, verbose=True):
     return data
 
 
-def see_kinship(filepath, verbose):
+def fetch_dosage(prefix, verbose):
+    from pandas_plink import read_plink
+
+    return read_plink(prefix, verbose=verbose)[2].T
+
+
+def _see_bed(filepath, verbose):
+    from .._display import add_title_header
+
+    (bim, fam, _) = read(filepath, verbose=verbose)
+
+    print(add_title_header("Samples", bim))
+    print(add_title_header("Genotype", fam))
+
+
+def _see_kinship(filepath, verbose):
     from .. import plot
     from .._display import session_line
-
-    # TODO: document
 
     if filepath.endswith(".grm.raw"):
         with session_line("Reading {}... ".format(filepath), disable=not verbose):
@@ -106,22 +119,6 @@ def see_kinship(filepath, verbose):
         return
 
     return plot.kinship(K)
-
-
-def fetch_dosage(prefix, verbose):
-    from pandas_plink import read_plink
-
-    return read_plink(prefix, verbose=verbose)[2].T
-
-
-def see_bed(filepath, verbose):
-    # TODO: document
-    from .._display import add_title_header
-
-    (bim, fam, _) = read(filepath, verbose=verbose)
-
-    print(add_title_header("Samples", bim))
-    print(add_title_header("Genotype", fam))
 
 
 def _read_grm_raw(filepath):

@@ -1,10 +1,6 @@
-from __future__ import unicode_literals as _
-
-# TODO: refactor this entire file. There are too many things here
-
-
 def read_limix(filepath):
-    r"""Read the HDF5 limix file format.
+    """
+    Read the HDF5 limix file format.
 
     Parameters
     ----------
@@ -34,7 +30,8 @@ def read_limix(filepath):
 
 
 class fetcher(object):
-    r"""Fetch datasets from HDF5 files.
+    """
+    Fetch datasets from HDF5 files.
 
     Parameters
     ----------
@@ -92,7 +89,8 @@ class fetcher(object):
 
 
 def fetch(fp, path):
-    """Fetches an array from hdf5 file.
+    """
+    Fetches an array from hdf5 file.
 
     Parameters
     ----------
@@ -112,8 +110,9 @@ def fetch(fp, path):
         return f[path][:]
 
 
-def see(f_or_filepath, root_name="/", show_chunks=False):
-    """Shows a human-friendly tree representation of the contents of a hdf5 file.
+def _see(f_or_filepath, root_name="/", show_chunks=False):
+    """
+    Shows a human-friendly tree representation of the contents of a hdf5 file.
 
     Parameters
     ----------

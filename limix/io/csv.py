@@ -1,5 +1,6 @@
 def read(filename, sep=None, header=True, verbose=True):
-    r"""Read a CSV file.
+    """
+    Read a CSV file.
 
     Parameters
     ----------
@@ -56,8 +57,9 @@ def read(filename, sep=None, header=True, verbose=True):
     return df
 
 
-def see(filepath, header, verbose=True):
-    """Shows a human-friendly representation of a CSV file.
+def _see(filepath, header, verbose=True):
+    """
+    Shows a human-friendly representation of a CSV file.
 
     Parameters
     ----------
