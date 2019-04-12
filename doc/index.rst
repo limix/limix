@@ -11,7 +11,6 @@ Limix's documentation
    :maxdepth: 2
 
    installation
-   cmd
    io
    her
    qc

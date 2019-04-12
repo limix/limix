@@ -77,7 +77,7 @@ Quantitative trait loci
     :toctree: _generated/
 
     limix.qtl.scan
-    limix.qtl.QTLModel
+    limix.qtl.iscan
 
 Plotting & Graphics
 ===================

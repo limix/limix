@@ -26,5 +26,4 @@ clean: Makefile
 
 livehtml:
 	cd .. && python setup.py develop; cd doc
-	sphinx-autobuild -b html -r "(.*\.(bz2|hdf5|jpg|csv|gz)|_generated/.*)" $(SPHINXOPTS) . $(BUILDDIR)/html
-
+	sphinx-autobuild -b html -r "(.*\.(raw|bz2|hdf5|jpg|csv|gz)|_generated/.*)" $(SPHINXOPTS) . $(BUILDDIR)/html

@@ -1,15 +1,11 @@
-def read(filepath, size=50, verbose=True, metadata_file=True, sample_file=None):
+def read(filepath, metadata_file=None, sample_file=None, verbose=True):
     r"""Read a given BGEN file.
 
     Parameters
     ----------
     filepath : str
         A BGEN file path.
-    size : float, optional
-        Chunk size in megabytes. Defaults to ``50``.
-    verbose : bool, optional
-        ``True`` to show progress; ``False`` otherwise.
-    metadata_file : bool, str, optional
+    metadata_file : str, optional
         If ``True``, it will try to read the variants metadata from the
         metadata file ``filepath + ".metadata"``. If this is not possible,
         the variants metadata will be read from the BGEN file itself. If
@@ -18,11 +14,13 @@ def read(filepath, size=50, verbose=True, metadata_file=True, sample_file=None):
         will be read only from the BGEN file. If a file path is given instead,
         it assumes that the specified metadata file is valid and readable and
         therefore it will read variants metadata from that file only. Defaults
-        to ``True``.
+        to ``None``.
     sample_file : str, optional
         A sample file in `GEN format <http://www.stats.ox.ac.uk/~marchini/software/gwas/file_format.html>`_.
         If sample_file is provided, sample IDs are read from this file. Otherwise, it
         reads from the BGEN file itself if present. Defaults to ``None``.
+    verbose : bool, optional
+        ``True`` to show progress; ``False`` otherwise.
 
     Returns
     -------
@@ -45,14 +43,9 @@ def read(filepath, size=50, verbose=True, metadata_file=True, sample_file=None):
     """
     from bgen_reader import read_bgen
 
-    print("Reading {}...".format(filepath))
-    return read_bgen(
-        filepath,
-        size=size,
-        verbose=verbose,
-        metadata_file=metadata_file,
-        sample_file=sample_file,
-    )
+    if verbose:
+        print("Reading {}...".format(filepath))
+    return read_bgen(filepath, metadata_file, sample_file, verbose=verbose)
 
 
 def _convert_to_dosage(p, nalleles, ploidy):

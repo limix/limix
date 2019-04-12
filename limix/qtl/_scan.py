@@ -27,17 +27,17 @@ def scan(
 
     The additional models H₁ and H₂ are define as ::
 
-        vec(Y) ~ N((A ⊗ M) vec(𝚨) + (A₀ ⊗ Gᵢ) vec(𝚩₁), s⋅K₀)
+        vec(Y) ~ N((A ⊗ M) vec(𝚨) + (A₀ ⊗ Gᵢ) vec(𝚩₀), s⋅K₀)
 
     and ::
 
-        vec(Y) ~ N((A ⊗ M) vec(𝚨) + (A₀ ⊗ Gᵢ) vec(𝚩₁) + (A₁ ⊗ Gᵢ) vec(𝚩₂), s⋅K₀)
+        vec(Y) ~ N((A ⊗ M) vec(𝚨) + (A₀ ⊗ Gᵢ) vec(𝚩₀) + (A₁ ⊗ Gᵢ) vec(𝚩₁), s⋅K₀)
 
     It performs likelihood-ratio tests for the following cases, where the first
     hypothesis is the null one while the second hypothesis is the alternative one:
-    - H₀ vs H₁: testing for vec(𝚩₁) ≠ 0 while vec(𝚩₂) = 0
-    - H₀ vs H₂: testing for [vec(𝚩₁) vec(𝚩₂)] ≠ 0
-    - H₁ vs H₂: testing for vec(𝚩₂) ≠ 0
+    - H₀ vs H₁: testing for vec(𝚩₀) ≠ 𝟎 while vec(𝚩₁) = 𝟎
+    - H₀ vs H₂: testing for [vec(𝚩₀) vec(𝚩₁)] ≠ 𝟎
+    - H₁ vs H₂: testing for vec(𝚩₁) ≠ 𝟎
 
     It supports generalized linear mixed models (GLMM) when a single trait is used.
     In this case, the following likelihoods are implemented:
@@ -49,7 +49,7 @@ def scan(
     Formally, let p(𝜇) be one of the supported probability distributions where 𝜇 is
     its mean. The H₀ model is defined as follows::
 
-        yᵢ ∼ p(𝜇=g(zᵢ)) for 𝐳 ∼ 𝓝(..., ...).
+        yᵢ ∼ p(𝜇ᵢ=g(zᵢ)) for 𝐳 ∼ 𝓝(..., ...).
 
     g(⋅) is the corresponding canonical link function for the Bernoulli, Binomial, and
     Poisson likelihoods. The Probit likelihood, on the other hand, is a Bernoulli
@@ -60,20 +60,20 @@ def scan(
     G : n×m array_like
         Genetic candidates.
     Y : n×p array_like
-        p phenotype values for n samples.
+        Rows are samples and columns are phenotypes.
     lik : tuple, "normal", "bernoulli", "probit", "binomial", "poisson"
         Sample likelihood describing the residual distribution.
-        Either a tuple or a string specifiying the likelihood is required. The Normal,
+        Either a tuple or a string specifying the likelihood is required. The Normal,
         Bernoulli, Probit, and Poisson likelihoods can be selected by providing a
         string. Binomial likelihood on the other hand requires a tuple because of the
         number of trials: ``("binomial", array_like)``. Defaults to ``"normal"``.
-    idx : list
-        List of candidate indices that defines the set of candidates to be used in the
-        tests.
     K : n×n array_like
         Sample covariance, often the so-called kinship matrix.
     M : n×c array_like
         Covariates matrix.
+    idx : list
+        List of candidate indices that defines the set of candidates to be used in the
+        tests.
     A : p×p array_like
         Symmetric trait-by-trait design matrix.
     A0 : p×p₀ array_like
@@ -85,7 +85,7 @@ def scan(
 
     Returns
     -------
-    :class:`limix.qtl.ScanResult`
+    result : :class:`limix.qtl._result.STScanResult`, :class:`limix.qtl._result.MTScanResult`
         P-values, log of marginal likelihoods, effect sizes, and associated statistics.
 
     Examples
@@ -245,9 +245,7 @@ def scan(
     refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
     from numpy_sugar.linalg import economic_qs
-    from xarray import concat
     from ._assert import assert_finite
-    from numpy import eye, asarray, empty
 
     if not isinstance(lik, (tuple, list)):
         lik = (lik,)
