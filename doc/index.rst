@@ -2,9 +2,6 @@
 Limix's documentation
 #####################
 
-:Date: |today|
-:Version: |version|
-
 .. toctree::
    :caption: Table of contents
    :name: mastertoc
