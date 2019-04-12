@@ -27,9 +27,10 @@ def estimate_kinship(ctx, input_file, output_file, filetype, verbose):
         print("Detected file type: {}".format(filetype))
 
     if filetype == "bgen":
-        G = limix.io.bgen.fetch_dosage(input_file, verbose=verbose)
+        raise NotImplementedError()
+        # G = limix.io.bgen._read_dosage(input_file, verbose=verbose)
     elif filetype == "bed":
-        G = limix.io.plink.fetch_dosage(input_file, verbose=verbose)
+        G = limix.io.plink._read_dosage(input_file, verbose=verbose)
     else:
         print("Unknown file type: %s" % input_file)
 

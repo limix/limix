@@ -50,7 +50,8 @@ def read(filepath, metadata_file=None, sample_file=None, verbose=True):
 
 
 def _convert_to_dosage(p, nalleles, ploidy):
-    r"""Convert probabilities to dosage.
+    """
+    Convert probabilities to dosage.
 
     Parameters
     ----------
@@ -76,7 +77,8 @@ def _convert_to_dosage(p, nalleles, ploidy):
 
 
 def _create_metadata_file(bgen_filepath, metadata_filepath, verbose=True):
-    r"""Create variants metadata file.
+    """
+    Create variants metadata file.
 
     Variants metadata file helps speed up subsequent reads of the associated
     BGEN file.

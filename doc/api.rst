@@ -14,8 +14,6 @@ I/O module
     limix.io.gen.read
     limix.io.hdf5.read_limix
     limix.io.npy.read
-    limix.io.npy.save
-    limix.io.plink.fetch_dosage
     limix.io.plink.read
 
 Quality control

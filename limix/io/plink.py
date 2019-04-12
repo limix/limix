@@ -92,7 +92,7 @@ def read(prefix, verbose=True):
     return data
 
 
-def fetch_dosage(prefix, verbose):
+def _read_dosage(prefix, verbose):
     from pandas_plink import read_plink
 
     return read_plink(prefix, verbose=verbose)[2].T
