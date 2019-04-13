@@ -12,7 +12,7 @@ class VarDec(object):
     Construct GLMMs with any number of fixed and random effects.
     """
 
-    def __init__(self, Y, lik, M=None):
+    def __init__(self, y, lik, M=None):
         """
         Build a stub GLMM with a given number of samples.
 
@@ -21,67 +21,38 @@ class VarDec(object):
         nsamples : int
             Number of samples.
         """
-        Y = asarray(Y, float)
-        data = conform_dataset(Y, M)
-        self._Y = Y
+        from glimix_core.mean import LinearMean
+
+        y = asarray(y, float)
+        data = conform_dataset(y, M)
+        y = data["y"]
+        M = data["M"]
+        self._y = y
+        self._M = M
         self._lik = normalize_likelihood(lik)
-        self._fixed_effects = FixedEffects(Y.shape[0])
-        self._covariance_matrices = CovarianceMatrices(Y.shape[0])
-
-    def decomp(self):
-        r""" Get the fixed and random effects.
-
-        Returns
-        -------
-        fixed_effects : Fixed effects.
-        random_effects : Random effects.
-        """
-        from numpy import var as npvar
-
-        decomp = dict(fixed_effects={}, random_effects={})
-
-        for fe in self.fixed_effects:
-            if hasattr(fe, "offset"):
-                continue
-            decomp["fixed_effects"][fe.name] = npvar(fe.value())
-
-        for re in self.covariance_matrices:
-            decomp["random_effects"][re.name] = re.scale
-
-        total = 0
-        for _, v in iter(decomp.items()):
-            for _, vi in iter(v.items()):
-                total += vi
-
-        for k0, v in iter(decomp.items()):
-            for k1, vi in iter(v.items()):
-                decomp[k0][k1] = vi / total
-
-        return decomp
+        self._mean = LinearMean(asarray(M, float))
+        self._covariance = []
+        self._glmm = None
+        self._fit = False
+        self._unnamed = 0
 
     @property
-    def fixed_effects(self):
-        """
-        Get the fixed effects.
-
-        Returns
-        -------
-        dict
-            Fixed effects.
-        """
-        return self._fixed_effects
+    def effsizes(self):
+        if not self._fit:
+            self.fit()
+        return self._mean.effsizes
 
     @property
-    def covariance_matrices(self):
+    def covariance(self):
         """
         Get the covariance matrices.
 
         Returns
         -------
-        dict
+        covariances : list
             Covariance matrices.
         """
-        return self._covariance_matrices
+        return self._covariance
 
     def fit(self, verbose=True):
         """
@@ -92,18 +63,23 @@ class VarDec(object):
         verbose : bool, optional
             Set ``False`` to silence it. Defaults to ``True``.
         """
-        if self._likname == "normal":
+        if self._lik[0] == "normal":
             session_name = "composed lmm"
         else:
-            session_name = "composed {}-glmm".format(self._likname)
+            session_name = "composed {}-glmm".format(self._lik[0])
         with _display.session_block(session_name, disable=not verbose):
-            self._build_glmm()
-            self._glmm.fit(verbose=verbose)
+            if self._lik[0] == "normal":
+                if self._simple_model():
+                    self._fit_lmm_simple_model(verbose)
+                else:
+                    self._fit_lmm(verbose)
 
-            if verbose:
-                sys.stdout.flush()
-                txt = _display.bold(str(self))
-                _display.display(_display.format_richtext(txt))
+            # if verbose:
+            #     sys.stdout.flush()
+            #     txt = _display.bold(str(self))
+            #     _display.display(_display.format_richtext(txt))
+
+        self._fit = True
 
     def lml(self):
         """
@@ -114,27 +90,119 @@ class VarDec(object):
         float
             Log of the marginal likelihood.
         """
-        self._build_glmm()
+        if not self._fit:
+            self._glmm.fit()
         return self._glmm.lml()
 
-    def _build_glmm(self):
+    def append_iid(self, name="residual"):
+        from glimix_core.cov import EyeCov
+
+        c = EyeCov(self._y.shape[0])
+        c.name = name
+        self._covariance.append(c)
+
+    def append(self, K, name=None):
+        from numpy import all as npall, isfinite, issubdtype, number
+        from numpy_sugar import is_all_finite
+        from glimix_core.cov import GivenCov
+
+        data = conform_dataset(self._y, K=K)
+        K = asarray(data["K"], float)
+
+        if not is_all_finite(K):
+            raise ValueError("Covariance-matrix values must be finite.")
+
+        K = K / K.diagonal().mean()
+        cov = GivenCov(K)
+        if name is None:
+            name = "unnamed-{}".format(self._unnamed)
+            self._unnamed += 1
+        cov.name = name
+
+        self._covariance.append(cov)
+
+    def _fit_lmm(self, verbose):
+        from glimix_core.cov import SumCov
         from glimix_core.gp import GP
-        from numpy import asarray
 
-        if self._y is None:
-            raise ValueError("Phenotype has not been set.")
+        y = asarray(self._y, float).ravel()
+        gp = GP(y, self._mean, SumCov(self._covariance))
+        gp.fit(verbose=verbose)
+        self._glmm = gp
 
-        if self._likname == "normal" and self._glmm is None:
-            gp = GP(
-                asarray(self._y, float).ravel(),
-                self._fixed_effects.impl,
-                self._covariance_matrices.impl,
-            )
-            self._glmm = gp
-            return
+    def _fit_lmm_simple_model(self, verbose):
+        from numpy_sugar.linalg import economic_qs
+        from glimix_core.lmm import LMM
 
-        if self._likname != "normal":
-            raise NotImplementedError()
+        K = self._get_matrix_simple_model()
+
+        y = asarray(self._y, float).ravel()
+        QS = None
+        if K is not None:
+            QS = economic_qs(K)
+        lmm = LMM(y, self._M, QS)
+        lmm.fit(verbose=verbose)
+        self._set_simple_model_variances(lmm.v0, lmm.v1)
+        self._glmm = lmm
+
+    def _set_simple_model_variances(self, v0, v1):
+        from glimix_core.cov import GivenCov, EyeCov
+
+        for c in self._covariance:
+            if isinstance(c, GivenCov):
+                c.scale = v0
+            elif isinstance(c, EyeCov):
+                c.scale = v1
+
+    def _get_matrix_simple_model(self):
+        from glimix_core.cov import GivenCov
+
+        K = None
+        for i in range(len(self._covariance)):
+            if isinstance(self._covariance[i], GivenCov):
+                self._covariance[i].scale = 1.0
+                K = self._covariance[i].value()
+                break
+        return K
+
+    def _fit_glmm(self, verbose):
+        from glimix_core.gp import GP
+
+    def _simple_model(self):
+        from glimix_core.cov import GivenCov, EyeCov
+
+        if len(self._covariance) > 2:
+            return False
+
+        c = self._covariance
+        if len(c) == 1 and isinstance(c[0], EyeCov):
+            return True
+
+        if isinstance(c[0], GivenCov) and isinstance(c[1], EyeCov):
+            return True
+
+        if isinstance(c[1], GivenCov) and isinstance(c[0], EyeCov):
+            return True
+
+        return False
+
+    # def _build_glmm(self):
+    #     from numpy import asarray
+
+    #     if self._y is None:
+    #         raise ValueError("Phenotype has not been set.")
+
+    #     if self._likname == "normal" and self._glmm is None:
+    #         gp = GP(
+    #             asarray(self._y, float).ravel(),
+    #             self._fixed_effects.impl,
+    #             self._covariance.impl,
+    #         )
+    #         self._glmm = gp
+    #         return
+
+    #     if self._likname != "normal":
+    #         raise NotImplementedError()
 
     def __repr__(self):
         from textwrap import TextWrapper
@@ -153,154 +221,5 @@ class VarDec(object):
         s += w.fill("Fixed-effect sizes: " + str(self._fixed_effects)) + "\n"
 
         w = TextWrapper(initial_indent="", subsequent_indent=" " * 27, width=width)
-        s += w.fill("Covariance-matrix scales: " + str(self._covariance_matrices))
+        s += w.fill("Covariance-matrix scales: " + str(self._covariance))
         return s
-
-    def __str__(self):
-        return self.__repr__()
-
-    def __unicode__(self):
-        return self.__repr__()
-
-
-class FixedEffects(object):
-    def __init__(self, nsamples):
-        self._nsamples = nsamples
-        self._fixed_effects = {"impl": [], "user": []}
-        self._mean = None
-
-    def __len__(self):
-        return len(self._fixed_effects["impl"])
-
-    def __getitem__(self, i):
-        return self._fixed_effects["user"][i]
-
-    def _setup_mean(self):
-        from glimix_core.mean import SumMean
-
-        if self._mean is None:
-            mean = SumMean(self._fixed_effects["impl"])
-            self._mean = {"impl": mean, "user": user_mean.SumMean(mean)}
-
-    @property
-    def impl(self):
-        self._setup_mean()
-        return self._mean["impl"]
-
-    def append_offset(self):
-        from glimix_core.mean import OffsetMean
-
-        mean = OffsetMean(self._nsamples)
-        self._fixed_effects["impl"].append(mean)
-        self._fixed_effects["user"].append(user_mean.OffsetMean(mean))
-        self._fixed_effects["user"][-1].name = "offset"
-        self._mean = None
-
-    def append(self, m, name=None):
-        from numpy import all as npall, asarray, atleast_2d, isfinite
-        from glimix_core.mean import LinearMean
-
-        m = asarray(m, float)
-        if m.ndim > 2:
-            raise ValueError("Fixed-effect has to have between one and two dimensions.")
-
-        if not npall(isfinite(m)):
-            raise ValueError("Fixed-effect values must be finite.")
-
-        m = atleast_2d(m.T).T
-        mean = LinearMean(m)
-
-        n = len(self._fixed_effects["impl"])
-        if name is None:
-            name = "unnamed-fe-{}".format(n)
-        self._fixed_effects["impl"].append(mean)
-        self._fixed_effects["user"].append(user_mean.LinearMean(mean))
-        self._fixed_effects["user"][-1].name = name
-        self._mean = None
-
-    @property
-    def mean(self):
-        self._setup_mean()
-        return self._mean["user"]
-
-    def __str__(self):
-        from numpy import asarray
-
-        vals = []
-        for fi in self._fixed_effects["user"]:
-            if isinstance(fi, user_mean.OffsetMean):
-                vals.append(fi.offset)
-            else:
-                vals += list(fi.effsizes)
-        return str(asarray(vals, float))
-
-
-class CovarianceMatrices(object):
-    def __init__(self, nsamples):
-        self._nsamples = nsamples
-        self._covariance_matrices = {"impl": [], "user": []}
-        self._cov = None
-
-    def __len__(self):
-        return len(self._covariance_matrices["impl"])
-
-    def __getitem__(self, i):
-        return self._covariance_matrices["user"][i]
-
-    def _setup_cov(self):
-        from glimix_core.cov import SumCov
-
-        if self._cov is None:
-            cov = SumCov(self._covariance_matrices["impl"])
-            self._cov = {"impl": cov, "user": user_cov.SumCov(cov)}
-
-    @property
-    def impl(self):
-        self._setup_cov()
-        return self._cov["impl"]
-
-    def append_iid_noise(self):
-        from glimix_core.cov import EyeCov
-
-        cov = EyeCov(self._nsamples)
-        self._covariance_matrices["impl"].append(cov)
-        self._covariance_matrices["user"].append(user_cov.EyeCov(cov))
-        self._covariance_matrices["user"][-1].name = "residual"
-        self._cov = None
-
-    def append(self, K, name=None):
-        from numpy import all as npall, isfinite, issubdtype, number
-        from glimix_core.cov import GivenCov
-
-        if not issubdtype(K.dtype, number):
-            raise ValueError("covariance-matrix is not numeric.")
-
-        if K.ndim != 2:
-            raise ValueError("Covariance-matrix has to have two dimensions.")
-
-        if not npall(isfinite(K)):
-            raise ValueError("Covariance-matrix values must be finite.")
-
-        cov = GivenCov(K)
-
-        n = len(self._covariance_matrices["impl"])
-        if name is None:
-            name = "unnamed-re-{}".format(n)
-
-        self._covariance_matrices["impl"].append(cov)
-        self._covariance_matrices["user"].append(user_cov.GivenCov(cov))
-        self._covariance_matrices["user"][-1].name = name
-        self._cov = None
-
-    @property
-    def cov(self):
-        self._setup_cov()
-        return self._cov["user"]
-
-    def __str__(self):
-        from numpy import asarray
-
-        vals = []
-        for cm in self._covariance_matrices["user"]:
-            vals.append(cm.scale)
-        return str(asarray(vals, float))
