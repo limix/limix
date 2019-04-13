@@ -1,25 +1,20 @@
 import sys
 
 from limix._display import session_line
-
 from .._bits import unvec
-from .._data import asarray as _asarray, assert_likelihood, conform_dataset
+from .._data import asarray as _asarray, conform_dataset, normalize_likelihood
 from .._display import session_block
 from ._result import IScanResultFactory
+from ._assert import assert_finite
 
 
 def iscan(G, y, lik="normal", K=None, M=None, idx=None, E0=None, E1=None, verbose=True):
     from numpy_sugar.linalg import economic_qs
     from xarray import concat
-    from ._assert import assert_finite
     from numpy import asarray, empty, ones
 
-    if not isinstance(lik, (tuple, list)):
-        lik = (lik,)
-
-    lik_name = lik[0].lower()
-    lik = (lik_name,) + lik[1:]
-    assert_likelihood(lik_name)
+    lik = normalize_likelihood(lik)
+    lik_name = lik[0]
 
     with session_block("QTL analysis", disable=not verbose):
 

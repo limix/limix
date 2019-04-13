@@ -1,35 +1,32 @@
 import sys
 
+from numpy import asarray
 from . import _cov as user_cov, _mean as user_mean
 from .. import _display
-from .._data import assert_likelihood
+from .._data import asarray as _asarray, conform_dataset, normalize_likelihood
 from ..qc._lik import normalise_extreme_values
 
 
-if sys.version_info < (3, 0):
-    PY2 = True
-else:
-    PY2 = False
-
-
-class GLMMComposer(object):
-    """ Construct GLMMs with any number of fixed and random effects.
+class VarDec(object):
+    """
+    Construct GLMMs with any number of fixed and random effects.
     """
 
-    def __init__(self, nsamples):
-        """ Build a stub GLMM with a given number of samples.
+    def __init__(self, Y, lik, M=None):
+        """
+        Build a stub GLMM with a given number of samples.
 
         Parameters
         ----------
         nsamples : int
             Number of samples.
         """
-        self._nsamples = nsamples
-        self._likname = "normal"
-        self._y = None
-        self._fixed_effects = FixedEffects(nsamples)
-        self._covariance_matrices = CovarianceMatrices(nsamples)
-        self._glmm = None
+        Y = asarray(Y, float)
+        data = conform_dataset(Y, M)
+        self._Y = Y
+        self._lik = normalize_likelihood(lik)
+        self._fixed_effects = FixedEffects(Y.shape[0])
+        self._covariance_matrices = CovarianceMatrices(Y.shape[0])
 
     def decomp(self):
         r""" Get the fixed and random effects.
@@ -63,59 +60,9 @@ class GLMMComposer(object):
         return decomp
 
     @property
-    def likname(self):
-        """ Get likelihood name.
-
-        Returns
-        -------
-        str
-            Likelihood name.
-        """
-        return self._likname
-
-    @likname.setter
-    def likname(self, likname):
-        """ Set likelihood name.
-
-        Parameters
-        ----------
-        likname : str
-            Likelihood name.
-        """
-        assert_likelihood(likname)
-        self._likname = likname.lower()
-        self._glmm = None
-
-    @property
-    def y(self):
-        """ Get the outcome array.
-
-        Returns
-        -------
-        DataArray
-            Outcome array.
-        """
-        return self._y
-
-    @y.setter
-    def y(self, y):
-        """ Set the outcome array.
-
-        Parameters
-        ----------
-        y : array_like
-            Outcome array.
-        """
-        from numpy import all as npall, isfinite
-
-        if not npall(isfinite(y)):
-            raise ValueError("Phenotype values must be finite.")
-        self._glmm = None
-        self._y = normalise_extreme_values(y, "normal")
-
-    @property
     def fixed_effects(self):
-        """ Get the fixed effects.
+        """
+        Get the fixed effects.
 
         Returns
         -------
@@ -126,7 +73,8 @@ class GLMMComposer(object):
 
     @property
     def covariance_matrices(self):
-        """ Get the covariance matrices.
+        """
+        Get the covariance matrices.
 
         Returns
         -------
@@ -136,7 +84,8 @@ class GLMMComposer(object):
         return self._covariance_matrices
 
     def fit(self, verbose=True):
-        """ Fit the model.
+        """
+        Fit the model.
 
         Parameters
         ----------
@@ -157,7 +106,8 @@ class GLMMComposer(object):
                 _display.display(_display.format_richtext(txt))
 
     def lml(self):
-        """ Get the log of the marginal likelihood.
+        """
+        Get the log of the marginal likelihood.
 
         Returns
         -------
@@ -207,8 +157,6 @@ class GLMMComposer(object):
         return s
 
     def __str__(self):
-        if PY2:
-            return self.__unicode__().encode("utf-8")
         return self.__repr__()
 
     def __unicode__(self):

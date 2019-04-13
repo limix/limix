@@ -1,7 +1,7 @@
 from __future__ import division
 
 from .._display import session_block, session_line
-from .._data import conform_dataset, assert_likelihood
+from .._data import conform_dataset, normalize_likelihood
 from ..qc._lik import normalise_extreme_values
 from ..qc import normalise_covariance
 
@@ -70,11 +70,8 @@ def estimate(y, lik, K, M=None, verbose=True):
     from glimix_core.glmm import GLMMExpFam
     from glimix_core.lmm import LMM
 
-    if not isinstance(lik, (tuple, list)):
-        lik = (lik,)
-
-    lik_name = lik[0].lower()
-    assert_likelihood(lik_name)
+    lik = normalize_likelihood(lik)
+    lik_name = lik[0]
 
     with session_block("heritability analysis", disable=not verbose):
 

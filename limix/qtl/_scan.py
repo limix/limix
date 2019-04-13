@@ -1,9 +1,9 @@
 import sys
 
 from limix._display import session_line
-
-from .._data import asarray as _asarray, assert_likelihood, conform_dataset
+from .._data import asarray as _asarray, conform_dataset, normalize_likelihood
 from .._display import session_block
+from ._assert import assert_finite
 from ._result import MTScanResultFactory, STScanResultFactory
 
 
@@ -245,14 +245,8 @@ def scan(
     refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
     from numpy_sugar.linalg import economic_qs
-    from ._assert import assert_finite
 
-    if not isinstance(lik, (tuple, list)):
-        lik = (lik,)
-
-    lik_name = lik[0].lower()
-    lik = (lik_name,) + lik[1:]
-    assert_likelihood(lik_name)
+    lik = normalize_likelihood(lik)
 
     if A is None:
         if A0 is not None or A1 is not None:
