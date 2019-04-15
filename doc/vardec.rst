@@ -2,40 +2,34 @@
 Variance decomposition
 **********************
 
-The genetic model
-^^^^^^^^^^^^^^^^^
+Single-trait decomposition 
+==========================
 
 We make use of GLMM with random effects structured in multiple variables, each one
-describing a different aspect of the dataset:
+describing a different aspect of the dataset.  For a normally distributed phenotype, we
+use the model
 
 .. math::
 
-    \mathbf y = \mathbf M\boldsymbol\beta
-        + \sum_j\mathbf X^{(j)}\mathbf u^{(j)} + \boldsymbol\epsilon,
+    𝐲 = 𝐌𝛃 + ∑ⱼ𝐮ⱼ, ~~\text{where}~~ 𝐮ⱼ ∼ 𝓝(𝟎, 𝓋ⱼ𝙺ⱼ).
+
+For non-normally distributed phenotype, the model is given by
+
 
 .. math::
 
-    \mathbf u^{(j)} \sim \mathcal N(\mathbf 0, v_j\mathbf I_{j}), ~~\text{and}~~
-    \boldsymbol\epsilon\sim\mathcal N(\mathbf 0, v_{j+1}\mathbf I_{j+1}),
+    𝐳 = 𝐌𝛃 + ∑ⱼ𝐮ⱼ, ~~\text{where}~~~~~~~~~~~~~~~~~~\\
+    𝐮ⱼ ∼ 𝓝(𝟎, 𝓋ⱼ𝙺ⱼ) ~~\text{and}~~ yᵢ|𝐳 ∼ 𝙴𝚡𝚙𝙵𝚊𝚖(𝜇ᵢ=g(zᵢ)).
 
-where
-
-.. math::
-
-    \begin{eqnarray}
-    \mathbf y   &=& \text{phenotype} \in \mathcal R^{n\times 1} \\
-    \mathbf M   &=& \text{matrix of covariates} \in \mathcal R^{n\times m} \\
-    \boldsymbol\beta &=& \text{covariate effect-sizes} \in \mathcal R^{m\times 1} \\
-    \mathbf X^{(j)}   &=& \text{matrix of attributes} \in \mathcal R^{n\times p_j}
-    \end{eqnarray}
+The parameters 𝛃 and 𝓋ⱼ are fit via maximum likelihood.
 
 Example: glucose condition
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
 Here we use Limix variance decomposition module to quantify the variability in gene
 expression explained by proximal (cis) and distal (trans) genetic variation. To do so,
-we build a linear mixed model with a intercept, two random effects for cis
-and trans genetic effects, and a noise random effect.
+we build a linear mixed model with an intercept, two random effects for cis and trans
+genetic effects, and a noise random effect.
 
 Lets first download the dataset.
 
@@ -100,10 +94,9 @@ lysine groups.
     ...     "YDR234W",
     ... ]
 
-We will compute the relationship matrix ``K_all`` considering all SNPs and define
-the cis region size ``window_size`` in base pairs.
-Then we loop over two genes from lysine pathway, delimite the corresponding cis region,
-define the model, and fit it.
+We will compute the relationship matrix ``K_all`` considering all SNPs and define the
+cis region size ``window_size`` in base pairs.  Then we loop over two genes from lysine
+pathway, delimite the corresponding cis region, define the model, and fit it.
 
 .. plot::
     :context:
@@ -114,11 +107,10 @@ define the model, and fit it.
     >>> K_all = dot(G_all, G_all.T)
     >>> window_size = int(5e5)
     >>>
-    >>> variances = []
+    >>> vardecs = []
     >>>
     >>> # We loop over the first two groups only.
     >>> for gene in lysine_group[:2]:
-    ...
     ...     # Select the row corresponding to gene of interest on environment 0.0.
     ...     y = Y[:, (Y["gene_ID"] == gene) & (Y["environment"] == 0.0)]
     ...
@@ -132,26 +124,33 @@ define the model, and fit it.
     ...
     ...     G_cis = G_all[:, geno.candidate]
     ...     K_cis = dot(G_cis, G_cis.T)
-    ...     # Normalising the covariances is important for comparing their relative
-    ...     # overall variances.
-    ...     K_trans = limix.qc.normalise_covariance(K_all - K_cis)
-    ...     K_cis = limix.qc.normalise_covariance(K_cis)
+    ...     K_trans = K_all - K_cis
     ...
     ...     # Definition of the model to fit our data from which we extract
     ...     # the relative signal strength.
-    ...     glmm = limix.glmm.GLMMComposer(len(y))
-    ...     glmm.y = y
-    ...     glmm.fixed_effects.append_offset()
-    ...     glmm.covariance_matrices.append(K_cis)
-    ...     glmm.covariance_matrices.append(K_trans)
-    ...     glmm.covariance_matrices.append_iid_noise()
-    ...     glmm.fit(verbose=False)
-    ...
-    ...     cis_scale = glmm.covariance_matrices[0].scale
-    ...     trans_scale = glmm.covariance_matrices[1].scale
-    ...     noise_scale = glmm.covariance_matrices[2].scale
-    ...
-    ...     variances.append([cis_scale, trans_scale, noise_scale])
+    ...     vardec = limix.vardec.VarDec(y, "normal")
+    ...     vardec.append(K_cis, "cis")
+    ...     vardec.append(K_trans, "trans")
+    ...     vardec.append_iid("noise")
+    ...     vardec.fit(verbose=False)
+    ...     vardecs.append(vardec)
+
+We show a summary of each decomposition.
+
+.. plot::
+    :context:
+    :include-source:
+
+    >>> print(vardecs[0])
+    Variance decomposition
+    ======================
+    <BLANKLINE>
+    𝐲 ~ 𝓝(𝙼𝜶, 0.018⋅𝙺 + 0.047⋅𝙺 + 0.066⋅𝙸)
+    >>> print(vardecs[1])
+    Variance decomposition
+    ======================
+    <BLANKLINE>
+    𝐲 ~ 𝓝(𝙼𝜶, 0.197⋅𝙺 + 0.087⋅𝙺 + 0.149⋅𝙸)
 
 We now plot the results.
 
@@ -159,18 +158,13 @@ We now plot the results.
     :context:
     :include-source:
 
-    >>> import seaborn as sns
-    >>> from matplotlib.ticker import FormatStrFormatter
-    >>> from pandas import DataFrame
-    >>>
-    >>> variances = DataFrame(variances, columns=["cis", "trans", "noise"])
-    >>> variances = variances.div(variances.sum(axis=1), axis=0).mean(axis=0)
-    >>> variances = variances * 100
-    >>>
-    >>> ax = sns.barplot(x=variances.index, y=variances.values)
-    >>> ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
-    >>>
-    >>> limix.plot.show()
+    >>> vardecs[0].plot()
+
+.. plot::
+    :context:
+    :include-source:
+
+    >>> vardecs[1].plot()
 
 And remove temporary files.
 

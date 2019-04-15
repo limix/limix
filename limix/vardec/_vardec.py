@@ -1,25 +1,84 @@
-import sys
-
 from numpy import asarray
-from . import _cov as user_cov, _mean as user_mean
-from .. import _display
-from .._data import asarray as _asarray, conform_dataset, normalize_likelihood
-from ..qc._lik import normalise_extreme_values
+from .._display import session_block
+from .._data import conform_dataset, normalize_likelihood
 
 
 class VarDec(object):
     """
-    Construct GLMMs with any number of fixed and random effects.
+    Variance decompositon through GLMMs.
+
+    Example
+    -------
+
+    .. doctest::
+
+        >>> from limix.vardec import VarDec
+        >>> from numpy import ones, eye, concatenate, zeros, exp
+        >>> from numpy.random import RandomState
+        >>>
+        >>> random = RandomState(0)
+        >>> nsamples = 20
+        >>>
+        >>> M = random.randn(nsamples, 2)
+        >>> M = (M - M.mean(0)) / M.std(0)
+        >>> M = concatenate((ones((nsamples, 1)), M), axis=1)
+        >>>
+        >>> K0 = random.randn(nsamples, 10)
+        >>> K0 = K0 @ K0.T
+        >>> K0 /= K0.diagonal().mean()
+        >>> K0 += eye(nsamples) * 1e-4
+        >>>
+        >>> K1 = random.randn(nsamples, 10)
+        >>> K1 = K1 @ K1.T
+        >>> K1 /= K1.diagonal().mean()
+        >>> K1 += eye(nsamples) * 1e-4
+        >>>
+        >>> mvn = random.multivariate_normal
+        >>> y = M @ random.randn(3) + mvn(zeros(nsamples), K0) + mvn(zeros(nsamples), K1)
+        >>>
+        >>> vardec = VarDec(y, "normal", M)
+        >>> vardec.append(K0)
+        >>> vardec.append(K1)
+        >>> vardec.append_iid()
+        >>>
+        >>> vardec.fit(verbose=False)
+        >>> print(vardec) # doctest: +FLOAT_CMP
+        Variance decomposition
+        ======================
+        <BLANKLINE>
+        𝐲 ~ 𝓝(𝙼𝜶, 0.425⋅𝙺 + 1.776⋅𝙺 + 0.000⋅𝙸)
+        >>>
+        >>> y = exp((y - y.mean()) / y.std())
+        >>> vardec = VarDec(y, "poisson", M)
+        >>> vardec.append(K0)
+        >>> vardec.append(K1)
+        >>> vardec.append_iid()
+        >>>
+        >>> vardec.fit(verbose=False)
+        >>> print(vardec) # doctest: +FLOAT_CMP
+        Variance decomposition
+        ======================
+        <BLANKLINE>
+        𝐳 ~ 𝓝(𝙼𝜶, 0.000⋅𝙺 + 0.397⋅𝙺 + 0.000⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
     """
 
-    def __init__(self, y, lik, M=None):
+    def __init__(self, y, lik="normal", M=None):
         """
-        Build a stub GLMM with a given number of samples.
+        Constructor.
 
         Parameters
         ----------
-        nsamples : int
-            Number of samples.
+        y : array_like
+            Phenotype.
+        lik : tuple, "normal", "bernoulli", "probit", "binomial", "poisson"
+            Sample likelihood describing the residual distribution.
+            Either a tuple or a string specifying the likelihood is required. The
+            Normal, Bernoulli, Probit, and Poisson likelihoods can be selected by
+            providing a string. Binomial likelihood on the other hand requires a tuple
+            because of the number of trials: ``("binomial", array_like)``. Defaults to
+            ``"normal"``.
+        M : n×c array_like
+            Covariates matrix.
         """
         from glimix_core.mean import LinearMean
 
@@ -38,6 +97,14 @@ class VarDec(object):
 
     @property
     def effsizes(self):
+        """
+        Covariace effect sizes.
+
+        Returns
+        -------
+        effsizes : ndarray
+            Effect sizes.
+        """
         if not self._fit:
             self.fit()
         return self._mean.effsizes
@@ -63,16 +130,17 @@ class VarDec(object):
         verbose : bool, optional
             Set ``False`` to silence it. Defaults to ``True``.
         """
-        if self._lik[0] == "normal":
-            session_name = "composed lmm"
-        else:
-            session_name = "composed {}-glmm".format(self._lik[0])
-        with _display.session_block(session_name, disable=not verbose):
+        with session_block("Variance decomposition", disable=not verbose):
             if self._lik[0] == "normal":
                 if self._simple_model():
                     self._fit_lmm_simple_model(verbose)
                 else:
                     self._fit_lmm(verbose)
+            else:
+                if self._simple_model():
+                    self._fit_glmm_simple_model(verbose)
+                else:
+                    self._fit_glmm(verbose)
 
             # if verbose:
             #     sys.stdout.flush()
@@ -102,7 +170,6 @@ class VarDec(object):
         self._covariance.append(c)
 
     def append(self, K, name=None):
-        from numpy import all as npall, isfinite, issubdtype, number
         from numpy_sugar import is_all_finite
         from glimix_core.cov import GivenCov
 
@@ -121,12 +188,38 @@ class VarDec(object):
 
         self._covariance.append(cov)
 
+    def plot(self):
+        import limix
+        import seaborn as sns
+        from matplotlib.ticker import FormatStrFormatter
+
+        variances = [c.scale for c in self._covariance]
+        variances = [(v / sum(variances)) * 100 for v in variances]
+        names = [c.name for c in self._covariance]
+
+        ax = sns.barplot(x=names, y=variances)
+        ax.yaxis.set_major_formatter(FormatStrFormatter("%.0f%%"))
+        ax.set_xlabel("random effects")
+        ax.set_ylabel("explained variance")
+        ax.set_title("Variance decomposition")
+        limix.plot.get_pyplot().tight_layout()
+        limix.plot.show()
+
     def _fit_lmm(self, verbose):
         from glimix_core.cov import SumCov
         from glimix_core.gp import GP
 
         y = asarray(self._y, float).ravel()
         gp = GP(y, self._mean, SumCov(self._covariance))
+        gp.fit(verbose=verbose)
+        self._glmm = gp
+
+    def _fit_glmm(self, verbose):
+        from glimix_core.cov import SumCov
+        from glimix_core.ggp import ExpFamGP
+
+        y = asarray(self._y, float).ravel()
+        gp = ExpFamGP(y, self._lik, self._mean, SumCov(self._covariance))
         gp.fit(verbose=verbose)
         self._glmm = gp
 
@@ -144,6 +237,23 @@ class VarDec(object):
         lmm.fit(verbose=verbose)
         self._set_simple_model_variances(lmm.v0, lmm.v1)
         self._glmm = lmm
+
+    def _fit_glmm_simple_model(self, verbose):
+        from numpy_sugar.linalg import economic_qs
+        from glimix_core.glmm import GLMMExpFam
+
+        K = self._get_matrix_simple_model()
+
+        y = asarray(self._y, float).ravel()
+        QS = None
+        if K is not None:
+            QS = economic_qs(K)
+
+        glmm = GLMMExpFam(y, self._lik, self._M, QS)
+        glmm.fit(verbose=verbose)
+
+        self._set_simple_model_variances(glmm.v0, glmm.v1)
+        self._glmm = glmm
 
     def _set_simple_model_variances(self, v0, v1):
         from glimix_core.cov import GivenCov, EyeCov
@@ -165,9 +275,6 @@ class VarDec(object):
                 break
         return K
 
-    def _fit_glmm(self, verbose):
-        from glimix_core.gp import GP
-
     def _simple_model(self):
         from glimix_core.cov import GivenCov, EyeCov
 
@@ -186,40 +293,22 @@ class VarDec(object):
 
         return False
 
-    # def _build_glmm(self):
-    #     from numpy import asarray
-
-    #     if self._y is None:
-    #         raise ValueError("Phenotype has not been set.")
-
-    #     if self._likname == "normal" and self._glmm is None:
-    #         gp = GP(
-    #             asarray(self._y, float).ravel(),
-    #             self._fixed_effects.impl,
-    #             self._covariance.impl,
-    #         )
-    #         self._glmm = gp
-    #         return
-
-    #     if self._likname != "normal":
-    #         raise NotImplementedError()
-
     def __repr__(self):
-        from textwrap import TextWrapper
+        from glimix_core.cov import GivenCov
+        from limix.qtl._result._draw import draw_model, draw_title
 
-        width = _display.width()
+        covariance = ""
+        for c in self._covariance:
+            s = c.scale
+            if isinstance(c, GivenCov):
+                covariance += f"{s:.3f}⋅𝙺 + "
+            else:
+                covariance += f"{s:.3f}⋅𝙸 + "
+        if len(covariance) > 2:
+            covariance = covariance[:-3]
 
-        if self._likname == "normal":
-            s = "GLMMComposer using LMM\n"
-            s += "-----------------------\n"
-        else:
-            s = "unknown"
+        msg = draw_title("Variance decomposition")
+        msg += draw_model(self._lik[0], "𝙼𝜶", covariance)
+        msg = msg.rstrip()
 
-        s += "LML: {}\n".format(self.lml())
-
-        w = TextWrapper(initial_indent="", subsequent_indent=" " * 21, width=width)
-        s += w.fill("Fixed-effect sizes: " + str(self._fixed_effects)) + "\n"
-
-        w = TextWrapper(initial_indent="", subsequent_indent=" " * 27, width=width)
-        s += w.fill("Covariance-matrix scales: " + str(self._covariance))
-        return s
+        return msg

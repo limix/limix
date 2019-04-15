@@ -57,14 +57,14 @@ def _test_qtl_scan_st(lik):
         lik = (lik, ntrials)
 
     r = scan(G, y, lik=lik, idx=idx, K=K, M=M, verbose=False)
-    print(r)
-    print(r.stats.head())
-    print(r.effsizes["h2"].head())
-    print(r.h0.trait)
-    print(r.h0.likelihood)
-    print(r.h0.lml)
-    print(r.h0.effsizes)
-    print(r.h0.variances)
+    str(r)
+    str(r.stats.head())
+    str(r.effsizes["h2"].head())
+    str(r.h0.trait)
+    str(r.h0.likelihood)
+    str(r.h0.lml)
+    str(r.h0.effsizes)
+    str(r.h0.variances)
 
 
 def test_qtl_scan_st():
@@ -109,7 +109,7 @@ def test_qtl_scan_three_hypotheses_mt():
 
     idx = [[0, 1], 2, [3]]
     r = scan(G, Y, idx=idx, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
-    print(r)
+    str(r)
 
 
 def test_qtl_scan_two_hypotheses_mt():
@@ -146,7 +146,7 @@ def test_qtl_scan_two_hypotheses_mt():
 
     idx = [[0, 1], 2, [3]]
     r = scan(G, Y, idx=idx, K=K, M=M, A=A, A1=A1, verbose=False)
-    print(r)
+    str(r)
 
 
 def test_qtl_scan_lmm():
@@ -227,10 +227,10 @@ def test_qtl_scan_lmm_repeat_samples_by_index():
 
 def test_qtl_scan_glmm_binomial():
     random = RandomState(0)
-    nsamples = 50
+    nsamples = 25
 
-    X = random.randn(50, 2)
-    G = random.randn(50, 100)
+    X = random.randn(nsamples, 2)
+    G = random.randn(nsamples, 100)
     K = dot(G, G.T)
     ntrials = random.randint(1, 100, nsamples)
     z = dot(G, random.randn(100)) / sqrt(100)
@@ -242,15 +242,15 @@ def test_qtl_scan_glmm_binomial():
 
     result = scan(X, successes, ("binomial", ntrials), K, verbose=False)
     pv = result.stats["pv20"]
-    assert_allclose(pv, [0.4247691183134664, 0.707939424330281], atol=1e-6, rtol=1e-6)
+    assert_allclose(pv, [0.9315770010211236, 0.8457015828837173], atol=1e-6, rtol=1e-6)
 
 
 def test_qtl_scan_glmm_wrong_dimensions():
     random = RandomState(0)
-    nsamples = 50
+    nsamples = 25
 
-    X = random.randn(50, 2)
-    G = random.randn(50, 100)
+    X = random.randn(nsamples, 2)
+    G = random.randn(nsamples, 100)
     K = dot(G, G.T)
     ntrials = random.randint(1, 100, nsamples)
     z = dot(G, random.randn(100)) / sqrt(100)
@@ -266,10 +266,10 @@ def test_qtl_scan_glmm_wrong_dimensions():
 
 def test_qtl_scan_glmm_bernoulli():
     random = RandomState(0)
-    nsamples = 50
+    nsamples = 25
 
-    X = random.randn(50, 2)
-    G = random.randn(50, 100)
+    X = random.randn(nsamples, 2)
+    G = random.randn(nsamples, 100)
     K = dot(G, G.T)
     ntrials = random.randint(1, 2, nsamples)
     z = dot(G, random.randn(100)) / sqrt(100)
@@ -281,15 +281,15 @@ def test_qtl_scan_glmm_bernoulli():
 
     result = scan(X, successes, "bernoulli", K, verbose=False)
     pv = result.stats["pv20"]
-    assert_allclose(pv, [0.34545196133488565, 0.3553914023889331], rtol=1e-5)
+    assert_allclose(pv, [0.3399326545917558, 0.8269454251659921], rtol=1e-5)
 
 
 def test_qtl_scan_glmm_bernoulli_nokinship():
     random = RandomState(0)
-    nsamples = 50
+    nsamples = 25
 
-    X = random.randn(50, 2)
-    G = random.randn(50, 100)
+    X = random.randn(nsamples, 2)
+    G = random.randn(nsamples, 100)
     ntrials = random.randint(1, 2, nsamples)
     z = dot(G, random.randn(100)) / sqrt(100)
 
@@ -300,14 +300,14 @@ def test_qtl_scan_glmm_bernoulli_nokinship():
 
     result = scan(X, successes, "bernoulli", verbose=False)
     pv = result.stats["pv20"]
-    assert_allclose(pv, [0.9255237731412944, 0.17024464676060735], rtol=1e-5)
+    assert_allclose(pv, [0.3399067917883736, 0.8269568797830423], rtol=1e-5)
 
 
 def test_qtl_scan_lm():
     random = RandomState(0)
-    nsamples = 50
+    nsamples = 25
 
-    G = random.randn(50, 100)
+    G = random.randn(nsamples, 100)
 
     y = dot(G, random.randn(100)) / sqrt(100) + 0.2 * random.randn(nsamples)
 
@@ -315,12 +315,12 @@ def test_qtl_scan_lm():
     X = G[:, 5:]
     result = scan(X, y, "normal", M=M, verbose=False)
     pv = result.stats["pv20"]
-    assert_allclose(pv[:2], [0.13302121289855245, 0.031231550764835345], rtol=1e-5)
+    assert_allclose(pv[:2], [0.02625506841465465, 0.9162689001409643], rtol=1e-5)
 
 
 def test_qtl_scan_gmm_binomial():
     random = RandomState(0)
-    nsamples = 50
+    nsamples = 25
 
     X = random.randn(nsamples, 2)
     ntrials = random.randint(1, nsamples, nsamples)
@@ -333,12 +333,14 @@ def test_qtl_scan_gmm_binomial():
 
     result = scan(X, successes, ("binomial", ntrials), verbose=False)
     pv = result.stats["pv20"]
-    assert_allclose(pv, [0.38010406141, 1.6679817550561325e-21], rtol=1e-5, atol=1e-5)
+    assert_allclose(
+        pv, [2.4604711379400065e-06, 0.01823278752006871], rtol=1e-5, atol=1e-5
+    )
 
 
 def test_qtl_finite():
     random = RandomState(0)
-    nsamples = 50
+    nsamples = 20
 
     X = random.randn(50, 2)
     G = random.randn(50, 100)

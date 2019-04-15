@@ -7,7 +7,7 @@ from numpy.random import RandomState
 
 def _test_qtl_iscan_three_hypotheses(lik):
     random = RandomState(0)
-    n = 30
+    n = 10
     ncovariates = 3
 
     M = random.randn(n, ncovariates)
@@ -42,10 +42,10 @@ def _test_qtl_iscan_three_hypotheses(lik):
         lik = (lik, ntrials)
 
     r = iscan(G, y, lik=lik, idx=idx, K=K, M=M, E0=E0, E1=E1, verbose=False)
-    print(r)
+    str(r)
 
     r = iscan(G, y, lik=lik, idx=idx, K=K, M=M, E1=E1, verbose=False)
-    print(r)
+    str(r)
 
 
 def test_qtl_iscan_three_hypotheses():
@@ -58,7 +58,7 @@ def test_qtl_iscan_three_hypotheses():
 
 def test_qtl_iscan_two_hypotheses():
     random = RandomState(4)
-    n = 30
+    n = 10
     ncovariates = 3
 
     M = random.randn(n, ncovariates)
@@ -79,10 +79,10 @@ def test_qtl_iscan_two_hypotheses():
 
     idx = [[0, 1], 2, [3]]
     r = iscan(G, y, idx=idx, K=K, M=M, E1=E1, verbose=False)
-    print(r)
+    str(r)
 
     r = iscan(G, y, K=K, M=M, E1=E1, verbose=False)
-    print(r)
+    str(r)
 
 
 def _normalize(x):

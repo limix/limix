@@ -7,10 +7,10 @@ from numpy.testing import assert_equal
 def test_indep_pairwise():
     random = RandomState(0)
 
-    X = random.randn(3, 100)
+    X = random.randn(3, 10)
 
-    head = [True, True, False, True, False]
-    tail = [True, True, False, False]
+    head = [True, True, False, False, False]
+    tail = [False, True, False, False]
 
     assert_equal(indep_pairwise(X, 4, 2, 0.5, verbose=False)[:5], head)
     assert_equal(indep_pairwise(X, 4, 2, 0.5, verbose=False)[-4:], tail)
