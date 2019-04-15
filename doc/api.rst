@@ -6,7 +6,7 @@ I/O module
 ==========
 
 .. autosummary::
-    :toctree: _generated/
+    :toctree: api/
 
     limix.io.bgen.read
     limix.io.bimbam.read_phenotype
@@ -20,7 +20,7 @@ Quality control
 ===============
 
 .. autosummary::
-    :toctree: _generated/
+    :toctree: api/
 
     limix.qc.boxcox
     limix.qc.compute_maf
@@ -38,7 +38,7 @@ Statistics
 ==========
 
 .. autosummary::
-    :toctree: _generated/
+    :toctree: api/
 
     limix.stats.allele_expectation
     limix.stats.allele_frequency
@@ -56,15 +56,23 @@ Heritability estimation
 =======================
 
 .. autosummary::
-    :toctree: _generated/
+    :toctree: api/
 
     limix.her.estimate
+
+Variance decomposition
+======================
+
+.. autosummary::
+    :toctree: api/
+
+    limix.vardec.VarDec
 
 Quantitative trait loci
 =======================
 
 .. autosummary::
-    :toctree: _generated/
+    :toctree: api/
 
     limix.qtl.scan
     limix.qtl.iscan
@@ -73,7 +81,7 @@ Plotting & Graphics
 ===================
 
 .. autosummary::
-    :toctree: _generated/
+    :toctree: api/
 
     limix.plot.box_aspect
     limix.plot.ConsensusCurve
@@ -89,25 +97,11 @@ Plotting & Graphics
     limix.plot.get_pyplot
     limix.plot.show
 
-Generalised Linear Mixed Models
-===============================
-
-.. autosummary::
-    :toctree: _generated/
-
-    limix.glmm.GLMMComposer.covariance_matrices
-    limix.glmm.GLMMComposer.decomp
-    limix.glmm.GLMMComposer.fit
-    limix.glmm.GLMMComposer.fixed_effects
-    limix.glmm.GLMMComposer.likname
-    limix.glmm.GLMMComposer.lml
-    limix.glmm.GLMMComposer.y
-
 Shell utilities
 ===============
 
 .. autosummary::
-    :toctree: _generated/
+    :toctree: api/
 
     limix.sh.filehash
     limix.sh.download

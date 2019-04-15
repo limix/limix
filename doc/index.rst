@@ -9,11 +9,10 @@ Limix's documentation
 
    installation
    io
-   her
    qc
    qtl
    vardec
-   sh
+   cli
    stats
    api
    dev

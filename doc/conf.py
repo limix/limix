@@ -8,6 +8,8 @@ from os.path import join
 import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath(".."))
+# So we can check if limix documentation is being built
+os.environ["LIMIX_DOC"] = "True"
 
 
 def _get_version():
@@ -98,3 +100,5 @@ makedirs(join(dir_path, "_build/"))
 shutil.copy2(join(dir_path, "matplotlibrc"), join(dir_path, "_build/"))
 
 plot_formats = [("png", 80)]
+# Enable ANSI colour sequences
+programoutput_use_ansi = True

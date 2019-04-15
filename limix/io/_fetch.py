@@ -11,7 +11,7 @@ def fetch(target, fetch_spec, verbose=True):
     assert_target(target)
 
     if isinstance(fetch_spec, str):
-        fetch_spec = _parse_fetch_spec(fetch_spec)
+        fetch_spec = parse_fetch_spec(fetch_spec)
 
     assert_filetype(fetch_spec.filetype)
 
@@ -103,7 +103,7 @@ _default_dims = {
 }
 
 
-def _parse_fetch_spec(spec):
+def parse_fetch_spec(spec):
     import os
     from ._detect import infer_filetype
 

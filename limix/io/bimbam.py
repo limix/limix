@@ -23,8 +23,8 @@ def read_phenotype(filepath, verbose=True):
         >>>
         >>> with file_example("phenotype.gemma") as filepath:
         ...     print(limix.io.bimbam.read_phenotype(filepath, verbose=False))
-        _trait         0        1        2
-        _sample
+        trait         0        1        2
+        sample
         0        1.20000 -0.30000 -1.50000
         1            nan  1.50000  0.30000
         2        2.70000  1.10000      nan
@@ -44,8 +44,8 @@ def read_phenotype(filepath, verbose=True):
     with session_line("Reading `{}`... ".format(filepath), disable=not verbose):
         df = read_csv(filepath, sep=r"\s+", header=None)
 
-    df.index.name = "_sample"
-    df.columns.name = "_trait"
+    df.index.name = "sample"
+    df.columns.name = "trait"
 
     return df
 

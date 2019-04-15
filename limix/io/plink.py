@@ -118,7 +118,7 @@ def _see_kinship(filepath, verbose):
         print("File %s not found." % filepath)
         return
 
-    return plot.kinship(K)
+    plot.kinship(K)
 
 
 def _read_grm_raw(filepath):

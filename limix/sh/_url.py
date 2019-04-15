@@ -5,7 +5,6 @@ from .._display import session_line
 PY2 = sys.version_info < (3,)
 
 
-# TODO: document it
 def download(url, dest=None, verbose=True):
     import os
 
