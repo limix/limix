@@ -12,6 +12,7 @@ Limix's documentation
    qc
    qtl
    vardec
+   her
    cli
    stats
    api

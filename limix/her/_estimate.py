@@ -1,38 +1,33 @@
-from __future__ import division
-
 from .._display import session_block, session_line
 from .._data import conform_dataset, normalize_likelihood
 from ..qc._lik import normalise_extreme_values
-from ..qc import normalise_covariance
+from ..qtl._assert import assert_finite
 
 
 def estimate(y, lik, K, M=None, verbose=True):
-    r"""Estimate the so-called narrow-sense heritability.
+    """
+    Estimate the so-called narrow-sense heritability.
 
     It supports Normal, Bernoulli, Probit, Binomial, and Poisson phenotypes.
-    Let :math:`N` be the sample size and :math:`S` the number of covariates.
 
     Parameters
     ----------
     y : array_like
-        Either a tuple of two arrays of `N` individuals each (Binomial
-        phenotypes) or an array of `N` individuals (Normal, Poisson, or
-        Bernoulli phenotypes). If a continuous phenotype is provided (i.e., a Normal
-        one), make sure they have been normalised in such a way that its values are
-        not extremely large; it might cause numerical errors otherwise. For example,
-        by using :func:`limix.qc.mean_standardize` or
-        :func:`limix.qc.quantile_gaussianize`.
-    lik : "normal", "bernoulli", "probit", binomial", "poisson"
+        Array of trait values of n individuals.
+    lik : tuple, "normal", "bernoulli", "probit", "binomial", "poisson"
         Sample likelihood describing the residual distribution.
-    K : array_like
-        :math:`N`-by-:math:`N` covariance matrix. It might be, for example, the
-        estimated kinship relationship between the individuals. The provided matrix will
-        be normalised via the function :func:`limix.qc.normalise_covariance`.
-    M : array_like, optional
-        :math:`N` individuals by :math:`S` covariates.
-        It will create a :math:`N`-by-:math:`1` matrix ``M`` of ones representing the offset
-        covariate if ``None`` is passed. If an array is passed, it will used as is.
-        Defaults to ``None``.
+        Either a tuple or a string specifying the likelihood is required. The Normal,
+        Bernoulli, Probit, and Poisson likelihoods can be selected by providing a
+        string. Binomial likelihood on the other hand requires a tuple because of the
+        number of trials: ``("binomial", array_like)``. Defaults to ``"normal"``.
+    K : n×n array_like
+        Sample covariance, often the so-called kinship matrix. It might be, for example,
+        the estimated kinship relationship between the individuals. The provided matrix
+        will be normalised as ``K = K / K.diagonal().mean()``.
+    M : n×c array_like, optional
+        Covariates matrix. If an array is passed, it will used as is; no normalisation
+        will be performed. If ``None`` is passed, an offset will be used as the only
+        covariate. Defaults to ``None``.
     verbose : bool, optional
         ``True`` to display progress and summary; ``False`` otherwise.
 
@@ -56,27 +51,23 @@ def estimate(y, lik, K, M=None, verbose=True):
         >>> z = dot(G, random.randn(200)) + random.randn(150)
         >>> y = random.poisson(exp(z))
         >>>
-        >>> print('%.3f' % estimate(y, 'poisson', K, verbose=False))  # doctest: +FLOAT_CMP
-        0.183
+        >>> print(estimate(y, 'poisson', K, verbose=False))  # doctest: +FLOAT_CMP
+        0.18311439918863426
 
     Notes
     -----
     It will raise a ``ValueError`` exception if non-finite values are passed. Please,
     refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
     """
-    from numpy_sugar import is_all_finite
     from numpy_sugar.linalg import economic_qs
-    from numpy import ones, pi, var
+    from numpy import pi, var, diag
     from glimix_core.glmm import GLMMExpFam
     from glimix_core.lmm import LMM
 
     lik = normalize_likelihood(lik)
     lik_name = lik[0]
 
-    with session_block("heritability analysis", disable=not verbose):
-
-        if M is None:
-            M = ones((len(y), 1))
+    with session_block("Heritability analysis", disable=not verbose):
 
         with session_line("Normalising input...", disable=not verbose):
             data = conform_dataset(y, M=M, K=K)
@@ -85,27 +76,18 @@ def estimate(y, lik, K, M=None, verbose=True):
         M = data["M"]
         K = data["K"]
 
-        if not is_all_finite(y):
-            raise ValueError("Outcome must have finite values only.")
-
-        if not is_all_finite(M):
-            raise ValueError("Covariates must have finite values only.")
-
-        if K is not None:
-            if not is_all_finite(K):
-                raise ValueError("Covariate matrix must have finite values only.")
-
-            K = normalise_covariance(K)
+        assert_finite(y, M, K)
 
         y = normalise_extreme_values(y, lik)
 
         if K is not None:
+            K = K / diag(K).mean()
             QS = economic_qs(K)
         else:
             QS = None
 
         if lik_name == "normal":
-            method = LMM(y.values, M.values, QS)
+            method = LMM(y.values, M.values, QS, restricted=True)
             method.fit(verbose=verbose)
         else:
             method = GLMMExpFam(y, lik, M.values, QS, n_int=500)

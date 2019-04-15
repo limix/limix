@@ -255,7 +255,6 @@ def scan(
     with session_block("QTL analysis", disable=not verbose):
 
         with session_line("Normalising input... ", disable=not verbose):
-
             data = conform_dataset(Y, M, G=G, K=K)
 
         Y = data["y"]

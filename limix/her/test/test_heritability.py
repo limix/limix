@@ -48,4 +48,4 @@ def test_heritability_estimate_normal():
     y = z + 0.2 * random.randn(50)
 
     h2 = estimate(y, "normal", K, verbose=False)
-    assert_allclose(h2, 0.976024810515, rtol=1e-5)
+    assert_allclose(h2, 0.9751053293095242, rtol=1e-5)
