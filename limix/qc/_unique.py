@@ -1,19 +1,19 @@
 def unique_variants(X):
-    r"""Filters out variants with the same genetic profile.
+    """
+    Filters out variants with the same genetic profile.
 
     Parameters
     ----------
-    X : ndarray
-        (`N`, `S`) ndarray of genotype values for `N` individuals and `S`
-        variants.
+    X : array_like
+        Samples-by-variants matrix of genotype values.
 
     Returns
     -------
-    ndarray
+    genotype : ndarray
         Genotype array with unique variants.
 
-    Examples
-    --------
+    Example
+    -------
     .. doctest::
 
         >>> from numpy.random import RandomState

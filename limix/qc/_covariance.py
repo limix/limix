@@ -1,5 +1,6 @@
 def normalise_covariance(K, out=None):
-    r"""Variance rescaling of covariance matrix 𝙺.
+    """
+    Variance rescaling of covariance matrix 𝙺.
 
     Let n be the number of rows (or columns) of 𝙺 and let
     mᵢ be the average of the values in the i-th column.

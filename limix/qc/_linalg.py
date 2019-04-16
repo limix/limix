@@ -1,5 +1,6 @@
-def remove_dependent_cols(X, tol=1e-6, verbose=False):
-    r"""Remove dependent columns.
+def remove_dependent_cols(X, tol=1e-6):
+    """
+    Remove dependent columns.
 
     Return a matrix with dependent columns removed.
 
@@ -7,10 +8,12 @@ def remove_dependent_cols(X, tol=1e-6, verbose=False):
     ----------
     X : array_like
         Matrix to might have dependent columns.
+    tol : float
+        Threshold above which columns are considered dependents.
 
     Returns
     -------
-    array_like
+    rank : ndarray
         Full column rank matrix.
     """
     from scipy.linalg import qr
@@ -20,10 +23,8 @@ def remove_dependent_cols(X, tol=1e-6, verbose=False):
 
     R = qr(X, mode="r")[0][: X.shape[1], :]
     I = npabs(R.diagonal()) > tol
-    if npany(~I) and verbose:
-        msg = "Columns " + str(where(~I)[0])
-        print(msg + " have been removed because linear dependence")
+    if npany(~I):
         R = X[:, I]
     else:
-        R = X.copy()
+        R = X
     return R

@@ -3,7 +3,8 @@ import warnings
 
 
 def mean_impute(X, axis=-1, inplace=False):
-    r"""Impute ``NaN`` values.
+    """
+    Impute ``NaN`` values.
 
     It defaults to column-wise imputation.
 
@@ -18,7 +19,7 @@ def mean_impute(X, axis=-1, inplace=False):
 
     Returns
     -------
-    array_like
+    ndarray
         Imputed array.
 
     Examples

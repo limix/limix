@@ -96,6 +96,9 @@ HDF5
 
 The following command shows the hierarchy of a HDF5 file:
 
+.. command-output:: limix download http://rest.s3for.me/limix/small_example.hdf5
+   :cwd: _build
+
 .. command-output:: limix see small_example.hdf5
    :cwd: _build
 

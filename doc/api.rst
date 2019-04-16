@@ -30,7 +30,6 @@ Quality control
     limix.qc.mean_standardize
     limix.qc.normalise_covariance
     limix.qc.quantile_gaussianize
-    limix.qc.regress_out
     limix.qc.remove_dependent_cols
     limix.qc.unique_variants
 

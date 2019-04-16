@@ -1,12 +1,10 @@
-from __future__ import division
-
-
 def count_missingness(X):
-    r"""Count the number of missing values per column.
+    """
+    Count the number of missing values per column.
 
     Returns
     -------
-    array_like
+    count : ndarray
         Number of missing values per column.
     """
     import dask.array as da

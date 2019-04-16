@@ -3,36 +3,33 @@ import warnings
 
 
 def mean_standardize(X, axis=-1, inplace=False):
-    r"""Zero-mean and one-deviation normalisation.
+    """
+    Zero-mean and one-deviation normalisation.
 
     Normalise in such a way that the mean and variance are equal to zero and
-    one.
-    This transformation is taken over the flattened array by default, otherwise
-    over the specified axis.
-    Missing values represented by ``NaN`` are ignored.
+    one. This transformation is taken over the flattened array by default, otherwise
+    over the specified axis. Missing values represented by ``NaN`` are ignored.
 
     Parameters
     ----------
     X : array_like
         Array of values.
     axis : int, optional
-        Axis value. Defaults to `1`.
+        Axis value. Defaults to ``1``.
     inplace : bool, optional
-        Defaults to `False`.
-
+        Defaults to ``False``.
 
     Returns
     -------
-    array_like
+    X : ndarray
         Normalized array.
 
-    Examples
-    --------
-
+    Example
+    -------
     .. doctest::
 
         >>> import limix
-        >>> from numpy import arange, array_str
+        >>> from numpy import arange
         >>>
         >>> X = arange(15).reshape((5, 3)).astype(float)
         >>> print(X)
@@ -43,7 +40,7 @@ def mean_standardize(X, axis=-1, inplace=False):
          [12. 13. 14.]]
         >>> X = arange(6).reshape((2, 3)).astype(float)
         >>> X = limix.qc.mean_standardize(X, axis=0)
-        >>> print(X)  # doctest: +FLOAT_CMP
+        >>> print(X) # doctest: +FLOAT_CMP
         [[-1.22474487  0.          1.22474487]
          [-1.22474487  0.          1.22474487]]
     """

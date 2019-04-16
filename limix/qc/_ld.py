@@ -2,7 +2,8 @@ from __future__ import division
 
 
 def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
-    r"""Determine pair-wise independent variants.
+    """
+    Determine pair-wise independent variants.
 
     Independent variants are defined via squared Pearson correlations between
     pairs of variants inside a sliding window.
@@ -22,10 +23,12 @@ def indep_pairwise(X, window_size, step_size, threshold, verbose=True):
 
     Returns
     -------
-    ok : boolean array defining independent variants
+    ok : ndarray
+        Boolean array defining independent variants
 
-    Examples
-    --------
+    Example
+    -------
+
     .. doctest::
 
         >>> from numpy.random import RandomState

@@ -4,7 +4,7 @@ from brent_search import brent
 
 
 def boxcox(x):
-    r"""Box Cox transformation for normality conformance.
+    r"""Box-Cox transformation for normality conformance.
 
     It applies the power transformation
 
@@ -16,7 +16,7 @@ def boxcox(x):
         \end{cases}
 
     to the provided data, hopefully making it more normal distribution-like.
-    The :math:`\lambda` parameter is fit by maximum likelihood estimation.
+    The λ parameter is fit by maximum likelihood estimation.
 
     Parameters
     ----------
@@ -25,30 +25,28 @@ def boxcox(x):
 
     Returns
     -------
-    array_like
-        Box Cox transformed data.
+    boxcox : ndarray
+        Box-Cox transformed data.
 
     Examples
     --------
     .. plot::
 
-        import limix
-        from matplotlib import pyplot as plt
-        import numpy as np
-        import scipy.stats as stats
-
-        np.random.seed(0)
-
-        x = stats.loggamma.rvs(0.1, size=100)
-        y = limix.qc.boxcox(x)
-
-        fig = plt.figure()
-
-        ax1 = fig.add_subplot(211)
-        stats.probplot(x, dist=stats.norm, plot=ax1)
-
-        ax2 = fig.add_subplot(212)
-        stats.probplot(y, dist=stats.norm, plot=ax2)
+        >>> import limix
+        >>> import numpy as np
+        >>> import scipy.stats as stats
+        ...
+        >>> np.random.seed(0)
+        ...
+        >>> x = stats.loggamma.rvs(0.1, size=100)
+        >>> y = limix.qc.boxcox(x)
+        ...
+        >>> plt = limix.plot.get_pyplot()
+        ...
+        >>> _, (ax1, ax2) = plt.subplots(2, 1)
+        >>> _ = stats.probplot(x, dist=stats.norm, plot=ax1)
+        >>> _ = stats.probplot(y, dist=stats.norm, plot=ax2)
+        >>> plt.tight_layout()
     """
     import dask.array as da
     import numpy as np
