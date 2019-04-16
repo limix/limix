@@ -1,17 +1,17 @@
-************
-Installation
-************
+*******
+Install
+*******
 
 
 Pip
----
+===
 
 .. code:: bash
 
     pip install limix
 
 Conda
------
+=====
 
 .. code:: bash
 

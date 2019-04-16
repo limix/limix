@@ -1,24 +1,34 @@
-import sys
-
 from .._display import session_line
-
-PY2 = sys.version_info < (3,)
 
 
 def download(url, dest=None, verbose=True):
-    import os
+    """
+    Download file.
 
-    if PY2:
-        from urllib import urlretrieve
-    else:
-        from urllib.request import urlretrieve
+    Parameters
+    ----------
+    url : str
+        Url to the file.
+    dest : str, optional
+        File destination. The current working directory is used if ``None`` is passed.
+        Defaults to ``None``.
+    verbose : bool, optional
+        ``True`` for displaying progress. Defaults to ``True``.
+
+    Returns
+    -------
+    filepath : str
+        File path to the downloaded file.
+    """
+    import os
+    from urllib.request import urlretrieve
 
     if dest is None:
         dest = os.getcwd()
 
     filepath = os.path.join(dest, _filename(url))
 
-    with session_line("Downloading {}... ".format(url), disable=not verbose):
+    with session_line(f"Downloading {url}... ", disable=not verbose):
         urlretrieve(url, filepath)
 
     return filepath
@@ -26,11 +36,7 @@ def download(url, dest=None, verbose=True):
 
 def _filename(url):
     import os
-
-    if PY2:
-        from urlparse import urlparse
-    else:
-        from urllib.parse import urlparse
+    from urllib.parse import urlparse
 
     a = urlparse(url)
     return os.path.basename(a.path)

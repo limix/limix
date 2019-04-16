@@ -7,7 +7,7 @@ Limix's documentation
    :name: mastertoc
    :maxdepth: 2
 
-   installation
+   install
    io
    qc
    qtl
@@ -16,7 +16,6 @@ Limix's documentation
    cli
    stats
    api
-   dev
 
 Comments and bugs
 =================

@@ -1,8 +1,17 @@
-from __future__ import division
-
-
 def filehash(filepath):
-    r""" Compute sha256 from a given file. """
+    """
+    Compute sha256 from a given file.
+
+    Parameters
+    ----------
+    filepath : str
+        File path.
+
+    Returns
+    -------
+    sha256 : str
+        Sha256 of a given file.
+    """
     import hashlib
 
     BUF_SIZE = 65536

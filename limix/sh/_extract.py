@@ -1,8 +1,17 @@
 from .._display import session_line
 
 
-# TODO: document
-def extract(filepath, verbose=True, dest="."):
+def extract(filepath, verbose=True):
+    """
+    Extract a compressed file.
+
+    Parameters
+    ----------
+    filepath : str
+        File path.
+    verbose : bool, optional
+        ``True`` for displaying progress. Defaults to ``True``.
+    """
     formats_order = _best_order(filepath)
 
     err_msgs = []
@@ -17,7 +26,7 @@ def extract(filepath, verbose=True, dest="."):
         raise RuntimeError(f"Could not extract `{filepath}`.\n" + "\n".join(err_msgs))
 
 
-def _extract_tar(filepath, dest="."):
+def _extract_tar(filepath):
     import tarfile
 
     tar = tarfile.open(filepath)
@@ -27,7 +36,7 @@ def _extract_tar(filepath, dest="."):
     return filepath
 
 
-def _extract_bz2(filepath, dest="."):
+def _extract_bz2(filepath):
     import bz2
     import os
 

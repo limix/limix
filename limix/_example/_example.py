@@ -84,6 +84,7 @@ class file_example(object):
         import tempfile
         import os
         from os.path import join
+        from limix.sh._user_dir import user_cache_dir
         import limix
 
         self._unlist = False
@@ -91,7 +92,7 @@ class file_example(object):
             filenames = [filenames]
             self._unlist = True
 
-        self._orig_folder = join(limix.sh.user_cache_dir(), "examples")
+        self._orig_folder = join(user_cache_dir(), "examples")
         limix.sh.makedirs(self._orig_folder)
 
         for fn in filenames:

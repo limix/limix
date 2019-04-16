@@ -9,6 +9,86 @@ from ._assert import assert_finite
 
 
 def iscan(G, y, lik="normal", K=None, M=None, idx=None, E0=None, E1=None, verbose=True):
+    r"""
+    Single-trait association with interaction test via generalized linear mixed models.
+
+    The general formulae for normally distributed traits is
+
+    .. math::
+
+        𝐲 = 𝙼𝛂 + (𝙶⊙𝙴₀)𝛃₀ + (𝙶⊙𝙴₁)𝛃₁ + 𝐮 + 𝛆,\\
+        \text{where}~~ 𝐮∼𝓝(𝟎, 𝓋₀𝙺) ~~\text{and}~~ 𝛆∼𝓝(𝟎, 𝓋₁𝙸).
+
+    The operator ⊙ works as follows:
+
+    .. math::
+
+        𝙰⊙𝙱 = [𝙰₀𝙱₀ ~~...~~ 𝙰₀𝙱ₙ ~~ 𝙰₁𝙱₀ ~~...~~ 𝙰₁𝙱ₙ ~~...~~ 𝙰ₘ𝙱ₙ]
+
+    The covariates is enconded in matrix 𝙼 while the candidate set is enconded in matrix
+    𝙶. The parameters are the effect sizes 𝛂, 𝛃₀, and 𝛃₁, and the variances 𝓋₀ and 𝓋₁.
+
+    It performs likelihood-ratio tests for the following cases, where the first
+    hypothesis is the null one while the second hypothesis is the alternative one:
+
+    - H₀ vs H₁: testing for vec(𝛃₀) ≠ 𝟎 while vec(𝛃₁) = 𝟎
+    - H₀ vs H₂: testing for [vec(𝛃₀) vec(𝛃₁)] ≠ 𝟎
+    - H₁ vs H₂: testing for vec(𝛃₁) ≠ 𝟎
+
+    It also supports generalized linear mixed models (GLMM). In this case, the following
+    likelihoods are implemented:
+    - Bernoulli
+    - Probit
+    - Binomial
+    - Poisson
+
+    Formally, let p(𝜇) be one of the supported probability distributions where 𝜇 is
+    its mean. The H₀ model is defined as follows:
+
+    .. math::
+
+        yᵢ ∼ p(𝜇ᵢ=g(zᵢ)) ~~\text{for}~~ 𝐳 ∼ 𝓝(𝙼𝛂 + (𝙶⊙𝙴₀)𝛃₀ + (𝙶⊙𝙴₁)𝛃₁, 𝓋₀𝙺 + 𝓋₁𝙸).
+
+    g(⋅) is the corresponding canonical link function for the Bernoulli, Binomial, and
+    Poisson likelihoods. The Probit likelihood, on the other hand, is a Bernoulli
+    likelihood with probit link function.
+
+    Parameters
+    ----------
+    G : n×m array_like
+        Genetic candidates.
+    Y : n×p array_like
+        Rows are samples and columns are phenotypes.
+    lik : tuple, "normal", "bernoulli", "probit", "binomial", "poisson"
+        Sample likelihood describing the residual distribution.
+        Either a tuple or a string specifying the likelihood is required. The Normal,
+        Bernoulli, Probit, and Poisson likelihoods can be selected by providing a
+        string. Binomial likelihood on the other hand requires a tuple because of the
+        number of trials: ``("binomial", array_like)``. Defaults to ``"normal"``.
+    K : n×n array_like
+        Sample covariance, often the so-called kinship matrix.
+    M : n×c array_like
+        Covariates matrix.
+    idx : list
+        List of candidate indices that defines the set of candidates to be used in the
+        tests.
+    E0 : array_like
+        Matrix representing the first environment.
+    E1 : array_like
+        Matrix representing the second environment.
+    verbose : bool, optional
+        ``True`` to display progress and summary; ``False`` otherwise.
+
+    Returns
+    -------
+    result : :class:`limix.qtl._result.IScanResult`
+        P-values, log of marginal likelihoods, effect sizes, and associated statistics.
+
+    Notes
+    -----
+    It will raise a ``ValueError`` exception if non-finite values are passed. Please,
+    refer to the :func:`limix.qc.mean_impute` function for missing value imputation.
+    """
     from numpy_sugar.linalg import economic_qs
     from xarray import concat
     from numpy import asarray, empty, ones
