@@ -1,8 +1,9 @@
+import dask.array as da
+from numpy import nan
 from numpy.random import RandomState
 from numpy.testing import assert_array_equal
-from numpy import nan
+
 from limix.qc import count_missingness
-import dask.array as da
 
 
 def test_count_missingness():

@@ -1,5 +1,6 @@
-from limix._bits import dask, numpy, pandas, xarray
 import warnings
+
+from limix._bits import dask, numpy, pandas, xarray
 
 
 def mean_standardize(X, axis=-1, inplace=False):

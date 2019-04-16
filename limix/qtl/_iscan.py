@@ -1,11 +1,12 @@
 import sys
 
 from limix._display import session_line
+
 from .._bits import unvec
 from .._data import asarray as _asarray, conform_dataset, normalize_likelihood
 from .._display import session_block
-from ._result import IScanResultFactory
 from ._assert import assert_finite
+from ._result import IScanResultFactory
 
 
 def iscan(G, y, lik="normal", K=None, M=None, idx=None, E0=None, E1=None, verbose=True):

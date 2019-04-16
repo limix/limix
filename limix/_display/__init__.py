@@ -1,6 +1,6 @@
+from ._core import blue, bold, green, red, width
+from ._display import add_title_header, banner, indent, session_block, session_line
 from ._exception import print_exc
-from ._display import banner, session_block, session_line, add_title_header, indent
-from ._core import bold, blue, red, green, width
 
 __all__ = [
     "print_exc",

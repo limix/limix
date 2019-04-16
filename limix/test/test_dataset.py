@@ -1,9 +1,10 @@
-from limix._data import conform_dataset
 from numpy import array, dtype
 from numpy.random import RandomState
 from numpy.testing import assert_, assert_array_equal, assert_equal
 from pandas import DataFrame, Series
 from xarray import DataArray
+
+from limix._data import conform_dataset
 
 
 def test_dataset_conform_dataset():

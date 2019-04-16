@@ -1,5 +1,6 @@
-import limix
 import click
+
+import limix
 
 
 @click.command()

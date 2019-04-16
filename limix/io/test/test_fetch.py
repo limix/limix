@@ -1,13 +1,15 @@
-import limix
-from limix.io._fetch import fetch
-import pytest
 import sys
+
+import pytest
 from numpy.testing import (
     assert_allclose,
     assert_array_equal,
     assert_equal,
     assert_string_equal,
 )
+
+import limix
+from limix.io._fetch import fetch
 
 _samples = [
     "HG00111",

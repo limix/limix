@@ -1,5 +1,6 @@
-from limix._bits import dask, get_shape, numpy, pandas, xarray
 import warnings
+
+from limix._bits import dask, get_shape, numpy, pandas, xarray
 
 
 def mean_impute(X, axis=-1, inplace=False):

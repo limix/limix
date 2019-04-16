@@ -24,6 +24,8 @@ from __future__ import absolute_import
 from limix_plot import (
     ConsensusCurve,
     box_aspect,
+    get_pyplot,
+    image,
     kinship,
     load_dataset,
     manhattan,
@@ -31,8 +33,6 @@ from limix_plot import (
     pca,
     power,
     qqplot,
-    image,
-    get_pyplot,
     show,
 )
 

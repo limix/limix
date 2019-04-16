@@ -1,8 +1,5 @@
 import pytest
 import scipy.stats as st
-from limix.qc import normalise_covariance
-from limix.qtl import scan
-from limix.stats import linear_kinship
 from numpy import (
     argmin,
     array,
@@ -19,6 +16,10 @@ from numpy import (
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 from pandas import DataFrame
+
+from limix.qc import normalise_covariance
+from limix.qtl import scan
+from limix.stats import linear_kinship
 
 
 def _test_qtl_scan_st(lik):

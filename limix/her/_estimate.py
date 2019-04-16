@@ -1,5 +1,5 @@
-from .._display import session_block, session_line
 from .._data import conform_dataset, normalize_likelihood
+from .._display import session_block, session_line
 from ..qc._lik import normalise_extreme_values
 from ..qtl._assert import assert_finite
 

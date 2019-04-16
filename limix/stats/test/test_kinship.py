@@ -1,6 +1,7 @@
 import dask.array as da
-from numpy.testing import assert_allclose
 from numpy.random import RandomState
+from numpy.testing import assert_allclose
+
 from limix.stats import linear_kinship
 
 

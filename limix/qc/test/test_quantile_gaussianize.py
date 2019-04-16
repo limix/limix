@@ -1,14 +1,16 @@
 import pytest
-from limix.qc import quantile_gaussianize as qg
 from numpy import asarray, nan
 from numpy.random import RandomState
+
+from limix.qc import quantile_gaussianize as qg
+
 from .util import (
-    assert_ndarray_1d,
-    assert_ndarray_2d,
-    assert_pandas_series,
-    assert_pandas_dataframe,
     assert_dask_array,
     assert_dask_dataframe,
+    assert_ndarray_1d,
+    assert_ndarray_2d,
+    assert_pandas_dataframe,
+    assert_pandas_series,
     assert_xarray_dataarray,
 )
 

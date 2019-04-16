@@ -1,5 +1,6 @@
-import limix
 from numpy.testing import assert_equal
+
+import limix
 
 
 def test_threads():

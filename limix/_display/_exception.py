@@ -1,5 +1,6 @@
 import sys
-from ._display import bold, red, pprint
+
+from ._display import bold, pprint, red
 
 
 def print_exc(stack, e):

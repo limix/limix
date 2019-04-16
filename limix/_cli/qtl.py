@@ -1,6 +1,7 @@
 import click
-from .st_sscan import st_sscan
+
 from .scan import scan
+from .st_sscan import st_sscan
 
 
 # @click.command(cls=OrderedCommand)

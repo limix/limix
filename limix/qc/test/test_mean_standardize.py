@@ -1,15 +1,16 @@
 import pytest
-from numpy import nan
-from limix.qc import mean_standardize
-from numpy import array
+from numpy import array, nan
 from numpy.random import RandomState
+
+from limix.qc import mean_standardize
+
 from .util import (
-    assert_ndarray_1d,
-    assert_ndarray_2d,
-    assert_pandas_series,
-    assert_pandas_dataframe,
     assert_dask_array,
     assert_dask_dataframe,
+    assert_ndarray_1d,
+    assert_ndarray_2d,
+    assert_pandas_dataframe,
+    assert_pandas_series,
     assert_xarray_dataarray,
 )
 

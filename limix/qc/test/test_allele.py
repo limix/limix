@@ -1,11 +1,10 @@
 import dask.array as da
 import xarray as xr
+from bgen_reader import allele_expectation, compute_dosage, example_files, read_bgen
 from numpy import array_equal, ndarray
 from numpy.random import RandomState
 from numpy.testing import assert_, assert_allclose
 from pandas import DataFrame, Series
-from bgen_reader import read_bgen, allele_expectation, example_files
-from bgen_reader import compute_dosage
 
 from limix.qc import compute_maf
 

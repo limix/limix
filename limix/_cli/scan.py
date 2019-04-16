@@ -1,4 +1,5 @@
 import click
+
 from ._click import OrderedCommand
 
 

@@ -1,8 +1,9 @@
 import numpy as np
 import pytest
 import xarray as xr
-from limix._data import asarray
 from numpy.testing import assert_array_equal as assert_eq, assert_string_equal
+
+from limix._data import asarray
 
 
 def test_asarray():

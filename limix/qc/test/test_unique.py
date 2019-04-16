@@ -1,7 +1,8 @@
+import dask.array as da
 from numpy.random import RandomState
 from numpy.testing import assert_array_equal
+
 from limix.qc import unique_variants
-import dask.array as da
 
 
 def test_unique_variants():

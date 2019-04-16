@@ -1,6 +1,7 @@
-from numpy import zeros, ones
+from numpy import ones, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
+
 from limix.qc import remove_dependent_cols
 
 

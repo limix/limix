@@ -3,8 +3,8 @@ import click
 from .download import download
 from .estimate_kinship import estimate_kinship
 from .extract import extract
-from .remove import remove
 from .qtl import qtl
+from .remove import remove
 from .see import see
 
 

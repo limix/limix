@@ -1,7 +1,8 @@
 from dask.array import from_array
-from limix.qc import indep_pairwise
 from numpy.random import RandomState
 from numpy.testing import assert_equal
+
+from limix.qc import indep_pairwise
 
 
 def test_indep_pairwise():

@@ -1,7 +1,6 @@
 from numpy.testing import assert_allclose, assert_equal
 
-from limix import io
-from limix import file_example
+from limix import file_example, io
 from limix.sh import extract
 
 

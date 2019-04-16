@@ -1,5 +1,6 @@
-from numpy.testing import assert_allclose
 from numpy.random import RandomState
+from numpy.testing import assert_allclose
+
 from limix.stats import Chi2Mixture
 
 

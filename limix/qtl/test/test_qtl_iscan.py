@@ -1,8 +1,9 @@
 import scipy.stats as st
-from limix.qc import normalise_covariance
-from limix.qtl import iscan
 from numpy import exp, eye, zeros
 from numpy.random import RandomState
+
+from limix.qc import normalise_covariance
+from limix.qtl import iscan
 
 
 def _test_qtl_iscan_three_hypotheses(lik):

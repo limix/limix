@@ -1,6 +1,7 @@
-from limix.stats import empirical_pvalues, multipletests
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
+
+from limix.stats import empirical_pvalues, multipletests
 
 
 def test_empirical_pvalues():

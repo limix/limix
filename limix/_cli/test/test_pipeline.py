@@ -1,12 +1,13 @@
 import os
 
-import limix
-from limix._cli.pipeline import Pipeline
-from limix._cli.preprocess import normalize, where, impute
-from limix.io._fetch import fetch
 from numpy import nan
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
+
+import limix
+from limix._cli.pipeline import Pipeline
+from limix._cli.preprocess import impute, normalize, where
+from limix.io._fetch import fetch
 
 
 def test_pipeline_where_filter():

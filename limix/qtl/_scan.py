@@ -1,6 +1,7 @@
 import sys
 
 from limix._display import session_line
+
 from .._data import asarray as _asarray, conform_dataset, normalize_likelihood
 from .._display import session_block
 from ._assert import assert_finite

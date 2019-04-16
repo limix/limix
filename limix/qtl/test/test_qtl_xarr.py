@@ -1,9 +1,9 @@
-from limix._example import file_example
 import xarray as xr
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
 import limix
+from limix._example import file_example
 
 
 def test_qtl_xarr():

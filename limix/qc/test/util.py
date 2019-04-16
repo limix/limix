@@ -1,8 +1,8 @@
-from numpy.testing import assert_allclose, assert_, assert_array_equal
-import xarray as xr
 import dask.array as da
 import dask.dataframe as dd
 import pandas as pd
+import xarray as xr
+from numpy.testing import assert_, assert_allclose, assert_array_equal
 
 
 def assert_ndarray_1d(func, data1d):

@@ -1,6 +1,7 @@
-from numpy import asarray
-from .._display import session_block
+import warnings
+
 from .._data import conform_dataset, normalize_likelihood
+from .._display import session_block
 
 
 class VarDec(object):
@@ -80,6 +81,7 @@ class VarDec(object):
         M : n×c array_like
             Covariates matrix.
         """
+        from numpy import asarray
         from glimix_core.mean import LinearMean
 
         y = asarray(y, float)
@@ -171,6 +173,7 @@ class VarDec(object):
 
     def append(self, K, name=None):
         from numpy_sugar import is_all_finite
+        from numpy import asarray
         from glimix_core.cov import GivenCov
 
         data = conform_dataset(self._y, K=K)
@@ -202,12 +205,15 @@ class VarDec(object):
         ax.set_xlabel("random effects")
         ax.set_ylabel("explained variance")
         ax.set_title("Variance decomposition")
-        limix.plot.get_pyplot().tight_layout()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            limix.plot.get_pyplot().tight_layout()
         limix.plot.show()
 
     def _fit_lmm(self, verbose):
         from glimix_core.cov import SumCov
         from glimix_core.gp import GP
+        from numpy import asarray
 
         y = asarray(self._y, float).ravel()
         gp = GP(y, self._mean, SumCov(self._covariance))
@@ -217,6 +223,7 @@ class VarDec(object):
     def _fit_glmm(self, verbose):
         from glimix_core.cov import SumCov
         from glimix_core.ggp import ExpFamGP
+        from numpy import asarray
 
         y = asarray(self._y, float).ravel()
         gp = ExpFamGP(y, self._lik, self._mean, SumCov(self._covariance))
@@ -226,6 +233,7 @@ class VarDec(object):
     def _fit_lmm_simple_model(self, verbose):
         from numpy_sugar.linalg import economic_qs
         from glimix_core.lmm import LMM
+        from numpy import asarray
 
         K = self._get_matrix_simple_model()
 
@@ -241,6 +249,7 @@ class VarDec(object):
     def _fit_glmm_simple_model(self, verbose):
         from numpy_sugar.linalg import economic_qs
         from glimix_core.glmm import GLMMExpFam
+        from numpy import asarray
 
         K = self._get_matrix_simple_model()
 

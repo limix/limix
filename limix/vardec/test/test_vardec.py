@@ -1,7 +1,8 @@
-from limix.vardec import VarDec
-from numpy import ones, eye, concatenate, zeros, exp
-from numpy.testing import assert_allclose
+from numpy import concatenate, exp, eye, ones, zeros
 from numpy.random import RandomState
+from numpy.testing import assert_allclose
+
+from limix.vardec import VarDec
 
 
 def test_vardec():
