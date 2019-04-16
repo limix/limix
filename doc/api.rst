@@ -40,9 +40,9 @@ Statistics
 .. autosummary::
     :toctree: api/
 
+    limix.stats.Chi2Mixture
     limix.stats.allele_expectation
     limix.stats.allele_frequency
-    limix.stats.Chi2Mixture
     limix.stats.compute_dosage
     limix.stats.confusion_matrix
     limix.stats.effsizes_se

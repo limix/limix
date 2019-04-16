@@ -1,17 +1,21 @@
-# TODO: implement test for this class
 class Chi2Mixture(object):
-    r"""A class for continuous random variable following a chi2 mixture.
+    """
+    Mixture of 𝜒² distributions.
 
     Class for evaluation of P values for a test statistic that follows a
     two-component mixture of chi2
 
     .. math::
 
-        (1-\pi)\chi^2(0) + \pi a \chi^2(d).
+        p(x) = (1-𝑝)𝜒²(0) + 𝑝𝑎𝜒²(𝑑).
 
-    Here :math:`\pi` is the probability being in the first component and
-    :math:`a` and :math:`d` are the scale parameter and the number of
-    degrees of freedom of the second component.
+    Here 𝑝 is the probability being in the first component and 𝑎 and 𝑑 are the scale
+    parameter and the number of degrees of freedom of the second
+    component.
+
+    .. warning::
+        This class is not production-ready. Keep in mind that this interface is likely
+        to change.
 
     Parameters
     ----------
@@ -30,8 +34,9 @@ class Chi2Mixture(object):
     tol : float
         Tolerance of being zero.
 
-    Examples
-    --------
+    Example
+    -------
+
     .. doctest::
 
         >>> from numpy.random import RandomState
@@ -74,6 +79,7 @@ class Chi2Mixture(object):
         n_intervals=100,
         qmax=0.1,
         tol=0,
+        lrt=None,
     ):
 
         self.scale_min = scale_min
@@ -142,8 +148,11 @@ class Chi2Mixture(object):
         array_like
             P-values.
         """
+        from numpy import asarray
         import scipy as sp
         import scipy.stats as st
+
+        lrt = asarray(lrt, float)
 
         _lrt = sp.copy(lrt)
         _lrt[lrt < self.tol] = 0
