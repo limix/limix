@@ -2,6 +2,11 @@ def count_missingness(X):
     """
     Count the number of missing values per column.
 
+    Parameters
+    ----------
+    X : array_like
+        Matrix.
+
     Returns
     -------
     count : ndarray

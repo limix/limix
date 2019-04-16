@@ -4,8 +4,29 @@ from numpy import array_equal, ndarray
 from numpy.random import RandomState
 from numpy.testing import assert_, assert_allclose
 from pandas import DataFrame, Series
+from bgen_reader import read_bgen, allele_expectation, example_files
+from bgen_reader import compute_dosage
 
 from limix.qc import compute_maf
+
+
+def test_compute_dosage():
+
+    with example_files("example.32bits.bgen") as filepath:
+        bgen = read_bgen(filepath, verbose=False)
+        variant_idx = 2
+        e = allele_expectation(bgen, variant_idx)
+        dosage = compute_dosage(e)
+        assert_allclose(
+            dosage[:5],
+            [
+                0.015502935046214363,
+                0.9938354277968955,
+                1.9793395833064196,
+                0.9956054727070978,
+                1.978790270625332,
+            ],
+        )
 
 
 def test_compute_maf_numpy():

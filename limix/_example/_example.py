@@ -78,7 +78,9 @@ def _download(url, filepath, hash):
 
 
 class file_example(object):
-    r""" Put file examples into a temporary folder. """
+    """
+    Put file examples into a temporary folder.
+    """
 
     def __init__(self, filenames):
         import tempfile

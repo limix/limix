@@ -1,4 +1,4 @@
-import pytest
+from limix._example import file_example
 import xarray as xr
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
@@ -6,10 +6,8 @@ from numpy.testing import assert_allclose
 import limix
 
 
-@pytest.mark.skip("failing on travis due to unknown cause")
 def test_qtl_xarr():
-    with limix.example.file_example("xarr.hdf5.bz2") as filepath:
-        filepath = limix.sh.extract(filepath, verbose=False)
+    with file_example("xarr.hdf5") as filepath:
         sample_ids = limix.io.hdf5.fetch(filepath, "/foo/chr1/col_header/sample_ids")
 
         rsid = dict()

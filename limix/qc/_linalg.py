@@ -1,4 +1,4 @@
-def remove_dependent_cols(X, tol=1e-6):
+def remove_dependent_cols(X, tol=1.49e-08):
     """
     Remove dependent columns.
 
@@ -8,7 +8,7 @@ def remove_dependent_cols(X, tol=1e-6):
     ----------
     X : array_like
         Matrix to might have dependent columns.
-    tol : float
+    tol : float, optional
         Threshold above which columns are considered dependents.
 
     Returns
@@ -17,14 +17,17 @@ def remove_dependent_cols(X, tol=1e-6):
         Full column rank matrix.
     """
     from scipy.linalg import qr
-    from numpy import abs as npabs
-    from numpy import any as npany
-    from numpy import where
+    from numpy import abs, asarray
+    from numpy import concatenate, full
 
-    R = qr(X, mode="r")[0][: X.shape[1], :]
-    I = npabs(R.diagonal()) > tol
-    if npany(~I):
-        R = X[:, I]
-    else:
-        R = X
-    return R
+    X = asarray(X)
+    if X.shape[1] == 0:
+        return X
+
+    r = max(X.shape[1] - X.shape[0], 0)
+    i = abs(qr(X, mode="r")[0].diagonal()) > tol
+    i = concatenate((i, full(r, True, bool)))
+    x = X[:, i]
+    if x.shape[1] == X.shape[1]:
+        return X
+    return remove_dependent_cols(x, tol)
