@@ -45,7 +45,6 @@ Statistics
     limix.stats.allele_frequency
     limix.stats.compute_dosage
     limix.stats.confusion_matrix
-    limix.stats.effsizes_se
     limix.stats.empirical_pvalues
     limix.stats.linear_kinship
     limix.stats.lrt_pvalues

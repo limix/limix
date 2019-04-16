@@ -2,8 +2,8 @@
 Statistics
 **********
 
-.. autofunction:: limix.stats.Chi2Mixture
-    :noindex:
+Alleles
+=======
 
 .. autofunction:: limix.stats.allele_expectation
     :noindex:
@@ -14,23 +14,40 @@ Statistics
 .. autofunction:: limix.stats.compute_dosage
     :noindex:
 
+Chi-square mixture
+==================
+
+.. autofunction:: limix.stats.Chi2Mixture
+    :noindex:
+
+Ground truth evaluation
+=======================
+
 .. autofunction:: limix.stats.confusion_matrix
     :noindex:
 
-.. autofunction:: limix.stats.effsizes_se
-    :noindex:
-
-.. autofunction:: limix.stats.empirical_pvalues
-    :noindex:
+Kinship
+=======
 
 .. autofunction:: limix.stats.linear_kinship
     :noindex:
 
+Likelihood-ratio test
+=====================
+
 .. autofunction:: limix.stats.lrt_pvalues
     :noindex:
 
-.. autofunction:: limix.stats.multipletests
-    :noindex:
+Principal component analysis
+============================
 
 .. autofunction:: limix.stats.pca
+    :noindex:
+
+P-value correction
+==================
+
+.. autofunction:: limix.stats.multipletests
+    :noindex:
+.. autofunction:: limix.stats.empirical_pvalues
     :noindex:

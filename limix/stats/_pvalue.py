@@ -1,9 +1,6 @@
-from __future__ import division
-
-
-# TODO: add test
 def multipletests(pvals, alpha=0.05, method="hs", is_sorted=False):
-    r"""Test results and p-value correction for multiple tests.
+    """
+    Test results and p-value correction for multiple tests.
 
     Parameters
     ----------
@@ -25,7 +22,6 @@ def multipletests(pvals, alpha=0.05, method="hs", is_sorted=False):
         `fdr_by` : Benjamini/Yekutieli (negative)
         `fdr_tsbh` : two stage fdr correction (non-negative)
         `fdr_tsbky` : two stage fdr correction (non-negative)
-
     is_sorted : bool
         If ``False`` (default), the p_values will be sorted, but the corrected
         pvalues are in the original order. If ``True``, then it assumed that
@@ -33,14 +29,14 @@ def multipletests(pvals, alpha=0.05, method="hs", is_sorted=False):
 
     Returns
     -------
-    reject : array_like, boolean
-        ``true`` for hypothesis that can be rejected for given alpha.
-    pvals_corrected : array_like
+    reject : ndarray, boolean
+        ``True`` for hypothesis that can be rejected for given alpha.
+    pvals_corrected : ndarray
         P-values corrected for multiple tests.
-    alphacSidak: float
-        corrected alpha for Sidak method.
-    alphacBonf: float
-        corrected alpha for Bonferroni method.
+    alphacSidak : float
+        Corrected alpha for Sidak method.
+    alphacBonf : float
+        Corrected alpha for Bonferroni method.
 
     Notes
     -----
@@ -55,7 +51,8 @@ def multipletests(pvals, alpha=0.05, method="hs", is_sorted=False):
 
 
 def empirical_pvalues(xt, x0):
-    r"""Function to compute empirical p-values.
+    """
+    Function to compute empirical p-values.
 
     Compute empirical p-values from the test statistics
     observed on the data and the null test statistics
@@ -67,11 +64,11 @@ def empirical_pvalues(xt, x0):
         Test statistcs observed on data.
     x0 : array_like
         Null test statistcs. The minimum p-value that can be
-        estimated is ``1./float(len(x0))``.
+        estimated is ``1./len(x0)``.
 
     Returns
     -------
-    array_like
+    pvalues : ndarray
         Estimated empirical p-values.
 
     Examples
@@ -88,7 +85,10 @@ def empirical_pvalues(xt, x0):
         >>> empirical_pvalues(x0, x1) # doctest: +FLOAT_CMP
         array([0.563 , 1.    , 0.839 , 0.7982, 0.5803])
     """
-    from numpy import argsort, zeros
+    from numpy import argsort, zeros, asarray
+
+    xt = asarray(xt, float)
+    x0 = asarray(x0, float)
 
     idxt = argsort(xt)[::-1]
     idx0 = argsort(x0)[::-1]

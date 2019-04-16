@@ -1,73 +1,80 @@
 from .._bits.dask import array_shape_reveal
 
 
-def allele_frequency(expec):
-    r"""Compute allele frequency from its expectation.
+def allele_frequency(X):
+    """
+    Compute allele frequency from its expectation.
+
+    ``X`` is a matrix whose last dimension correspond to the different set of
+    chromosomes. The first dimension represent different variants and the second
+    dimension represent the different samples.
 
     Parameters
     ----------
-    expec : array_like
+    X : array_like
         Allele expectations encoded as a variants-by-samples-by-alleles matrix.
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    frequenct : ndarray
         Allele frequencies encoded as a variants-by-alleles matrix.
     """
-    ploidy = expec.shape[-1]
-    if expec.ndim < 3:
+    ploidy = X.shape[-1]
+    if X.ndim < 3:
         n = 1
     else:
-        n = expec.shape[1]
-    return expec.sum(-2) / (ploidy * n)
+        n = X.shape[1]
+    return X.sum(-2) / (ploidy * n)
 
 
-def compute_dosage(expec, alt=None):
-    r"""Compute dosage from allele expectation.
+def compute_dosage(X, alt=None):
+    """
+    Compute dosage from allele expectation.
 
     Parameters
     ----------
-    expec : array_like
+    X : array_like
         Allele expectations encoded as a variants-by-samples-by-alleles matrix.
     ref : array_like
         Allele reference of each locus. The allele having the minor allele frequency
-        for the provided ``expec`` is used as the reference if `None`. Defaults to
+        for the provided ``X`` is used as the reference if `None`. Defaults to
         `None`.
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    dosage : ndarray
         Dosage encoded as a variants-by-samples matrix.
 
-    Examples
-    --------
+    Example
+    -------
 
     .. doctest::
 
-    >>> from bgen_reader import read_bgen, allele_expectation, example_files
-    >>> from bgen_reader import compute_dosage
-    >>>
-    >>> with example_files("example.32bits.bgen") as filepath:
-    ...     bgen = read_bgen(filepath, verbose=False)
-    ...     variant_idx = 2
-    ...     e = allele_expectation(bgen, variant_idx)
-    ...     dosage = compute_dosage(e)
-    ...     print(dosage[:5])
-    [0.01550294 0.99383543 1.97933958 0.99560547 1.97879027]
-    """
+        >>> from bgen_reader import read_bgen, allele_expectation, example_files
+        >>> from bgen_reader import compute_dosage
+        >>>
+        >>> with example_files("example.32bits.bgen") as filepath:
+        ...     bgen = read_bgen(filepath, verbose=False)
+        ...     variant_idx = 2
+        ...     e = allele_expectation(bgen, variant_idx)
+        ...     dosage = compute_dosage(e)
+        ...     print(dosage[:5])
+        [0.01550294 0.99383543 1.97933958 0.99560547 1.97879027]
+        """
     from numpy import asarray
 
     if alt is None:
-        return expec[..., -1]
+        return X[..., -1]
     try:
-        return expec[alt, :, alt]
+        return X[alt, :, alt]
     except NotImplementedError:
         alt = asarray(alt, int)
-        return asarray(expec, float)[alt, :, alt]
+        return asarray(X, float)[alt, :, alt]
 
 
 def allele_expectation(p, nalleles, ploidy):
-    r"""Allele expectation.
+    """
+    Allele expectation.
 
     Compute the expectation of each allele from the given probabilities.
     It accepts three shapes of matrices:
@@ -86,7 +93,7 @@ def allele_expectation(p, nalleles, ploidy):
 
     Returns
     -------
-    :class:`numpy.ndarray`
+    expectation : ndarray
         Last dimension will contain the expectation of each allele.
 
     Examples
@@ -94,52 +101,51 @@ def allele_expectation(p, nalleles, ploidy):
 
     .. doctest::
 
-
-    >>> from texttable import Texttable
-    >>> from bgen_reader import read_bgen, allele_expectation, example_files
-    >>>
-    >>> sampleid = "sample_005"
-    >>> rsid = "RSID_6"
-    >>>
-    >>> with example_files("example.32bits.bgen") as filepath:
-    ...     bgen = read_bgen(filepath, verbose=False)
-    ...
-    ...     locus = bgen["variants"].query("rsid == '{}'".format(rsid)).index.compute().item()
-    ...     sample = bgen["samples"].to_frame().query("id == '{}'".format(sampleid)).index
-    ...     sample = sample[0]
-    ...
-    ...     nalleles = bgen["variants"].loc[locus]["nalleles"]
-    ...     ploidy = 2
-    ...
-    ...     p = bgen["genotype"][locus].compute()["probs"][sample]
-    ...     # For unphased genotypes only.
-    ...     e = allele_expectation(bgen, locus)[sample]
-    ...
-    ...     alleles = bgen["variants"].loc[locus]["allele_ids"].compute().item().split(",")
-    ...
-    ...     tab = Texttable()
-    ...
-    ...     print(tab.add_rows(
-    ...         [
-    ...             ["", "AA", "AG", "GG", "E[.]"],
-    ...             ["p"] + list(p) + [1.0],
-    ...             ["#" + alleles[0], 2, 1, 0, e[0]],
-    ...             ["#" + alleles[1], 0, 1, 2, e[1]],
-    ...         ]
-    ...     ).draw())
-    +----+-------+-------+-------+-------+
-    |    |  AA   |  AG   |  GG   | E[.]  |
-    +====+=======+=======+=======+=======+
-    | p  | 0.012 | 0.987 | 0.001 | 1     |
-    +----+-------+-------+-------+-------+
-    | #A | 2     | 1     | 0     | 1.011 |
-    +----+-------+-------+-------+-------+
-    | #G | 0     | 1     | 2     | 0.989 |
-    +----+-------+-------+-------+-------+
-    >>> print("variant: {}".format(rsid))
-    variant: RSID_6
-    >>> print("sample : {}".format(sampleid))
-    sample : sample_005
+        >>> from texttable import Texttable
+        >>> from bgen_reader import read_bgen, allele_expectation, example_files
+        >>>
+        >>> sampleid = "sample_005"
+        >>> rsid = "RSID_6"
+        >>>
+        >>> with example_files("example.32bits.bgen") as filepath:
+        ...     bgen = read_bgen(filepath, verbose=False)
+        ...
+        ...     locus = bgen["variants"].query("rsid == '{}'".format(rsid)).index.compute().item()
+        ...     sample = bgen["samples"].to_frame().query("id == '{}'".format(sampleid)).index
+        ...     sample = sample[0]
+        ...
+        ...     nalleles = bgen["variants"].loc[locus]["nalleles"]
+        ...     ploidy = 2
+        ...
+        ...     p = bgen["genotype"][locus].compute()["probs"][sample]
+        ...     # For unphased genotypes only.
+        ...     e = allele_expectation(bgen, locus)[sample]
+        ...
+        ...     alleles = bgen["variants"].loc[locus]["allele_ids"].compute().item().split(",")
+        ...
+        ...     tab = Texttable()
+        ...
+        ...     print(tab.add_rows(
+        ...         [
+        ...             ["", "AA", "AG", "GG", "E[.]"],
+        ...             ["p"] + list(p) + [1.0],
+        ...             ["#" + alleles[0], 2, 1, 0, e[0]],
+        ...             ["#" + alleles[1], 0, 1, 2, e[1]],
+        ...         ]
+        ...     ).draw())
+        +----+-------+-------+-------+-------+
+        |    |  AA   |  AG   |  GG   | E[.]  |
+        +====+=======+=======+=======+=======+
+        | p  | 0.012 | 0.987 | 0.001 | 1     |
+        +----+-------+-------+-------+-------+
+        | #A | 2     | 1     | 0     | 1.011 |
+        +----+-------+-------+-------+-------+
+        | #G | 0     | 1     | 2     | 0.989 |
+        +----+-------+-------+-------+-------+
+        >>> print("variant: {}".format(rsid))
+        variant: RSID_6
+        >>> print("sample : {}".format(sampleid))
+        sample : sample_005
 
     Note
     ----

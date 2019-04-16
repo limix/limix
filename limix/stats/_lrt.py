@@ -2,7 +2,8 @@ from __future__ import division
 
 
 def lrt_pvalues(null_lml, alt_lmls, dof=1):
-    r"""Compute p-values from likelihood ratios.
+    """
+    Compute p-values from likelihood ratios.
 
     These are likelihood ratio test p-values.
 
@@ -17,37 +18,13 @@ def lrt_pvalues(null_lml, alt_lmls, dof=1):
 
     Returns
     -------
-    array_like
+    pvalues : ndarray
         P-values.
     """
     from scipy.stats import chi2
     from numpy_sugar import epsilon
     from numpy import asarray, clip, inf
 
-    lrs = clip(-2 * null_lml + 2 * asarray(alt_lmls), epsilon.super_tiny, inf)
+    lrs = clip(-2 * null_lml + 2 * asarray(alt_lmls, float), epsilon.super_tiny, inf)
     pv = chi2(df=dof).sf(lrs)
     return clip(pv, epsilon.super_tiny, 1 - epsilon.tiny)
-
-
-def effsizes_se(effsizes, pvalues, dof=1):
-    r"""Standard errors of the effect sizes.
-
-    Parameters
-    ----------
-    effsizes : array_like
-        Effect sizes.
-    pvalues : array_like
-        Association significance corresponding to those effect sizes.
-    dof : int
-        Degrees of freedom.
-
-    Returns
-    -------
-    array_like
-        Standard errors of the effect sizes.
-    """
-    from scipy.stats import chi2
-    from numpy import abs as npy_abs
-    from numpy import sqrt
-
-    return npy_abs(effsizes) / sqrt(chi2(dof).isf(pvalues))

@@ -1,23 +1,22 @@
-# TODO: normalise this documentation
 def pca(X, ncomp):
-    r"""Principal component analysis.
+    """
+    Principal component analysis.
 
     Parameters
     ----------
     X : array_like
-        Data.
+        Samples-by-dimensions array.
     ncomp : int
         Number of components.
 
     Returns
     -------
-    dict
-        - **components** (*array_like*):
-          first components ordered by explained variance.
-        - **explained_variance** (*array_like*):
-          explained variance.
-        - **explained_variance_ratio** (*array_like*):
-          percentage of variance explained.
+    components : ndarray
+        First components ordered by explained variance.
+    explained_variance : ndarray
+        Explained variance.
+    explained_variance_ratio : ndarray
+        Percentage of variance explained.
 
     Examples
     --------
@@ -29,16 +28,18 @@ def pca(X, ncomp):
         >>>
         >>> X = RandomState(1).randn(4, 5)
         >>> r = pca(X, ncomp=2)
-        >>> round(r['components'], 2)
-        array([[-0.75,  0.58, -0.08,  0.2 , -0.23],
-               [ 0.49,  0.72,  0.02, -0.46, -0.16]])
-        >>> round(r['explained_variance'], 4) # doctest: +FLOAT_CMP
-        array([ 6.4466,  0.5145])
-        >>> round(r['explained_variance_ratio'], 4) # doctest: +FLOAT_CMP
-        array([ 0.9205,  0.0735])
+        >>> r['components']
+        array([[-0.75015369,  0.58346541, -0.07973564,  0.19565682, -0.22846925],
+               [ 0.48842769,  0.72267548,  0.01968344, -0.46161623, -0.16031708]])
+        >>> r['explained_variance'] # doctest: +FLOAT_CMP
+        array([6.44655993, 0.51454938])
+        >>> r['explained_variance_ratio'] # doctest: +FLOAT_CMP
+        array([0.92049553, 0.07347181])
     """
     from sklearn.decomposition import PCA
+    from numpy import asarray
 
+    X = asarray(X, float)
     pca = PCA(n_components=ncomp)
     pca.fit(X)
 

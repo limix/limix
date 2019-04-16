@@ -4,7 +4,7 @@ from numpy.random import RandomState
 from limix.stats import linear_kinship
 
 
-def test_stats_kinship_estimation():
+def test_kinship_estimation():
     random = RandomState(0)
     X = random.randn(30, 40)
 
