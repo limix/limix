@@ -13,6 +13,7 @@ Limix's documentation
    qtl
    vardec
    her
+   plot
    cli
    stats
    api
