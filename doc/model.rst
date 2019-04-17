@@ -2,73 +2,77 @@
 Model
 *****
 
-.. currentmodule:: glimix_core
+We also export the underlying inference methods limix uses.  Its classes can be accessed
+via limix module :mod:`limix.model` or via the package :mod:`glimix_core` itself. Both
+ways should work identically.
+
+.. currentmodule:: limix.model
 
 Linear Mixed Models
 ===================
 
-.. autoclass:: glimix_core.lmm.LMM
+.. autoclass:: limix.model.lmm.LMM
     :members:
 
-.. autoclass:: glimix_core.lmm.Kron2Sum
+.. autoclass:: limix.model.lmm.Kron2Sum
     :members:
 
 Generalised Linear Mixed Models
 ===============================
 
-.. autoclass:: glimix_core.glmm.GLMMNormal
+.. autoclass:: limix.model.glmm.GLMMNormal
     :members:
 
-.. autoclass:: glimix_core.glmm.GLMMExpFam
+.. autoclass:: limix.model.glmm.GLMMExpFam
     :members:
 
 Gaussian Process
 ================
 
-.. autoclass:: glimix_core.gp.GP
+.. autoclass:: limix.model.gp.GP
     :members:
 
 Generalised Gaussian Process
 ============================
 
-.. autoclass:: glimix_core.ggp.ExpFamGP
+.. autoclass:: limix.model.ggp.ExpFamGP
     :members:
 
 Covariance
 ==========
 
-.. autoclass:: glimix_core.cov.EyeCov
+.. autoclass:: limix.model.cov.EyeCov
     :members:
 
-.. autoclass:: glimix_core.cov.FreeFormCov
+.. autoclass:: limix.model.cov.FreeFormCov
     :members:
 
-.. autoclass:: glimix_core.cov.GivenCov
+.. autoclass:: limix.model.cov.GivenCov
     :members:
 
-.. autoclass:: glimix_core.cov.LinearCov
+.. autoclass:: limix.model.cov.LinearCov
     :members:
 
-.. autoclass:: glimix_core.cov.SumCov
+.. autoclass:: limix.model.cov.SumCov
     :members:
 
-.. autoclass:: glimix_core.cov.LRFreeFormCov
+.. autoclass:: limix.model.cov.LRFreeFormCov
     :members:
 
-.. autoclass:: glimix_core.cov.Kron2SumCov
+.. autoclass:: limix.model.cov.Kron2SumCov
     :members:
 
 Mean
 ====
 
-.. autoclass:: glimix_core.mean.OffsetMean
+.. autoclass:: limix.model.mean.OffsetMean
     :members:
 
-.. autoclass:: glimix_core.mean.LinearMean
+.. autoclass:: limix.model.mean.LinearMean
     :members:
 
-.. autoclass:: glimix_core.mean.SumMean
+.. autoclass:: limix.model.mean.SumMean
     :members:
 
-.. autoclass:: glimix_core.mean.KronMean
+.. autoclass:: limix.model.mean.KronMean
     :members:
