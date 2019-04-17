@@ -20,6 +20,7 @@ from pandas import DataFrame
 from limix.qc import normalise_covariance
 from limix.qtl import scan
 from limix.stats import linear_kinship
+from limix._random import multivariate_normal as mvn
 
 
 def _test_qtl_scan_st(lik):
@@ -40,9 +41,8 @@ def _test_qtl_scan_st(lik):
     beta = random.randn(ncovariates)
     alpha = random.randn(G.shape[1])
 
-    mvn = random.multivariate_normal
     m = M @ beta + G @ alpha
-    y = mvn(m, v0 * K + v1 * eye(n))
+    y = mvn(random, m, v0 * K + v1 * eye(n))
 
     idx = [[0, 1], 2, [3]]
 
@@ -104,9 +104,8 @@ def test_qtl_scan_three_hypotheses_mt():
     beta = vec(random.randn(ntraits, ncovariates))
     alpha = vec(random.randn(A01.shape[1], G.shape[1]))
 
-    mvn = random.multivariate_normal
     m = kron(A, M) @ beta + kron(A01, G) @ alpha
-    Y = unvec(mvn(m, kron(C0, K) + kron(C1, eye(n))), (n, -1))
+    Y = unvec(mvn(random, m, kron(C0, K) + kron(C1, eye(n))), (n, -1))
 
     idx = [[0, 1], 2, [3]]
     r = scan(G, Y, idx=idx, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
@@ -141,9 +140,8 @@ def test_qtl_scan_two_hypotheses_mt():
     beta = vec(random.randn(ntraits, ncovariates))
     alpha = vec(random.randn(A01.shape[1], G.shape[1]))
 
-    mvn = random.multivariate_normal
     m = kron(A, M) @ beta + kron(A01, G) @ alpha
-    Y = unvec(mvn(m, kron(C0, K) + kron(C1, eye(n))), (n, -1))
+    Y = unvec(mvn(random, m, kron(C0, K) + kron(C1, eye(n))), (n, -1))
 
     idx = [[0, 1], 2, [3]]
     r = scan(G, Y, idx=idx, K=K, M=M, A=A, A1=A1, verbose=False)

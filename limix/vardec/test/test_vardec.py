@@ -3,6 +3,7 @@ from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
 from limix.vardec import VarDec
+from limix._random import multivariate_normal as mvn
 
 
 def test_vardec():
@@ -24,8 +25,8 @@ def test_vardec():
     K1 /= K1.diagonal().mean()
     K1 += eye(nsamples) * 1e-4
 
-    mvn = random.multivariate_normal
-    y = X @ random.randn(3) + mvn(zeros(nsamples), K0) + mvn(zeros(nsamples), K1)
+    y = X @ random.randn(3) + mvn(random, zeros(nsamples), K0)
+    y += mvn(random, zeros(nsamples), K1)
 
     vardec = VarDec(y, lik, X)
     vardec.append(K0)
@@ -33,10 +34,10 @@ def test_vardec():
     vardec.append_iid()
 
     vardec.fit(verbose=False)
-    assert_allclose(vardec.covariance[0].scale, 0.42493502300821745)
-    assert_allclose(vardec.covariance[1].scale, 1.775872164537344)
+    assert_allclose(vardec.covariance[0].scale, 0.38473522809891697)
+    assert_allclose(vardec.covariance[1].scale, 1.1839796169221422)
     assert_allclose(vardec.covariance[2].scale, 2.061153622438558e-09, atol=1e-5)
-    assert_allclose(vardec.lml(), -24.447408443017064)
+    assert_allclose(vardec.lml(), -21.91827344966165)
 
 
 def test_vardec_2_matrices():
@@ -53,17 +54,16 @@ def test_vardec_2_matrices():
     K /= K.diagonal().mean()
     K += eye(nsamples) * 1e-4
 
-    mvn = random.multivariate_normal
-    y = X @ random.randn(3) + mvn(zeros(nsamples), K) + random.randn(nsamples)
+    y = X @ random.randn(3) + mvn(random, zeros(nsamples), K) + random.randn(nsamples)
 
     vardec = VarDec(y, lik, X)
     vardec.append(K)
     vardec.append_iid()
 
     vardec.fit(verbose=False)
-    assert_allclose(vardec.covariance[0].scale, 0.5331692582164862, rtol=1e-5)
-    assert_allclose(vardec.covariance[1].scale, 1.45673841962057, rtol=1e-5)
-    assert_allclose(vardec.lml(), -34.694171078044846, rtol=1e-5)
+    assert_allclose(vardec.covariance[0].scale, 0.32199728815536727, rtol=1e-5)
+    assert_allclose(vardec.covariance[1].scale, 1.4182987383374532, rtol=1e-5)
+    assert_allclose(vardec.lml(), -33.63946372828994, rtol=1e-5)
 
 
 def test_vardec_poisson():
@@ -85,8 +85,8 @@ def test_vardec_poisson():
     K1 /= K1.diagonal().mean()
     K1 += eye(nsamples) * 1e-4
 
-    mvn = random.multivariate_normal
-    y = X @ random.randn(3) + mvn(zeros(nsamples), K0) + mvn(zeros(nsamples), K1)
+    y = X @ random.randn(3) + mvn(random, zeros(nsamples), K0)
+    y += mvn(random, zeros(nsamples), K1)
     y = exp((y - y.mean()) / y.std())
 
     vardec = VarDec(y, lik, X)
@@ -95,10 +95,10 @@ def test_vardec_poisson():
     vardec.append_iid()
 
     vardec.fit(verbose=False)
-    assert_allclose(vardec.covariance[0].scale, 2.6905366173575983e-09, atol=1e-5)
-    assert_allclose(vardec.covariance[1].scale, 0.3965071579047076)
+    assert_allclose(vardec.covariance[0].scale, 2.808478303826397e-09, atol=1e-5)
+    assert_allclose(vardec.covariance[1].scale, 0.3503800007985209)
     assert_allclose(vardec.covariance[2].scale, 2.061153622438558e-09, atol=1e-5)
-    assert_allclose(vardec.lml(), -29.55133669213795)
+    assert_allclose(vardec.lml(), -28.887285796984564)
 
 
 def test_vardec_poisson_2_matrices():
@@ -115,8 +115,7 @@ def test_vardec_poisson_2_matrices():
     K /= K.diagonal().mean()
     K += eye(nsamples) * 1e-4
 
-    mvn = random.multivariate_normal
-    y = X @ random.randn(3) + mvn(zeros(nsamples), K)
+    y = X @ random.randn(3) + mvn(random, zeros(nsamples), K)
     y = exp((y - y.mean()) / y.std())
 
     vardec = VarDec(y, lik, X)
@@ -124,6 +123,6 @@ def test_vardec_poisson_2_matrices():
     vardec.append_iid()
 
     vardec.fit(verbose=False)
-    assert_allclose(vardec.covariance[0].scale, 0.0009999999008707368, atol=1e-5)
-    assert_allclose(vardec.covariance[1].scale, 9.912926347978695e-11, atol=1e-5)
-    assert_allclose(vardec.lml(), -28.059529339760136)
+    assert_allclose(vardec.covariance[0].scale, 0.10726852397002325, atol=1e-5)
+    assert_allclose(vardec.covariance[1].scale, 4.168569936272955e-11, atol=1e-5)
+    assert_allclose(vardec.lml(), -26.36419072811823)
