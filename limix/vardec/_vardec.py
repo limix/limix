@@ -14,6 +14,7 @@ class VarDec(object):
     .. doctest::
 
         >>> from limix.vardec import VarDec
+        >>> from limix.stats import multivariate_normal as mvn
         >>> from numpy import ones, eye, concatenate, zeros, exp
         >>> from numpy.random import RandomState
         >>>
@@ -34,8 +35,8 @@ class VarDec(object):
         >>> K1 /= K1.diagonal().mean()
         >>> K1 += eye(nsamples) * 1e-4
         >>>
-        >>> mvn = random.multivariate_normal
-        >>> y = M @ random.randn(3) + mvn(zeros(nsamples), K0) + mvn(zeros(nsamples), K1)
+        >>> y = M @ random.randn(3) + mvn(random, zeros(nsamples), K0)
+        >>> y += mvn(random, zeros(nsamples), K1)
         >>>
         >>> vardec = VarDec(y, "normal", M)
         >>> vardec.append(K0)
@@ -47,7 +48,7 @@ class VarDec(object):
         Variance decomposition
         ======================
         <BLANKLINE>
-        𝐲 ~ 𝓝(𝙼𝜶, 0.425⋅𝙺 + 1.776⋅𝙺 + 0.000⋅𝙸)
+        𝐲 ~ 𝓝(𝙼𝜶, 0.385⋅𝙺 + 1.184⋅𝙺 + 0.000⋅𝙸)
         >>> y = exp((y - y.mean()) / y.std())
         >>> vardec = VarDec(y, "poisson", M)
         >>> vardec.append(K0)
@@ -59,7 +60,7 @@ class VarDec(object):
         Variance decomposition
         ======================
         <BLANKLINE>
-        𝐳 ~ 𝓝(𝙼𝜶, 0.000⋅𝙺 + 0.397⋅𝙺 + 0.000⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
+        𝐳 ~ 𝓝(𝙼𝜶, 0.000⋅𝙺 + 0.350⋅𝙺 + 0.000⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
     """
 
     def __init__(self, y, lik="normal", M=None):
