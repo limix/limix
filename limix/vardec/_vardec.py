@@ -48,7 +48,6 @@ class VarDec(object):
         ======================
         <BLANKLINE>
         𝐲 ~ 𝓝(𝙼𝜶, 0.425⋅𝙺 + 1.776⋅𝙺 + 0.000⋅𝙸)
-        >>>
         >>> y = exp((y - y.mean()) / y.std())
         >>> vardec = VarDec(y, "poisson", M)
         >>> vardec.append(K0)

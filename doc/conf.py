@@ -76,6 +76,7 @@ intersphinx_mapping = {
     "python": ("http://docs.python.org/", None),
     "numpy": ("https://docs.scipy.org/doc/numpy/", None),
     "limix-plot": ("https://limix-plot.readthedocs.io/en/stable/", None),
+    "glimix-core": ("https://glimix-core.readthedocs.io/en/stable/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
     "dask": ("http://dask.pydata.org/en/latest/", None),
     "xarray": ("http://xarray.pydata.org/en/latest/", None),

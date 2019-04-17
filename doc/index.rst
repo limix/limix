@@ -16,6 +16,7 @@ Limix's documentation
    plot
    cli
    stats
+   model
    api
 
 Comments and bugs

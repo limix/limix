@@ -273,8 +273,8 @@ matrix 𝙺, and call :func:`limix.qtl.scan` to perform the analysis.
     <BLANKLINE>
     M     = ['offset' 'age']
     𝜶     = [-1.88025701  0.19028836]
-    se(𝜶) = [0.327493   0.01222069]
-    lml   = -215.9781119592618
+    se(𝜶) = [0.32749301 0.01222069]
+    lml   = -215.97811195926113
     <BLANKLINE>
     Hypothesis 2
     ============
