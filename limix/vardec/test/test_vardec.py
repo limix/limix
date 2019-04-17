@@ -3,7 +3,7 @@ from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
 from limix.vardec import VarDec
-from limix._random import multivariate_normal as mvn
+from limix.stats import multivariate_normal as mvn
 
 
 def test_vardec():

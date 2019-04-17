@@ -9,6 +9,7 @@ from ._kinship import linear_kinship
 from ._lrt import lrt_pvalues
 from ._pca import pca
 from ._pvalue import empirical_pvalues, multipletests
+from ._random import multivariate_normal
 
 __all__ = [
     "Chi2Mixture",
@@ -20,5 +21,6 @@ __all__ = [
     "linear_kinship",
     "lrt_pvalues",
     "multipletests",
+    "multivariate_normal",
     "pca",
 ]
