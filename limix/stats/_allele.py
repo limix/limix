@@ -36,9 +36,8 @@ def compute_dosage(X, alt=None):
     X : array_like
         Allele expectations encoded as a variants-by-samples-by-alleles matrix.
     ref : array_like
-        Allele reference of each locus. The allele having the minor allele frequency
-        for the provided ``X`` is used as the reference if `None`. Defaults to
-        `None`.
+        Allele reference of each locus. The allele having the minor allele frequency for
+        the provided ``X`` is used as the reference if `None`. Defaults to ``None``.
 
     Returns
     -------

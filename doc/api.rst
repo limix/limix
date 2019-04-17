@@ -48,6 +48,7 @@ Statistics
     limix.stats.linear_kinship
     limix.stats.lrt_pvalues
     limix.stats.multipletests
+    limix.stats.multivariate_normal
     limix.stats.pca
 
 Heritability estimation
