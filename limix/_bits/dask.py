@@ -66,4 +66,3 @@ def _get_chunks(a):
         c.append(tuple(cs[s]))
 
     return tuple(c)
-    return tuple(c)

@@ -1,6 +1,5 @@
 from .._data import conform_dataset, normalize_likelihood
 from .._display import session_block, session_line
-from ..qc._lik import normalise_extreme_values
 from ..qtl._assert import assert_finite
 
 
@@ -77,8 +76,6 @@ def estimate(y, lik, K, M=None, verbose=True):
         K = data["K"]
 
         assert_finite(y, M, K)
-
-        y = normalise_extreme_values(y, lik)
 
         if K is not None:
             K = K / diag(K).mean()

@@ -1,5 +1,6 @@
 def test(verbose=True):
-    r"""Run tests to verify this package's integrity.
+    """
+    Run tests to verify this package's integrity.
 
     Parameters
     ----------

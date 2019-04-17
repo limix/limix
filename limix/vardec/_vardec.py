@@ -144,10 +144,8 @@ class VarDec(object):
                 else:
                     self._fit_glmm(verbose)
 
-            # if verbose:
-            #     sys.stdout.flush()
-            #     txt = _display.bold(str(self))
-            #     _display.display(_display.format_richtext(txt))
+            if verbose:
+                print(self)
 
         self._fit = True
 

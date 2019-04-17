@@ -38,6 +38,9 @@ def test_vardec():
     assert_allclose(vardec.covariance[1].scale, 1.1839796169221422)
     assert_allclose(vardec.covariance[2].scale, 2.061153622438558e-09, atol=1e-5)
     assert_allclose(vardec.lml(), -21.91827344966165)
+    assert_allclose(
+        vardec.effsizes, [-0.5008873352111712, -1.193536406235688, -0.28254298530554534]
+    )
 
 
 def test_vardec_2_matrices():
