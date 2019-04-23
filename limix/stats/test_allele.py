@@ -1,6 +1,7 @@
-from limix.stats import allele_frequency, compute_dosage, allele_expectation
-from numpy.testing import assert_allclose
 from numpy.random import RandomState
+from numpy.testing import assert_allclose
+
+from limix.stats import allele_expectation, allele_frequency, compute_dosage
 
 
 def test_allele_frequency():

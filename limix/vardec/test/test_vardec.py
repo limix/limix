@@ -2,8 +2,8 @@ from numpy import concatenate, exp, eye, ones, zeros
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
-from limix.vardec import VarDec
 from limix.stats import multivariate_normal as mvn
+from limix.vardec import VarDec
 
 
 def test_vardec():

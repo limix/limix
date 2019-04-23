@@ -19,8 +19,7 @@ from pandas import DataFrame
 
 from limix.qc import normalise_covariance
 from limix.qtl import scan
-from limix.stats import linear_kinship
-from limix.stats import multivariate_normal as mvn
+from limix.stats import linear_kinship, multivariate_normal as mvn
 
 
 def _test_qtl_scan_st(lik):

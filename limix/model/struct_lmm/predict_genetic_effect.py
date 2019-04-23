@@ -140,6 +140,7 @@ class PredictGenEffect:
 
     def predict_gxe_effect(self):
         import scipy as sp
+        import scipy.linalg as la
 
         ref = [0] * self.PredictEnv.shape[0]
         ref -= self.snp_mean
