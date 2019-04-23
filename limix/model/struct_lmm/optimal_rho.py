@@ -1,6 +1,3 @@
-import scipy as sp
-
-
 class OptimalRho:
     r"""
     Estimates proportion of genetic variance that is explained by interaction between the variant and the environments
@@ -50,6 +47,7 @@ class OptimalRho:
             self.W = self.Env
 
     def calc_opt_rho(self):
+        import scipy as sp
         from glimix_core.lmm import LMM
         from numpy_sugar.linalg import economic_qs_linear
 

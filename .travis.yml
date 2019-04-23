@@ -1,6 +1,18 @@
 language: python
-python:
-  - 3.6
+python: 3.6
+matrix:
+  include:
+    - sudo: required
+    - os: osx
+      language: generic
+      before_install:
+        - HOMEBREW_NO_AUTO_UPDATE=1 brew unlink python2
+        - HOMEBREW_NO_AUTO_UPDATE=1 brew install python3
+        - export PATH=$(brew --prefix)/bin:$(brew --prefix)/sbin:$PATH
+        - ln -s $(brew --prefix)/bin/python3 $(brew --prefix)/bin/python
+        - ln -s $(brew --prefix)/bin/pip3 $(brew --prefix)/bin/pip
+        - hash -r
+        - python -m pip install --upgrade pip setuptools wheel
 env:
   - PKG_NAME=limix
     HDF5_USE_FILE_LOCKING=FALSE

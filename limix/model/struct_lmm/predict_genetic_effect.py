@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-import scipy as sp
-import scipy.linalg as la
-
-
 class PredictGenEffect:
     r"""
     Predicts allelic effects for each environmental profile by accounting for GxE effects. Can also predict aggregate environment driving the GxE effect
@@ -78,6 +73,8 @@ class PredictGenEffect:
     def __init__(
         self, y, x, F, TrainingEnv, W=None, PredictEnv=None, TrainFraction=None
     ):
+        import scipy as sp
+
         self.y = y
         self.x = x
         self.F = F
@@ -104,6 +101,7 @@ class PredictGenEffect:
             self.W = self.W[random_idx, :]
 
     def train_model(self):
+        import scipy as sp
         from limix_core.covar import FreeFormCov
         from limix_core.gp import GP2KronSumLR
 
@@ -126,6 +124,9 @@ class PredictGenEffect:
         return self.persistent_effect
 
     def predict_aggregate_environment(self):
+        import scipy.linalg as la
+        import scipy as sp
+
         E_star = self.PredictEnv
         cent = 1 / self.sigma_2 * sp.dot(
             self.xoE.T, self.xoE
@@ -138,6 +139,8 @@ class PredictGenEffect:
         return z_star
 
     def predict_gxe_effect(self):
+        import scipy as sp
+
         ref = [0] * self.PredictEnv.shape[0]
         ref -= self.snp_mean
         ref /= self.snp_std
