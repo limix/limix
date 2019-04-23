@@ -14,36 +14,6 @@ def pytest_configure(*_):
     doctest.ELLIPSIS_MARKER = "-ignore-"
 
 
-@pytest.fixture(autouse=True)
-def _docdir(request):
-    import os
-
-    # Trigger ONLY for the doctests or doctestplus.
-    plug = request.config.pluginmanager.getplugin("doctest")
-    if plug is None:
-        plug = request.config.pluginmanager.getplugin("doctestplus")
-        if plug is None:
-            item = None
-        else:
-            item = plug._doctest_textfile_item_cls
-    else:
-        item = plug.DoctestItem
-
-    if isinstance(request.node, item):
-        # Get the fixture dynamically by its name.
-        tmpdir = request.getfixturevalue("tmpdir")
-
-        # Chdir only for the duration of the test.
-        olddir = os.getcwd()
-        tmpdir.chdir()
-        yield
-        os.chdir(olddir)
-
-    else:
-        # For normal tests, we have to yield, since this is a yield-fixture.
-        yield
-
-
 def pandas_format():
     import pandas as pd
 
