@@ -1,8 +1,3 @@
-from __future__ import unicode_literals
-
-import pytest
-
-
 def pytest_configure(*_):
     _compatibility()
     import doctest
