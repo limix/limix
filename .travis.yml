@@ -12,6 +12,7 @@ matrix:
         - ln -s $(brew --prefix)/bin/python3 $(brew --prefix)/bin/python
         - ln -s $(brew --prefix)/bin/pip3 $(brew --prefix)/bin/pip
         - hash -r
+        - python --version
         - python -m pip install --upgrade pip setuptools wheel
 env:
   - PKG_NAME=limix
