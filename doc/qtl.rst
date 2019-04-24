@@ -187,7 +187,7 @@ We now apply the function :func:`limix.qtl.scan` to our data set
     >>> from limix.qtl import scan
     >>>
     >>> r = scan(G, y, "normal", M=M, verbose=False)
-    >>> print(r) # doctest: +FLOAT_CMP
+    >>> print(r)
     Hypothesis 0
     ============
     <BLANKLINE>
@@ -265,7 +265,7 @@ matrix 𝙺, and call :func:`limix.qtl.scan` to perform the analysis.
     >>> y += multivariate_normal(random, zeros(n), K)
     >>>
     >>> r = scan(X, y, "normal", K, 𝙼=M, verbose=False)
-    >>> print(r) # doctest: +FLOAT_CMP
+    >>> print(r)
     Hypothesis 0
     ============
     <BLANKLINE>
@@ -340,7 +340,7 @@ distribution is not sufficient to explain the variability of yᵢ.
     >>> y = random.poisson(exp(z))
     >>>
     >>> r = scan(G, y, "poisson", K, M=M, verbose=False)
-    >>> print(r) # doctest: +FLOAT_CMP
+    >>> print(r)
     Hypothesis 0
     ============
     <BLANKLINE>
@@ -426,7 +426,7 @@ Here is an example.
     >>> E1 = random.randn(y.shape[0], 1)
     >>>
     >>> r = iscan(G, y, "normal", K, M, E0=E0, E1=E1, verbose=False)
-    >>> print(r) # doctest: +FLOAT_CMP
+    >>> print(r)
     Hypothesis 0
     ============
     <BLANKLINE>
@@ -533,7 +533,7 @@ Here is an example.
     >>> A1 = eye(p)
     >>>
     >>> r = scan(G, Y, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
-    >>> print(r) # doctest: +FLOAT_CMP
+    >>> print(r)
     Hypothesis 0
     ============
     <BLANKLINE>
