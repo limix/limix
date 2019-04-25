@@ -77,10 +77,12 @@ def scan(
         tests.
     A : p×p array_like
         Symmetric trait-by-trait design matrix.
-    A0 : p×p₀ array_like
-        Matrix A₀, possibility a non-symmetric one.
-    A1 : p×p₁ array_like
-        Matrix A₁, possibility a non-symmetric one.
+    A0 : p×p₀ array_like, optional
+        Matrix A₀, possibility a non-symmetric one. If ``None``, it defines an empty
+        matrix, p₀=0. Defaults to ``None``.
+    A1 : p×p₁ array_like, optional
+        Matrix A₁, possibility a non-symmetric one. If ``None``, it defines an identity
+        matrix, p₀=p. Defaults to ``None``.
     verbose : bool, optional
         ``True`` to display progress and summary; ``False`` otherwise.
 
