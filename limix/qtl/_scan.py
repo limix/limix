@@ -317,19 +317,27 @@ def _single_trait_scan(idx, lik, Y, M, G, QS, verbose):
 
 
 def _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1, verbose):
-    from xarray import concat
+    from xarray import concat, DataArray
     from numpy import eye, asarray, empty
 
     ntraits = Y.shape[1]
 
     if A1 is None:
         A1 = eye(ntraits)
+        A1 = DataArray(A1, dims=["sample", "env"], coords={"env": Y.trait.values})
 
     if A0 is None:
         A0 = empty((ntraits, 0))
+        A0 = DataArray(A0, dims=["sample", "env"], coords={"env": asarray([], str)})
 
     A0 = _asarray(A0, "env0", ["sample", "env"])
+    if "env" not in A0.coords:
+        A0.coords["env"] = [f"env0_{i}" for i in range(A0.shape[1])]
+
     A1 = _asarray(A1, "env1", ["sample", "env"])
+    if "env" not in A1.coords:
+        A1.coords["env"] = [f"env1_{i}" for i in range(A1.shape[1])]
+
     A01 = concat([A0, A1], dim="env")
 
     if lik[0] == "normal":

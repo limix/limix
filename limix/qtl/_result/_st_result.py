@@ -57,18 +57,18 @@ class STScanResult:
 
         h2 = []
         for i, test in enumerate(self._tests):
-            candidates = list(self._candidates[test["idx"]])
+            candidates = list(self._candidates[test.idx])
 
-            effsizes = test["h2"]["covariate_effsizes"]
-            effsizes_se = test["h2"]["covariate_effsizes_se"]
+            effsizes = test.h2.covariate_effsizes
+            effsizes_se = test.h2.covariate_effsizes_se
             for l, c in enumerate(covariates):
                 eff = effsizes[l]
                 eff_se = effsizes_se[l]
                 v = [i, self._trait, "covariate", str(c), eff, eff_se]
                 h2.append(v)
 
-            effsizes = test["h2"]["candidate_effsizes"]
-            effsizes_se = test["h2"]["candidate_effsizes_se"]
+            effsizes = test.h2.candidate_effsizes
+            effsizes_se = test.h2.candidate_effsizes_se
             for l, c in enumerate(candidates):
                 eff = effsizes[l]
                 eff_se = effsizes_se[l]
@@ -91,10 +91,8 @@ class STScanResult:
 
         stats = []
         for i, test in enumerate(self._tests):
-            dof20 = test["h2"]["candidate_effsizes"].size
-            stats.append(
-                [i, self._h0.lml, test["h2"]["lml"], dof20, test["h2"]["scale"]]
-            )
+            dof20 = test.h2.candidate_effsizes.size
+            stats.append([i, self._h0.lml, test.h2.lml, dof20, test.h2.scale])
 
         columns = ["test", "lml0", "lml2", "dof20", "scale2"]
         stats = DataFrame(stats, columns=columns)

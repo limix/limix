@@ -1,5 +1,6 @@
 from ._st_result import STScanResult
 from ._st_simple import STSimpleModelResult
+from ._tuples import VariantResult, Result
 
 
 class STScanResultFactory:
@@ -26,16 +27,16 @@ class STScanResultFactory:
             return x
 
         def _normalize(h):
-            return {
-                "lml": float(h["lml"]),
-                "covariate_effsizes": _1d_shape(h["covariate_effsizes"]),
-                "candidate_effsizes": _1d_shape(h["candidate_effsizes"]),
-                "covariate_effsizes_se": _1d_shape(h["covariate_effsizes_se"]),
-                "candidate_effsizes_se": _1d_shape(h["candidate_effsizes_se"]),
-                "scale": float(h["scale"]),
-            }
+            return VariantResult(
+                lml=float(h["lml"]),
+                covariate_effsizes=_1d_shape(h["covariate_effsizes"]),
+                candidate_effsizes=_1d_shape(h["candidate_effsizes"]),
+                covariate_effsizes_se=_1d_shape(h["covariate_effsizes_se"]),
+                candidate_effsizes_se=_1d_shape(h["candidate_effsizes_se"]),
+                scale=float(h["scale"]),
+            )
 
-        self._tests.append({"idx": cand_idx, "h2": _normalize(h2)})
+        self._tests.append(Result(idx=cand_idx, h2=_normalize(h2)))
 
     def create(self):
         return STScanResult(

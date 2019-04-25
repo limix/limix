@@ -1,4 +1,5 @@
 import pytest
+from xarray import DataArray
 import scipy.stats as st
 from numpy import (
     argmin,
@@ -14,7 +15,7 @@ from numpy import (
     zeros,
 )
 from numpy.random import RandomState
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_array_equal
 from pandas import DataFrame
 
 from limix.qc import normalise_covariance
@@ -144,6 +145,47 @@ def test_qtl_scan_two_hypotheses_mt():
 
     idx = [[0, 1], 2, [3]]
     r = scan(G, Y, idx=idx, K=K, M=M, A=A, A1=A1, verbose=False)
+    str(r)
+
+
+def test_qtl_scan_two_hypotheses_mt_A0A1_none():
+    random = RandomState(0)
+    n = 30
+    ntraits = 2
+    ncovariates = 3
+
+    A = random.randn(ntraits, ntraits)
+    A = A @ A.T
+    M = random.randn(n, ncovariates)
+
+    C0 = random.randn(ntraits, ntraits)
+    C0 = C0 @ C0.T
+
+    C1 = random.randn(ntraits, ntraits)
+    C1 = C1 @ C1.T
+
+    G = random.randn(n, 4)
+
+    A1 = eye(ntraits)
+
+    K = random.randn(n, n + 1)
+    K = normalise_covariance(K @ K.T)
+
+    beta = vec(random.randn(ntraits, ncovariates))
+    alpha = vec(random.randn(A1.shape[1], G.shape[1]))
+
+    m = kron(A, M) @ beta + kron(A1, G) @ alpha
+    Y = unvec(mvn(random, m, kron(C0, K) + kron(C1, eye(n))), (n, -1))
+    Y = DataArray(Y, dims=["sample", "trait"], coords={"trait": ["WA", "Cx"]})
+
+    idx = [[0, 1], 2, [3]]
+    r = scan(G, Y, idx=idx, K=K, M=M, A=A, verbose=False)
+    df = r.effsizes["h2"]
+    df = df[df["test"] == 0]
+    assert_array_equal(df["trait"], ["WA"] * 3 + ["Cx"] * 3 + [None] * 4)
+    assert_array_equal(
+        df["env"], [None] * 6 + ["env1_WA", "env1_WA", "env1_Cx", "env1_Cx"]
+    )
     str(r)
 
 

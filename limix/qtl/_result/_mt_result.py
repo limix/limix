@@ -79,7 +79,7 @@ class MTScanResult:
                     env_name = "env0_" + str(e)
                     eff = effsizes[l, j]
                     eff_se = effsizes_se[l, j]
-                    v = [i, str(trait), "candidate", str(c), env_name, eff, eff_se]
+                    v = [i, None, "candidate", str(c), env_name, eff, eff_se]
                     h1.append(v)
 
         columns = [
@@ -122,7 +122,7 @@ class MTScanResult:
                     env_name = "env0_" + str(e)
                     eff = effsizes[l, off + j]
                     eff_se = effsizes_se[l, off + j]
-                    v = [i, str(trait), "candidate", str(c), env_name, eff, eff_se]
+                    v = [i, None, "candidate", str(c), env_name, eff, eff_se]
                     h2.append(v)
 
             off = len(envs0)
@@ -131,7 +131,7 @@ class MTScanResult:
                     env_name = "env1_" + str(e)
                     eff = effsizes[l, off + j]
                     eff_se = effsizes_se[l, off + j]
-                    v = [i, str(trait), "candidate", str(c), env_name, eff, eff_se]
+                    v = [i, None, "candidate", str(c), env_name, eff, eff_se]
                     h2.append(v)
 
         columns = [
