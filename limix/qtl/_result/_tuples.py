@@ -12,4 +12,4 @@ VariantResult = namedtuple(
     ],
 )
 
-Result = namedtuple("Result", ["idx", "h1", "h2"], defaults={"h1": None, "h2": None})
+Result = namedtuple("Result", ["idx", "h1", "h2"])

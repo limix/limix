@@ -36,7 +36,7 @@ class STScanResultFactory:
                 scale=float(h["scale"]),
             )
 
-        self._tests.append(Result(idx=cand_idx, h2=_normalize(h2)))
+        self._tests.append(Result(idx=cand_idx, h1=None, h2=_normalize(h2)))
 
     def create(self):
         return STScanResult(
