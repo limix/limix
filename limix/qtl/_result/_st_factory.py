@@ -28,12 +28,12 @@ class STScanResultFactory:
 
         def _normalize(h):
             return VariantResult(
-                lml=float(h["lml"]),
-                covariate_effsizes=_1d_shape(h["covariate_effsizes"]),
-                candidate_effsizes=_1d_shape(h["candidate_effsizes"]),
-                covariate_effsizes_se=_1d_shape(h["covariate_effsizes_se"]),
-                candidate_effsizes_se=_1d_shape(h["candidate_effsizes_se"]),
-                scale=float(h["scale"]),
+                lml=float(h.lml),
+                covariate_effsizes=_1d_shape(h.covariate_effsizes),
+                candidate_effsizes=_1d_shape(h.candidate_effsizes),
+                covariate_effsizes_se=_1d_shape(h.covariate_effsizes_se),
+                candidate_effsizes_se=_1d_shape(h.candidate_effsizes_se),
+                scale=float(h.scale),
             )
 
         self._tests.append(Result(idx=cand_idx, h1=None, h2=_normalize(h2)))

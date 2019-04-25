@@ -286,6 +286,7 @@ def scan(
 
 def _single_trait_scan(idx, lik, Y, M, G, QS, verbose):
     from numpy import asarray
+    from tqdm import tqdm
 
     if lik[0] == "normal":
         scanner, v0, v1 = _st_lmm(Y.values.ravel(), M.values, QS, verbose)
@@ -307,11 +308,11 @@ def _single_trait_scan(idx, lik, Y, M, G, QS, verbose):
 
     if idx is None:
         r1 = scanner.fast_scan(G, verbose)
-        for i in range(G.shape[1]):
+        for i in tqdm(range(G.shape[1]), "Results", disable=not verbose):
             h2 = _normalise_scan_names({k: v[i] for k, v in r1.items()})
             r.add_test(i, h2)
     else:
-        for i in idx:
+        for i in tqdm(idx, "Results", disable=not verbose):
             i = _2d_sel(i)
             h2 = _normalise_scan_names(scanner.scan(asarray(G[:, i], float)))
             r.add_test(i, h2)
@@ -321,6 +322,7 @@ def _single_trait_scan(idx, lik, Y, M, G, QS, verbose):
 def _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1, verbose):
     from xarray import concat, DataArray
     from numpy import eye, asarray, empty
+    from tqdm import tqdm
 
     ntraits = Y.shape[1]
 
@@ -365,7 +367,8 @@ def _multi_trait_scan(idx, lik, Y, M, G, QS, A, A0, A1, verbose):
 
     if idx is None:
         idx = range(G.shape[1])
-    for i in idx:
+
+    for i in tqdm(idx, "Results", disable=not verbose):
 
         i = _2d_sel(i)
         g = asarray(G[:, i], float)
@@ -454,11 +457,13 @@ def _2d_sel(idx):
 
 
 def _normalise_scan_names(r):
-    return {
-        "lml": r["lml"],
-        "covariate_effsizes": r["effsizes0"],
-        "covariate_effsizes_se": r["effsizes0_se"],
-        "candidate_effsizes": r["effsizes1"],
-        "candidate_effsizes_se": r["effsizes1_se"],
-        "scale": r["scale"],
-    }
+    from ._result._tuples import VariantResult
+
+    return VariantResult(
+        lml=r["lml"],
+        covariate_effsizes=r["effsizes0"],
+        candidate_effsizes=r["effsizes1"],
+        covariate_effsizes_se=r["effsizes0_se"],
+        candidate_effsizes_se=r["effsizes1_se"],
+        scale=r["scale"],
+    )

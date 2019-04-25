@@ -1,5 +1,6 @@
 from ._mt_result import MTScanResult
 from ._mt_simple import MTSimpleModelResult
+from ._tuples import VariantResult, Result
 
 
 class MTScanResultFactory:
@@ -41,20 +42,18 @@ class MTScanResultFactory:
             return x
 
         def _normalize(h):
-            return {
-                "lml": float(h["lml"]),
-                "covariate_effsizes": _2d_shape(h["covariate_effsizes"]),
-                "candidate_effsizes": _2d_shape(h["candidate_effsizes"]),
-                "covariate_effsizes_se": _2d_shape(h["covariate_effsizes_se"]),
-                "candidate_effsizes_se": _2d_shape(h["candidate_effsizes_se"]),
-                "scale": float(h["scale"]),
-            }
+            return VariantResult(
+                lml=float(h.lml),
+                covariate_effsizes=_2d_shape(h.covariate_effsizes),
+                candidate_effsizes=_2d_shape(h.candidate_effsizes),
+                covariate_effsizes_se=_2d_shape(h.covariate_effsizes_se),
+                candidate_effsizes_se=_2d_shape(h.candidate_effsizes_se),
+                scale=float(h.scale),
+            )
 
-        r = {"idx": cand_idx, "h2": _normalize(h2)}
         if h1 is not None:
-            r["h1"] = _normalize(h1)
-
-        self._tests.append(r)
+            h1 = _normalize(h1)
+        self._tests.append(Result(idx=cand_idx, h1=h1, h2=_normalize(h2)))
 
     def create(self):
         return MTScanResult(

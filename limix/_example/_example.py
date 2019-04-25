@@ -72,7 +72,13 @@ def _download(url, filepath, hash):
     import limix
 
     local_filename = urlretrieve(url)[0]
-    os.rename(local_filename, filepath)
+    try:
+        os.rename(local_filename, filepath)
+    except OSError:
+        import shutil
+
+        shutil.move(local_filename, filepath)
+
     if limix.sh.filehash(filepath) != hash:
         raise RuntimeError("Hash does not match for file {}.".format(filepath))
 

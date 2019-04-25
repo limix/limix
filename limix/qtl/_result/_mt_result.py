@@ -61,10 +61,10 @@ class MTScanResult:
 
         h1 = []
         for i, test in enumerate(self._tests):
-            candidates = list(self._candidates[test["idx"]])
+            candidates = list(self._candidates[test.idx])
 
-            effsizes = test["h1"]["covariate_effsizes"]
-            effsizes_se = test["h1"]["covariate_effsizes_se"]
+            effsizes = test.h1.covariate_effsizes
+            effsizes_se = test.h1.covariate_effsizes_se
             for j, trait in enumerate(self._traits):
                 for l, c in enumerate(covariates):
                     eff = effsizes[l, j]
@@ -72,8 +72,8 @@ class MTScanResult:
                     v = [i, str(trait), "covariate", str(c), None, eff, eff_se]
                     h1.append(v)
 
-            effsizes = test["h1"]["candidate_effsizes"]
-            effsizes_se = test["h1"]["candidate_effsizes_se"]
+            effsizes = test.h1.candidate_effsizes
+            effsizes_se = test.h1.candidate_effsizes_se
             for j, e in enumerate(envs0):
                 for l, c in enumerate(candidates):
                     env_name = "env0_" + str(e)
@@ -103,10 +103,10 @@ class MTScanResult:
 
         h2 = []
         for i, test in enumerate(self._tests):
-            candidates = list(self._candidates[test["idx"]])
+            candidates = list(self._candidates[test.idx])
 
-            effsizes = test["h2"]["covariate_effsizes"]
-            effsizes_se = test["h2"]["covariate_effsizes_se"]
+            effsizes = test.h2.covariate_effsizes
+            effsizes_se = test.h2.covariate_effsizes_se
             for j, trait in enumerate(self._traits):
                 for l, c in enumerate(covariates):
                     eff = effsizes[l, j]
@@ -114,8 +114,8 @@ class MTScanResult:
                     v = [i, str(trait), "covariate", str(c), None, eff, eff_se]
                     h2.append(v)
 
-            effsizes = test["h2"]["candidate_effsizes"]
-            effsizes_se = test["h2"]["candidate_effsizes_se"]
+            effsizes = test.h2.candidate_effsizes
+            effsizes_se = test.h2.candidate_effsizes_se
             off = 0
             for j, e in enumerate(envs0):
                 for l, c in enumerate(candidates):
@@ -154,20 +154,20 @@ class MTScanResult:
 
         stats = []
         for i, test in enumerate(self._tests):
-            dof10 = test["h1"]["candidate_effsizes"].size
-            dof20 = test["h2"]["candidate_effsizes"].size
+            dof10 = test.h1.candidate_effsizes.size
+            dof20 = test.h2.candidate_effsizes.size
             dof21 = dof20 - dof10
             stats.append(
                 [
                     i,
                     self._h0.lml,
-                    test["h1"]["lml"],
-                    test["h2"]["lml"],
+                    test.h1.lml,
+                    test.h2.lml,
                     dof10,
                     dof20,
                     dof21,
-                    test["h1"]["scale"],
-                    test["h2"]["scale"],
+                    test.h1.scale,
+                    test.h2.scale,
                 ]
             )
 
@@ -196,10 +196,8 @@ class MTScanResult:
 
         stats = []
         for i, test in enumerate(self._tests):
-            dof20 = test["h2"]["candidate_effsizes"].size
-            stats.append(
-                [i, self._h0.lml, test["h2"]["lml"], dof20, test["h2"]["scale"]]
-            )
+            dof20 = test.h2.candidate_effsizes.size
+            stats.append([i, self._h0.lml, test.h2.lml, dof20, test.h2.scale])
 
         columns = ["test", "lml0", "lml2", "dof20", "scale2"]
         stats = DataFrame(stats, columns=columns)
