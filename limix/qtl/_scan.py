@@ -42,6 +42,7 @@ def scan(
 
     It supports generalized linear mixed models (GLMM) when a single trait is used.
     In this case, the following likelihoods are implemented:
+
     - Bernoulli
     - Probit
     - Binomial
