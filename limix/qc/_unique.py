@@ -24,13 +24,13 @@ def unique_variants(X):
         >>> N = 4
         >>> X = kron(random.randn(N, 3) < 0, ones((1, 2)))
         >>>
-        >>> print(X)
+        >>> print(X)  # doctest: +FLOAT_CMP
         [[0. 0. 1. 1. 1. 1.]
          [1. 1. 0. 0. 1. 1.]
          [0. 0. 1. 1. 0. 0.]
          [1. 1. 0. 0. 1. 1.]]
         >>>
-        >>> print(unique_variants(X))
+        >>> print(unique_variants(X))  # doctest: +FLOAT_CMP
         [[0. 1. 1.]
          [1. 1. 0.]
          [0. 0. 1.]

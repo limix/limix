@@ -37,7 +37,7 @@ def read(prefix, verbose=True):
         Sample_1  Sample_1  Sample_1         0         0      1    -9  0
         Sample_2  Sample_2  Sample_2         0         0      2    -9  1
         Sample_3  Sample_3  Sample_3  Sample_1  Sample_2      2    -9  2
-        >>> print(bed.compute())
+        >>> print(bed.compute())  # doctest: +FLOAT_CMP
         [[ 2.  2.  1.]
          [ 2.  1.  2.]
          [nan nan nan]
@@ -60,7 +60,7 @@ def read(prefix, verbose=True):
         >>> (bim, fam, bed) = plink.read(example_file_prefix(), verbose=False)
         >>> chrom1 = bim.query("chrom=='1'")
         >>> X = bed[chrom1.i.values, :].compute()
-        >>> print(X)
+        >>> print(X)  # doctest: +FLOAT_CMP
         [[ 2.  2.  1.]
          [ 2.  1.  2.]
          [nan nan nan]

@@ -33,7 +33,7 @@ def mean_standardize(X, axis=-1, inplace=False):
         >>> from numpy import arange
         >>>
         >>> X = arange(15).reshape((5, 3)).astype(float)
-        >>> print(X)
+        >>> print(X)  # doctest: +FLOAT_CMP
         [[ 0.  1.  2.]
          [ 3.  4.  5.]
          [ 6.  7.  8.]
@@ -41,7 +41,7 @@ def mean_standardize(X, axis=-1, inplace=False):
          [12. 13. 14.]]
         >>> X = arange(6).reshape((2, 3)).astype(float)
         >>> X = limix.qc.mean_standardize(X, axis=0)
-        >>> print(X) # doctest: +FLOAT_CMP
+        >>> print(X)  # doctest: +FLOAT_CMP
         [[-1.22474487  0.          1.22474487]
          [-1.22474487  0.          1.22474487]]
     """
