@@ -2,45 +2,38 @@ from __future__ import division
 
 
 def normalise_covariance(K, out=None):
-    r"""Variance rescaling of covariance matrix ``K``.
+    """
+    Variance rescaling of covariance matrix 𝙺.
 
-    Let :math:`n` be the number of rows (or columns) of ``K`` and let
-    :math:`m_i` be the average of the values in the i-th column.
+    Let n be the number of rows (or columns) of 𝙺 and let
+    mᵢ be the average of the values in the i-th column.
     Gower rescaling is defined as
 
     .. math::
 
-        \mathrm K \frac{n - 1}{\text{trace}(\mathrm K) - \sum m_i}.
-
-    It works well with `Dask`_ array as log as ``out`` is ``None``.
+        𝙺(n - 1)/(𝚝𝚛𝚊𝚌𝚎(𝙺) - ∑mᵢ).
 
     Notes
     -----
     The reasoning of the scaling is as follows.
-    Let :math:`\mathbf g` be a vector of :math:`n` independent samples and let
-    :math:`\mathrm C` be the Gower's centering matrix.
+    Let 𝐠 be a vector of n independent samples and let 𝙲 be the Gower's centering
+    matrix.
     The unbiased variance estimator is
 
     .. math::
-        v = \sum_i \frac{(g_i-\overline g)^2}{n-1}
-        =\frac{\mathrm{Tr}
-        [(\mathbf g-\overline g\mathbf 1)^t(\mathbf g-\overline g\mathbf 1)]}
-        {n-1}
-        = \frac{\mathrm{Tr}[\mathrm C\mathbf g\mathbf g^t\mathrm C]}{n-1}
 
-    Let :math:`\mathrm K` be the covariance matrix of :math:`\mathbf g`.
+        v = ∑ (gᵢ-ḡ)²/(n-1) = 𝚝𝚛𝚊𝚌𝚎((𝐠-ḡ𝟏)ᵀ(𝐠-ḡ𝟏))/(n-1) = 𝚝𝚛𝚊𝚌𝚎(𝙲𝐠𝐠ᵀ𝙲)/(n-1)
+
+    Let 𝙺 be the covariance matrix of 𝐠.
     The expectation of the unbiased variance estimator is
 
     .. math::
 
-        \mathbb E[v] =
-        \frac{\mathrm{Tr}[\mathrm C\mathbb E[\mathbf g\mathbf g^t]\mathrm C]}
-        {n-1}
-        = \frac{\mathrm{Tr}[\mathrm C\mathrm K\mathrm C]}{n-1}
+        𝐄[v] = 𝚝𝚛𝚊𝚌𝚎(𝙲𝐄[𝐠𝐠ᵀ]𝙲)/(n-1) = 𝚝𝚛𝚊𝚌𝚎(𝙲𝙺𝙲)/(n-1),
 
-    assuming that :math:`\mathbb E[g_i]=0`.
-    We thus divide :math:`\mathrm K` by :math:`\mathbb E[v]` to achieve the
-    desired normalisation.
+    assuming that 𝐄[gᵢ]=0.
+    We thus divide 𝙺 by 𝐄[v] to achieve an unbiased normalisation on the random variable
+    gᵢ.
 
     Parameters
     ----------
@@ -82,12 +75,11 @@ def normalise_covariance(K, out=None):
         trace = da.diag(K).sum()
     elif isinstance(K, xr.DataArray):
         trace = da.diag(K.data).sum()
-        pass
     else:
         K = asarray(K, float)
         trace = K.trace()
 
-    c = (K.shape[0] - 1) / (trace - K.mean(axis=0).sum())
+    c = asarray((K.shape[0] - 1) / (trace - K.mean(axis=0).sum()), float)
     if out is None:
         return K * c
 
