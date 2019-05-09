@@ -75,6 +75,7 @@ Quantitative trait loci
 
     limix.qtl.scan
     limix.qtl.iscan
+    limix.qtl.sscan
 
 Plotting & Graphics
 ===================
