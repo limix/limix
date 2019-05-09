@@ -16,6 +16,9 @@ The documentation can be found at https://limix.readthedocs.io.
 
 ## Install
 
+> **NOTE**: We will be maintaining limix 2.0.x for a while, in case you find some
+> missing feature in limix 3.0.x. If that is the case, please, type `pip install "limix <3,>=2"` in your terminal.
+
 Installation is easy and works on macOS, Linux, and Windows:
 
 ```bash
