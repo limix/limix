@@ -1,9 +1,8 @@
-from collections import OrderedDict
-
 from limix._display import session_line
 
-from .._data import conform_dataset
+from .._data import conform_dataset, _asarray
 from .._display import session_block
+from ._assert import assert_finite
 
 
 def sscan(G, y, E, M=None, idx=None, tests=None, verbose=True):
@@ -17,8 +16,22 @@ def sscan(G, y, E, M=None, idx=None, tests=None, verbose=True):
 
     .. math::
 
-        𝐲 = 𝙼𝛂 + 𝐠𝛃₀ + 𝐠⊙𝛃₁ + 𝐞 + 𝛆, ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
-        \text{where}~~ 𝛃₁∼𝓝(𝟎, 𝓋₀Σ),~~ 𝐞∼𝓝(𝟎, 𝓋₁Σ),~~\text{and}~~ 𝛆∼𝓝(𝟎, 𝓋₂𝙸).
+        𝐲 = 𝙼𝛂 + 𝐠𝛽₀ + 𝐠⊙𝛃₁ + 𝐞 + 𝛆, ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
+        \text{where}~~ 𝛃₁∼𝓝(𝟎, 𝓋₀Σ),~~ 𝐞∼𝓝(𝟎, 𝓋₁Σ),~~\text{and}~~ 𝛆∼𝓝(𝟎, 𝓋₂𝙸),
+
+    where 𝛽₀ denotes the effect size of a conventional persistent genetic effect
+    component and 𝛃₁ is a vector of per-individual effect sizes to account for
+    heterogeneous genetic effects. The same environmental covariance Σ is used to
+    account for genetic-environment interaction and for additive environmental effects.
+    Vector 𝐠 is the variant of interest to test for association and/or interaction.
+    The term 𝐠𝛽₀ represents the genetic effect, while term 𝐠⊙𝛃₁ represents the
+    genetic-environment interaction effect.
+    The parameters of the model are 𝛽₀, 𝛃₁, 𝓋₀, 𝓋₁, and 𝓋₂.
+
+    It performs score tests for association and interaction, respectively::
+
+    - H₀ vs H₁: testing for 𝛽₀ ≠ 0 while 𝛃₁ = 𝟎
+    - H₀ vs H₂: testing for [𝛽₀ 𝛃₁] ≠ 𝟎
 
     Parameters
     ----------
@@ -45,6 +58,8 @@ def sscan(G, y, E, M=None, idx=None, tests=None, verbose=True):
     ----------
     .. [MC18] Moore, R., Casale, F. P., Bonder, M. J., Horta, D., Franke, L., Barroso, I., & Stegle, O. (2018). A linear mixed-model approach to study multivariate gene–environment interactions (p. 1). Nature Publishing Group.
     """
+    # from numpy import asarray
+
     if tests is None:
         tests = set(["inter"])
     else:
@@ -53,47 +68,42 @@ def sscan(G, y, E, M=None, idx=None, tests=None, verbose=True):
     remain = tests - set(["inter", "assoc"])
     if len(remain) > 0:
         raise ValueError(f"Unrecognized test parameters: {remain}.")
-    # from struct_lmm import StructLMM
-    # from numpy import zeros, hstack, asarray
-    # from pandas import DataFrame
 
     # rhos = [0.0, 0.1 ** 2, 0.2 ** 2, 0.3 ** 2, 0.4 ** 2, 0.5 ** 2, 0.5, 1.0]
 
-    # with session_block("struct-lmm analysis", disable=not verbose):
+    with session_block("QTL analysis", disable=not verbose):
 
-    #     with session_line("Normalising input... ", disable=not verbose):
-    #         data = conform_dataset(y, M, G=G, K=None)
+        with session_line("Normalising input... ", disable=not verbose):
 
-    #     y = data["y"]
-    #     M = data["M"]
-    #     G = data["G"]
+            data = conform_dataset(y, M, G=G)
 
-    #     if tests is None:
-    #         tests = ["inter"]
+        y = data["y"]
+        M = data["M"]
+        G = data["G"]
+        K = data["K"]
 
-    #     if "inter" in tests:
-    #         slmi = StructLMM(asarray(y, float), E, W=E, rho_list=[0])
+        assert_finite(y, M, K)
 
-    #     if "assoc" in tests:
-    #         slmm = StructLMM(asarray(y, float), E, W=E, rho_list=rhos)
-    #         slmm.fit_null(F=asarray(M, float), verbose=False)
+        E = _asarray(E, "env", ["sample", "env"])
 
-    #     _pvi = zeros(G.shape[1])
-    #     _pva = zeros(G.shape[1])
-    #     for snp in range(G.shape[1]):
-    #         x = asarray(G[:, [snp]], float)
+        # if "inter" in tests:
+        #     slmi = StructLMM(asarray(y), E, W=E, rho_list=[0])
 
-    #         if "inter" in tests:
-    #             # interaction test
-    #             M1 = hstack((M, x))
-    #             slmi.fit_null(F=M1, verbose=False)
-    #             _pvi[snp] = slmi.score_2_dof(x)
+        # if "assoc" in tests:
+        #     slmm = StructLMM(asarray(y, float), E, W=E, rho_list=rhos)
+        #     slmm.fit_null(F=asarray(M, float), verbose=False)
 
-    #         if "assoc" in tests:
-    #             # association test
-    #             _pva[snp] = slmm.score_2_dof(x)
+        # _pvi = zeros(G.shape[1])
+        # _pva = zeros(G.shape[1])
+        # for snp in range(G.shape[1]):
+        #     x = asarray(G[:, [snp]], float)
 
-    # data = OrderedDict()
-    # data["pvi"] = _pvi
-    # data["pva"] = _pva
-    # return DataFrame(data)
+        #     if "inter" in tests:
+        #         # interaction test
+        #         M1 = hstack((M, x))
+        #         slmi.fit_null(F=M1, verbose=False)
+        #         _pvi[snp] = slmi.score_2_dof(x)
+
+        #     if "assoc" in tests:
+        #         # association test
+        #         _pva[snp] = slmm.score_2_dof(x)

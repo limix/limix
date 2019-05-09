@@ -36,6 +36,7 @@ def scan(
 
     It performs likelihood-ratio tests for the following cases, where the first
     hypothesis is the null one while the second hypothesis is the alternative one:
+
     - H₀ vs H₁: testing for vec(𝚩₀) ≠ 𝟎 while vec(𝚩₁) = 𝟎
     - H₀ vs H₂: testing for [vec(𝚩₀) vec(𝚩₁)] ≠ 𝟎
     - H₁ vs H₂: testing for vec(𝚩₁) ≠ 𝟎
