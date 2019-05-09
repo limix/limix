@@ -31,6 +31,11 @@ If you already have Limix but want to upgrade it to the latest version:
 pip install limix --upgrade
 ```
 
+## Interactive tutorials
+
+- [eQTL](https://mybinder.org/v2/gh/limix/limix-tutorials/master?filepath=eQTL.ipynb) (requires limix 2.0.x)
+- [Struct-LMM](https://mybinder.org/v2/gh/limix/limix-tutorials/master?filepath=struct-lmm.ipynb) (requires limix 2.0.x)
+
 ## Running tests
 
 After installation, you can test it
