@@ -7,8 +7,18 @@ from .._display import session_block
 
 
 def sscan(G, y, E, M=None, idx=None, tests=None, verbose=True):
-    """
+    r"""
     Structured linear mixed model that accounts for genotype-environment interactions.
+
+    StructLMM [MC18]_ extends the conventional linear mixed model by including an
+    additional per-individual effect term that accounts for genotype-environment
+    interaction, which can be represented as an n×1 vector, 𝛃₁.
+    The model can be cast as
+
+    .. math::
+
+        𝐲 = 𝙼𝛂 + 𝐠𝛃₀ + 𝐠⊙𝛃₁ + 𝐞 + 𝛆, ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
+        \text{where}~~ 𝛃₁∼𝓝(𝟎, 𝓋₀Σ),~~ 𝐞∼𝓝(𝟎, 𝓋₁Σ),~~\text{and}~~ 𝛆∼𝓝(𝟎, 𝓋₂𝙸).
 
     Parameters
     ----------
@@ -33,9 +43,7 @@ def sscan(G, y, E, M=None, idx=None, tests=None, verbose=True):
 
     References
     ----------
-    [MC18] Moore, R., Casale, F. P., Bonder, M. J., Horta, D., Franke, L., Barroso, I.,
-           & Stegle, O. (2018). A linear mixed-model approach to study multivariate
-           gene–environment interactions (p. 1). Nature Publishing Group.
+    .. [MC18] Moore, R., Casale, F. P., Bonder, M. J., Horta, D., Franke, L., Barroso, I., & Stegle, O. (2018). A linear mixed-model approach to study multivariate gene–environment interactions (p. 1). Nature Publishing Group.
     """
     if tests is None:
         tests = set(["inter"])
