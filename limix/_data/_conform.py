@@ -147,7 +147,7 @@ def to_dataarray(x):
         x = x0
 
     if not isinstance(x, xr.DataArray):
-        x = xr.DataArray(x, encoding={"dtype": "float64"})
+        x = xr.DataArray(x)
 
     if x.dtype != dtype("float64"):
         x = x.astype("float64")
@@ -173,7 +173,6 @@ def _default_covariates(samples):
     M = ones((samples.size, 1))
     M = DataArray(
         M,
-        encoding={"dtype": "float64"},
         dims=["sample", "covariate"],
         coords={"sample": samples, "covariate": asarray(["offset"], dtype=object)},
     )
