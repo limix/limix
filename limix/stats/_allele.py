@@ -105,7 +105,7 @@ def allele_expectation(p, nalleles, ploidy):
     ...     bgen = read_bgen(filepath, verbose=False)
     ...
     ...     locus = bgen["variants"].query("rsid == '{}'".format(rsid)).index.item()
-    ...     sample = bgen["samples"].to_frame().query("id == '{}'".format(sampleid)).index
+    ...     sample = bgen["samples"].query("id == '{}'".format(sampleid)).index
     ...     sample = sample[0]
     ...
     ...     nalleles = bgen["variants"].loc[locus]["nalleles"]
