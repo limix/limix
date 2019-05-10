@@ -104,7 +104,7 @@ def allele_expectation(p, nalleles, ploidy):
     >>> with example_files("example.32bits.bgen") as filepath:
     ...     bgen = read_bgen(filepath, verbose=False)
     ...
-    ...     locus = bgen["variants"].query("rsid == '{}'".format(rsid)).index.compute().item()
+    ...     locus = bgen["variants"].query("rsid == '{}'".format(rsid)).index.item()
     ...     sample = bgen["samples"].to_frame().query("id == '{}'".format(sampleid)).index
     ...     sample = sample[0]
     ...
