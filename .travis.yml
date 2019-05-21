@@ -26,5 +26,5 @@ deploy:
   on:
     tags: true
     repo: limix/limix
-    branch: master
+    branch: 2.0.x
     python: 3.6
