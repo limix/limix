@@ -33,7 +33,7 @@ from ._cli import cli
 from ._config import config
 from ._testit import test
 
-__version__ = "2.0.5"
+__version__ = "2.0.6"
 
 
 __all__ = [
