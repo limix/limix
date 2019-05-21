@@ -12,7 +12,9 @@ It includes methods for
 - Association and interaction set tests
 - Different utils for statistical analysis, basic i/o, and plotting.
 
-The documentation can be found at https://limix.readthedocs.io.
+We have an extensive [documentation](https://limix.readthedocs.io) of the library.
+If you need further help or want to discuss anything related to limix, please, join our [forum](https://forum.limix.io/) 💬 we have a chat with us 😃.
+In case you have found a bug, please, report it creating an [issue](https://github.com/limix/limix/issues/new).
 
 ## Install
 
