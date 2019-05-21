@@ -9,6 +9,7 @@ CONF = {
             "covariate",
             "inter0",
             "inter1",
+            "env",
             "env0",
             "env1",
         ]
@@ -40,6 +41,7 @@ CONF = {
         "covariance": ["sample_0", "sample_1"],
         "inter0": ["sample", "inter"],
         "inter1": ["sample", "inter"],
+        "env": ["sample", "env"],
         "env0": ["sample", "env"],
         "env1": ["sample", "env"],
     },
