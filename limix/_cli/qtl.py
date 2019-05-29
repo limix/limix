@@ -1,11 +1,10 @@
 import click
 
-from .scan import scan
+from .qtl_scan import scan
 
 
 # @click.command(cls=OrderedCommand)
 @click.group()
-@click.pass_context
 # @click.option(
 #     "--model",
 #     help=("Specify the statistical model to perform the scan."),
@@ -20,8 +19,10 @@ from .scan import scan
 #     ),
 #     default="normal",
 # )
-def qtl(ctx):
-    """ Perform genome-wide association scan. """
+def qtl():
+    """
+    Perform genome-wide association scan.
+    """
     pass
 
 

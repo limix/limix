@@ -202,9 +202,11 @@ PLINK reader
 
 .. doctest::
 
-    >>> from pandas_plink import example_file_prefix
+    >>> from os.path import join
+    >>> from pandas_plink import get_data_folder
     >>>
-    >>> (bim, fam, bed) = limix.io.plink.read(example_file_prefix(), verbose=False)
+    >>> (bim, fam, bed) = limix.io.plink.read(join(get_data_folder(), "data"),
+    ...                                       verbose=False)
     >>> print(bim.head())
                chrom         snp       cm    pos a0 a1  i
     candidate
@@ -214,11 +216,11 @@ PLINK reader
     rs2691310      1   rs2691310  0.00000  46844  A  T  3
     rs4030303      1   rs4030303  0.00000  72434  0  G  4
     >>> print(fam.head())
-                   fid       iid    father    mother gender trait  i
-    sample
-    Sample_1  Sample_1  Sample_1         0         0      1    -9  0
-    Sample_2  Sample_2  Sample_2         0         0      2    -9  1
-    Sample_3  Sample_3  Sample_3  Sample_1  Sample_2      2    -9  2
+                   fid       iid    father    mother gender    trait  i
+    sample                                                             
+    Sample_1  Sample_1  Sample_1         0         0      1 -9.00000  0
+    Sample_2  Sample_2  Sample_2         0         0      2 -9.00000  1
+    Sample_3  Sample_3  Sample_3  Sample_1  Sample_2      2 -9.00000  2
     >>> print(bed.compute())
     [[ 2.  2.  1.]
      [ 2.  1.  2.]

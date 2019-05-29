@@ -1,17 +1,17 @@
 import click
-
-import limix
+from ._misc import verbose_option
 
 
 @click.command()
-@click.pass_context
 @click.argument("url")
 @click.option(
-    "--dest", help="Destination path.", default=None, type=click.Path(exists=True)
+    "--dest", help="Destination folder.", default=None, type=click.Path(exists=True)
 )
-@click.option(
-    "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
-)
-def download(ctx, url, dest, verbose):
-    """Download file from the specified URL."""
+@verbose_option
+def download(url, dest, verbose):
+    """
+    Download file from the specified URL.
+    """
+    import limix
+
     limix.sh.download(url, dest=dest, verbose=verbose)

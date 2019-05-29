@@ -100,9 +100,9 @@ def sscan(G, y, E, M=None, idx=None, tests=None, verbose=True):
                 M1 = hstack((M, x))
                 slmi = StructLMM(y, M1, E)
                 slmi.fit(verbose=False)
-                _pvi[snp] = slmi.score_2_dof_inter(x)
+                _pvi[snp] = slmi.score_2dof_inter(x)
 
             if "assoc" in tests:
-                _pva[snp] = slmm.score_2_dof_assoc(x)
+                _pva[snp] = slmm.score_2dof_assoc(x)
 
     return _pvi, _pva

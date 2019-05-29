@@ -1,11 +1,11 @@
 import click
 
 import limix
+from ._misc import verbose_option
 
 
 @click.command()
-@click.pass_context
-@click.argument("filepath")
+@click.argument("filepath", type=click.Path(exists=False))
 @click.option(
     "--show_chunks",
     help="Chunks if datasets will be displayed, if available.",
@@ -16,12 +16,12 @@ import limix
     help="Parse header from CSV file. Defaults to false.",
     default=False,
 )
-@click.option(
-    "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
-)
-def see(ctx, filepath, show_chunks, header, verbose):
+@verbose_option
+def see(filepath, show_chunks, header, verbose):
     """
-    Show an overview of multiple file types.
+    Show an overview of file or group of files.
+
+    It supports HDF5, CSV,
     """
     from limix.io._fetch import parse_fetch_spec
 
@@ -40,6 +40,11 @@ def see(ctx, filepath, show_chunks, header, verbose):
 
     elif filetype == "csv":
         limix.io.csv._see(filepath, verbose=verbose, header=header)
+
+    elif filetype == "plink2-rel":
+        raise NotImplementedError
+        # limix.io.plink._see_rel(filepath + ".rel", filepath + ".rel", verbose)
+        # limix.plot.show()
 
     elif filetype == "grm.raw":
         limix.io.plink._see_kinship(filepath, verbose)

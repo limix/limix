@@ -1,6 +1,6 @@
 import click
 
-from ._click import OrderedCommand
+from ._misc import OrderedCommand, verbose_option
 
 
 @click.command(cls=OrderedCommand)
@@ -66,9 +66,7 @@ from ._click import OrderedCommand
 @click.option(
     "--output-dir", help="Specify the output directory path.", default="output"
 )
-@click.option(
-    "--verbose/--quiet", "-v/-q", help="Enable or disable verbose mode.", default=True
-)
+@verbose_option
 @click.option(
     "--dry-run/--no-dry-run",
     help="Perform a trial run with no scan taking place.",
@@ -77,7 +75,8 @@ from ._click import OrderedCommand
 def scan(
     ctx, trait, genotype, covariate, kinship, lik, output_dir, verbose, dry_run, **_
 ):
-    """ Single-variant association testing via mixed models.
+    """
+    Multi-trait association and interaction testing via LMMs.
 
     This analysis requires minimally the specification of one phenotype
     (PHENOTYPES_FILE) and genotype data (GENOTYPE_FILE).
