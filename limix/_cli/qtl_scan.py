@@ -10,6 +10,9 @@ from ._input import ProcessInputData
 @click.option("--fam", help="FAM file.", default=None)
 @click.option("--bim", help="BIM file.", default=None)
 @click.option("--grm", help="GRM file.", default=None)
+@click.option("--rel", help="REL file.", default=None)
+@click.option("--pheno", help="Phenotype file.", default=None)
+@click.option("--bfile", help="BED/FAM/BIM files prefix.", default=None)
 @verbose_option
 # @click.option(
 #     "--dry-run/--no-dry-run",
@@ -35,15 +38,17 @@ def scan(ctx, **_):
     print("Kinship")
     print(p.input_data.kinship)
 
-    for y in p.input_data.phenotypes:
-        print("Trait {}".format(y.name))
-        data = {
-            "y": y,
-            "M": p.input_data.covariates,
-            "K": p.input_data.kinship,
-            "G": p.input_data.genotype,
-        }
-        breakpoint()
-        with session_line("Matching samples... "):
-            data = conform_dataset(**data)
-        data = {k: v for k, v in data.items() if v is not None}
+    print("Trait")
+    print(p.input_data.phenotypes)
+
+    # for y in p.input_data.phenotypes:
+    #     print("Trait {}".format(y.name))
+    #     data = {
+    #         "y": y,
+    #         "M": p.input_data.covariates,
+    #         "K": p.input_data.kinship,
+    #         "G": p.input_data.genotype,
+    #     }
+    #     with session_line("Matching samples... "):
+    #         data = conform_dataset(**data)
+    #     data = {k: v for k, v in data.items() if v is not None}

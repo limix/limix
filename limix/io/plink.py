@@ -92,6 +92,20 @@ def read(prefix, verbose=True):
     return data
 
 
+def read_pheno(filepath):
+    from numpy import atleast_2d, asarray
+    from os.path import basename, splitext
+    from xarray import DataArray
+    from .csv import read
+
+    y = read(filepath, header=None, verbose=False)
+    sample_ids = y.iloc[:, 1].tolist()
+    name = splitext(basename(filepath))[0]
+    y = atleast_2d(asarray(y.iloc[:, 2].values, float)).T
+    y = DataArray(y, dims=["sample", "trait"], coords=[sample_ids, [name]])
+    return y
+
+
 def _read_dosage(prefix, verbose):
     from pandas_plink import read_plink
 

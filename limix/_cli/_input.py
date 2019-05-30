@@ -12,6 +12,9 @@ class InputData:
         }
 
     def process_plink1(self, params):
+        if params[0][0] == "bfile":
+            self._process_plink1_bfile(params[0][1])
+            return params[1:]
         exts = set(["bim", "fam", "bed"])
         wanted = [x for x in params if x[0] in exts]
 
@@ -31,6 +34,11 @@ class InputData:
 
         return remain
 
+    def _process_plink1_bfile(self, bfile_prefix):
+        from pandas_plink import read_plink1_bin
+
+        self._types["genotype-matrix"] = read_plink1_bin(bfile_prefix + ".bed")
+
     def _read_plink1_bin(self, bed, bim, fam):
         from pandas_plink import read_plink1_bin
 
@@ -48,23 +56,25 @@ class InputData:
         self._types["phenotype-matrices"].append(y)
 
     def process_grm(self, filespec):
-        from xarray import DataArray
-        from numpy import loadtxt
+        from pandas_plink import read_grm
 
-        filespec = filespec.split(":")
+        self._types["kinship-matrix"] = read_grm(filespec)
 
-        if len(filespec) == 1:
-            filespec.append("unknown")
+    def process_rel(self, filespec):
+        from pandas_plink import read_rel
 
-        if len(filespec) > 2:
-            raise ValueError()
+        self._types["kinship-matrix"] = read_rel(filespec)
 
-        K = DataArray(loadtxt(filespec[0]), dims=["sample_0", "sample_1"])
-        self._types["kinship-matrix"] = K
+    def process_pheno(self, filespec):
+        from limix.io import plink
+
+        self._types["phenotype-matrices"].append(plink.read_pheno(filespec))
 
     @property
     def phenotypes(self):
-        return self._types["phenotype-matrices"]
+        from xarray import concat
+
+        return concat(self._types["phenotype-matrices"], dim="trait")
 
     @property
     def covariates(self):
@@ -95,6 +105,8 @@ class ProcessInputData:
         while len(params) > 0:
             if params[0][0] == "grm":
                 self._input_data.process_grm(params[0][1])
+            elif params[0][0] == "rel":
+                self._input_data.process_rel(params[0][1])
             else:
                 remain.append(params[0])
             del params[0]
@@ -118,7 +130,18 @@ class ProcessInputData:
         pass
 
     def _look_for_phenotypes(self):
-        pass
+
+        remain = []
+        params = self._params
+
+        while len(params) > 0:
+            if params[0][0] == "pheno":
+                self._input_data.process_pheno(params[0][1])
+            else:
+                remain.append(params[0])
+            del params[0]
+
+        self._params = remain
 
     @property
     def input_data(self):
@@ -126,7 +149,7 @@ class ProcessInputData:
 
 
 def _is_plink1_bin_option(param):
-    return param[0] in set(["bim", "fam", "bed"])
+    return param[0] in set(["bim", "fam", "bed", "bfile"])
 
 
 def _bed_option(filepath, **_):
