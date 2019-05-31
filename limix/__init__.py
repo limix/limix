@@ -22,10 +22,8 @@ __all__ = [
     "cli",
     "config",
     "file_example",
-    "gwas",
     "her",
     "io",
-    "main",
     "plot",
     "qc",
     "qtl",
@@ -34,5 +32,4 @@ __all__ = [
     "test",
     "threads",
     "vardec",
-    "model",
 ]

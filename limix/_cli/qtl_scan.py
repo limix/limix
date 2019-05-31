@@ -1,33 +1,37 @@
 import click
 
-from ._misc import OrderedCommand, verbose_option, ordered_params
-from ._input import ProcessInputData
+from ._click import limix_command
+from ._input import InputData
+from ._misc import OrderedCommand, ordered_params, verbose_option
 
 
-@click.command(cls=OrderedCommand)
+@click.command(cls=limix_command([("bed", "fam", "bim")]))
 @click.pass_context
+@click.option("--pheno", help="Phenotype file.", default=None)
+@click.option("--bfile", help="BED/FAM/BIM files prefix.", default=None)
 @click.option("--bed", help="BED file.", default=None)
 @click.option("--fam", help="FAM file.", default=None)
 @click.option("--bim", help="BIM file.", default=None)
 @click.option("--grm", help="GRM file.", default=None)
 @click.option("--rel", help="REL file.", default=None)
-@click.option("--pheno", help="Phenotype file.", default=None)
-@click.option("--bfile", help="BED/FAM/BIM files prefix.", default=None)
 @verbose_option
 # @click.option(
 #     "--dry-run/--no-dry-run",
 #     help="Perform a trial run with no scan taking place.",
 #     default=False,
 # )
-def scan(ctx, **_):
-    from limix._display import session_line
-    from limix._data import conform_dataset
+def scan(ctx, pheno, bfile, bed, fam, bim, grm, rel, verbose):
+    # if ctx.obj is None:
+    #     ctx.obj = {"preprocess": []}
 
-    if ctx.obj is None:
-        ctx.obj = {"preprocess": []}
-
-    params = ordered_params(ctx)
-    p = ProcessInputData(params)
+    # params = ordered_params(ctx)
+    return
+    p = InputData()
+    p.set_pheno(pheno)
+    p.set_bfile(bfile)
+    p.set_bed(bed, fam, bim)
+    p.set_grm(grm)
+    p.set_rel(rel)
 
     print("Covariates")
     print(p.input_data.covariates)
