@@ -85,7 +85,7 @@ for which
 
     𝐯 ∼ 𝓝(𝟎, 𝓋₀𝚇𝚇ᵀ) ~~\text{and}~~ 𝛆 ∼ 𝓝(𝟎, 𝓋₁𝙸₁).
 
-Therefore we have a model with three parameters: an array of effect sizes 𝛃 and
+Therefore we have a model with three parameters: an array of effect sizes 𝛂 and
 variances 𝓋₀ and 𝓋₁. If 𝚇 contains the normalized SNP genotypes of the samples, 𝚇𝚇ᵀ is
 an estimation of the genetic relationship between the samples [Wa17]_.
 
