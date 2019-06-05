@@ -6,7 +6,9 @@ from ._input import InputData
 from ._misc import OrderedCommand, ordered_params, verbose_option
 
 
-@click.command(cls=limix_command([("bed", "fam", "bim")]))
+@click.command(
+    cls=limix_command(jointly=[("bed", "fam", "bim")], either=[("grm", "rel")])
+)
 @click.pass_context
 @click.option("--pheno", help="Phenotype file.", default=None, type=Path(exists=True))
 @click.option("--bfile", help="BED/FAM/BIM files prefix.", default=None)
