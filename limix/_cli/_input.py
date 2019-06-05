@@ -1,5 +1,6 @@
-from click import UsageError
 import os
+
+from click import UsageError
 
 
 class InputData:
@@ -11,35 +12,17 @@ class InputData:
             "kinship-matrix": None,
         }
 
-    def process_plink1(self, params):
-        if params[0][0] == "bfile":
-            self._process_plink1_bfile(params[0][1])
-            return params[1:]
-        exts = set(["bim", "fam", "bed"])
-        wanted = [x for x in params if x[0] in exts]
+    def set_pheno(self, filepath):
+        from limix.io import plink
 
-        if len([w[0] for w in wanted]) > len(set([w[0] for w in wanted])):
-            msg = "The --bim, --fam, and --bed options cannot be repeated."
-            raise UsageError(msg)
+        self._types["phenotype-matrices"].append(plink.read_pheno(filepath))
 
-        if len(wanted) < len(exts):
-            msg = "If you define one of the --bim, --fam, and --bed options, you"
-            msg += " must also define the other two."
-            raise UsageError(msg)
-
-        wanted = dict(wanted)
-        self._read_plink1_bin(wanted["bed"], wanted["bim"], wanted["fam"])
-
-        remain = [x for x in params if x[0] not in exts]
-
-        return remain
-
-    def _process_plink1_bfile(self, bfile_prefix):
+    def set_bfile(self, filepath):
         from pandas_plink import read_plink1_bin
 
-        self._types["genotype-matrix"] = read_plink1_bin(bfile_prefix + ".bed")
+        self._types["genotype-matrix"] = read_plink1_bin(filepath + ".bed")
 
-    def _read_plink1_bin(self, bed, bim, fam):
+    def set_bed(self, bed, bim, fam):
         from pandas_plink import read_plink1_bin
 
         G = read_plink1_bin(bed, bim, fam, verbose=False)
@@ -55,24 +38,22 @@ class InputData:
         y.name = os.path.basename(fam) + "_trait"
         self._types["phenotype-matrices"].append(y)
 
-    def process_grm(self, filespec):
-        from pandas_plink import read_grm
-
-        self._types["kinship-matrix"] = read_grm(filespec)
-
-    def process_rel(self, filespec):
+    def set_rel(self, filespec):
         from pandas_plink import read_rel
 
         self._types["kinship-matrix"] = read_rel(filespec)
 
-    def process_pheno(self, filespec):
-        from limix.io import plink
+    def set_grm(self, filepath):
+        from pandas_plink import read_grm
 
-        self._types["phenotype-matrices"].append(plink.read_pheno(filespec))
+        self._types["kinship-matrix"] = read_grm(filepath)
 
     @property
     def phenotypes(self):
         from xarray import concat
+
+        if len(self._types["phenotype-matrices"]) == 0:
+            return None
 
         return concat(self._types["phenotype-matrices"], dim="trait")
 

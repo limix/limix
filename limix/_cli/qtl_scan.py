@@ -1,4 +1,5 @@
 import click
+from click import Path
 
 from ._click import limix_command
 from ._input import InputData
@@ -7,13 +8,13 @@ from ._misc import OrderedCommand, ordered_params, verbose_option
 
 @click.command(cls=limix_command([("bed", "fam", "bim")]))
 @click.pass_context
-@click.option("--pheno", help="Phenotype file.", default=None)
+@click.option("--pheno", help="Phenotype file.", default=None, type=Path(exists=True))
 @click.option("--bfile", help="BED/FAM/BIM files prefix.", default=None)
-@click.option("--bed", help="BED file.", default=None)
-@click.option("--fam", help="FAM file.", default=None)
-@click.option("--bim", help="BIM file.", default=None)
-@click.option("--grm", help="GRM file.", default=None)
-@click.option("--rel", help="REL file.", default=None)
+@click.option("--bed", help="BED file.", default=None, type=Path(exists=True))
+@click.option("--fam", help="FAM file.", default=None, type=Path(exists=True))
+@click.option("--bim", help="BIM file.", default=None, type=Path(exists=True))
+@click.option("--grm", help="GRM file.", default=None, type=Path(exists=True))
+@click.option("--rel", help="REL file.", default=None, type=Path(exists=True))
 @verbose_option
 # @click.option(
 #     "--dry-run/--no-dry-run",
@@ -25,25 +26,39 @@ def scan(ctx, pheno, bfile, bed, fam, bim, grm, rel, verbose):
     #     ctx.obj = {"preprocess": []}
 
     # params = ordered_params(ctx)
-    return
     p = InputData()
-    p.set_pheno(pheno)
-    p.set_bfile(bfile)
-    p.set_bed(bed, fam, bim)
-    p.set_grm(grm)
-    p.set_rel(rel)
+    if pheno is not None:
+        p.set_pheno(pheno)
 
-    print("Covariates")
-    print(p.input_data.covariates)
+    if bfile is not None:
+        p.set_bfile(bfile)
 
-    print("Genotype")
-    print(p.input_data.genotype)
+    if bed is not None:
+        p.set_bed(bed, fam, bim)
 
-    print("Kinship")
-    print(p.input_data.kinship)
+    if grm is not None:
+        p.set_grm(grm)
 
-    print("Trait")
-    print(p.input_data.phenotypes)
+    if rel is not None:
+        p.set_rel(rel)
+
+    # print("Covariates")
+    # print(p.input_data.covariates)
+
+    # print("Genotype")
+    # print(p.input_data.genotype)
+
+    # print("Kinship")
+    # print(p.input_data.kinship)
+
+    # print("Trait")
+    # print(p.input_data.phenotypes)
+
+    if p.phenotypes is None:
+        raise click.UsageError("No phenotype has been specified.")
+
+    if p.genotype is None:
+        raise click.UsageError("No variant has been specified.")
 
     # for y in p.input_data.phenotypes:
     #     print("Trait {}".format(y.name))
