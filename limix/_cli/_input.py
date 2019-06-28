@@ -3,7 +3,11 @@ import os
 from click import UsageError
 
 
-class InputData:
+class QTLInputData:
+    """
+    Store user-provided, command-line input for QTL analysis.
+    """
+
     def __init__(self):
         self._types = {
             "phenotype-matrices": [],
@@ -12,10 +16,22 @@ class InputData:
             "kinship-matrix": None,
         }
 
+    def set_opt(self, opt, **kwargs):
+        {
+            "pheno": self.set_pheno,
+            "bfile": self.set_bfile,
+            "bed": self._set_bed,
+            "grm": self.set_grm,
+            "rel": self.set_rel,
+        }[opt](**kwargs)
+
     def set_pheno(self, filepath):
         from limix.io import plink
 
-        self._types["phenotype-matrices"].append(plink.read_pheno(filepath))
+        y = plink.read_pheno(filepath)
+        y.name = _trait_name_from_filepath(filepath)
+
+        self._types["phenotype-matrices"].append(y)
 
     def set_bfile(self, filepath):
         from pandas_plink import read_plink1_bin
@@ -35,7 +51,7 @@ class InputData:
         for field in [f for f in y.coords.keys() if f != y.dims[0]]:
             del y[field]
 
-        y.name = os.path.basename(fam) + "_trait"
+        y.name = _trait_name_from_filepath(fam)
         self._types["phenotype-matrices"].append(y)
 
     def set_rel(self, filespec):
@@ -137,3 +153,7 @@ def _bed_option(filepath, **_):
     from limix.io.plink import _read_bed
 
     return _read_bed(filepath)
+
+
+def _trait_name_from_filepath(filepath):
+    return os.path.splitext(os.path.basename(filepath))[0] + "_trait"
