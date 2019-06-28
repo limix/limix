@@ -51,3 +51,17 @@ class STSimpleModelResult:
         df1 = DataFrame(variances, columns=columns)
 
         return {"effsizes": df0, "variances": df1}
+
+    def to_csv(self, effsizes_path_or_buf, variances_path_or_buf):
+        """
+        Save results to comma-separated values (csv) files.
+
+        Parameters
+        ----------
+        effsizes_path_or_buf : str, file handle
+            File path or object for saving effect-sizes.
+        variances_path_or_buf : str, file handle
+            File path or object for saving variances.
+        """
+        self.effsizes.to_csv(effsizes_path_or_buf)
+        self.variances.to_csv(variances_path_or_buf)

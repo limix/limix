@@ -146,6 +146,31 @@ class STScanResult:
         msg += draw_lrt_table(["𝓗₀ vs 𝓗₂"], [f"pv20"], stats)
         return msg
 
+    def to_csv(
+        self,
+        effsizes_path_or_buf,
+        variances_path_or_buf,
+        h2_effsizes_path_or_buf,
+        stats_path_or_buf,
+    ):
+        """
+        Save results to comma-separated values (csv) files.
+
+        Parameters
+        ----------
+        effsizes_path_or_buf : str, file handle
+            File path or object for saving effect-sizes of H₀.
+        variances_path_or_buf : str, file handle
+            File path or object for saving variances of H₀.
+        h2_path_or_buf : str, file handle
+            File path or object for saving effect-sizes of H₂.
+        stats_path_or_buf: str, file handle
+            File path or object for saving statistics.
+        """
+        self.h0.to_csv(effsizes_path_or_buf, variances_path_or_buf)
+        self.effsizes["h2"].to_csv(h2_effsizes_path_or_buf)
+        self.stats.to_csv(stats_path_or_buf)
+
 
 def _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml):
     aligned = Aligned()
