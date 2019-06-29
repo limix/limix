@@ -16,10 +16,10 @@ from ._misc import OrderedCommand, ordered_params, verbose_option
     default="st",
     type=click.Choice(["st", "mt", "struct"]),
 )
-@click.option("--pheno", help="Phenotype file.", default=None, type=Path(exists=True))
+@click.option("--trait", help="Trait file.", default=None, type=Path(exists=True))
 @click.option(
-    "--pheno-name",
-    help="Comma-separated phenotype names to be used in the analysis. It defaults to use all loaded phenotypes.",
+    "--trait-name",
+    help="Comma-separated trait names to be used. It defaults to use all traits.",
     default=None,
 )
 @click.option("--bfile", help="BED/FAM/BIM files prefix.", default=None)
@@ -36,7 +36,7 @@ from ._misc import OrderedCommand, ordered_params, verbose_option
 #     default=False,
 # )
 def scan(
-    ctx, method, pheno, pheno_name, bfile, bed, fam, bim, grm, rel, outdir, verbose
+    ctx, method, trait, trait_name, bfile, bed, fam, bim, grm, rel, outdir, verbose
 ):
     from os.path import join, abspath, exists
     from os import makedirs
@@ -50,15 +50,15 @@ def scan(
 
     with session_block("Input reading"):
         p = QTLInputData()
-        p.set_opt("pheno", filepath=pheno)
-        p.set_opt("pheno-name", pheno_name=pheno_name)
+        p.set_opt("trait", filepath=trait)
+        p.set_opt("trait-name", trait_name=trait_name)
         p.set_opt("bfile", bfile_prefix=bfile)
         p.set_opt("bed", bed_filepath=bed, fam_filepath=fam, bim_filepath=bim)
         p.set_opt("grm", filepath=grm)
         p.set_opt("rel", filepath=rel)
 
-        if p.phenotypes is None:
-            raise click.UsageError("no phenotype has been specified.")
+        if p.traits is None:
+            raise click.UsageError("no trait has been specified.")
 
         if p.genotype is None:
             raise click.UsageError("no variant has been specified.")
@@ -80,7 +80,7 @@ def _single_trait(input, verbose):
     import limix
     from limix._data import conform_dataset
 
-    Y = input.phenotypes.T
+    Y = input.traits.T
     covariates = input.covariates
     kinship = input.kinship
     genotype = input.genotype
