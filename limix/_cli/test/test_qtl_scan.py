@@ -32,14 +32,14 @@ def test_cli_qtl_scan():
         result = invoke(
             cli, ["qtl", "scan", "--bfile", "plink", "--pheno", "example.pphe"]
         )
-        assert_equal(result.exit_code, 0)
+        assert_equal(result.exit_code, 1)
 
         result = invoke(cli, ["qtl", "scan", "--pheno", "example.pphe"])
-        assert_equal("Error: No variant has been specified." in result.stdout, True)
+        assert_equal("Error: no variant has been specified." in result.stdout, True)
         assert_equal(result.exit_code, 2)
 
         result = invoke(cli, ["qtl", "scan", "--bfile", "plink"])
-        assert_equal("Error: No phenotype has been specified." in result.stdout, True)
+        assert_equal("Error: no phenotype has been specified." in result.stdout, True)
         assert_equal(result.exit_code, 2)
 
         download("http://rest.s3for.me/limix/rel/plink2.rel.bin", verbose=False)
@@ -69,3 +69,21 @@ def test_cli_qtl_scan():
             True,
         )
         assert_equal(result.exit_code, 1)
+        download("http://rest.s3for.me/limix/example2.pphe", verbose=False)
+        result = invoke(
+            cli,
+            [
+                "qtl",
+                "scan",
+                "--bfile",
+                "plink",
+                "--pheno",
+                "example2.pphe",
+                "--method=st",
+                "--pheno-name",
+                "pinto,pepeca",
+            ],
+        )
+        ok = "Error: not all specified phenotypes have been found." in result.stdout
+        assert_equal(ok, True)
+        assert_equal(result.exit_code, 2)

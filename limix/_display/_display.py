@@ -62,7 +62,9 @@ class session_line(object):
 
 
 class session_block(object):
-    """Print session block: session start and session end."""
+    """
+    Print session block: session start and session end.
+    """
 
     def __init__(self, session_name, disable=False):
         self._session_name = session_name
@@ -71,7 +73,7 @@ class session_block(object):
 
     def __enter__(self):
         self._start = time()
-        msg = " {} session starts ".format(self._session_name)
+        msg = " {} starts ".format(self._session_name)
         if not self._disable:
             msg = wrap_text(msg, width())
             pprint(bold(blue(msg)))
@@ -81,10 +83,10 @@ class session_block(object):
         fail = exception_type is not None
 
         if fail:
-            msg = " {} session fails in {:.2f} seconds "
+            msg = " {} fails in {:.2f} seconds "
             color = red
         else:
-            msg = " {} session ends in {:.2f} seconds "
+            msg = " {} ends in {:.2f} seconds "
             color = blue
 
         msg = msg.format(self._session_name, elapsed)
@@ -96,3 +98,16 @@ class session_block(object):
 def indent(txt, size=2):
     space = " " * size
     return space + ("\n" + space).join(txt.split("\n"))
+
+
+def summarize_list_repr(x, n):
+    x = list(x)
+    if len(x) <= n:
+        return str(x)
+    if n < 1:
+        raise ValueError("`n` must be greater than `0` for non-empty lists.")
+    if n == 1:
+        return "[...]"
+    if n == 2:
+        return "[..., " + str(x[-1:])[1:]
+    return str(x[: n - 2])[:-1] + ", ..., " + str(x[-1:])[1:]

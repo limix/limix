@@ -15,33 +15,50 @@ class QTLInputData:
             "genotype-matrix": None,
             "kinship-matrix": None,
         }
+        self._pheno_names = None
 
     def set_opt(self, opt, **kwargs):
         {
-            "pheno": self.set_pheno,
-            "bfile": self.set_bfile,
+            "pheno": self._set_pheno,
+            "pheno-name": self._set_pheno_name,
+            "bfile": self._set_bfile,
             "bed": self._set_bed,
-            "grm": self.set_grm,
-            "rel": self.set_rel,
+            "grm": self._set_grm,
+            "rel": self._set_rel,
         }[opt](**kwargs)
 
-    def set_pheno(self, filepath):
+    def _set_pheno(self, filepath):
         from limix.io import plink
+
+        if filepath is None:
+            return
 
         y = plink.read_pheno(filepath)
         y.name = _trait_name_from_filepath(filepath)
 
         self._types["phenotype-matrices"].append(y)
 
-    def set_bfile(self, filepath):
+    def _set_pheno_name(self, pheno_name):
+        if pheno_name is None:
+            self._pheno_names = None
+        else:
+            self._pheno_names = [n.strip() for n in pheno_name.split(",")]
+
+    def _set_bfile(self, bfile_prefix):
         from pandas_plink import read_plink1_bin
 
-        self._types["genotype-matrix"] = read_plink1_bin(filepath + ".bed")
+        if bfile_prefix is None:
+            return
 
-    def set_bed(self, bed, bim, fam):
+        self._types["genotype-matrix"] = read_plink1_bin(bfile_prefix + ".bed")
+
+    def _set_bed(self, bed_filepath, bim_filepath, fam_filepath):
         from pandas_plink import read_plink1_bin
 
-        G = read_plink1_bin(bed, bim, fam, verbose=False)
+        if bed_filepath is None:
+            return
+
+        G = read_plink1_bin(bed_filepath, bim_filepath, fam_filepath, verbose=False)
 
         if self._types["genotype-matrix"] is not None:
             raise UsageError("More than one genotype matrix has been defined.")
@@ -51,27 +68,45 @@ class QTLInputData:
         for field in [f for f in y.coords.keys() if f != y.dims[0]]:
             del y[field]
 
-        y.name = _trait_name_from_filepath(fam)
+        y.name = _trait_name_from_filepath(fam_filepath)
         self._types["phenotype-matrices"].append(y)
 
-    def set_rel(self, filespec):
-        from pandas_plink import read_rel
-
-        self._types["kinship-matrix"] = read_rel(filespec)
-
-    def set_grm(self, filepath):
+    def _set_grm(self, filepath):
         from pandas_plink import read_grm
+
+        if filepath is None:
+            return
 
         self._types["kinship-matrix"] = read_grm(filepath)
 
+    def _set_rel(self, filepath):
+        from pandas_plink import read_rel
+
+        if filepath is None:
+            return
+
+        self._types["kinship-matrix"] = read_rel(filepath)
+
     @property
     def phenotypes(self):
+        import click
         from xarray import concat
 
         if len(self._types["phenotype-matrices"]) == 0:
             return None
 
-        return concat(self._types["phenotype-matrices"], dim="trait")
+        Y = concat(self._types["phenotype-matrices"], dim="trait")
+        if self._pheno_names is not None:
+            try:
+                Y = Y.sel(trait=self._pheno_names)
+            except KeyError:
+                read_traits = Y.trait.values.tolist()
+                msg = "not all specified phenotypes have been found.\n"
+                msg += f"Specified phenotypes: {self._pheno_names}\n"
+                msg += f"Loaded phenotypes: {read_traits}\n"
+                raise click.UsageError(msg)
+
+        return Y
 
     @property
     def covariates(self):
@@ -85,11 +120,38 @@ class QTLInputData:
     def kinship(self):
         return self._types["kinship-matrix"]
 
+    def __str__(self):
+        from limix._display import summarize_list_repr
+
+        msg = "Requested phenotypes: "
+        if self._pheno_names is None:
+            msg += "<all phenotypes>"
+        else:
+            msg += summarize_list_repr(self._pheno_names, 5)
+        msg += "\n\n"
+
+        msg += _repr_input("Phenotype", self.phenotypes) + "\n" * 2
+        msg += _repr_input("Covariate", self.covariates) + "\n" * 2
+        msg += _repr_input("Genotype", self.genotype) + "\n" * 2
+        msg += _repr_input("Kinship", self.kinship)
+        return msg
+
+
+def _repr_input(header, X):
+    msg = f"{header}\n"
+    msg += ("-" * len(header)) + "\n"
+    if X is None:
+        name = header.lower()
+        msg += f"No {name} has been provided."
+    else:
+        msg += str(X)
+    return msg
+
 
 class ProcessInputData:
     def __init__(self, params):
         self._params = params
-        self._input_data = InputData()
+        self._input_data = QTLInputData()
         self._look_for_kinship()
         self._look_for_genotype()
         self._look_for_covariates()

@@ -19,10 +19,11 @@ def read(prefix, verbose=True):
     --------
     .. doctest::
 
+        >>> from os.path import join
         >>> from limix.io import plink
-        >>> from pandas_plink import example_file_prefix
+        >>> from pandas_plink import get_data_folder
         >>>
-        >>> (bim, fam, bed) = plink.read(example_file_prefix(), verbose=False)
+        >>> (bim, fam, bed) = plink.read(join(get_data_folder(), "data"), verbose=False)
         >>> print(bim.head())
                    chrom         snp       cm    pos a0 a1  i
         candidate
@@ -54,10 +55,11 @@ def read(prefix, verbose=True):
 
     .. doctest::
 
+        >>> from os.path import join
         >>> from limix.io import plink
-        >>> from pandas_plink import example_file_prefix
+        >>> from pandas_plink import get_data_folder
         >>>
-        >>> (bim, fam, bed) = plink.read(example_file_prefix(), verbose=False)
+        >>> (bim, fam, bed) = plink.read(join(get_data_folder(), "data"), verbose=False)
         >>> chrom1 = bim.query("chrom=='1'")
         >>> X = bed[chrom1.i.values, :].compute()
         >>> print(X)  # doctest: +FLOAT_CMP

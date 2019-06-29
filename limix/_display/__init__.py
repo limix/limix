@@ -1,17 +1,25 @@
 from ._core import blue, bold, green, red, width
-from ._display import add_title_header, banner, indent, session_block, session_line
+from ._display import (
+    add_title_header,
+    banner,
+    indent,
+    session_block,
+    session_line,
+    summarize_list_repr,
+)
 from ._exception import print_exc
 
 __all__ = [
-    "print_exc",
+    "add_title_header",
     "banner",
-    "bold",
     "blue",
-    "red",
+    "bold",
     "green",
-    "width",
+    "indent",
+    "print_exc",
+    "red",
     "session_block",
     "session_line",
-    "add_title_header",
-    "indent",
+    "summarize_list_repr",
+    "width",
 ]
