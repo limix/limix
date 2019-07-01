@@ -3,7 +3,7 @@ from click import Path
 
 from ._click import limix_command
 from ._input import QTLInputData
-from ._misc import OrderedCommand, ordered_params, verbose_option
+from ._misc import verbose_option
 
 
 @click.command(
@@ -16,19 +16,36 @@ from ._misc import OrderedCommand, ordered_params, verbose_option
     default="st",
     type=click.Choice(["st", "mt", "struct"]),
 )
-@click.option("--trait", help="Trait file.", default=None, type=Path(exists=True))
+@click.option(
+    "--trait", help="Trait file.", default=None, type=Path(exists=True, dir_okay=False)
+)
 @click.option(
     "--trait-name",
     help="Comma-separated trait names to be used. It defaults to use all traits.",
     default=None,
 )
 @click.option("--bfile", help="BED/FAM/BIM files prefix.", default=None)
-@click.option("--bed", help="BED file.", default=None, type=Path(exists=True))
-@click.option("--fam", help="FAM file.", default=None, type=Path(exists=True))
-@click.option("--bim", help="BIM file.", default=None, type=Path(exists=True))
-@click.option("--grm", help="GRM file.", default=None, type=Path(exists=True))
-@click.option("--rel", help="REL file.", default=None, type=Path(exists=True))
-@click.option("--outdir", help="Specify the output directory path.", default="output")
+@click.option(
+    "--bed", help="BED file.", default=None, type=Path(exists=True, dir_okay=False)
+)
+@click.option(
+    "--fam", help="FAM file.", default=None, type=Path(exists=True, dir_okay=False)
+)
+@click.option(
+    "--bim", help="BIM file.", default=None, type=Path(exists=True, dir_okay=False)
+)
+@click.option(
+    "--grm", help="GRM file.", default=None, type=Path(exists=True, dir_okay=False)
+)
+@click.option(
+    "--rel", help="REL file.", default=None, type=Path(exists=True, dir_okay=False)
+)
+@click.option(
+    "--outdir",
+    help="Specify the output directory path.",
+    default="output",
+    type=Path(file_okay=False, writable=True),
+)
 @verbose_option
 # @click.option(
 #     "--dry-run/--no-dry-run",
@@ -38,47 +55,54 @@ from ._misc import OrderedCommand, ordered_params, verbose_option
 def scan(
     ctx, method, trait, trait_name, bfile, bed, fam, bim, grm, rel, outdir, verbose
 ):
+    import time
+    import os
+    import sys
+    from pathlib import Path
     from os.path import join, abspath, exists
     from os import makedirs
     from limix._display import banner, session_line, session_block
 
-    print(banner())
+    def _curdate():
+        return time.strftime('%l:%M:%S%p %Z on %b %d, %Y')
 
-    outdir = abspath(outdir)
-    if not exists(outdir):
-        makedirs(outdir, exist_ok=True)
+    print(banner())
+    start_date = _curdate()
+    outdir = Path(outdir)
+    workdir = os.getcwd()
 
     with session_block("Input reading"):
-        p = QTLInputData()
-        p.set_opt("trait", filepath=trait)
-        p.set_opt("trait-name", trait_name=trait_name)
-        p.set_opt("bfile", bfile_prefix=bfile)
-        p.set_opt("bed", bed_filepath=bed, fam_filepath=fam, bim_filepath=bim)
-        p.set_opt("grm", filepath=grm)
-        p.set_opt("rel", filepath=rel)
+        input = QTLInputData()
+        input.set_opt("trait", filepath=trait)
+        input.set_opt("trait-name", trait_name=trait_name)
+        input.set_opt("bfile", bfile_prefix=bfile)
+        input.set_opt("bed", bed_filepath=bed, fam_filepath=fam, bim_filepath=bim)
+        input.set_opt("grm", filepath=grm)
+        input.set_opt("rel", filepath=rel)
+        input.set_opt("outdir", outdir=outdir)
 
-        if p.traits is None:
+        if input.traits is None:
             raise click.UsageError("no trait has been specified.")
 
-        if p.genotype is None:
+        if input.genotype is None:
             raise click.UsageError("no variant has been specified.")
 
-    print(p)
+    print(input)
 
-    _single_trait(p, verbose)
+    _single_trait(input, verbose)
 
-    # with session_line(f"Saving results to `{outdir}`... "):
-    #     res.to_csv(
-    #         join(outdir, "h0_effsizes.csv"),
-    #         join(outdir, "h0_variances.csv"),
-    #         join(outdir, "h2_effsizes.csv"),
-    #         join(outdir, "stats.csv"),
-    #     )
+    end_date = _curdate()
+    cmdline = " ".join(sys.argv)
+    info = f"workdir={workdir}\ncmdline={cmdline}\n"
+    info += f"start_date={start_date}\nend_date={end_date}"
+    with open(input.outdir / "info.txt", "w") as f:
+        f.write(info)
 
 
 def _single_trait(input, verbose):
     import limix
     from limix._data import conform_dataset
+    from limix._display import session_line
 
     Y = input.traits.T
     covariates = input.covariates
@@ -89,8 +113,6 @@ def _single_trait(input, verbose):
         data = {"y": y, "M": covariates, "K": kinship, "G": genotype}
         data = conform_dataset(**data)
         data = {k: v for k, v in data.items() if v is not None}
-        # print_trait(y_given, data["y"])
-        # return
 
         if "K" not in data:
             data["K"] = None
@@ -103,6 +125,18 @@ def _single_trait(input, verbose):
             M=data["M"],
             verbose=verbose,
         )
+        outdir = input.outdir / y.trait.values.item()
+        if not outdir.exists():
+            outdir.mkdir()
+
+        outdir_stem = str(outdir.absolute())
+        with session_line(f"Saving results to `{outdir_stem}`... "):
+            res.to_csv(
+                outdir / "h0_effsizes.csv",
+                outdir / "h0_variances.csv",
+                outdir / "h2_effsizes.csv",
+                outdir / "stats.csv",
+            )
 
 
 def _multi_trait(input):

@@ -25,6 +25,7 @@ class QTLInputData:
             "bed": self._set_bed,
             "grm": self._set_grm,
             "rel": self._set_rel,
+            "outdir": self._set_outdir,
         }[opt](**kwargs)
 
     def _set_trait(self, filepath):
@@ -89,6 +90,14 @@ class QTLInputData:
 
         self._types["kinship-matrix"] = read_rel(filepath)
 
+    def _set_outdir(self, outdir):
+        from os import makedirs
+
+        if not outdir.exists():
+            makedirs(outdir, exist_ok=True)
+
+        self._outdir = outdir
+
     @property
     def traits(self):
         import click
@@ -121,6 +130,10 @@ class QTLInputData:
     @property
     def kinship(self):
         return self._types["kinship-matrix"]
+
+    @property
+    def outdir(self):
+        return self._outdir
 
     def __str__(self):
         from limix._display import summarize_list_repr
