@@ -85,7 +85,7 @@ for which
 
     𝐯 ∼ 𝓝(𝟎, 𝓋₀𝚇𝚇ᵀ) ~~\text{and}~~ 𝛆 ∼ 𝓝(𝟎, 𝓋₁𝙸₁).
 
-Therefore we have a model with three parameters: an array of effect sizes 𝛃 and
+Therefore we have a model with three parameters: an array of effect sizes 𝛂 and
 variances 𝓋₀ and 𝓋₁. If 𝚇 contains the normalized SNP genotypes of the samples, 𝚇𝚇ᵀ is
 an estimation of the genetic relationship between the samples [Wa17]_.
 
@@ -96,14 +96,14 @@ We use the **likelihood ratio test** (LRT) approach [LR18]_ to assess the signif
 of the association
 between genetic variants and the phenotype.
 It is based on the ratio between the marginal likelihood of the null 𝓗₀ and alternative
-𝓗₁ models, for which the simpler model 𝓗₀ is defined by constraint one or more
-parameters if the alternative model 𝓗₁.
+𝓗₁ models, for which the simpler model 𝓗₀ is defined by placing a constraint on one or
+more parameters of the alternative model 𝓗₁.
 
 The parameter inference is done via the maximum likelihood estimation (MLE) approach
 [ML18]_, for which the marginal likelihood p(𝐲 | 𝙼, 𝚇; 𝛉) is maximized over the
 parameters set 𝛉.
 Let 𝛉₀ and 𝛉₁ be the optimal parameters set under the null and alternative models.
-The likelihood ratio statistics is give by
+The likelihood ratio statistics is given by
 
 .. math::
 
