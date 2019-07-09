@@ -340,7 +340,7 @@ distribution is not sufficient to explain the variability of yᵢ.
     >>> y = random.poisson(exp(z))
     >>>
     >>> r = scan(G, y, "poisson", K, M=M, verbose=False)
-    >>> print(r)
+    >>> print(r) # doctest: +FLOAT_CMP
     Hypothesis 0
     ============
     <BLANKLINE>
