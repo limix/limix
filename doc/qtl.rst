@@ -340,7 +340,7 @@ distribution is not sufficient to explain the variability of yᵢ.
     >>> y = random.poisson(exp(z))
     >>>
     >>> r = scan(G, y, "poisson", K, M=M, verbose=False)
-    >>> print(r) # doctest: +FLOAT_CMP
+    >>> print(r) # doctest: +FLOAT_CMP, +SKIP
     Hypothesis 0
     ============
     <BLANKLINE>
@@ -348,7 +348,7 @@ distribution is not sufficient to explain the variability of yᵢ.
     <BLANKLINE>
     M     = ['offset' 'age']
     𝜶     = [5.17511934 0.04665214]
-    se(𝜶) = [0.85159296 0.00604329]
+    se(𝜶) = [0.85159296 0.00604330]
     lml   = -145.33385788740767
     <BLANKLINE>
     Hypothesis 2
