@@ -3,7 +3,6 @@ from click.testing import CliRunner
 from numpy.testing import assert_equal
 
 from limix import cli
-from limix.sh import download
 
 
 def _urls(suffixes):

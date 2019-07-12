@@ -1,4 +1,12 @@
 def pytest_configure(*_):
+    setup_tests_baseline()
+
+
+def pytest_runtest_setup():
+    setup_tests_baseline()
+
+
+def setup_tests_baseline():
     _compatibility()
     import doctest
     import numpy as np
@@ -6,12 +14,12 @@ def pytest_configure(*_):
 
     mpl.use("agg")
 
-    pandas_format()
+    _pandas_format()
     doctest.ELLIPSIS_MARKER = "-ignore-"
     np.set_printoptions(precision=8, floatmode="fixed")
 
 
-def pandas_format():
+def _pandas_format():
     import pandas as pd
 
     pd.set_option("display.width", 88)

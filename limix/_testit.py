@@ -12,9 +12,9 @@ def test(verbose=True):
     int
         Exit code: ``0`` for success.
     """
-    from .conftest import pandas_format
+    from .conftest import setup_tests_baseline
 
-    pandas_format()
+    setup_tests_baseline()
 
     args = [
         "--doctest-plus",
