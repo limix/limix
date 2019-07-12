@@ -7,6 +7,8 @@ class AlignedText:
         self._items.append([field, value])
 
     def draw(self):
+        from limix import config
+
         from textwrap import TextWrapper
 
         max_len = max(len(i[0]) for i in self._items)
@@ -19,8 +21,9 @@ class AlignedText:
         s = " " * max_len
 
         msg = ""
+        width = config["display.text_width"]
         for i in self._items:
-            wrapper = TextWrapper(initial_indent=i[0], width=88, subsequent_indent=s)
+            wrapper = TextWrapper(initial_indent=i[0], width=width, subsequent_indent=s)
             msg += wrapper.fill(str(i[1])) + "\n"
 
         return msg.rstrip()

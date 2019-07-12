@@ -14,13 +14,13 @@ def running_environment():
     start_date = _curdate()
     cmdline = " ".join(sys.argv)
 
-    info = "Limix {} on Python {}\n".format(__version__, pyver)
     aligned = AlignedText(" ")
-    aligned.add_item("Started", start_date)
+    aligned.add_item("Limix", __version__)
+    aligned.add_item("Python", pyver)
+    aligned.add_item("Date", start_date)
     aligned.add_item("Workdir", workdir)
     aligned.add_item("Cmdline", cmdline)
-    info += aligned.draw()
-    return info
+    return aligned.draw()
 
 
 def add_title_header(title, df):

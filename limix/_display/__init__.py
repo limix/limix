@@ -8,6 +8,7 @@ from ._display import (
     session_line,
     summarize_list_repr,
 )
+
 from ._exception import print_exc
 
 __all__ = [
@@ -23,5 +24,5 @@ __all__ = [
     "session_line",
     "summarize_list_repr",
     "width",
-    "AlignedText"
+    "AlignedText",
 ]
