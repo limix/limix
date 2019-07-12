@@ -1,7 +1,8 @@
 from ._core import blue, bold, green, red, width
+from ._aligned import AlignedText
 from ._display import (
     add_title_header,
-    banner,
+    running_environment,
     indent,
     session_block,
     session_line,
@@ -11,7 +12,7 @@ from ._exception import print_exc
 
 __all__ = [
     "add_title_header",
-    "banner",
+    "running_environment",
     "blue",
     "bold",
     "green",
@@ -22,4 +23,5 @@ __all__ = [
     "session_line",
     "summarize_list_repr",
     "width",
+    "AlignedText"
 ]

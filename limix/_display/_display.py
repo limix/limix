@@ -4,11 +4,23 @@ from time import time
 from ._core import blue, bold, pprint, red, width, wrap_text
 
 
-def banner():
+def running_environment():
+    import os
+    from ._aligned import AlignedText
     from limix import __version__
 
     pyver = sys.version.split("\n")[0].strip()
-    return "Running Limix {} using Python {}.".format(__version__, pyver)
+    workdir = os.getcwd()
+    start_date = _curdate()
+    cmdline = " ".join(sys.argv)
+
+    info = "Limix {} on Python {}\n".format(__version__, pyver)
+    aligned = AlignedText(" ")
+    aligned.add_item("Started", start_date)
+    aligned.add_item("Workdir", workdir)
+    aligned.add_item("Cmdline", cmdline)
+    info += aligned.draw()
+    return info
 
 
 def add_title_header(title, df):
@@ -111,3 +123,9 @@ def summarize_list_repr(x, n):
     if n == 2:
         return "[..., " + str(x[-1:])[1:]
     return str(x[: n - 2])[:-1] + ", ..., " + str(x[-1:])[1:]
+
+
+def _curdate():
+    from time import strftime
+
+    return strftime('%I:%M:%S%p %Z on %b %d, %Y')

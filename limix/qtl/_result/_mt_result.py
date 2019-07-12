@@ -1,7 +1,7 @@
 from limix._cache import cache
 from limix.stats import lrt_pvalues
 
-from ._aligned import Aligned
+from limix._display import AlignedText
 from ._draw import draw_alt_hyp_table, draw_lrt_table, draw_model, draw_title
 
 
@@ -301,7 +301,7 @@ def _draw_hyp0_summary(traits, covariates, effsizes, effsizes_se, lml, diagC0, d
 
     diagC0 = asarray(diagC0, float)
     diagC1 = asarray(diagC1, float)
-    aligned = Aligned()
+    aligned = AlignedText()
     aligned.add_item("traits", traits)
     aligned.add_item("M", covariates)
     aligned.add_item("𝜶", effsizes)

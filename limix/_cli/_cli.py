@@ -13,6 +13,9 @@ from .see import see
 @click.pass_context
 @click.version_option(get_version())
 def cli(ctx):
+    """
+    A mixed model toolbox for genetic analysis.
+    """
     pass
 
 

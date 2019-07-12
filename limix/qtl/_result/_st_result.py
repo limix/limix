@@ -1,7 +1,7 @@
 from limix._cache import cache
 from limix.stats import lrt_pvalues
 
-from ._aligned import Aligned
+from limix._display import AlignedText
 from ._draw import draw_alt_hyp_table, draw_lrt_table, draw_model, draw_title
 
 
@@ -173,7 +173,7 @@ class STScanResult:
 
 
 def _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml):
-    aligned = Aligned()
+    aligned = AlignedText()
     aligned.add_item("M", covariates)
     aligned.add_item("𝜶", effsizes)
     aligned.add_item("se(𝜶)", effsizes_se)

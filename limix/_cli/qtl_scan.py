@@ -61,12 +61,12 @@ def scan(
     from pathlib import Path
     from os.path import join, abspath, exists
     from os import makedirs
-    from limix._display import banner, session_line, session_block
+    from limix._display import running_environment, session_line, session_block
 
     def _curdate():
         return time.strftime('%l:%M:%S%p %Z on %b %d, %Y')
 
-    print(banner())
+    print(running_environment())
     start_date = _curdate()
     outdir = Path(outdir)
     workdir = os.getcwd()
