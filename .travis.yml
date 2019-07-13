@@ -1,14 +1,7 @@
 language: python
 os: linux
-python:
-  - "3.6"
-  - "3.7"
+python: 3.6
 env: HDF5_USE_FILE_LOCKING=FALSE URL=https://raw.githubusercontent.com/horta/ci/master
-# addons:
-#   apt:
-#     packages:
-#       - libffi-dev
-#       - libffi6
 install:
   - bash <(curl -fsSL $URL/travis-matplotlib-fix.sh)
   - bash <(curl -fsSL $URL/travis-check-readme.sh)
