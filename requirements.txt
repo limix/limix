@@ -1,9 +1,0 @@
-ipython
-pip>=18.0
-pytest-doctestplus>=0.3.0
-pytest>=3.7.0
-seaborn>=0.9.0
-setuptools>=40.0.0
-sphinx>=1.7.6
-sphinx_rtd_theme>=0.4.1
-sphinxcontrib-programoutput>=0.11
