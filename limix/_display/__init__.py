@@ -12,6 +12,7 @@ __all__ = [
     "bold",
     "draw_dataframe",
     "draw_title",
+    "draw_list",
     "green",
     "red",
     "running_environment",

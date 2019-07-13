@@ -189,7 +189,7 @@ We now apply the function :func:`limix.qtl.scan` to our data set
     >>> r = scan(G, y, "normal", M=M, verbose=False)
     >>> print(r)
     Hypothesis 0
-    ============
+    ------------
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶, 3.462⋅𝙸)
     <BLANKLINE>
@@ -199,7 +199,7 @@ We now apply the function :func:`limix.qtl.scan` to our data set
     lml   = -203.98750767964498
     <BLANKLINE>
     Hypothesis 2
-    ============
+    ------------
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶 + G𝛃, s(3.462⋅𝙸))
     <BLANKLINE>
@@ -214,7 +214,7 @@ We now apply the function :func:`limix.qtl.scan` to our data set
     max    -1.841e+02       2.312e+00       -2.448e-01
     <BLANKLINE>
     Likelihood-ratio test p-values
-    ==============================
+    ------------------------------
     <BLANKLINE>
            𝓗₀ vs 𝓗₂
     ----------------
@@ -267,7 +267,7 @@ matrix 𝙺, and call :func:`limix.qtl.scan` to perform the analysis.
     >>> r = scan(X, y, "normal", K, 𝙼=M, verbose=False)
     >>> print(r)
     Hypothesis 0
-    ============
+    ------------
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶, 1.436⋅𝙺 + 2.934⋅𝙸)
     <BLANKLINE>
@@ -277,7 +277,7 @@ matrix 𝙺, and call :func:`limix.qtl.scan` to perform the analysis.
     lml   = -211.3819625136375
     <BLANKLINE>
     Hypothesis 2
-    ============
+    ------------
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶 + G𝛃, s(1.436⋅𝙺 + 2.934⋅𝙸))
     <BLANKLINE>
@@ -292,7 +292,7 @@ matrix 𝙺, and call :func:`limix.qtl.scan` to perform the analysis.
     max    -2.076e+02       2.215e+00        6.433e-01
     <BLANKLINE>
     Likelihood-ratio test p-values
-    ==============================
+    ------------------------------
     <BLANKLINE>
            𝓗₀ vs 𝓗₂
     ----------------
@@ -342,7 +342,7 @@ distribution is not sufficient to explain the variability of yᵢ.
     >>> r = scan(G, y, "poisson", K, M=M, verbose=False)
     >>> print(r)
     Hypothesis 0
-    ============
+    ------------
     <BLANKLINE>
     𝐳 ~ 𝓝(𝙼𝜶, 0.154⋅𝙺 + 0.000⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
     <BLANKLINE>
@@ -352,7 +352,7 @@ distribution is not sufficient to explain the variability of yᵢ.
     lml   = -145.33385788740767
     <BLANKLINE>
     Hypothesis 2
-    ============
+    ------------
     <BLANKLINE>
     𝐳 ~ 𝓝(𝙼𝜶 + G𝛃, s(0.154⋅𝙺 + 0.000⋅𝙸)) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
     <BLANKLINE>
@@ -367,7 +367,7 @@ distribution is not sufficient to explain the variability of yᵢ.
     max    -1.427e+02       5.202e+00       -3.085e-02
     <BLANKLINE>
     Likelihood-ratio test p-values
-    ==============================
+    ------------------------------
     <BLANKLINE>
            𝓗₀ vs 𝓗₂
     ----------------
@@ -428,7 +428,7 @@ Here is an example.
     >>> r = iscan(G, y, "normal", K, M, E0=E0, E1=E1, verbose=False)
     >>> print(r)
     Hypothesis 0
-    ============
+    ------------
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶, 0.376⋅𝙺 + 2.077⋅𝙸)
     <BLANKLINE>
@@ -438,7 +438,7 @@ Here is an example.
     lml   = -185.77488727691096
     <BLANKLINE>
     Hypothesis 1
-    ============
+    ------------
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶 + (𝙶⊙𝙴₀)𝛃₀, s(0.376⋅𝙺 + 2.077⋅𝙸))
     <BLANKLINE>
@@ -453,7 +453,7 @@ Here is an example.
     max    -1.854e+02       3.235e+00        1.492e-01
     <BLANKLINE>
     Hypothesis 2
-    ============
+    ------------
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶 + (𝙶⊙𝙴₀)𝛃₀ + (𝙶⊙𝙴₁)𝛃₁, s(0.376⋅𝙺 + 2.077⋅𝙸))
     <BLANKLINE>
@@ -468,7 +468,7 @@ Here is an example.
     max    -1.841e+02       3.241e+00        1.971e-01
     <BLANKLINE>
     Likelihood-ratio test p-values
-    ==============================
+    ------------------------------
     <BLANKLINE>
            𝓗₀ vs 𝓗₁    𝓗₀ vs 𝓗₂    𝓗₁ vs 𝓗₂
     ----------------------------------------
@@ -535,7 +535,7 @@ Here is an example.
     >>> r = scan(G, Y, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
     >>> print(r)
     Hypothesis 0
-    ============
+    ------------
     <BLANKLINE>
     𝐲 ~ 𝓝((A⊗𝙼)𝛂, C₀⊗𝙺 + C₁⊗𝙸)
     <BLANKLINE>
@@ -548,7 +548,7 @@ Here is an example.
     lml      = -277.3341913587698
     <BLANKLINE>
     Hypothesis 1
-    ============
+    ------------
     <BLANKLINE>
     𝐲 ~ 𝓝((A⊗𝙼)𝛂 + (A₀⊗G)𝛃₀, s(C₀⊗𝙺 + C₁⊗𝙸))
     <BLANKLINE>
@@ -563,7 +563,7 @@ Here is an example.
     max    -2.744e+02       1.386e-04        1.063e-01
     <BLANKLINE>
     Hypothesis 2
-    ============
+    ------------
     <BLANKLINE>
     𝐲 ~ 𝓝((A⊗𝙼)𝛂 + (A₀⊗G)𝛃₀ + (A₁⊗G)𝛃₁, s(C₀⊗𝙺 + C₁⊗𝙸))
     <BLANKLINE>
@@ -578,7 +578,7 @@ Here is an example.
     max    -2.741e+02      -7.171e-04        7.372e-02
     <BLANKLINE>
     Likelihood-ratio test p-values
-    ==============================
+    ------------------------------
     <BLANKLINE>
            𝓗₀ vs 𝓗₁    𝓗₀ vs 𝓗₂    𝓗₁ vs 𝓗₂
     ----------------------------------------

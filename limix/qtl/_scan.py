@@ -181,7 +181,7 @@ def scan(
         2    -48.720890 -48.534754      1  0.943400  0.541768
         >>> print(result)  # doctest: +FLOAT_CMP
         Hypothesis 0
-        ============
+        ------------
         <BLANKLINE>
         𝐳 ~ 𝓝(𝙼𝜶, 0.000⋅𝙺 + 0.788⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
         <BLANKLINE>
@@ -191,7 +191,7 @@ def scan(
         lml   = -48.720890273519444
         <BLANKLINE>
         Hypothesis 2
-        ============
+        ------------
         <BLANKLINE>
         𝐳 ~ 𝓝(𝙼𝜶 + G𝛃, s(0.000⋅𝙺 + 0.788⋅𝙸)) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
         <BLANKLINE>
@@ -206,7 +206,7 @@ def scan(
         max    -4.791e+01       5.255e-01       -1.309e-01
         <BLANKLINE>
         Likelihood-ratio test p-values
-        ==============================
+        ------------------------------
         <BLANKLINE>
                𝓗₀ vs 𝓗₂
         ----------------
@@ -235,7 +235,7 @@ def scan(
         >>> result = scan(X, successes, ("binomial", ntrials), K, verbose=False)
         >>> print(result)  # doctest: +FLOAT_CMP
         Hypothesis 0
-        ============
+        ------------
         <BLANKLINE>
         𝐳 ~ 𝓝(𝙼𝜶, 0.152⋅𝙺 + 1.738⋅𝙸) for yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ) and g(x)=1/(1+e⁻ˣ)
         <BLANKLINE>
@@ -245,7 +245,7 @@ def scan(
         lml   = -142.80784719977515
         <BLANKLINE>
         Hypothesis 2
-        ============
+        ------------
         <BLANKLINE>
         𝐳 ~ 𝓝(𝙼𝜶 + G𝛃, s(0.152⋅𝙺 + 1.738⋅𝙸)) for yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ) and g(x)=1/(1+e⁻ˣ)
         <BLANKLINE>
@@ -260,7 +260,7 @@ def scan(
         max    -1.422e+02       3.864e-01        6.287e-01
         <BLANKLINE>
         Likelihood-ratio test p-values
-        ==============================
+        ------------------------------
         <BLANKLINE>
                𝓗₀ vs 𝓗₂
         ----------------

@@ -9,7 +9,7 @@ def running_environment():
 
     pyver = sys.version.split("\n")[0].strip()
     workdir = os.getcwd()
-    start_date = strftime('%I:%M:%S%p %Z on %b %d, %Y')
+    start_date = strftime("%I:%M:%S%p %Z on %b %d, %Y")
     cmdline = " ".join(sys.argv)
 
     aligned = AlignedText(" ")

@@ -46,7 +46,7 @@ class VarDec(object):
         >>> vardec.fit(verbose=False)
         >>> print(vardec) # doctest: +FLOAT_CMP
         Variance decomposition
-        ======================
+        ----------------------
         <BLANKLINE>
         𝐲 ~ 𝓝(𝙼𝜶, 0.385⋅𝙺 + 1.184⋅𝙺 + 0.000⋅𝙸)
         >>> y = exp((y - y.mean()) / y.std())
@@ -58,7 +58,7 @@ class VarDec(object):
         >>> vardec.fit(verbose=False)
         >>> print(vardec) # doctest: +FLOAT_CMP
         Variance decomposition
-        ======================
+        ----------------------
         <BLANKLINE>
         𝐳 ~ 𝓝(𝙼𝜶, 0.000⋅𝙺 + 0.350⋅𝙺 + 0.000⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
     """
@@ -245,11 +245,10 @@ class VarDec(object):
         self._glmm = gp
 
     def _fit_lmm_multi_trait(self, verbose):
-        from numpy import eye, sqrt, asarray
+        from numpy import sqrt, asarray
         from glimix_core.lmm import Kron2Sum
         from numpy_sugar.linalg import economic_qs, ddot
 
-        A = eye(self._y.shape[1])
         X = asarray(self._M, float)
         QS = economic_qs(self._covariance[0]._K)
         G = ddot(QS[0][0], sqrt(QS[1]))

@@ -14,11 +14,11 @@ BIMBAM
     >>> print(limix.io.bimbam.read_phenotype(filepath, verbose=False))
     trait         0        1        2
     sample
-    0        1.20000 -0.30000 -1.50000
-    1            nan  1.50000  0.30000
-    2        2.70000  1.10000      nan
-    3       -0.20000 -0.70000  0.80000
-    4        3.30000  2.40000  2.10000
+    0       1.20000 -0.30000 -1.50000
+    1           nan  1.50000  0.30000
+    2       2.70000  1.10000      nan
+    3      -0.20000 -0.70000  0.80000
+    4       3.30000  2.40000  2.10000
     >>> limix.sh.remove(filepath)
 
 BGEN reader
@@ -30,7 +30,7 @@ BGEN reader
     >>> filepath = limix.sh.download(url, verbose=False)
     >>>
     >>> data = limix.io.bgen.read(filepath, verbose=False)
-    >>> print(data.keys())  
+    >>> print(data.keys())
     dict_keys(['variants', 'samples', 'genotype'])
     >>> print(data["variants"].head(4))
              id rsid chrom  pos  nalleles allele_ids  vaddr
@@ -217,7 +217,7 @@ PLINK reader
     rs4030303      1   rs4030303  0.00000  72434  0  G  4
     >>> print(fam.head())
                    fid       iid    father    mother gender    trait  i
-    sample                                                             
+    sample
     Sample_1  Sample_1  Sample_1         0         0      1 -9.00000  0
     Sample_2  Sample_2  Sample_2         0         0      2 -9.00000  1
     Sample_3  Sample_3  Sample_3  Sample_1  Sample_2      2 -9.00000  2

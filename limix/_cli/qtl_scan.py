@@ -51,8 +51,6 @@ def scan(
     ctx, method, trait, trait_name, bfile, bed, fam, bim, grm, rel, outdir, verbose
 ):
     from pathlib import Path
-    from os.path import join, abspath, exists
-    from os import makedirs
     from limix._display import running_environment, session_line, session_block
 
     context_info = running_environment()

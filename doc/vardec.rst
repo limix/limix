@@ -2,7 +2,7 @@
 Variance decomposition
 **********************
 
-Single-trait decomposition 
+Single-trait decomposition
 ==========================
 
 We make use of GLMM with random effects structured in multiple variables, each one
@@ -143,12 +143,12 @@ We show a summary of each decomposition.
 
     >>> print(vardecs[0])
     Variance decomposition
-    ======================
+    ----------------------
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶, 0.018⋅𝙺 + 0.047⋅𝙺 + 0.066⋅𝙸)
     >>> print(vardecs[1])
     Variance decomposition
-    ======================
+    ----------------------
     <BLANKLINE>
     𝐲 ~ 𝓝(𝙼𝜶, 0.197⋅𝙺 + 0.087⋅𝙺 + 0.149⋅𝙸)
 
