@@ -303,7 +303,9 @@ def scan(
             QS = None
 
         if verbose:
+            print()
             _print_input_info(idx, lik, Y, M, G, K)
+            print()
 
         if A is None:
             r = _single_trait_scan(idx, lik, Y, M, G, QS, verbose)
@@ -312,6 +314,7 @@ def scan(
 
         r = r.create()
         if verbose:
+            print()
             print(r)
 
         return r
@@ -319,31 +322,36 @@ def scan(
 
 def _print_input_info(idx, lik, Y, M, G, K):
     from limix._display import summarize_list_repr
+    from limix._display import AlignedText, draw_title
 
+    aligned = AlignedText(": ")
     likname = lik[0]
-    print(f"Likelihood: {likname}")
+    aligned.add_item("Likelihood", likname)
     ntraits = Y.shape[1]
     traits = summarize_list_repr(Y.trait.values.tolist(), 5)
-    print(f"Traits ({ntraits}): {traits}")
+    aligned.add_item(f"Traits ({ntraits})", traits)
 
     ncovariates = M.shape[1]
     covariates = summarize_list_repr(M.covariate.values.tolist(), 5)
-    print(f"Covariates ({ncovariates}): {covariates}")
+    aligned.add_item(f"Covariates ({ncovariates})", covariates)
 
     nvariants = G.shape[1]
     variants = summarize_list_repr(G.candidate.values.tolist(), 5)
-    print(f"Variants {nvariants}: {variants}")
+    aligned.add_item(f"Variants {nvariants}", variants)
     if idx is None:
         ncandidates = nvariants
     else:
         ncandidates = len(idx)
-    print(f"Number of candidates: {ncandidates}")
+    aligned.add_item("Number of candidates", ncandidates)
 
     if K is None:
         kinship_presence = "absent"
     else:
         kinship_presence = "present"
-    print(f"Kinship: {kinship_presence}")
+    aligned.add_item("Kinship", kinship_presence)
+
+    print(draw_title("Input"))
+    print(aligned.draw())
 
 
 def _single_trait_scan(idx, lik, Y, M, G, QS, verbose):

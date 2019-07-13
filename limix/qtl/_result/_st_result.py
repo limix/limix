@@ -1,8 +1,8 @@
 from limix._cache import cache
 from limix.stats import lrt_pvalues
 
-from limix._display import AlignedText
-from ._draw import draw_alt_hyp_table, draw_lrt_table, draw_model, draw_title
+from limix._display import AlignedText, draw_title
+from ._draw import draw_alt_hyp_table, draw_lrt_table, draw_model
 
 
 class STScanResult:
@@ -134,15 +134,17 @@ class STScanResult:
 
         covariance = self._covariance_expr()
 
-        msg = draw_title("Hypothesis 0")
+        msg = draw_title("Hypothesis 0") + "\n"
         msg += draw_model(lik, "𝙼𝜶", covariance) + "\n"
         msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
 
-        msg += draw_title(f"Hypothesis 2")
+        msg += "\n"
+        msg += draw_title(f"Hypothesis 2") + "\n"
         msg += draw_model(lik, "𝙼𝜶 + G𝛃", f"s({covariance})")
         msg += draw_alt_hyp_table(2, self.stats, self.effsizes)
 
-        msg += draw_title("Likelihood-ratio test p-values")
+        msg += "\n"
+        msg += draw_title("Likelihood-ratio test p-values") + "\n"
         msg += draw_lrt_table(["𝓗₀ vs 𝓗₂"], [f"pv20"], stats)
         return msg
 

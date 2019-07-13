@@ -136,16 +136,16 @@ class QTLInputData:
         return self._outdir
 
     def __str__(self):
-        from limix._display import summarize_list_repr
+        # from limix._display import summarize_list_repr
 
-        msg = "Requested traits: "
-        if self._trait_names is None:
-            msg += "<all traits>"
-        else:
-            msg += summarize_list_repr(self._trait_names, 5)
-        msg += "\n\n"
+        # msg = "Requested traits: "
+        # if self._trait_names is None:
+        #     msg += "<all traits>"
+        # else:
+        #     msg += summarize_list_repr(self._trait_names, 5)
+        # msg += "\n\n"
 
-        msg += _repr_input("Trait", self.traits) + "\n" * 2
+        msg = _repr_input("Trait", self.traits) + "\n" * 2
         msg += _repr_input("Covariate", self.covariates) + "\n" * 2
         msg += _repr_input("Genotype", self.genotype) + "\n" * 2
         msg += _repr_input("Kinship", self.kinship)

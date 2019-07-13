@@ -337,7 +337,8 @@ class VarDec(object):
 
     def __repr__(self):
         from glimix_core.cov import GivenCov
-        from limix.qtl._result._draw import draw_model, draw_title
+        from limix.qtl._result._draw import draw_model
+        from limix._display import draw_title
 
         covariance = ""
         for c in self._covariance:

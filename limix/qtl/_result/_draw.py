@@ -1,12 +1,6 @@
 from ._table import Table
 
 
-def draw_title(title):
-    msg = f"{title}\n"
-    msg += "=" * len(title) + "\n\n"
-    return msg
-
-
 def draw_model(lik, mean, covariance):
     if lik == "normal":
         var = "𝐲"
@@ -25,7 +19,7 @@ def draw_alt_hyp_table(hyp_num, stats, effsizes):
     df = effsizes[f"h{hyp_num}"]
     table.add_column(_describe(df[df["effect_type"] == "covariate"], "effsize"))
     table.add_column(_describe(df[df["effect_type"] == "candidate"], "effsize"))
-    return "\n" + table.draw() + "\n\n"
+    return "\n" + table.draw() + "\n"
 
 
 def draw_lrt_table(test_titles, pv_names, stats):

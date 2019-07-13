@@ -7,6 +7,7 @@ from ._display import (
     session_block,
     session_line,
     summarize_list_repr,
+    draw_title
 )
 
 from ._exception import print_exc
@@ -25,4 +26,5 @@ __all__ = [
     "summarize_list_repr",
     "width",
     "AlignedText",
+    "draw_title"
 ]

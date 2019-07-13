@@ -55,21 +55,13 @@ from ._misc import verbose_option
 def scan(
     ctx, method, trait, trait_name, bfile, bed, fam, bim, grm, rel, outdir, verbose
 ):
-    import time
-    import os
-    import sys
     from pathlib import Path
     from os.path import join, abspath, exists
     from os import makedirs
     from limix._display import running_environment, session_line, session_block
 
-    def _curdate():
-        return time.strftime('%l:%M:%S%p %Z on %b %d, %Y')
-
-    print(running_environment())
-    start_date = _curdate()
-    outdir = Path(outdir)
-    workdir = os.getcwd()
+    context_info = running_environment()
+    print(context_info)
 
     with session_block("Input reading"):
         input = QTLInputData()
@@ -79,7 +71,7 @@ def scan(
         input.set_opt("bed", bed_filepath=bed, fam_filepath=fam, bim_filepath=bim)
         input.set_opt("grm", filepath=grm)
         input.set_opt("rel", filepath=rel)
-        input.set_opt("outdir", outdir=outdir)
+        input.set_opt("outdir", outdir=Path(outdir))
 
         if input.traits is None:
             raise click.UsageError("no trait has been specified.")
@@ -89,14 +81,11 @@ def scan(
 
     print(input)
 
-    _single_trait(input, verbose)
+    if method == "st":
+        _single_trait(input, verbose)
 
-    end_date = _curdate()
-    cmdline = " ".join(sys.argv)
-    info = f"workdir={workdir}\ncmdline={cmdline}\n"
-    info += f"start_date={start_date}\nend_date={end_date}"
     with open(input.outdir / "info.txt", "w") as f:
-        f.write(info)
+        f.write(context_info)
 
 
 def _single_trait(input, verbose):

@@ -4,6 +4,12 @@ from time import time
 from ._core import blue, bold, pprint, red, width, wrap_text
 
 
+def draw_title(title):
+    msg = f"{title}\n"
+    msg += "=" * len(title) + "\n"
+    return msg
+
+
 def running_environment():
     import os
     from ._aligned import AlignedText
