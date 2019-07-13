@@ -27,7 +27,7 @@ script:
 notifications:
   email:
     recipients:
-      - danilo.horta@gmail.com
+      - danilo.horta@pm.me
     on_success: never
     on_failure: always
 deploy:

@@ -1,14 +1,23 @@
+import pytest
 from numpy.testing import assert_allclose
 
 
-def test_qtl_sscan():
+@pytest.mark.remfiles(
+    [
+        "http://rest.s3for.me/limix/qtl/G.npy",
+        "http://rest.s3for.me/limix/qtl/y.npy",
+        "http://rest.s3for.me/limix/qtl/E.npy",
+    ]
+)
+def test_qtl_sscan(remfiles):
     import numpy as np
 
     from limix.qtl import sscan
 
-    G = np.load("limix/qtl/test/G.npy")
-    y = np.load("limix/qtl/test/y.npy")
-    E = np.load("limix/qtl/test/E.npy")
+    remfiles.chdir()
+    G = np.load("G.npy")
+    y = np.load("y.npy")
+    E = np.load("E.npy")
     pvi, pva = sscan(G, y, E, tests=["inter", "assoc"], verbose=False)
     assert_allclose(
         pva,

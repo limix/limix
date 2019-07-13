@@ -161,6 +161,7 @@ def test_vardec_multitrait():
             [0.7051133960584494, 0.18484625482083472],
             [0.18484625482083472, 0.048457649666404354],
         ],
+        rtol=1e-5,
     )
     assert_allclose(
         vardec.covariance[1].scale,
