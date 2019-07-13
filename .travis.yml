@@ -1,43 +1,29 @@
 language: python
 python: 3.6
+env: HDF5_USE_FILE_LOCKING=FALSE
 matrix:
   include:
-    - sudo: required
+    - os: linux
     - os: osx
-      language: generic
-      before_install:
-        - HOMEBREW_NO_AUTO_UPDATE=1 brew unlink python2
-        - HOMEBREW_NO_AUTO_UPDATE=1 brew install python3
-        - export PATH=$(brew --prefix)/bin:$(brew --prefix)/sbin:$PATH
-        - ln -s $(brew --prefix)/bin/python3 $(brew --prefix)/bin/python
-        - ln -s $(brew --prefix)/bin/pip3 $(brew --prefix)/bin/pip
-        - hash -r
-        - python --version
-        - python -m pip install --upgrade pip setuptools wheel
-env:
-  - PKG_NAME=limix
-    HDF5_USE_FILE_LOCKING=FALSE
-addons:
-  apt:
-    packages:
-      - libffi-dev
-      - libffi6
+# addons:
+#   apt:
+#     packages:
+#       - libffi-dev
+#       - libffi6
+install:
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-matplotlib-fix.sh)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-check-readme.sh)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-min-deps.sh)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-check-style.sh)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-check-black.sh)
 script:
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis.sh)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-dev-test.sh)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-install-test.sh)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-sdist-test.sh)
+  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-doctest.sh)
 notifications:
   email:
     recipients:
       - danilo.horta@pm.me
     on_success: never
     on_failure: always
-deploy:
-  provider: pypi
-  server: https://upload.pypi.org/legacy/
-  user: dhorta
-  password:
-    secure: NS5ir5qJr4f9FcwVwJhNt8WIwOxDHyV4UJ6e01sZ2hPtW/afukFuCTgJ4duFJuYHWFlgMk1Kv3pEhQnTKwzi4MO7fqV7N0hg7e6L42OOL3BB0XamCtBnMY+76hPnXTSkGhA3wDrqBQ/dzBstN739qNPh3IeC8oax7otKh8QzyZfmIQHYqXQJqdTx6Cdap/gR4CF56h+VuNs7aGSRuvjVWV9lIOHsK/ZCKIE1QTq7aRnOAUU6fXtdE4uEqwOl4bzU1HauxElonSudaYiv+NTLNkB7YRR4Ur1VTa7HXNhs9y/RYId0R6xputp+ousutQg5mlGD/z2Qaez6hlwoCgAqIsVNeiLnNQinXx1Z+lJSLQfnw2AX5zi9HgAsgb6ts6gJm2vTCVuOBpcti0uJd9l+0LR0IuGLYwWz1lXQN7/hsAeQFpK/A4tzlDMGQV0wxNFvCq/hSe7LnVehnTOVmJ+HU51XAqF766HYyf+/KcKhaY8IDlpkuLxmTAvY5/vk/JPhmt8JtDP6q+afwSOiM47ciClRtXkRv4zrL/D8euDC1TtLb5Kqxwo59e7cPGB/kLaA9904i0FOcoclv0NZGxdRgXPNYS9ULofjGHzn0Cn5H4FVcYTS3YDYv6bSeNcodQ83zD4FBGvZLe1vuhRdwRbOWKcgeUJNeN0PTL7Txo7YchE=
-  on:
-    tags: true
-    repo: limix/limix
-    branch: master
-    python: 3.6
