@@ -8,11 +8,11 @@ install:
   - bash <(curl -fsSL $URL/travis-py-min-deps.sh)
   - bash <(curl -fsSL $URL/travis-py-check-style.sh)
   - bash <(curl -fsSL $URL/travis-py-check-black.sh)
-script:
   - bash <(curl -fsSL $URL/travis-py-dev-test.sh)
   - bash <(curl -fsSL $URL/travis-py-install-test.sh)
-  - bash <(curl -fsSL $URL/travis-py-sdist-test.sh)
   - bash <(curl -fsSL $URL/travis-py-doctest.sh)
+script:
+  - bash <(curl -fsSL $URL/travis-py-sdist-test.sh)
 notifications:
   email:
     recipients:
