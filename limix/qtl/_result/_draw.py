@@ -1,4 +1,3 @@
-from ._table import Table
 
 
 def draw_model(lik, mean, covariance):
@@ -13,6 +12,7 @@ def draw_model(lik, mean, covariance):
 
 
 def draw_alt_hyp_table(hyp_num, stats, effsizes):
+    from limix._display import Table
     cols = ["lml", "cov. effsizes", "cand. effsizes"]
     table = Table(cols, index=_describe_index())
     table.add_column(_describe(stats, f"lml{hyp_num}"))
@@ -23,6 +23,7 @@ def draw_alt_hyp_table(hyp_num, stats, effsizes):
 
 
 def draw_lrt_table(test_titles, pv_names, stats):
+    from limix._display import Table
     table = Table(test_titles, index=_describe_index())
 
     for name in pv_names:

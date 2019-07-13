@@ -321,22 +321,22 @@ def scan(
 
 
 def _print_input_info(idx, lik, Y, M, G, K):
-    from limix._display import summarize_list_repr
+    from limix._display import draw_list
     from limix._display import AlignedText, draw_title
 
     aligned = AlignedText(": ")
     likname = lik[0]
     aligned.add_item("Likelihood", likname)
     ntraits = Y.shape[1]
-    traits = summarize_list_repr(Y.trait.values.tolist(), 5)
+    traits = draw_list(Y.trait.values.tolist(), 5)
     aligned.add_item(f"Traits ({ntraits})", traits)
 
     ncovariates = M.shape[1]
-    covariates = summarize_list_repr(M.covariate.values.tolist(), 5)
+    covariates = draw_list(M.covariate.values.tolist(), 5)
     aligned.add_item(f"Covariates ({ncovariates})", covariates)
 
     nvariants = G.shape[1]
-    variants = summarize_list_repr(G.candidate.values.tolist(), 5)
+    variants = draw_list(G.candidate.values.tolist(), 5)
     aligned.add_item(f"Variants {nvariants}", variants)
     if idx is None:
         ncandidates = nvariants

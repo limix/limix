@@ -115,12 +115,12 @@ def _read_dosage(prefix, verbose):
 
 
 def _see_bed(filepath, verbose):
-    from .._display import add_title_header
+    from .._display import draw_dataframe
 
     (bim, fam, _) = read(filepath, verbose=verbose)
 
-    print(add_title_header("Samples", bim))
-    print(add_title_header("Genotype", fam))
+    print(draw_dataframe("Samples", bim))
+    print(draw_dataframe("Genotype", fam))
 
 
 def _see_kinship(filepath, verbose):

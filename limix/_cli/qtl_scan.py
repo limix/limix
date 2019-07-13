@@ -47,11 +47,6 @@ from ._misc import verbose_option
     type=Path(file_okay=False, writable=True),
 )
 @verbose_option
-# @click.option(
-#     "--dry-run/--no-dry-run",
-#     help="Perform a trial run with no scan taking place.",
-#     default=False,
-# )
 def scan(
     ctx, method, trait, trait_name, bfile, bed, fam, bim, grm, rel, outdir, verbose
 ):
@@ -84,8 +79,10 @@ def scan(
     if method == "st":
         _single_trait(input, verbose)
 
-    with open(input.outdir / "info.txt", "w") as f:
-        f.write(context_info)
+    filepath = str((input.outdir / "context.log").absolute())
+    with session_line(f"Saving context to file <{filepath}>... "):
+        with open(filepath, "w") as f:
+            f.write(context_info)
 
 
 def _single_trait(input, verbose):
@@ -119,7 +116,7 @@ def _single_trait(input, verbose):
             outdir.mkdir()
 
         outdir_stem = str(outdir.absolute())
-        with session_line(f"Saving results to `{outdir_stem}`... "):
+        with session_line(f"Saving results to folder <{outdir_stem}>... "):
             res.to_csv(
                 outdir / "h0_effsizes.csv",
                 outdir / "h0_variances.csv",
@@ -137,13 +134,13 @@ def _struct_lmm(input):
 
 
 def print_trait(y_given, y_used):
-    from limix._display import summarize_list_repr
+    from limix._display import draw_list
 
     print(f"Phenotype: {y_given.name}")
     n_given = len(y_given)
-    samples_given = summarize_list_repr(sorted(y_given.sample.values.tolist()), 5)
+    samples_given = draw_list(sorted(y_given.sample.values.tolist()), 5)
     print(f"  Samples given ({n_given}): {samples_given}")
     n_used = len(y_used)
-    samples_used = summarize_list_repr(sorted(y_used.sample.values.tolist()), 5)
+    samples_used = draw_list(sorted(y_used.sample.values.tolist()), 5)
     print(f"  Samples used ({n_used}): {samples_used}")
     pass
