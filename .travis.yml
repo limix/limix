@@ -1,26 +1,25 @@
 language: python
-python: 3.6
+os: linux
+python:
+  - "3.6"
+  - "3.7"
 env: HDF5_USE_FILE_LOCKING=FALSE URL=https://raw.githubusercontent.com/horta/ci/master
-matrix:
-  include:
-    - os: linux
-    - os: osx
 # addons:
 #   apt:
 #     packages:
 #       - libffi-dev
 #       - libffi6
 install:
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-matplotlib-fix.sh)
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-check-readme.sh)
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-min-deps.sh)
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-check-style.sh)
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-check-black.sh)
+  - bash <(curl -fsSL $URL/travis-matplotlib-fix.sh)
+  - bash <(curl -fsSL $URL/travis-check-readme.sh)
+  - bash <(curl -fsSL $URL/travis-py-min-deps.sh)
+  - bash <(curl -fsSL $URL/travis-py-check-style.sh)
+  - bash <(curl -fsSL $URL/travis-py-check-black.sh)
 script:
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-dev-test.sh)
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-install-test.sh)
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-sdist-test.sh)
-  - bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis-py-doctest.sh)
+  - bash <(curl -fsSL $URL/travis-py-dev-test.sh)
+  - bash <(curl -fsSL $URL/travis-py-install-test.sh)
+  - bash <(curl -fsSL $URL/travis-py-sdist-test.sh)
+  - bash <(curl -fsSL $URL/travis-py-doctest.sh)
 notifications:
   email:
     recipients:
