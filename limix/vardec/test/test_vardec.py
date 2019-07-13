@@ -161,7 +161,7 @@ def test_vardec_multitrait():
             [0.7051133960584494, 0.18484625482083472],
             [0.18484625482083472, 0.048457649666404354],
         ],
-        rtol=1e-5,
+        rtol=1e-4,
     )
     assert_allclose(
         vardec.covariance[1].scale,
@@ -170,6 +170,7 @@ def test_vardec_multitrait():
             [1.78191074575448e-05, 1.4592715995489043],
         ],
         atol=1e-6,
+        rtol=1e-4,
     )
     assert_allclose(vardec.lml(), -17.39609607331073)
     assert_allclose(
@@ -179,4 +180,5 @@ def test_vardec_multitrait():
             [-0.3888579153976617, -1.5350512471600464],
             [-0.13499034585739983, 0.08961009904531193],
         ],
+        rtol=1e-5,
     )

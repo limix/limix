@@ -1,6 +1,6 @@
 language: python
 python: 3.6
-env: HDF5_USE_FILE_LOCKING=FALSE
+env: HDF5_USE_FILE_LOCKING=FALSE URL=https://raw.githubusercontent.com/horta/ci/master
 matrix:
   include:
     - os: linux
