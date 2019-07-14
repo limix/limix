@@ -342,7 +342,7 @@ def _print_input_info(idx, lik, Y, M, G, K):
         ncandidates = nvariants
     else:
         ncandidates = len(idx)
-    aligned.add_item("Number of candidates", ncandidates)
+    aligned.add_item("N. of candidates", ncandidates)
 
     if K is None:
         kinship_presence = "absent"

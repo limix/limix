@@ -1,6 +1,6 @@
 import os
-
 from click import UsageError
+from loguru import logger
 
 
 class QTLInputData:
@@ -18,6 +18,7 @@ class QTLInputData:
         self._trait_names = None
 
     def set_opt(self, opt, **kwargs):
+        logger.info(f"{opt}: {kwargs}")
         {
             "trait": self._set_trait,
             "trait-name": self._set_trait_name,
@@ -64,7 +65,9 @@ class QTLInputData:
         G = read_plink1_bin(bed_filepath, bim_filepath, fam_filepath, verbose=False)
 
         if self._types["genotype-matrix"] is not None:
-            raise UsageError("More than one genotype matrix has been defined.")
+            err = "More than one genotype matrix has been defined."
+            logger.error(err)
+            raise UsageError(err)
         self._types["genotype-matrix"] = G
 
         y = G["trait"]
@@ -103,19 +106,23 @@ class QTLInputData:
         import click
         from xarray import concat
 
-        if len(self._types["trait-matrices"]) == 0:
+        n = len(self._types["trait-matrices"])
+        logger.info(f"Number of trait matrices: {n}.")
+        if n == 0:
             return None
 
         Y = concat(self._types["trait-matrices"], dim="trait")
         if self._trait_names is not None:
+            logger.info(f"Trait names: {self._trait_names}.")
             try:
                 Y = Y.sel(trait=self._trait_names)
             except KeyError:
                 read_traits = Y.trait.values.tolist()
-                msg = "not all specified traits have been found.\n"
-                msg += f"Specified traits: {self._trait_names}\n"
-                msg += f"Loaded traits: {read_traits}\n"
-                raise click.UsageError(msg)
+                err = "not all specified traits have been found.\n"
+                err += f"Specified traits: {self._trait_names}\n"
+                err += f"Loaded traits: {read_traits}\n"
+                logger.error(err)
+                raise click.UsageError(err)
 
         return Y
 
@@ -135,16 +142,15 @@ class QTLInputData:
     def outdir(self):
         return self._outdir
 
+    def tasks(self, method):
+        from ._task import QTLSTTask
+
+        if method == "st":
+            Y = self.traits
+            names = Y.trait.values.tolist()
+            return [QTLSTTask(trait=trait) for trait in names]
+
     def __str__(self):
-        # from limix._display import summarize_list_repr
-
-        # msg = "Requested traits: "
-        # if self._trait_names is None:
-        #     msg += "<all traits>"
-        # else:
-        #     msg += summarize_list_repr(self._trait_names, 5)
-        # msg += "\n\n"
-
         msg = _repr_input("Trait", self.traits) + "\n" * 2
         msg += _repr_input("Covariate", self.covariates) + "\n" * 2
         msg += _repr_input("Genotype", self.genotype) + "\n" * 2

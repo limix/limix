@@ -1,4 +1,5 @@
 import click
+from loguru import logger
 
 
 def verbose_option(func):
@@ -75,3 +76,43 @@ def ordered_params(ctx):
                 break
             pass
     return args_seq
+
+
+def context_info():
+    import sys
+    import os
+    from time import strftime
+    from limix import __version__
+    from limix._display import AlignedText
+
+    pyver = sys.version.split("\n")[0].strip()
+    workdir = os.getcwd()
+    start_date = strftime("%I:%M:%S%p %Z on %b %d, %Y")
+    cmdline = " ".join(sys.argv)
+
+    aligned = AlignedText(" ")
+    aligned.add_item("Limix", __version__)
+    aligned.add_item("Python", pyver)
+    aligned.add_item("Date", start_date)
+    aligned.add_item("Workdir", workdir)
+    aligned.add_item("Cmdline", cmdline)
+
+    msg = aligned.draw()
+    logger.info("\n" + msg)
+    return msg
+
+
+def setup_outdir(outdir):
+    from pathlib import Path
+
+    outdir = Path(outdir)
+    if not outdir.exists():
+        outdir.mkdir()
+    return outdir
+
+
+def setup_logger(outdir):
+    from loguru import logger
+
+    logger.remove()
+    logger.add(outdir / "limix.log", level="INFO")

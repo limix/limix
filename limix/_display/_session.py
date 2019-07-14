@@ -4,7 +4,7 @@ from time import time
 from ._core import blue, bold, pprint, red, width, wrap_text
 
 
-class session_line(object):
+class session_line:
     """
     Print the elapsed time after the execution of a block of code.
     """
@@ -44,7 +44,7 @@ class session_line(object):
                 sys.stdout.flush()
 
 
-class session_block(object):
+class session_block:
     """
     Print session block: session start and session end.
     """

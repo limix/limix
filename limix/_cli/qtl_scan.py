@@ -1,5 +1,6 @@
 import click
 from click import Path
+from loguru import logger
 
 from ._click import limix_command
 from ._input import QTLInputData
@@ -50,11 +51,16 @@ from ._misc import verbose_option
 def scan(
     ctx, method, trait, trait_name, bfile, bed, fam, bim, grm, rel, outdir, verbose
 ):
-    from pathlib import Path
-    from limix._display import running_environment, session_line, session_block
+    import pathlib
+    from limix._display import session_line, session_block
+    from ._toml import write_limix_toml
+    from ._misc import context_info, setup_outdir, setup_logger
 
-    context_info = running_environment()
-    print(context_info)
+    outdir = setup_outdir(outdir)
+    setup_logger(outdir)
+    write_limix_toml(outdir)
+
+    print(context_info())
 
     with session_block("Input reading"):
         input = QTLInputData()
@@ -64,7 +70,7 @@ def scan(
         input.set_opt("bed", bed_filepath=bed, fam_filepath=fam, bim_filepath=bim)
         input.set_opt("grm", filepath=grm)
         input.set_opt("rel", filepath=rel)
-        input.set_opt("outdir", outdir=Path(outdir))
+        input.set_opt("outdir", outdir=outdir)
 
         if input.traits is None:
             raise click.UsageError("no trait has been specified.")
@@ -74,71 +80,5 @@ def scan(
 
     print(input)
 
-    if method == "st":
-        _single_trait(input, verbose)
-
-    filepath = str((input.outdir / "context.log").absolute())
-    with session_line(f"Saving context to file <{filepath}>... "):
-        with open(filepath, "w") as f:
-            f.write(context_info)
-
-
-def _single_trait(input, verbose):
-    import limix
-    from limix._data import conform_dataset
-    from limix._display import session_line
-
-    Y = input.traits.T
-    covariates = input.covariates
-    kinship = input.kinship
-    genotype = input.genotype
-
-    for y in Y:
-        data = {"y": y, "M": covariates, "K": kinship, "G": genotype}
-        data = conform_dataset(**data)
-        data = {k: v for k, v in data.items() if v is not None}
-
-        if "K" not in data:
-            data["K"] = None
-
-        res = limix.qtl.scan(
-            data["G"],
-            data["y"],
-            lik="normal",
-            K=data["K"],
-            M=data["M"],
-            verbose=verbose,
-        )
-        outdir = input.outdir / y.trait.values.item()
-        if not outdir.exists():
-            outdir.mkdir()
-
-        outdir_stem = str(outdir.absolute())
-        with session_line(f"Saving results to folder <{outdir_stem}>... "):
-            res.to_csv(
-                outdir / "h0_effsizes.csv",
-                outdir / "h0_variances.csv",
-                outdir / "h2_effsizes.csv",
-                outdir / "stats.csv",
-            )
-
-
-def _multi_trait(input):
-    pass
-
-
-def _struct_lmm(input):
-    pass
-
-
-def print_trait(y_given, y_used):
-    from limix._display import draw_list
-
-    print(f"Phenotype: {y_given.name}")
-    n_given = len(y_given)
-    samples_given = draw_list(sorted(y_given.sample.values.tolist()), 5)
-    print(f"  Samples given ({n_given}): {samples_given}")
-    n_used = len(y_used)
-    samples_used = draw_list(sorted(y_used.sample.values.tolist()), 5)
-    print(f"  Samples used ({n_used}): {samples_used}")
-    pass
+    for i, task in enumerate(input.tasks(method)):
+        task.run(input, i, verbose)
