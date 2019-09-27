@@ -41,21 +41,25 @@ def conform_dataset(y, M=None, G=None, K=None):
         >>> data = conform_dataset(y, G=G)
         >>> print(data["y"])
         <xarray.DataArray 'trait' (sample: 4, trait: 1)>
-        array([[1.764052],
-               [0.400157],
-               [0.978738],
-               [2.240893]])
+        array([[1.76405235],
+               [0.40015721],
+               [0.97873798],
+               [2.24089320]])
         Coordinates:
           * sample   (sample) object 'sample0' 'sample0' 'sample1' 'sample2'
           * trait    (trait) int64 0
         >>> print(data["G"])
         <xarray.DataArray 'genotype' (sample: 4, candidate: 6)>
-        array([[ 1.867558, -0.977278,  0.950088, -0.151357, -0.103219,  0.410599],
-               [ 0.144044,  1.454274,  0.761038,  0.121675,  0.443863,  0.333674],
-               [ 1.494079, -0.205158,  0.313068, -0.854096, -2.552990,  0.653619],
-               [ 0.864436, -0.742165,  2.269755, -1.454366,  0.045759, -0.187184]])
+        array([[ 1.86755799, -0.97727788,  0.95008842, -0.15135721, -0.10321885,
+                0.41059850],
+              [ 0.14404357,  1.45427351,  0.76103773,  0.12167502,  0.44386323,
+                0.33367433],
+              [ 1.49407907, -0.20515826,  0.31306770, -0.85409574, -2.55298982,
+                0.65361860],
+              [ 0.86443620, -0.74216502,  2.26975462, -1.45436567,  0.04575852,
+                -0.18718385]])
         Coordinates:
-          * sample   (sample) object 'sample0' 'sample0' 'sample1' 'sample2'
+        * sample   (sample) object 'sample0' 'sample0' 'sample1' 'sample2'
         Dimensions without coordinates: candidate
         >>> K = random.randn(3, 3)
         >>> K = K.dot(K.T)
@@ -66,22 +70,22 @@ def conform_dataset(y, M=None, G=None, K=None):
         >>> data = conform_dataset(y, K=K)
         >>> print(data["y"])
         <xarray.DataArray 'trait' (sample: 4, trait: 1)>
-        array([[1.764052],
-               [0.400157],
-               [0.978738],
-               [2.240893]])
+        array([[1.76405235],
+            [0.40015721],
+            [0.97873798],
+            [2.24089320]])
         Coordinates:
-          * sample   (sample) object 'sample0' 'sample0' 'sample1' 'sample2'
-          * trait    (trait) int64 0
+        * sample   (sample) object 'sample0' 'sample0' 'sample1' 'sample2'
+        * trait    (trait) int64 0
         >>> print(data["K"])
         <xarray.DataArray 'covariance' (sample_0: 4, sample_1: 4)>
-        array([[ 1.659103,  1.659103, -0.850801, -1.956422],
-               [ 1.659103,  1.659103, -0.850801, -1.956422],
-               [-0.850801, -0.850801,  1.687126, -0.194938],
-               [-1.956422, -1.956422, -0.194938,  6.027272]])
+        array([[ 1.65910302,  1.65910302, -0.85080096, -1.95642234],
+               [ 1.65910302,  1.65910302, -0.85080096, -1.95642234],
+               [-0.85080096, -0.85080096,  1.68712632, -0.19493776],
+               [-1.95642234, -1.95642234, -0.19493776,  6.02727223]])
         Coordinates:
-          * sample_0  (sample_0) object 'sample0' 'sample0' 'sample1' 'sample2'
-          * sample_1  (sample_1) object 'sample0' 'sample0' 'sample1' 'sample2'
+        * sample_0  (sample_0) object 'sample0' 'sample0' 'sample1' 'sample2'
+        * sample_1  (sample_1) object 'sample0' 'sample0' 'sample1' 'sample2'
         >>> with pytest.raises(ValueError):
         ...     conform_dataset(y, G=G, K=K)
     """
