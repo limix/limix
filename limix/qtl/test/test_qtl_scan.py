@@ -273,7 +273,7 @@ def test_qtl_scan_lmm_repeat_samples_by_index():
 
 def test_qtl_scan_lmm_different_samples_order():
     random = RandomState(0)
-    nsamples = 30
+    nsamples = 50
     samples = ["sample{}".format(i) for i in range(nsamples)]
 
     G = random.randn(nsamples, 100)
@@ -292,12 +292,12 @@ def test_qtl_scan_lmm_different_samples_order():
 
     result = scan(X, y, "normal", K, M=M, verbose=False)
     pv = result.stats["pv20"]
-    assert_allclose(pv.values[1], 0.08776417543056649, rtol=1e-6)
+    assert_allclose(pv.values[1], 0.10807353644788478, rtol=1e-6)
     X.sort_index(inplace=True, ascending=False)
     X = DataFrame(X.values, index=X.index.values)
     result = scan(X, y, "normal", K, M=M, verbose=False)
     pv = result.stats["pv20"]
-    assert_allclose(pv.values[1], 0.08776417543056649, rtol=1e-6)
+    assert_allclose(pv.values[1], 0.10807353644788478, rtol=1e-6)
 
 
 def test_qtl_scan_glmm_binomial():
