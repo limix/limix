@@ -1,6 +1,6 @@
 # limix
 
-[![Travis](https://img.shields.io/travis/com/limix/limix.svg?style=flat-square&label=linux%20%2F%20macos%20build)](https://travis-ci.com/limix/limix) [![AppVeyor](https://img.shields.io/appveyor/ci/Horta/limix.svg?style=flat-square&label=windows%20build)](https://ci.appveyor.com/project/Horta/limix) [![Documentation](https://readthedocs.org/projects/limix/badge/?version=latest&style=flat-square)](https://limix.readthedocs.io/)
+[![Travis](https://img.shields.io/travis/com/limix/limix.svg?style=flat-square&label=linux%20%2F%20macos%20build)](https://travis-ci.com/limix/limix) [![AppVeyor](https://img.shields.io/appveyor/ci/Horta/limix.svg?style=flat-square&label=windows%20build)](https://ci.appveyor.com/project/Horta/limix) [![Documentation](https://readthedocs.org/projects/limix/badge/?version=latest&style=flat-square)](https://limix.readthedocs.io/) [![Forum](https://img.shields.io/badge/join%20the-community%20%F0%9F%92%AC-59b3d0.svg?style=flat-square)](https://forum.limix.io/)
 
 Genomic analyses require flexible models that can be adapted to the needs of the user.
 
@@ -12,7 +12,9 @@ It includes methods for
 - Association and interaction set tests
 - Different utils for statistical analysis, basic i/o, and plotting.
 
-The documentation can be found at https://limix.readthedocs.io.
+We have an extensive [documentation](https://limix.readthedocs.io) of the library.
+If you need further help or want to discuss anything related to limix, please, join our [forum](https://forum.limix.io/) 💬 and have a chat with us 😃.
+In case you have found a bug, please, report it creating an [issue](https://github.com/limix/limix/issues/new).
 
 ## Install
 

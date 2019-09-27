@@ -263,6 +263,41 @@ def test_qtl_scan_lmm_repeat_samples_by_index():
     pv = result.stats["pv20"]
     assert_allclose(pv[ix_best_snp], 1.0, rtol=1e-6)
     assert_allclose(pv.values[0], 0.6684700834450028, rtol=1e-6)
+    X.sort_index(inplace=True, ascending=False)
+    X = DataFrame(X.values, index=X.index.values)
+    result = scan(X, y, "normal", K, M=M, verbose=False)
+    pv = result.stats["pv20"]
+    assert_allclose(pv[ix_best_snp], 1.0, rtol=1e-6)
+    assert_allclose(pv.values[0], 0.6684700834450028, rtol=1e-6)
+
+
+def test_qtl_scan_lmm_different_samples_order():
+    random = RandomState(0)
+    nsamples = 50
+    samples = ["sample{}".format(i) for i in range(nsamples)]
+
+    G = random.randn(nsamples, 100)
+    G = DataFrame(data=G, index=samples)
+
+    K = linear_kinship(G.values[:, 0:80], verbose=False)
+    K = DataFrame(data=K, index=samples, columns=samples)
+
+    y = dot(G, random.randn(100)) / sqrt(100) + 0.2 * random.randn(nsamples)
+    y = DataFrame(data=y, index=samples)
+
+    M = G.values[:, :5]
+    X = G.values[:, 68:70]
+    M = DataFrame(data=M, index=samples)
+    X = DataFrame(data=X, index=samples)
+
+    result = scan(X, y, "normal", K, M=M, verbose=False)
+    pv = result.stats["pv20"]
+    assert_allclose(pv.values[1], 0.10807353644788478, rtol=1e-6)
+    X.sort_index(inplace=True, ascending=False)
+    X = DataFrame(X.values, index=X.index.values)
+    result = scan(X, y, "normal", K, M=M, verbose=False)
+    pv = result.stats["pv20"]
+    assert_allclose(pv.values[1], 0.10807353644788478, rtol=1e-6)
 
 
 def test_qtl_scan_glmm_binomial():

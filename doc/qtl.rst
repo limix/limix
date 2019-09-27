@@ -96,14 +96,14 @@ We use the **likelihood ratio test** (LRT) approach [LR18]_ to assess the signif
 of the association
 between genetic variants and the phenotype.
 It is based on the ratio between the marginal likelihood of the null 𝓗₀ and alternative
-𝓗₁ models, for which the simpler model 𝓗₀ is defined by constraint one or more
-parameters if the alternative model 𝓗₁.
+𝓗₁ models, for which the simpler model 𝓗₀ is defined by placing a constraint on one or
+more parameters of the alternative model 𝓗₁.
 
 The parameter inference is done via the maximum likelihood estimation (MLE) approach
 [ML18]_, for which the marginal likelihood p(𝐲 | 𝙼, 𝚇; 𝛉) is maximized over the
 parameters set 𝛉.
 Let 𝛉₀ and 𝛉₁ be the optimal parameters set under the null and alternative models.
-The likelihood ratio statistics is give by
+The likelihood ratio statistics is given by
 
 .. math::
 
@@ -340,7 +340,7 @@ distribution is not sufficient to explain the variability of yᵢ.
     >>> y = random.poisson(exp(z))
     >>>
     >>> r = scan(G, y, "poisson", K, M=M, verbose=False)
-    >>> print(r)
+    >>> print(r) # doctest: +FLOAT_CMP, +SKIP
     Hypothesis 0
     ------------
     <BLANKLINE>
@@ -348,7 +348,7 @@ distribution is not sufficient to explain the variability of yᵢ.
     <BLANKLINE>
     M     = ['offset' 'age']
     𝜶     = [5.17511934 0.04665214]
-    se(𝜶) = [0.85159296 0.00604329]
+    se(𝜶) = [0.85159296 0.00604330]
     lml   = -145.33385788740767
     <BLANKLINE>
     Hypothesis 2
@@ -533,7 +533,7 @@ Here is an example.
     >>> A1 = eye(p)
     >>>
     >>> r = scan(G, Y, K=K, M=M, A=A, A0=A0, A1=A1, verbose=False)
-    >>> print(r)
+    >>> print(r) # doctest: +FLOAT_CMP
     Hypothesis 0
     ------------
     <BLANKLINE>

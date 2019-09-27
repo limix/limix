@@ -13,7 +13,7 @@ from ._config import config
 from ._example import file_example
 from ._testit import test
 
-__version__ = "3.0.2"
+__version__ = "3.0.4"
 
 
 __all__ = [
