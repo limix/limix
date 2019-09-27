@@ -46,7 +46,7 @@ class VarDec(object):
         >>> vardec.fit(verbose=False)
         >>> print(vardec) # doctest: +FLOAT_CMP
         Variance decomposition
-        ======================
+        ----------------------
         <BLANKLINE>
         𝐲 ~ 𝓝(𝙼𝜶, 0.385⋅𝙺 + 1.184⋅𝙺 + 0.000⋅𝙸)
         >>> y = exp((y - y.mean()) / y.std())
@@ -58,7 +58,7 @@ class VarDec(object):
         >>> vardec.fit(verbose=False)
         >>> print(vardec) # doctest: +FLOAT_CMP
         Variance decomposition
-        ======================
+        ----------------------
         <BLANKLINE>
         𝐳 ~ 𝓝(𝙼𝜶, 0.000⋅𝙺 + 0.350⋅𝙺 + 0.000⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
     """
@@ -81,8 +81,8 @@ class VarDec(object):
         M : n×c array_like
             Covariates matrix.
         """
-        from numpy import asarray
-        from glimix_core.mean import LinearMean
+        from numpy import asarray, eye
+        from glimix_core.mean import LinearMean, KronMean
 
         y = asarray(y, float)
         data = conform_dataset(y, M)
@@ -91,7 +91,11 @@ class VarDec(object):
         self._y = y
         self._M = M
         self._lik = normalize_likelihood(lik)
-        self._mean = LinearMean(asarray(M, float))
+        if self._multi_trait():
+            A = eye(self._y.shape[1])
+            self._mean = KronMean(A, asarray(M, float))
+        else:
+            self._mean = LinearMean(asarray(M, float))
         self._covariance = []
         self._glmm = None
         self._fit = False
@@ -109,7 +113,9 @@ class VarDec(object):
         """
         if not self._fit:
             self.fit()
-        return self._mean.effsizes
+        if hasattr(self._mean, "effsizes"):
+            return self._mean.effsizes
+        return self._mean.B
 
     @property
     def covariance(self):
@@ -134,7 +140,9 @@ class VarDec(object):
         """
         with session_block("Variance decomposition", disable=not verbose):
             if self._lik[0] == "normal":
-                if self._simple_model():
+                if self._multi_trait():
+                    self._fit_lmm_multi_trait(verbose)
+                elif self._simple_model():
                     self._fit_lmm_simple_model(verbose)
                 else:
                     self._fit_lmm(verbose)
@@ -165,9 +173,13 @@ class VarDec(object):
     def append_iid(self, name="residual"):
         from glimix_core.cov import EyeCov
 
-        c = EyeCov(self._y.shape[0])
-        c.name = name
-        self._covariance.append(c)
+        if self._multi_trait():
+            cov = MTEyeCov(self._y.shape[1])
+        else:
+            cov = EyeCov(self._y.shape[0])
+
+        cov.name = name
+        self._covariance.append(cov)
 
     def append(self, K, name=None):
         from numpy_sugar import is_all_finite
@@ -181,7 +193,11 @@ class VarDec(object):
             raise ValueError("Covariance-matrix values must be finite.")
 
         K = K / K.diagonal().mean()
-        cov = GivenCov(K)
+        if self._multi_trait():
+            cov = MTGivenCov(self._y.shape[1], K)
+        else:
+            cov = GivenCov(K)
+
         if name is None:
             name = "unnamed-{}".format(self._unnamed)
             self._unnamed += 1
@@ -227,6 +243,21 @@ class VarDec(object):
         gp = ExpFamGP(y, self._lik, self._mean, SumCov(self._covariance))
         gp.fit(verbose=verbose)
         self._glmm = gp
+
+    def _fit_lmm_multi_trait(self, verbose):
+        from numpy import sqrt, asarray
+        from glimix_core.lmm import Kron2Sum
+        from numpy_sugar.linalg import economic_qs, ddot
+
+        X = asarray(self._M, float)
+        QS = economic_qs(self._covariance[0]._K)
+        G = ddot(QS[0][0], sqrt(QS[1]))
+        lmm = Kron2Sum(self._y, self._mean.A, X, G, rank=1, restricted=True)
+        lmm.fit(verbose=verbose)
+        self._glmm = lmm
+        self._covariance[0]._set_kron2sum(lmm)
+        self._covariance[1]._set_kron2sum(lmm)
+        self._mean.B = lmm.B
 
     def _fit_lmm_simple_model(self, verbose):
         from numpy_sugar.linalg import economic_qs
@@ -282,6 +313,9 @@ class VarDec(object):
                 break
         return K
 
+    def _multi_trait(self):
+        return self._y.ndim == 2 and self._y.shape[1] > 1
+
     def _simple_model(self):
         from glimix_core.cov import GivenCov, EyeCov
 
@@ -302,7 +336,8 @@ class VarDec(object):
 
     def __repr__(self):
         from glimix_core.cov import GivenCov
-        from limix.qtl._result._draw import draw_model, draw_title
+        from limix.qtl._result._draw import draw_model
+        from limix._display import draw_title
 
         covariance = ""
         for c in self._covariance:
@@ -319,3 +354,62 @@ class VarDec(object):
         msg = msg.rstrip()
 
         return msg
+
+
+class MTGivenCov:
+    def __init__(self, ntraits, K):
+        self._ntraits = ntraits
+        self._K = K
+        self._kron2sum = None
+        self._name = "unnamed"
+
+    def _set_kron2sum(self, kron2sum):
+        self._kron2sum = kron2sum
+
+    @property
+    def scale(self):
+        """
+        Scale parameter, s.
+        """
+        from numpy import eye
+
+        if self._kron2sum is None:
+            return eye(self._ntraits)
+        return self._kron2sum.C0
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
+
+
+class MTEyeCov:
+    def __init__(self, ntraits):
+        self._ntraits = ntraits
+        self._kron2sum = None
+        self._name = "unnamed"
+
+    def _set_kron2sum(self, kron2sum):
+        self._kron2sum = kron2sum
+
+    @property
+    def scale(self):
+        """
+        Scale parameter, s.
+        """
+        from numpy import eye
+
+        if self._kron2sum is None:
+            return eye(self._ntraits)
+        return self._kron2sum.C1
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name

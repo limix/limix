@@ -1,8 +1,8 @@
 from limix._cache import cache
 from limix.stats import lrt_pvalues
 
-from ._aligned import Aligned
-from ._draw import draw_alt_hyp_table, draw_lrt_table, draw_model, draw_title
+from limix._display import AlignedText, draw_title
+from ._draw import draw_alt_hyp_table, draw_lrt_table, draw_model
 
 
 class STScanResult:
@@ -134,21 +134,48 @@ class STScanResult:
 
         covariance = self._covariance_expr()
 
-        msg = draw_title("Hypothesis 0")
+        msg = draw_title("Hypothesis 0") + "\n"
         msg += draw_model(lik, "𝙼𝜶", covariance) + "\n"
         msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
 
-        msg += draw_title(f"Hypothesis 2")
+        msg += "\n"
+        msg += draw_title(f"Hypothesis 2") + "\n"
         msg += draw_model(lik, "𝙼𝜶 + G𝛃", f"s({covariance})")
         msg += draw_alt_hyp_table(2, self.stats, self.effsizes)
 
-        msg += draw_title("Likelihood-ratio test p-values")
+        msg += "\n"
+        msg += draw_title("Likelihood-ratio test p-values") + "\n"
         msg += draw_lrt_table(["𝓗₀ vs 𝓗₂"], [f"pv20"], stats)
         return msg
 
+    def to_csv(
+        self,
+        effsizes_path_or_buf,
+        variances_path_or_buf,
+        h2_effsizes_path_or_buf,
+        stats_path_or_buf,
+    ):
+        """
+        Save results to comma-separated values (csv) files.
+
+        Parameters
+        ----------
+        effsizes_path_or_buf : str, file handle
+            File path or object for saving effect-sizes of H₀.
+        variances_path_or_buf : str, file handle
+            File path or object for saving variances of H₀.
+        h2_path_or_buf : str, file handle
+            File path or object for saving effect-sizes of H₂.
+        stats_path_or_buf: str, file handle
+            File path or object for saving statistics.
+        """
+        self.h0.to_csv(effsizes_path_or_buf, variances_path_or_buf)
+        self.effsizes["h2"].to_csv(h2_effsizes_path_or_buf)
+        self.stats.to_csv(stats_path_or_buf)
+
 
 def _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml):
-    aligned = Aligned()
+    aligned = AlignedText()
     aligned.add_item("M", covariates)
     aligned.add_item("𝜶", effsizes)
     aligned.add_item("se(𝜶)", effsizes_se)

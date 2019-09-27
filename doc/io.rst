@@ -14,11 +14,11 @@ BIMBAM
     >>> print(limix.io.bimbam.read_phenotype(filepath, verbose=False))
     trait         0        1        2
     sample
-    0        1.20000 -0.30000 -1.50000
-    1            nan  1.50000  0.30000
-    2        2.70000  1.10000      nan
-    3       -0.20000 -0.70000  0.80000
-    4        3.30000  2.40000  2.10000
+    0       1.20000 -0.30000 -1.50000
+    1           nan  1.50000  0.30000
+    2       2.70000  1.10000      nan
+    3      -0.20000 -0.70000  0.80000
+    4       3.30000  2.40000  2.10000
     >>> limix.sh.remove(filepath)
 
 BGEN reader
@@ -30,7 +30,7 @@ BGEN reader
     >>> filepath = limix.sh.download(url, verbose=False)
     >>>
     >>> data = limix.io.bgen.read(filepath, verbose=False)
-    >>> print(data.keys())  
+    >>> print(data.keys())
     dict_keys(['variants', 'samples', 'genotype'])
     >>> print(data["variants"].head(4))
              id rsid chrom  pos  nalleles allele_ids  vaddr
@@ -202,9 +202,11 @@ PLINK reader
 
 .. doctest::
 
-    >>> from pandas_plink import example_file_prefix
+    >>> from os.path import join
+    >>> from pandas_plink import get_data_folder
     >>>
-    >>> (bim, fam, bed) = limix.io.plink.read(example_file_prefix(), verbose=False)
+    >>> (bim, fam, bed) = limix.io.plink.read(join(get_data_folder(), "data"),
+    ...                                       verbose=False)
     >>> print(bim.head())
                chrom         snp       cm    pos a0 a1  i
     candidate
@@ -219,3 +221,14 @@ PLINK reader
     Sample_1  Sample_1  Sample_1         0         0      1 -9.00000  0
     Sample_2  Sample_2  Sample_2         0         0      2 -9.00000  1
     Sample_3  Sample_3  Sample_3  Sample_1  Sample_2      2 -9.00000  2
+    >>> print(bed.compute())
+    [[ 2.  2.  1.]
+     [ 2.  1.  2.]
+     [nan nan nan]
+     [nan nan  1.]
+     [ 2.  2.  2.]
+     [ 2.  2.  2.]
+     [ 2.  1.  0.]
+     [ 2.  2.  2.]
+     [ 1.  2.  2.]
+     [ 2.  1.  2.]]

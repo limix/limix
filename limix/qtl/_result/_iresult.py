@@ -1,8 +1,8 @@
 from limix._cache import cache
 from limix.stats import lrt_pvalues
 
-from ._aligned import Aligned
-from ._draw import draw_alt_hyp_table, draw_lrt_table, draw_model, draw_title
+from limix._display import AlignedText, draw_title
+from ._draw import draw_alt_hyp_table, draw_lrt_table, draw_model
 
 
 class IScanResult:
@@ -221,19 +221,19 @@ class IScanResult:
 
         covariance = self._covariance_expr()
 
-        msg = draw_title("Hypothesis 0")
+        msg = draw_title("Hypothesis 0") + "\n"
         msg += draw_model(lik, "𝙼𝜶", covariance) + "\n"
-        msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
+        msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml) + "\n"
 
-        msg += draw_title("Hypothesis 1")
+        msg += draw_title("Hypothesis 1") + "\n"
         msg += draw_model(lik, "𝙼𝜶 + (𝙶⊙𝙴₀)𝛃₀", f"s({covariance})")
-        msg += draw_alt_hyp_table(1, self.stats, self.effsizes)
+        msg += draw_alt_hyp_table(1, self.stats, self.effsizes) + "\n"
 
-        msg += draw_title("Hypothesis 1")
+        msg += draw_title("Hypothesis 2") + "\n"
         msg += draw_model(lik, "𝙼𝜶 + (𝙶⊙𝙴₀)𝛃₀ + (𝙶⊙𝙴₁)𝛃₁", f"s({covariance})")
         msg += draw_alt_hyp_table(2, self.stats, self.effsizes)
 
-        msg += draw_title("Likelihood-ratio test p-values")
+        msg += draw_title("Likelihood-ratio test p-values") + "\n"
         cols = ["𝓗₀ vs 𝓗₁", "𝓗₀ vs 𝓗₂", "𝓗₁ vs 𝓗₂"]
         msg += draw_lrt_table(cols, ["pv10", "pv20", "pv21"], stats)
         return msg
@@ -250,7 +250,7 @@ class IScanResult:
 
         covariance = self._covariance_expr()
 
-        msg = draw_title("Hypothesis 0")
+        msg = draw_title("Hypothesis 0") + "\n"
         msg += draw_model(lik, "𝙼𝜶", covariance) + "\n"
         msg += _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml)
 
@@ -261,11 +261,11 @@ class IScanResult:
             mean = "𝙼𝜶 + (𝙶⊙𝙴₁)𝛃₁"
             col = "𝓗₀ vs 𝓗₂"
 
-        msg += draw_title(f"Hypothesis {alt_hyp}")
+        msg += draw_title(f"Hypothesis {alt_hyp}") + "\n"
         msg += draw_model(lik, mean, f"s({covariance})")
         msg += draw_alt_hyp_table(alt_hyp, self.stats, self.effsizes)
 
-        msg += draw_title("Likelihood-ratio test p-values")
+        msg += draw_title("Likelihood-ratio test p-values") + "\n"
         msg += draw_lrt_table([col], [f"pv{alt_hyp}0"], stats)
         return msg
 
@@ -276,7 +276,7 @@ class IScanResult:
 
 
 def _draw_hyp0_summary(covariates, effsizes, effsizes_se, lml):
-    aligned = Aligned()
+    aligned = AlignedText()
     aligned.add_item("M", covariates)
     aligned.add_item("𝜶", effsizes)
     aligned.add_item("se(𝜶)", effsizes_se)

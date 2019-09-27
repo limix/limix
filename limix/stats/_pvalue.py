@@ -83,7 +83,7 @@ def empirical_pvalues(xt, x0):
         >>> x1 = random.chisquare(1, 10000)
         >>>
         >>> empirical_pvalues(x0, x1) # doctest: +FLOAT_CMP
-        array([0.563 , 1.    , 0.839 , 0.7982, 0.5803])
+        array([0.56300000, 1.00000000, 0.83900000, 0.79820000, 0.58030000])
     """
     from numpy import argsort, zeros, asarray
 

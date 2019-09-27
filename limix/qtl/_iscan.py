@@ -38,6 +38,7 @@ def iscan(G, y, lik="normal", K=None, M=None, idx=None, E0=None, E1=None, verbos
 
     It also supports generalized linear mixed models (GLMM). In this case, the following
     likelihoods are implemented:
+
     - Bernoulli
     - Probit
     - Binomial

@@ -36,12 +36,14 @@ def scan(
 
     It performs likelihood-ratio tests for the following cases, where the first
     hypothesis is the null one while the second hypothesis is the alternative one:
+
     - H₀ vs H₁: testing for vec(𝚩₀) ≠ 𝟎 while vec(𝚩₁) = 𝟎
     - H₀ vs H₂: testing for [vec(𝚩₀) vec(𝚩₁)] ≠ 𝟎
     - H₁ vs H₂: testing for vec(𝚩₁) ≠ 𝟎
 
     It supports generalized linear mixed models (GLMM) when a single trait is used.
     In this case, the following likelihoods are implemented:
+
     - Bernoulli
     - Probit
     - Binomial
@@ -171,39 +173,50 @@ def scan(
         >>>
         >>> result = scan(candidates, y, 'poisson', K, M=M, verbose=False)
         >>>
-        >>> result.stats  # doctest: +FLOAT_CMP +SKIP
-               null lml    alt lml    pvalue  dof
+        >>> result.stats  # doctest: +FLOAT_CMP
+                   lml0       lml2  dof20    scale2      pv20
         test
-        0    -48.736563 -48.561855  0.554443    1
-        1    -48.736563 -47.981093  0.218996    1
-        2    -48.736563 -48.559868  0.552200    1
-        >>> result.alt_effsizes  # doctest: +FLOAT_CMP +SKIP
-           test candidate   effsize  effsize se
-        0     0       rs0 -0.130867    0.221390
-        1     1       rs1 -0.315079    0.256327
-        2     2       rs2 -0.143869    0.242014
-        >>> print(result)  # doctest: +FLOAT_CMP +SKIP
-        Null model
-        ----------
+        0    -48.720890 -48.536860      1  0.943532  0.544063
+        1    -48.720890 -47.908341      1  0.904814  0.202382
+        2    -48.720890 -48.534754      1  0.943400  0.541768
+        >>> print(result)  # doctest: +FLOAT_CMP
+        Hypothesis 0
+        ------------
         <BLANKLINE>
-          𝐳 ~ 𝓝(M𝜶, 0.79*K + 0.00*I)
-          yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ
-          M = ['offset' 'age']
-          𝜶 = [ 0.39528617 -0.00556789]
-          Log marg. lik.: -48.736563230140376
-          Number of models: 1
+        𝐳 ~ 𝓝(𝙼𝜶, 0.000⋅𝙺 + 0.788⋅𝙸) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
         <BLANKLINE>
-        Alt model
-        ---------
+        M     = ['offset' 'age']
+        𝜶     = [ 0.39528889 -0.00556797]
+        se(𝜶) = [0.50173695 0.01505240]
+        lml   = -48.720890273519444
         <BLANKLINE>
-          𝐳 ~ 𝓝(M𝜶 + Gᵢ, 0.79*K + 0.00*I)
-          yᵢ ~ Poisson(λᵢ=g(zᵢ)), where g(x)=eˣ
-          Min. p-value: 0.21899561824721903
-          First perc. p-value: 0.22565970374303942
-          Max. log marg. lik.: -47.981092939974765
-          99th perc. log marg. lik.: -47.9926684371547
-          Number of models: 3
-
+        Hypothesis 2
+        ------------
+        <BLANKLINE>
+        𝐳 ~ 𝓝(𝙼𝜶 + G𝛃, s(0.000⋅𝙺 + 0.788⋅𝙸)) for yᵢ ~ Poisson(λᵢ=g(zᵢ)) and g(x)=eˣ
+        <BLANKLINE>
+                  lml       cov. effsizes   cand. effsizes
+        --------------------------------------------------
+        mean   -4.833e+01       2.393e-01       -1.966e-01
+        std     3.623e-01       2.713e-01        1.028e-01
+        min    -4.854e+01      -8.490e-03       -3.151e-01
+        25%    -4.854e+01      -7.684e-03       -2.295e-01
+        50%    -4.853e+01       2.243e-01       -1.439e-01
+        75%    -4.822e+01       4.725e-01       -1.374e-01
+        max    -4.791e+01       5.255e-01       -1.309e-01
+        <BLANKLINE>
+        Likelihood-ratio test p-values
+        ------------------------------
+        <BLANKLINE>
+               𝓗₀ vs 𝓗₂
+        ----------------
+        mean   4.294e-01
+        std    1.966e-01
+        min    2.024e-01
+        25%    3.721e-01
+        50%    5.418e-01
+        75%    5.429e-01
+        max    5.441e-01
         >>> from numpy import zeros
         >>>
         >>> nsamples = 50
@@ -220,27 +233,44 @@ def scan(
         ...         successes[i] += int(z[i] + 0.5 * random.randn() > 0)
         >>>
         >>> result = scan(X, successes, ("binomial", ntrials), K, verbose=False)
-        >>> print(result)  # doctest: +FLOAT_CMP +SKIP
-        Null model
-        ----------
+        >>> print(result)  # doctest: +FLOAT_CMP
+        Hypothesis 0
+        ------------
         <BLANKLINE>
-          𝐳 ~ 𝓝(M𝜶, 1.74*K + 0.15*I)
-          yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ), where g(x)=1/(1+e⁻ˣ)
-          M = ['offset']
-          𝜶 = [0.40956947]
-          Log marg. lik.: -142.9436437096321
-          Number of models: 1
+        𝐳 ~ 𝓝(𝙼𝜶, 0.152⋅𝙺 + 1.738⋅𝙸) for yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ) and g(x)=1/(1+e⁻ˣ)
         <BLANKLINE>
-        Alt model
-        ---------
+        M     = ['offset']
+        𝜶     = [0.40956942]
+        se(𝜶) = [0.55141166]
+        lml   = -142.80784719977515
         <BLANKLINE>
-          𝐳 ~ 𝓝(M𝜶 + Gᵢ, 1.74*K + 0.15*I)
-          yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ), where g(x)=1/(1+e⁻ˣ)
-          Min. p-value: 0.23699422686919802
-          First perc. p-value: 0.241827874774993
-          Max. log marg. lik.: -142.24445140459548
-          99th perc. log marg. lik.: -142.25080258276773
-          Number of models: 2
+        Hypothesis 2
+        ------------
+        <BLANKLINE>
+        𝐳 ~ 𝓝(𝙼𝜶 + G𝛃, s(0.152⋅𝙺 + 1.738⋅𝙸)) for yᵢ ~ Binom(μᵢ=g(zᵢ), nᵢ) and g(x)=1/(1+e⁻ˣ)
+        <BLANKLINE>
+                  lml       cov. effsizes   cand. effsizes
+        --------------------------------------------------
+        mean   -1.425e+02       3.701e-01        2.271e-01
+        std     4.110e-01       2.296e-02        5.680e-01
+        min    -1.427e+02       3.539e-01       -1.745e-01
+        25%    -1.426e+02       3.620e-01        2.631e-02
+        50%    -1.425e+02       3.701e-01        2.271e-01
+        75%    -1.423e+02       3.782e-01        4.279e-01
+        max    -1.422e+02       3.864e-01        6.287e-01
+        <BLANKLINE>
+        Likelihood-ratio test p-values
+        ------------------------------
+        <BLANKLINE>
+               𝓗₀ vs 𝓗₂
+        ----------------
+        mean   4.959e-01
+        std    3.362e-01
+        min    2.582e-01
+        25%    3.771e-01
+        50%    4.959e-01
+        75%    6.148e-01
+        max    7.336e-01
 
     Notes
     -----
@@ -272,6 +302,11 @@ def scan(
         else:
             QS = None
 
+        if verbose:
+            print()
+            _print_input_info(idx, lik, Y, M, G, K)
+            print()
+
         if A is None:
             r = _single_trait_scan(idx, lik, Y, M, G, QS, verbose)
         else:
@@ -279,9 +314,44 @@ def scan(
 
         r = r.create()
         if verbose:
+            print()
             print(r)
 
         return r
+
+
+def _print_input_info(idx, lik, Y, M, G, K):
+    from limix._display import draw_list
+    from limix._display import AlignedText, draw_title
+
+    aligned = AlignedText(": ")
+    likname = lik[0]
+    aligned.add_item("Likelihood", likname)
+    ntraits = Y.shape[1]
+    traits = draw_list(Y.trait.values.tolist(), 5)
+    aligned.add_item(f"Traits ({ntraits})", traits)
+
+    ncovariates = M.shape[1]
+    covariates = draw_list(M.covariate.values.tolist(), 5)
+    aligned.add_item(f"Covariates ({ncovariates})", covariates)
+
+    nvariants = G.shape[1]
+    variants = draw_list(G.candidate.values.tolist(), 5)
+    aligned.add_item(f"Variants {nvariants}", variants)
+    if idx is None:
+        ncandidates = nvariants
+    else:
+        ncandidates = len(idx)
+    aligned.add_item("N. of candidates", ncandidates)
+
+    if K is None:
+        kinship_presence = "absent"
+    else:
+        kinship_presence = "present"
+    aligned.add_item("Kinship", kinship_presence)
+
+    print(draw_title("Input"))
+    print(aligned.draw())
 
 
 def _single_trait_scan(idx, lik, Y, M, G, QS, verbose):

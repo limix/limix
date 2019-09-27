@@ -19,10 +19,11 @@ def read(prefix, verbose=True):
     --------
     .. doctest::
 
+        >>> from os.path import join
         >>> from limix.io import plink
-        >>> from pandas_plink import example_file_prefix
+        >>> from pandas_plink import get_data_folder
         >>>
-        >>> (bim, fam, bed) = plink.read(example_file_prefix(), verbose=False)
+        >>> (bim, fam, bed) = plink.read(join(get_data_folder(), "data"), verbose=False)
         >>> print(bim.head())
                    chrom         snp       cm    pos a0 a1  i
         candidate
@@ -37,7 +38,7 @@ def read(prefix, verbose=True):
         Sample_1  Sample_1  Sample_1         0         0      1 -9.00000  0
         Sample_2  Sample_2  Sample_2         0         0      2 -9.00000  1
         Sample_3  Sample_3  Sample_3  Sample_1  Sample_2      2 -9.00000  2
-        >>> print(bed.compute())
+        >>> print(bed.compute())  # doctest: +FLOAT_CMP
         [[ 2.  2.  1.]
          [ 2.  1.  2.]
          [nan nan nan]
@@ -54,13 +55,14 @@ def read(prefix, verbose=True):
 
     .. doctest::
 
+        >>> from os.path import join
         >>> from limix.io import plink
-        >>> from pandas_plink import example_file_prefix
+        >>> from pandas_plink import get_data_folder
         >>>
-        >>> (bim, fam, bed) = plink.read(example_file_prefix(), verbose=False)
+        >>> (bim, fam, bed) = plink.read(join(get_data_folder(), "data"), verbose=False)
         >>> chrom1 = bim.query("chrom=='1'")
         >>> X = bed[chrom1.i.values, :].compute()
-        >>> print(X)
+        >>> print(X)  # doctest: +FLOAT_CMP
         [[ 2.  2.  1.]
          [ 2.  1.  2.]
          [nan nan nan]
@@ -92,6 +94,20 @@ def read(prefix, verbose=True):
     return data
 
 
+def read_pheno(filepath):
+    from numpy import atleast_2d, asarray
+    from os.path import basename, splitext
+    from xarray import DataArray
+    from .csv import read
+
+    y = read(filepath, header=None, verbose=False)
+    sample_ids = y.iloc[:, 1].tolist()
+    name = splitext(basename(filepath))[0]
+    y = atleast_2d(asarray(y.iloc[:, 2].values, float)).T
+    y = DataArray(y, dims=["sample", "trait"], coords=[sample_ids, [name]])
+    return y
+
+
 def _read_dosage(prefix, verbose):
     from pandas_plink import read_plink
 
@@ -99,12 +115,12 @@ def _read_dosage(prefix, verbose):
 
 
 def _see_bed(filepath, verbose):
-    from .._display import add_title_header
+    from .._display import draw_dataframe
 
     (bim, fam, _) = read(filepath, verbose=verbose)
 
-    print(add_title_header("Samples", bim))
-    print(add_title_header("Genotype", fam))
+    print(draw_dataframe("Samples", bim))
+    print(draw_dataframe("Genotype", fam))
 
 
 def _see_kinship(filepath, verbose):
@@ -118,6 +134,8 @@ def _see_kinship(filepath, verbose):
         print("File %s not found." % filepath)
         return
 
+    if verbose:
+        print("Plotting...")
     plot.kinship(K)
 
 
@@ -125,3 +143,7 @@ def _read_grm_raw(filepath):
     from numpy import loadtxt
 
     return loadtxt(filepath)
+
+
+def _read_bed(filepath):
+    pass

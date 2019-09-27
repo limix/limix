@@ -64,8 +64,8 @@ def _see_phenotype(filepath, verbose=True):
     str
         File representation.
     """
-    from .._display import add_title_header
+    from .._display import draw_dataframe
 
     df = read_phenotype(filepath, verbose)
 
-    print(add_title_header("Phenotypes", df))
+    print(draw_dataframe("Phenotypes", df))

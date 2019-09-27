@@ -1,4 +1,5 @@
-r"""Retrieve information about terminal/frontend.
+"""
+Retrieve information about terminal/frontend.
 
 Acknowledgment
 --------------
@@ -21,16 +22,6 @@ def pprint(txt):
         display(_RichText(txt))
     except Exception:
         print(_RichText(txt))
-
-
-def add_title_header(title, df):
-    msg = repr(df)
-    k = msg.find("\n") - len(title) - 2
-    left = ("-" * (k // 2)) + " "
-    right = " " + ("-" * (k // 2 + k % 2))
-    out = left + title + right + "\n"
-    out += msg
-    return out
 
 
 def format_richtext(txt):

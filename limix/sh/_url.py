@@ -22,6 +22,7 @@ def download(url, dest=None, verbose=True):
     """
     import os
     from urllib.request import urlretrieve
+    from urllib.error import HTTPError
 
     if dest is None:
         dest = os.getcwd()
@@ -29,7 +30,16 @@ def download(url, dest=None, verbose=True):
     filepath = os.path.join(dest, _filename(url))
 
     with session_line(f"Downloading {url}... ", disable=not verbose):
-        urlretrieve(url, filepath)
+        tries = 3
+        while tries > 0:
+            try:
+                urlretrieve(url, filepath)
+                tries = 0
+            except HTTPError as e:
+                if e.code == 504 and tries > 0:
+                    tries -= 1
+                else:
+                    raise
 
     return filepath
 

@@ -1,12 +1,3 @@
-from ._table import Table
-
-
-def draw_title(title):
-    msg = f"{title}\n"
-    msg += "=" * len(title) + "\n\n"
-    return msg
-
-
 def draw_model(lik, mean, covariance):
     if lik == "normal":
         var = "𝐲"
@@ -19,16 +10,20 @@ def draw_model(lik, mean, covariance):
 
 
 def draw_alt_hyp_table(hyp_num, stats, effsizes):
+    from limix._display import Table
+
     cols = ["lml", "cov. effsizes", "cand. effsizes"]
     table = Table(cols, index=_describe_index())
     table.add_column(_describe(stats, f"lml{hyp_num}"))
     df = effsizes[f"h{hyp_num}"]
     table.add_column(_describe(df[df["effect_type"] == "covariate"], "effsize"))
     table.add_column(_describe(df[df["effect_type"] == "candidate"], "effsize"))
-    return "\n" + table.draw() + "\n\n"
+    return "\n" + table.draw() + "\n"
 
 
 def draw_lrt_table(test_titles, pv_names, stats):
+    from limix._display import Table
+
     table = Table(test_titles, index=_describe_index())
 
     for name in pv_names:
