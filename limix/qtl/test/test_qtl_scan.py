@@ -263,6 +263,11 @@ def test_qtl_scan_lmm_repeat_samples_by_index():
     pv = result.stats["pv20"]
     assert_allclose(pv[ix_best_snp], 1.0, rtol=1e-6)
     assert_allclose(pv.values[0], 0.6684700834450028, rtol=1e-6)
+    X.sort_index(inplace=True, ascending=False)
+    result = scan(X, y, "normal", K, M=M, verbose=False)
+    pv = result.stats["pv20"]
+    assert_allclose(pv[ix_best_snp], 1.0, rtol=1e-6)
+    assert_allclose(pv.values[0], 0.6684700834450028, rtol=1e-6)
 
 
 def test_qtl_scan_glmm_binomial():
