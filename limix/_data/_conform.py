@@ -122,7 +122,7 @@ def conform_dataset(y, M=None, G=None, K=None):
     # In the other cases, we check for uniqueness.
     if not same_size:
         _check_uniqueness(data, sample_dims)
-        _match_samples(data, sample_dims)
+    _match_samples(data, sample_dims)
 
     return {k: data.get(k, None) for k in ["y", "M", "G", "K"]}
 
@@ -246,13 +246,18 @@ def _check_uniqueness(data, dims):
 
 
 def _match_samples(data, dims):
+    from pandas.core.index import InvalidIndexError
+
     inc_msg = "The provided trait and {} arrays are sample-wise incompatible."
 
     for n, d in dims:
         if n == "y":
             continue
         try:
-            data[n] = data[n].sel(**{d: data["y"].coords["sample"].values})
+            try:
+                data[n] = data[n].sel(**{d: data["y"].coords["sample"].values})
+            except InvalidIndexError:
+                pass
         except IndexError as e:
             raise ValueError(str(e) + "\n\n" + inc_msg.format(data[n].name))
 
