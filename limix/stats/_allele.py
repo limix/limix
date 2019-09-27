@@ -109,8 +109,10 @@ def allele_expectation(p, nalleles, ploidy):
         >>> with example_files("example.32bits.bgen") as filepath:
         ...     bgen = read_bgen(filepath, verbose=False)
         ...
-        ...     locus = bgen["variants"].query("rsid == '{}'".format(rsid)).index.compute().item()
-        ...     sample = bgen["samples"].to_frame().query("id == '{}'".format(sampleid)).index
+        ...     locus = bgen["variants"].query("rsid == '{}'".format(rsid)).index
+        ...     locus = locus.compute().values[0]
+        ...     sample = bgen["samples"].to_frame().query("id == '{}'".format(sampleid))
+        ...     sample = sample.index
         ...     sample = sample[0]
         ...
         ...     nalleles = bgen["variants"].loc[locus]["nalleles"]
@@ -120,7 +122,8 @@ def allele_expectation(p, nalleles, ploidy):
         ...     # For unphased genotypes only.
         ...     e = allele_expectation(bgen, locus)[sample]
         ...
-        ...     alleles = bgen["variants"].loc[locus]["allele_ids"].compute().item().split(",")
+        ...     alleles = bgen["variants"].loc[locus]["allele_ids"].compute()
+        ...     alleles = alleles.values[0].split(",")
         ...
         ...     tab = Texttable()
         ...

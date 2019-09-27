@@ -199,8 +199,8 @@ class IScanResult:
     def _covariance_expr(self):
         from numpy import isnan
 
-        v0 = self.h0.variances["fore_covariance"].item()
-        v1 = self.h0.variances["back_covariance"].item()
+        v0 = float(self.h0.variances["fore_covariance"])
+        v1 = float(self.h0.variances["back_covariance"])
 
         if isnan(v0):
             covariance = f"{v1:.3f}⋅𝙸"
