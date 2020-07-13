@@ -1,10 +1,10 @@
-from numpy import asarray, concatenate, sort, zeros, nan
+import pytest
+from numpy import asarray, concatenate, sort, zeros, nan, inf
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 from pandas import DataFrame
 
-from limix.stats import confusion_matrix
-from limix.stats._confusion import auc
+from limix.stats import confusion_matrix, ConfusionMatrix
 
 
 def test_stats_confusion():
@@ -61,8 +61,97 @@ def test_stats_confusion():
     assert_allclose(cm.fdr[90], 0.977777777778)
     assert_allclose(cm.accuracy[90], 0.288)
     assert_allclose(cm.f1score[90], 0.0430107526882)
-    (fpr, tpr) = cm.roc()
-    assert_allclose(fpr[90], 0.729508196721)
-    assert_allclose(tpr[90], 0.666666666667)
+    roc = cm.roc()
+    assert_allclose(roc.fpr[90], 0.729508196721)
+    assert_allclose(roc.tpr[90], 0.666666666667)
 
-    assert_allclose(auc(fpr, tpr), 0.28415300546448086)
+    assert_allclose(roc.auc, 0.28415300546448086)
+
+
+def test_stats_confusion_matrix():
+    true_samples = [3, 2]
+    N = 100
+    sorted_samples = [1, 3, 100]
+
+    cm = ConfusionMatrix(true_samples, N, sorted_samples)
+
+    assert_allclose(cm.precision[0], nan)
+    assert_allclose(cm.precision[-1], 1 / 3)
+
+    assert_allclose(cm.npv[0], 0.9803921568627451)
+    assert_allclose(cm.npv[-1], nan)
+
+    assert_allclose(cm.sensitivity[0], 0.0)
+    assert_allclose(cm.sensitivity[-1], 0.5)
+
+    assert_allclose(cm.specifity[0], 1.0)
+    assert_allclose(cm.specifity[-1], 0.98)
+
+    assert_allclose(cm.f1score[0], 0.0)
+    assert_allclose(cm.f1score[-1], 0.4)
+
+    assert_allclose(cm.accuracy[0], 0.9803921568627451)
+    assert_allclose(cm.accuracy[-1], 0.9705882352941176)
+
+    roc = cm.roc()
+    assert_allclose(roc.fpr, [0.01000000, 0.01000000, 0.02000000])
+    assert_allclose(roc.tpr, [0.00000000, 0.50000000, 0.50000000])
+
+    assert_allclose(roc.auc, 0.495)
+
+
+def test_stats_confusion_matrix_len1():
+    true_samples = [3, 2]
+    N = 100
+    sorted_samples = [1]
+
+    cm = ConfusionMatrix(true_samples, N, sorted_samples)
+
+    assert_allclose(cm.precision[0], nan)
+    assert_allclose(cm.precision[-1], 0.0)
+
+    assert_allclose(cm.npv[0], 0.9803921568627451)
+    assert_allclose(cm.npv[-1], nan)
+
+    assert_allclose(cm.sensitivity[0], 0.0)
+    assert_allclose(cm.sensitivity[-1], 0.0)
+
+    assert_allclose(cm.specifity[0], 1.0)
+    assert_allclose(cm.specifity[-1], 0.99)
+
+    assert_allclose(cm.f1score[0], 0.0)
+    assert_allclose(cm.f1score[-1], 0.0)
+
+    assert_allclose(cm.accuracy[0], 0.9803921568627451)
+    assert_allclose(cm.accuracy[-1], 0.9705882352941176)
+
+    roc = cm.roc()
+    assert_allclose(roc.fpr, [0.01000000])
+    assert_allclose(roc.tpr, [0.00000000])
+
+    assert_allclose(roc.auc, 0.0)
+
+
+def test_stats_confusion_matrix_limit():
+    true_samples = [3, 2]
+    sorted_samples = [1]
+
+    with pytest.raises(ValueError):
+        ConfusionMatrix(true_samples, 0, sorted_samples)
+
+    cm = ConfusionMatrix(true_samples, 0, [])
+
+    assert_allclose(cm.precision[0], nan)
+
+    assert_allclose(cm.npv[0], nan)
+
+    assert_allclose(cm.sensitivity[0], 0.0)
+
+    assert_allclose(cm.specifity[0], nan)
+
+    assert_allclose(cm.f1score[0], 0.0)
+
+    assert_allclose(cm.accuracy[0], 0.0)
+
+    with pytest.raises(ValueError):
+        cm.roc()

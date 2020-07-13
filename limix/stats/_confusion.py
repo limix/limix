@@ -1,4 +1,7 @@
 from __future__ import division
+from __future__ import annotations
+
+from typing import Iterable
 
 import logging
 
@@ -131,85 +134,115 @@ def confusion_matrix(df, wsize=50000):
 
     logger.info("Found %d positive and %d negative markers.", P, N)
 
-    return ConfusionMatrix(P, N, ld_causal_markers, argsort(pv))
+    return ConfusionMatrix(ld_causal_markers, N, argsort(pv))
 
 
-def getter(func):
-    class ItemGetter(object):
-        def __getitem__(self, i):
-            return func(i)
+class ROC:
+    def __init__(self, fpr: Iterable[float], tpr: Iterable[float]):
+        from numpy import asarray
 
-        def __lt__(self, other):
-            from numpy import s_
+        self._fpr = asarray(fpr, float)
+        self._tpr = asarray(tpr, float)
 
-            return func(s_[:]) < other
+    @property
+    def fpr(self):
+        return self._fpr
 
-        def __le__(self, other):
-            from numpy import s_
+    @property
+    def tpr(self):
+        return self._tpr
 
-            return func(s_[:]) <= other
-
-        def __gt__(self, other):
-            from numpy import s_
-
-            return func(s_[:]) > other
-
-        def __ge__(self, other):
-            from numpy import s_
-
-            return func(s_[:]) >= other
-
-        def __eq__(self, other):
-            from numpy import s_
-
-            return func(s_[:]) == other
-
-    return ItemGetter()
+    @property
+    def auc(self) -> float:
+        left = self.fpr[0]
+        area = 0.0
+        for i in range(1, len(self.fpr)):
+            width = self.fpr[i] - left
+            area += width * self.tpr[i - 1]
+            left = self.fpr[i]
+        area += (1 - left) * self.tpr[-1]
+        return area
 
 
-# TODO: document it
-class ConfusionMatrix(object):
-    def __init__(self, P, N, true_set, idx_rank):
-        from numpy import empty, asarray, searchsorted
+class ConfusionMatrix:
+    """
+    Confusion matrix.
 
-        self._TP = empty(P + N + 1, dtype=int)
-        self._FP = empty(P + N + 1, dtype=int)
-        if len(idx_rank) != P + N:
-            raise ValueError(
-                "Rank indices array has to have length equal" + " to ``P + N``."
-            )
+    Parameters
+    ----------
+    true_samples
+        Set of all positive samples from the solution space.
+    N
+        Number of negative samples.
+    sorted_samples
+        Samples sorted from the most to the least likely one to be considered positive.
+    """
 
-        true_set = asarray(true_set, int)
-        true_set.sort()
+    def __init__(
+        self, true_samples: Iterable[int], N: int, sorted_samples: Iterable[int]
+    ):
+        from numpy import empty, asarray
 
-        idx_rank = asarray(idx_rank, int)
+        if len(set(sorted_samples) - set(true_samples)) > N:
+            raise ValueError("Invalid number of negative samples.")
 
-        ins_pos = searchsorted(true_set, idx_rank)
-        _confusion_matrix_tp_fp(P + N, ins_pos, true_set, idx_rank, self._TP, self._FP)
+        true_arr = asarray(true_samples, int)
+        P = len(true_arr)
+
+        sorted_arr = asarray(sorted_samples, int)
+
+        self._TP = empty(len(sorted_arr) + 1, int)
+        self._FP = empty(len(sorted_arr) + 1, int)
+
         self._N = N
         self._P = P
+        self._num_sorted_samples = len(sorted_arr)
+        self._set_tp_fp(true_arr, sorted_arr)
+
+    def _set_tp_fp(self, true_samples, sorted_samples):
+        from numpy import searchsorted, asarray
+
+        true_arr = asarray(true_samples, int)
+        true_arr.sort()
+
+        sorted_arr = asarray(sorted_samples, int)
+        ins_pos = searchsorted(true_arr, sorted_arr)
+
+        self._TP[0] = 0
+        self._FP[0] = 0
+        i = 0
+        while i < len(sorted_arr):
+            self._FP[i + 1] = self._FP[i]
+            self._TP[i + 1] = self._TP[i]
+
+            j = ins_pos[i]
+            if j == len(true_arr) or true_arr[j] != sorted_arr[i]:
+                self._FP[i + 1] += 1
+            else:
+                self._TP[i + 1] += 1
+            i += 1
 
     @property
     def TP(self):
-        return getter(lambda i: self._TP[i])
+        return self._TP
 
     @property
     def FP(self):
-        return getter(lambda i: self._FP[i])
+        return self._FP
 
     @property
     def TN(self):
-        return getter(lambda i: self._N - self.FP[i])
+        return self._N - self.FP
 
     @property
     def FN(self):
-        return getter(lambda i: self._P - self.TP[i])
+        return self._P - self.TP
 
     @property
     def sensitivity(self):
         """ Sensitivity (also known as true positive rate.)
         """
-        return getter(lambda i: self.TP[i] / self._P)
+        return self.TP / self._P
 
     @property
     def tpr(self):
@@ -223,27 +256,35 @@ class ConfusionMatrix(object):
     def specifity(self):
         """ Specifity (also known as true negative rate.)
         """
-        return getter(lambda i: self.TN[i] / self._N)
+        return self.TN / self._N
 
     @property
     def precision(self):
-        from numpy import nan
+        from numpy import nan, empty
 
-        return getter(
-            lambda i: nan if i == 0 else self.TP[i] / (self.TP[i] + self.FP[i])
-        )
+        r = empty(self._num_sorted_samples + 1)
+        r[0] = nan
+        r[1:] = self.TP[1:] / (self.TP[1:] + self.FP[1:])
+
+        return r
 
     @property
     def npv(self):
         """ Negative predictive value.
         """
-        return getter(lambda i: self.TN[i] / (self.TN[i] + self.FN[i]))
+        from numpy import nan, empty
+
+        r = empty(self._num_sorted_samples + 1)
+        r[-1] = nan
+        r[:-1] = self.TN[:-1] / (self.TN[:-1] + self.FN[:-1])
+
+        return r
 
     @property
     def fallout(self):
         """ Fall-out (also known as false positive rate.)
         """
-        return getter(lambda i: 1 - self.specifity[i])
+        return 1 - self.specifity
 
     @property
     def fpr(self):
@@ -253,32 +294,31 @@ class ConfusionMatrix(object):
     def fnr(self):
         """ False negative rate.
         """
-        return getter(lambda i: 1 - self.sensitivity[i])
+        return 1 - self.sensitivity
 
     @property
     def fdr(self):
         """ False discovery rate.
         """
-        return getter(lambda i: 1 - self.precision[i])
+        return 1 - self.precision
 
     @property
     def accuracy(self):
         """ Accuracy.
         """
-        return getter(lambda i: (self.TP[i] + self.TN[i]) / (self._N + self._P))
+        return (self.TP + self.TN) / (self._N + self._P)
 
     @property
     def f1score(self):
         """ F1 score (harmonic mean of precision and sensitivity).
         """
+        return 2 * self.TP / (2 * self.TP + self.FP + self.FN)
 
-        def denominator(i):
-            return 2 * self.TP[i] + self.FP[i] + self.FN[i]
-
-        return getter(lambda i: 2 * self.TP[i] / denominator(i))
-
-    def roc(self):
+    def roc(self) -> ROC:
         from numpy import argsort
+
+        if self._num_sorted_samples < 1:
+            raise ValueError("Not enough sorted samples.")
 
         tpr = self.tpr[1:]
         fpr = self.fpr[1:]
@@ -287,31 +327,4 @@ class ConfusionMatrix(object):
         fpr = fpr[idx]
         tpr = tpr[idx]
 
-        return (fpr, tpr)
-
-
-def auc(fpr, tpr):
-    left = fpr[0]
-    area = 0.0
-    for i in range(1, len(fpr)):
-        width = fpr[i] - left
-        area += width * tpr[i - 1]
-        left = fpr[i]
-    area += (1 - left) * tpr[-1]
-    return area
-
-
-def _confusion_matrix_tp_fp(n, ins_pos, true_set, idx_rank, TP, FP):
-    TP[0] = 0
-    FP[0] = 0
-    i = 0
-    while i < n:
-        FP[i + 1] = FP[i]
-        TP[i + 1] = TP[i]
-
-        j = ins_pos[i]
-        if j == len(true_set) or true_set[j] != idx_rank[i]:
-            FP[i + 1] += 1
-        else:
-            TP[i + 1] += 1
-        i += 1
+        return ROC(fpr, tpr)
