@@ -56,7 +56,7 @@ def asarray(x, target, dims=None):
 
     for dim in x.dims:
         if x.coords[dim].dtype.kind in {"U", "S"}:
-            x.coords[dim].values = x.coords[dim].values.astype(object)
+            x = x.assign_coords({dim: x.coords[dim].values.astype(object)})
 
     return x
 

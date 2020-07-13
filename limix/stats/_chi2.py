@@ -101,35 +101,35 @@ class Chi2Mixture(object):
         lrt : array_like
             Null test statistcs.
         """
-        import scipy as sp
+        import numpy as np
         import scipy.stats as st
 
         # step 1: estimate the probability of being in component one
         self.mixture = 1 - (lrt <= self.tol).mean()
-        n_false = sp.sum(lrt > self.tol)
+        n_false = np.sum(lrt > self.tol)
 
         # step 2: only use the largest qmax fraction of test statistics to
         #         estimate the remaining parameters
-        n_fitting = int(sp.ceil(self.qmax * n_false))
-        lrt_sorted = -sp.sort(-lrt)[:n_fitting]
-        q = sp.linspace(0, 1, n_false)[1 : n_fitting + 1]
-        log_q = sp.log10(q)
+        n_fitting = int(np.ceil(self.qmax * n_false))
+        lrt_sorted = -np.sort(-lrt)[:n_fitting]
+        q = np.linspace(0, 1, n_false)[1 : n_fitting + 1]
+        log_q = np.log10(q)
 
         # step 3: fitting scale and dof by minimizing the squared error
         #          of the log10 p-values with their theorietical values
         #          [uniform distribution]
-        MSE_opt = sp.inf
-        MSE = sp.zeros((self.n_intervals, self.n_intervals))
+        MSE_opt = np.inf
+        MSE = np.zeros((self.n_intervals, self.n_intervals))
 
         for i, scale in enumerate(
-            sp.linspace(self.scale_min, self.scale_max, self.n_intervals)
+            np.linspace(self.scale_min, self.scale_max, self.n_intervals)
         ):
             for j, dof in enumerate(
-                sp.linspace(self.dof_min, self.dof_max, self.n_intervals)
+                np.linspace(self.dof_min, self.dof_max, self.n_intervals)
             ):
                 p = st.chi2.sf(lrt_sorted / scale, dof)
-                log_p = sp.log10(p)
-                MSE[i, j] = sp.mean((log_q - log_p) ** 2)
+                log_p = np.log10(p)
+                MSE[i, j] = np.mean((log_q - log_p) ** 2)
                 if MSE[i, j] < MSE_opt:
                     MSE_opt = MSE[i, j]
                     self.scale = scale
@@ -148,13 +148,12 @@ class Chi2Mixture(object):
         array_like
             P-values.
         """
-        from numpy import asarray
-        import scipy as sp
+        from numpy import asarray, copy
         import scipy.stats as st
 
         lrt = asarray(lrt, float)
 
-        _lrt = sp.copy(lrt)
+        _lrt = copy(lrt)
         _lrt[lrt < self.tol] = 0
         pv = self.mixture * st.chi2.sf(_lrt / self.scale, self.dof)
         return pv

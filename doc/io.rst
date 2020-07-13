@@ -53,7 +53,7 @@ BGEN reader
      [1. 0. 0. 1.]
      [0. 1. 0. 1.]]
     >>> limix.sh.remove(filepath)
-    >>> limix.sh.remove(filepath + ".metadata")
+    >>> limix.sh.remove(filepath + ".metafile")
 
 CSV reader
 ==========

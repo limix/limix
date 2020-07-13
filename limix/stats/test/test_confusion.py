@@ -1,9 +1,10 @@
-from numpy import asarray, concatenate, sort, zeros
+from numpy import asarray, concatenate, sort, zeros, nan
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 from pandas import DataFrame
 
 from limix.stats import confusion_matrix
+from limix.stats._confusion import auc
 
 
 def test_stats_confusion():
@@ -31,6 +32,19 @@ def test_stats_confusion():
 
     cm = confusion_matrix(df, wsize=5)
 
+    assert_allclose(cm.precision[0], nan)
+    assert_allclose(cm.npv[-1], nan)
+
+    assert_allclose(cm.TP[0], 0)
+    assert_allclose(cm.FP[0], 0)
+    assert_allclose(cm.FN[0], 3)
+    assert_allclose(cm.TN[0], 122)
+
+    assert_allclose(cm.TP[-1], 3)
+    assert_allclose(cm.FP[-1], 122)
+    assert_allclose(cm.FN[-1], 0)
+    assert_allclose(cm.TN[-1], 0)
+
     assert_allclose(cm.TP[90], 2)
     assert_allclose(cm.FP[90], 88)
     assert_allclose(cm.TN[90], 34)
@@ -50,3 +64,5 @@ def test_stats_confusion():
     (fpr, tpr) = cm.roc()
     assert_allclose(fpr[90], 0.729508196721)
     assert_allclose(tpr[90], 0.666666666667)
+
+    assert_allclose(auc(fpr, tpr), 0.28415300546448086)
