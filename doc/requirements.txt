@@ -2,3 +2,4 @@ ipython>=7.6.1
 sphinx>=2.1.2
 sphinx_rtd_theme>=0.4.3
 sphinxcontrib-programoutput>=0.14
+click<8.0.0
