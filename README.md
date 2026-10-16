@@ -16,6 +16,9 @@ We have an extensive [documentation](https://limix.readthedocs.io) of the librar
 If you need further help or want to discuss anything related to limix, please, join our [forum](https://forum.limix.io/) 💬 and have a chat with us 😃.
 In case you have found a bug, please, report it creating an [issue](https://github.com/limix/limix/issues/new).
 
+This is an approved [de.NBI](https://www.denbi.de/) service.
+Please help us improve by taking our short [user survey](https://www.surveymonkey.de/r/denbi-service?sc=hd-hub&tool=limix).
+
 ## Install
 
 > **NOTE**: We will be maintaining limix 2.0.x for a while, in case you find some
